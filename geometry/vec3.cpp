@@ -1,5 +1,5 @@
 #include <math.h>
-#include "_vec3.h"
+#include "vec3.h"
 
 namespace corn::geometry {
     Vec3::Vec3()
