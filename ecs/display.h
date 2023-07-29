@@ -2,7 +2,7 @@
 
 #include "system.h"
 
-namespace corn::system {
+namespace corn::ecs {
     class Display : public System {
 
     };

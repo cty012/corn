@@ -1,6 +1,6 @@
 #pragma once
 
-namespace corn::system {
+namespace corn::ecs {
     class System {
 
     };
