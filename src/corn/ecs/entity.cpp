@@ -1,4 +1,4 @@
-#include <ecs/entity.h>
+#include <corn/ecs/entity.h>
 
 
 namespace corn {

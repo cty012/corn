@@ -1,4 +1,4 @@
-#include <main/scene.h>
+#include <corn/core/scene.h>
 
 
 namespace corn {

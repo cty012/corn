@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include <ecs/entity.h>
-#include <ecs/system.h>
+#include <corn/ecs/entity.h>
+#include <corn/ecs/system.h>
 
 
 namespace corn {
