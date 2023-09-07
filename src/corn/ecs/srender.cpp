@@ -1,8 +1,8 @@
-#include <corn/ecs/system.h>
+#include <corn/ecs.h>
 
 
 namespace corn {
-    void SRender::fixedUpdate() override {
+    void SRender::update(double milsec) {
         // TODO
     }
 }

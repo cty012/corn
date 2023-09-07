@@ -8,7 +8,7 @@
 namespace corn {
     class Scene {
     private:
-        unsigned int uniqueId;
+        unsigned long long uniqueId;
         EntityManager entityManager;
         std::vector<System*> systems;
 

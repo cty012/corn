@@ -2,6 +2,7 @@
 
 #include <concepts>
 #include <vector>
+#include <corn/ecs/component.h>
 
 template <typename T>
 concept ComponentType = std::derived_from<T, corn::Component>;
@@ -12,9 +13,10 @@ namespace corn {
     private:
         unsigned int uniqueId;
         std::vector<Component*> components;
+        Entity();
+        friend class EntityManager;
 
     public:
-        Entity();
         ~Entity();
 
         /**

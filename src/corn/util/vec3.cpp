@@ -1,5 +1,5 @@
-#include <math.h>
-#include <corn/util/geometry.h>
+#include <cmath>
+#include <corn/util.h>
 
 
 namespace corn {
@@ -25,15 +25,15 @@ namespace corn {
     }
 
     Vec3 Vec3::operator-() const {
-        return Vec3(-this->x, -this->y, -this->z);
+        return {-this->x, -this->y, -this->z};
     }
 
     Vec3 Vec3::operator+(const Vec3 &other) const {
-        return Vec3(this->x + other.x, this->y + other.y, this->z + other.z);
+        return {this->x + other.x, this->y + other.y, this->z + other.z};
     }
 
     Vec3 Vec3::operator-(const Vec3 &other) const {
-        return Vec3(this->x - other.x, this->y - other.y, this->z - other.z);
+        return {this->x - other.x, this->y - other.y, this->z - other.z};
     }
 
     Vec3& Vec3::operator+=(const Vec3 &other) {
@@ -55,15 +55,15 @@ namespace corn {
     }
 
     Vec3 Vec3::operator*(const Vec3 &other) const {
-        return Vec3(this->x * other.x, this->y * other.y, this->z * other.z);
+        return {this->x * other.x, this->y * other.y, this->z * other.z};
     }
 
     Vec3 Vec3::mult(double factor) const {
-        return Vec3(this->x * factor, this->y * factor, this->z * factor);
+        return {this->x * factor, this->y * factor, this->z * factor};
     }
 
     double Vec3::norm() const {
-        return sqrt(this->dot(*this));
+        return std::sqrt(this->dot(*this));
     }
 
     Vec3 Vec3::normalize() const {

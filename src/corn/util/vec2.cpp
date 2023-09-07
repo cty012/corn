@@ -1,5 +1,5 @@
-#include <math.h>
-#include <corn/util/geometry.h>
+#include <cmath>
+#include <corn/util.h>
 
 
 namespace corn {
@@ -9,8 +9,7 @@ namespace corn {
     Vec2::Vec2(double x, double y)
         : x(x), y(y) {}
 
-    Vec2::Vec2(const Vec2 &other)
-        : x(other.x), y(other.y) {}
+    Vec2::Vec2(const Vec2 &other) = default;
 
     Vec2 &Vec2::operator=(const Vec2 &other) {
         if (this == &other) return *this;
@@ -24,15 +23,15 @@ namespace corn {
     }
 
     Vec2 Vec2::operator-() const {
-        return Vec2(-this->x, -this->y);
+        return {-this->x, -this->y};
     }
 
     Vec2 Vec2::operator+(const Vec2 &other) const {
-        return Vec2(this->x + other.x, this->y + other.y);
+        return {this->x + other.x, this->y + other.y};
     }
 
     Vec2 Vec2::operator-(const Vec2 &other) const {
-        return Vec2(this->x - other.x, this->y - other.y);
+        return {this->x - other.x, this->y - other.y};
     }
 
     Vec2& Vec2::operator+=(const Vec2 &other) {
@@ -52,15 +51,15 @@ namespace corn {
     }
 
     Vec2 Vec2::operator*(const Vec2 &other) const {
-        return Vec2(this->x * other.x, this->y * other.y);
+        return {this->x * other.x, this->y * other.y};
     }
 
     Vec2 Vec2::mult(double factor) const {
-        return Vec2(this->x * factor, this->y * factor);
+        return {this->x * factor, this->y * factor};
     }
 
     double Vec2::norm() const {
-        return sqrt(this->dot(*this));
+        return std::sqrt(this->dot(*this));
     }
 
     Vec2 Vec2::normalize() const {

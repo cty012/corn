@@ -1,9 +1,10 @@
 #pragma once
 
-#include <corn/core/scene.h>
-
 
 namespace corn {
+    class Scene;
+
+
     class System {
     private:
         Scene& scene;
@@ -13,9 +14,9 @@ namespace corn {
         System(Scene& scene);
         ~System() = default;
         /**
-         * If active, will be called once per fixed number of frames
+         * If active, will be called repeatedly during game loop
          */
-        virtual void fixedUpdate();
+        virtual void update(double milsec);
     };
 
 
@@ -28,7 +29,9 @@ namespace corn {
     /**
      * Renders all sprites on the canvas. Only one camera will be used.
      */
-    class SRender : public System {};
+    class SRender : public System {
+        void update(double milsec) override;
+    };
 
 
     /**
