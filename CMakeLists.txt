@@ -28,4 +28,11 @@ add_executable(corn
         src/corn/util/vec2.cpp
         src/corn/util/vec3.cpp
         src/main.cpp
-        src/corn/core/game.cpp)
+        src/corn/core/game.cpp
+        src/corn/event/event_manager.cpp
+        include/corn/event.h
+        include/corn/event/event_manager.h
+        include/corn/event/event_args.h
+        include/corn/event/input.h
+        include/corn/util/exceptions.h
+        src/corn/event/event_args.cpp)

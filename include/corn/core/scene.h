@@ -6,15 +6,19 @@
 
 
 namespace corn {
+    enum class SceneOperation {
+        PUSH, POP, REPLACE, REPLACE_ALL,
+    };
+
     class Scene {
+    public:
+        Scene();
+        ~Scene();
+        void update();
+
     private:
         unsigned long long uniqueId;
         EntityManager entityManager;
         std::vector<System*> systems;
-
-    public:
-        Scene();
-        ~Scene();
-        void fixedUpdate();
     };
 }

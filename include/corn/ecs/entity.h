@@ -9,13 +9,7 @@ concept ComponentType = std::derived_from<T, corn::Component>;
 
 
 namespace corn {
-    class Entity {
-    private:
-        unsigned int uniqueId;
-        std::vector<Component*> components;
-        Entity();
-        friend class EntityManager;
-
+    class Entity final {
     public:
         ~Entity();
 
@@ -42,19 +36,25 @@ namespace corn {
          */
         template <ComponentType T>
         bool removeComponent();
+
+    private:
+        unsigned int uniqueId;
+        std::vector<Component*> components;
+        friend class EntityManager;
+        /**
+         * Private constructor
+         */
+        Entity();
     };
 
 
     class EntityManager {
-    private:
-        std::vector<Entity> entities;
-
     public:
         EntityManager();
         ~EntityManager() = default;
         // TODO: add/get/remove entities
+
+    private:
+        std::vector<Entity> entities;
     };
-
-
-    class ECamera : public Entity {};
 }

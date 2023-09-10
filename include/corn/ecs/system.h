@@ -6,8 +6,6 @@ namespace corn {
 
 
     class System {
-    private:
-        Scene& scene;
     public:
         bool active = true;
 
@@ -17,6 +15,9 @@ namespace corn {
          * If active, will be called repeatedly during game loop
          */
         virtual void update(double milsec);
+
+    private:
+        Scene& scene;
     };
 
 
@@ -30,6 +31,7 @@ namespace corn {
      * Renders all sprites on the canvas. Only one camera will be used.
      */
     class SRender : public System {
+    public:
         void update(double milsec) override;
     };
 

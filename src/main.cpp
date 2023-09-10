@@ -1,12 +1,10 @@
-//
-// Created by cty012 on 9/7/2023.
-//
-
 #include <iostream>
 #include <corn/core.h>
 
 int main() {
-    corn::Game game;
-    std::cout << "Hello world!" << std::endl;
+    corn::Game game(new corn::Scene());
+    std::cout << "Game start" << std::endl;
+    game.run();
+    std::cout << "Game over" << std::endl;
     return 0;
 }
