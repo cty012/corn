@@ -1,6 +1,5 @@
 #pragma once
 
-
 namespace corn {
     /**
      * 2D vector class
@@ -34,7 +33,6 @@ namespace corn {
         Vec2 normalize() const;
         friend double dist(const Vec2& v1, const Vec2& v2);
     };
-
 
     /**
      * 3D vector class

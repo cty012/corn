@@ -1,11 +1,8 @@
-#include <corn/core.h>
-
+#include <corn/core/scene.h>
 
 namespace corn {
     Scene::Scene(): entityManager(EntityManager()), systems(std::vector<System*>()) {
         // TODO
-        static unsigned long long uniqueId = 0;
-        this->uniqueId = uniqueId++;
     }
 
     Scene::~Scene() {
@@ -16,7 +13,7 @@ namespace corn {
         // TODO
         for (System* system : this->systems) {
             if (system->active) {
-                system->update(0.01); // TODO: use timer to get actual time
+                system->update();
             }
         }
     }

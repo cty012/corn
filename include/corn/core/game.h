@@ -4,7 +4,6 @@
 #include <corn/core/scene.h>
 #include <corn/event/event_manager.h>
 
-
 namespace corn {
     class Game {
     public:

@@ -1,16 +1,12 @@
-#include <corn/ecs.h>
-
+#include <corn/ecs/entity.h>
 
 namespace corn {
     Entity::Entity(): components(std::vector<Component*>()) {
-        static unsigned int uniqueId = 0;
-        this->uniqueId = uniqueId++;
+        static unsigned long long int uid = 0;
+        this->uniqueId = uid++;
     }
 
     Entity::~Entity() {
         // TODO
     }
-
-    EntityManager::EntityManager()
-        : entities(std::vector<Entity>()) {}
 }

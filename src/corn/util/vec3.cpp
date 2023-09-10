@@ -1,6 +1,5 @@
 #include <cmath>
-#include <corn/util.h>
-
+#include <corn/util/geometry.h>
 
 namespace corn {
     Vec3::Vec3()

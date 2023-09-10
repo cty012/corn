@@ -1,43 +1,34 @@
 #pragma once
 
+#include <corn/ecs/entity_manager.h>
 
 namespace corn {
-    class Scene;
-
-
     class System {
     public:
         bool active = true;
 
-        System(Scene& scene);
+        explicit System(EntityManager& entityManager);
         ~System() = default;
+        /**
+         * Returns the number of milliseconds since the last update. If there are no previous updates then the object's
+         * creation time is used. Only count the milliseconds during which active is true
+         * @return Number of milliseconds
+         */
+        [[nodiscard]] double milsec() const;
         /**
          * If active, will be called repeatedly during game loop
          */
-        virtual void update(double milsec);
+        virtual void update() = 0;
 
     private:
-        Scene& scene;
+        EntityManager& entityManager;
     };
-
-
-    /**
-     * Detects user input (keyboard & mouse only)
-     */
-    class SUserInput : public System {};
-
-
-    /**
-     * Renders all sprites on the canvas. Only one camera will be used.
-     */
-    class SRender : public System {
-    public:
-        void update(double milsec) override;
-    };
-
 
     /**
      * Calculates and resolves collision.
      */
-    class SPhysics : public System {};
+    class SPhysics : public System {
+    public:
+        void update() override;
+    };
 }

@@ -4,7 +4,6 @@
  * Defines all custom exceptions
  */
 
-
 #include <stdexcept>
 
 namespace corn {

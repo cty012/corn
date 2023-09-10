@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include <string>
 #include <corn/event/input.h>
 
 namespace corn {

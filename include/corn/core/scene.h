@@ -4,7 +4,6 @@
 #include <corn/ecs/entity.h>
 #include <corn/ecs/system.h>
 
-
 namespace corn {
     enum class SceneOperation {
         PUSH, POP, REPLACE, REPLACE_ALL,
@@ -17,7 +16,6 @@ namespace corn {
         void update();
 
     private:
-        unsigned long long uniqueId;
         EntityManager entityManager;
         std::vector<System*> systems;
     };

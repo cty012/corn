@@ -7,7 +7,6 @@
 template <typename T>
 concept ComponentType = std::derived_from<T, corn::Component>;
 
-
 namespace corn {
     class Entity final {
     public:
@@ -45,16 +44,5 @@ namespace corn {
          * Private constructor
          */
         Entity();
-    };
-
-
-    class EntityManager {
-    public:
-        EntityManager();
-        ~EntityManager() = default;
-        // TODO: add/get/remove entities
-
-    private:
-        std::vector<Entity> entities;
     };
 }

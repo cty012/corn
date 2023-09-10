@@ -1,6 +1,5 @@
 #include <stdexcept>
-#include <corn/core.h>
-
+#include <corn/core/game.h>
 
 namespace corn {
     Game::Game(Scene* startScene): scenes(std::stack<Scene*>()) {
@@ -62,12 +61,11 @@ namespace corn {
     int Game::run() {
         while (true) {
             if (this->scenes.empty()) break;
-            // Update
+            // Update scene
             this->scenes.top()->update();
-            // Render TODO
-
-            // Process user input TODO
-
+            // Update game-level systems
+            // TODO: user input
+            // TODO: render
         }
         return 0;
     }

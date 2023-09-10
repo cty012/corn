@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <functional>
 #include <map>
 #include <queue>
@@ -14,7 +13,7 @@ namespace corn {
      */
     class EventManager {
     public:
-        using ListenerID = int;
+        using ListenerID = unsigned long long int;
         using Action = std::function<void(const EventArgs&)>;
 
         /**

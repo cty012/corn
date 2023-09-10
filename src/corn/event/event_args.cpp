@@ -1,5 +1,4 @@
-#include <corn/event.h>
-
+#include <corn/event/event_args.h>
 
 namespace corn {
     EventArgsKeyboard::EventArgsKeyboard(Key key): key(key) {}
