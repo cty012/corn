@@ -1,4 +1,6 @@
 # CORN Game Engine (_still in development_)
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/cty012/corn/blob/main/LICENSE)
+[![Version](https://img.shields.io/badge/version-1.0.0-red.svg)](https://github.com/cty012/corn)
 
  A simple 2D game engine written in C++.
 
