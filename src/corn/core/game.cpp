@@ -1,17 +1,22 @@
-#include <stdexcept>
 #include <corn/core/game.h>
 
 namespace corn {
-    Game::Game(Scene* startScene): scenes(std::stack<Scene*>()) {
+    Game::Game(Scene* startScene, Config* config): scenes(std::stack<Scene*>()) {
         this->scenes.push(startScene);
         // Register event listeners
         this->sceneEventId = EventManager::instance().addListener(
                 "corn::game::scene", [this](const EventArgs &args) {
                     this->onSceneEvent(dynamic_cast<const EventArgsScene&>(args));
                 });
+        // Use default settings if not specified
+        this->config = config != nullptr ? config : new Config();
+        this->display = new Display(this->config);
+        this->display->init();
     }
 
     Game::~Game() {
+        delete this->display;
+        delete this->config;
         this->removeAllScenes();
         // Unregister event listeners
         EventManager::instance().removeListener(this->sceneEventId);
@@ -33,8 +38,6 @@ namespace corn {
                 this->removeAllScenes();
                 this->scenes.push(scene);
                 break;
-            default:
-                throw std::invalid_argument("Invalid argument for scene event");
         }
     }
 
@@ -65,7 +68,8 @@ namespace corn {
             this->scenes.top()->update();
             // Update game-level systems
             // TODO: user input
-            // TODO: render
+            this->display->render(this->scenes.top());
+            this->display->update();
         }
         return 0;
     }

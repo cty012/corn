@@ -1,13 +1,15 @@
 #pragma once
 
 #include <stack>
+#include <corn/core/display.h>
 #include <corn/core/scene.h>
 #include <corn/event/event_manager.h>
+#include <corn/util/config.h>
 
 namespace corn {
     class Game {
     public:
-        explicit Game(Scene* startScene);
+        explicit Game(Scene* startScene, Config* config = nullptr);
         ~Game();
 
         /**
@@ -25,7 +27,12 @@ namespace corn {
         bool removeOneScene();
         size_t removeAllScenes();
 
+        /**
+         * Game settings (e.g. resolution, display mode, volume, etc.).
+         */
+        Config* config;
         std::stack<Scene*> scenes;
         EventManager::ListenerID sceneEventId;
+        Display* display;
     };
 }
