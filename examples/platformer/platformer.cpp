@@ -1,5 +1,5 @@
 #include <iostream>
-#include <corn/core.h>
+#include "corn/core.h"
 
 int main() {
     corn::Config config;
