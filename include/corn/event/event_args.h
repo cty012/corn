@@ -1,7 +1,8 @@
 #pragma once
 
 #include <string>
-#include <corn/event/input.h>
+#include <corn/core/input.h>
+#include <corn/util/geometry.h>
 
 namespace corn {
     class EventArgs {
@@ -10,26 +11,46 @@ namespace corn {
          * @return Type of the event
          */
         [[nodiscard]] virtual std::string type() const = 0;
-    protected:
-        std::string eventType;
+    };
+
+    class EventArgsClose : public EventArgs {
+    public:
+        [[nodiscard]] std::string type() const override;
     };
 
     class EventArgsKeyboard : public EventArgs {
     public:
-        explicit EventArgsKeyboard(Key key);
+        explicit EventArgsKeyboard(Key key, KeyEvent keyEvent, unsigned char modifiers, const Vec2& mousePos);
         [[nodiscard]] std::string type() const override;
         [[nodiscard]] Key getKey() const;
+        [[nodiscard]] KeyEvent getKeyEvent() const;
+        [[nodiscard]] unsigned char getModifiers() const;
+        [[nodiscard]] const Vec2& getMousePos() const;
+
     private:
         Key key;
+        KeyEvent keyEvent;
+        /**
+         * modifiers & (1 << 3): SYS key
+         * modifiers & (1 << 2): CTRL key
+         * modifiers & (1 << 1): SHIFT key
+         * modifiers & (1 << 0): ALT key
+         */
+        unsigned char modifiers;
+        Vec2 mousePos;
     };
 
     class EventArgsMouse : public EventArgs {
     public:
-        explicit EventArgsMouse(Mouse mouse);
+        explicit EventArgsMouse(MouseEvent mouseEvent, double value, const Vec2& mousePos);
         [[nodiscard]] std::string type() const override;
-        [[nodiscard]] Mouse getMouse() const;
+        [[nodiscard]] MouseEvent getMouseEvent() const;
+        [[nodiscard]] double getValue() const;
+        [[nodiscard]] const Vec2& getMousePos() const;
     private:
-        Mouse mouse;
+        MouseEvent mouseEvent;
+        double value;
+        Vec2 mousePos;
     };
 
     class Scene;

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stack>
-#include <corn/core/display.h>
+#include <corn/core/interface.h>
 #include <corn/core/scene.h>
 #include <corn/event/event_manager.h>
 #include <corn/util/config.h>
@@ -23,16 +23,20 @@ namespace corn {
         int run();
 
     private:
-        void onSceneEvent(const EventArgsScene& args);
         bool removeOneScene();
         size_t removeAllScenes();
+
+        void onSceneEvent(const EventArgsScene& args);
+        void onCloseEvent(const EventArgsClose &args);
 
         /**
          * Game settings (e.g. resolution, display mode, volume, etc.).
          */
+        bool active;
         Config* config;
         std::stack<Scene*> scenes;
         EventManager::ListenerID sceneEventId;
-        Display* display;
+        EventManager::ListenerID closeEventId;
+        Interface* interface;
     };
 }
