@@ -1,4 +1,4 @@
-#include <format>
+#include <cstdio>
 #include <corn/util/color.h>
 
 namespace corn {
@@ -28,6 +28,8 @@ namespace corn {
     }
 
     std::string Color::hexString() const {
-        return std::format("{:08X}{:08X}{:08X}", this->red, this->green, this->blue);
+        char hexStr[8];
+        std::snprintf(hexStr, sizeof(hexStr), "#%02X%02X%02X", this->red, this->green, this->blue);
+        return {hexStr};
     }
 }
