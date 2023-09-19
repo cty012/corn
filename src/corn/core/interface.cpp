@@ -3,10 +3,10 @@
 #include <corn/util/geometry.h>
 
 namespace corn {
-    Interface::Interface(Config *config): config(config), window(new sf::RenderWindow()) {}
+    Interface::Interface(const Config* config): config(config), window(new sf::RenderWindow()) {}
 
     Interface::~Interface() {
-        this->window->close();  // TODO
+        this->window->close();
         delete this->window;
     }
 

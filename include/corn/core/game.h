@@ -9,8 +9,19 @@
 namespace corn {
     class Game {
     public:
-        explicit Game(Scene* startScene, Config* config = nullptr);
+        explicit Game(Scene* startScene, Config config = Config());
         ~Game();
+
+        /**
+         * Get a const reference to the game's config data.
+         * @return Config data of the game object
+         */
+        [[nodiscard]] const Config& getConfig() const;
+
+        /**
+         * Update the game's config data.
+         */
+        void setConfig(Config newConfig);
 
         /**
          * Change the current active scene. Only the top scene on the scene stack will be active. Note that the
@@ -33,7 +44,7 @@ namespace corn {
          * Game settings (e.g. resolution, display mode, volume, etc.).
          */
         bool active;
-        Config* config;
+        Config config;
         std::stack<Scene*> scenes;
         EventManager::ListenerID sceneEventId;
         EventManager::ListenerID closeEventId;

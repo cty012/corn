@@ -45,4 +45,4 @@ function(build_example EXAMPLE_NAME)
     target_link_libraries(${EXAMPLE_NAME} corn)
 endfunction()
 
-build_example(platformer)
+build_example(clangy-bird)

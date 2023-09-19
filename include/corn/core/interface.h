@@ -8,7 +8,7 @@
 namespace corn {
     class Interface {
     public:
-        explicit Interface(Config* settings);
+        explicit Interface(const Config* settings);
         ~Interface();
         Interface(const Interface& other);
         Interface& operator=(const Interface& other);
@@ -22,7 +22,7 @@ namespace corn {
         void update();
 
     private:
-        Config* config;
+        const Config* config;
         sf::RenderWindow* window;
     };
 

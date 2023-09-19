@@ -1,7 +1,11 @@
 #include <corn/core/game.h>
 
+#include <utility>
+
 namespace corn {
-    Game::Game(Scene* startScene, Config* config): active(false), scenes(std::stack<Scene*>()) {
+    Game::Game(Scene* startScene, Config config)
+        : active(false), scenes(std::stack<Scene*>()), config(std::move(config)) {
+
         this->scenes.push(startScene);
 
         // Register event listeners
@@ -14,15 +18,21 @@ namespace corn {
                     this->onCloseEvent(dynamic_cast<const EventArgsClose&>(args));
                 });
 
-        // Use default settings if not specified
-        this->config = config != nullptr ? config : new Config();
-        this->interface = new Interface(this->config);
+        this->interface = new Interface(&this->config);
         this->interface->init();
+    }
+
+    const Config& Game::getConfig() const {
+        return this->config;
+    }
+
+    void Game::setConfig(Config newConfig) {
+        this->config = std::move(newConfig);
+        // TODO: reload settings
     }
 
     Game::~Game() {
         delete this->interface;
-        delete this->config;
         this->removeAllScenes();
         // Unregister event listeners
         EventManager::instance().removeListener(this->sceneEventId);
