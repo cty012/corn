@@ -3,29 +3,39 @@
 #include <corn/ecs/entity_manager.h>
 
 namespace corn {
+    /**
+     * @class System
+     * @brief Base class for all Systems.
+     *
+     * @todo Write detailed description.
+     */
     class System {
     public:
-        bool active = true;
+        /// @brief The update() function will only be called if the system is active.
+        bool active;
 
         explicit System(EntityManager& entityManager);
         ~System() = default;
+
         /**
-         * Returns the number of milliseconds since the last update. If there are no previous updates then the object's
-         * creation time is used. Only count the milliseconds during which active is true
-         * @return Number of milliseconds
+         * @return Number of milliseconds since the last update.
+         * If there are no previous updates then the object's creation time is used. Only count the milliseconds
+         * during which active is true.
          */
         [[nodiscard]] double milsec() const;
-        /**
-         * If active, will be called repeatedly during game loop
-         */
+        /// @brief If active, will be called repeatedly during game loop.
         virtual void update() = 0;
 
-    private:
+    protected:
         EntityManager& entityManager;
     };
 
     /**
-     * Calculates and resolves collision.
+     * @class SPhysics
+     * @brief Calculates and resolves collision.
+     *
+     * @todo Implement this class.
+     * @todo Write detailed description.
      */
     class SPhysics : public System {
     public:

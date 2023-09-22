@@ -1,8 +1,8 @@
 #include <corn/event/event_args.h>
 
 namespace corn {
-    std::string EventArgsClose::type() const {
-        return "corn::input::close";
+    std::string EventArgsExit::type() const {
+        return "corn::input::exit";
     }
 
     EventArgsKeyboard::EventArgsKeyboard(Key key, KeyEvent keyEvent, unsigned char modifiers, const Vec2& mousePos)

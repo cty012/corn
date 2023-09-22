@@ -13,7 +13,7 @@ namespace corn {
         [[nodiscard]] virtual std::string type() const = 0;
     };
 
-    class EventArgsClose : public EventArgs {
+    class EventArgsExit : public EventArgs {
     public:
         [[nodiscard]] std::string type() const override;
     };
@@ -30,12 +30,10 @@ namespace corn {
     private:
         Key key;
         KeyEvent keyEvent;
-        /**
-         * modifiers & (1 << 3): SYS key
-         * modifiers & (1 << 2): CTRL key
-         * modifiers & (1 << 1): SHIFT key
-         * modifiers & (1 << 0): ALT key
-         */
+        // modifiers & (1 << 3): SYS key
+        // modifiers & (1 << 2): CTRL key
+        // modifiers & (1 << 1): SHIFT key
+        // modifiers & (1 << 0): ALT key
         unsigned char modifiers;
         Vec2 mousePos;
     };

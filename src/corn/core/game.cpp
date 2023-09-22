@@ -14,8 +14,8 @@ namespace corn {
                     this->onSceneEvent(dynamic_cast<const EventArgsScene&>(args));
                 });
         this->closeEventId = EventManager::instance().addListener(
-                "corn::input::close", [this](const EventArgs &args) {
-                    this->onCloseEvent(dynamic_cast<const EventArgsClose&>(args));
+                "corn::input::exit", [this](const EventArgs &args) {
+                    this->onExitEvent(dynamic_cast<const EventArgsExit&>(args));
                 });
 
         this->interface = new Interface(&this->config);
@@ -32,11 +32,16 @@ namespace corn {
     }
 
     Game::~Game() {
-        delete this->interface;
-        this->removeAllScenes();
         // Unregister event listeners
         EventManager::instance().removeListener(this->sceneEventId);
         EventManager::instance().removeListener(this->closeEventId);
+        // Deallocation
+        delete this->interface;
+        this->removeAllScenes();
+        while (!this->sceneEvents.empty()) {
+            delete this->sceneEvents.front().getScene();
+            this->sceneEvents.pop();
+        }
     }
 
     void Game::changeScene(corn::SceneOperation op, corn::Scene *scene) {
@@ -75,10 +80,18 @@ namespace corn {
     }
 
     void Game::onSceneEvent(const EventArgsScene& args) {
-        this->changeScene(args.getOperation(), args.getScene());
+        this->sceneEvents.push(args);
     }
 
-    void Game::onCloseEvent(const EventArgsClose& args) {
+    void Game::resolveSceneEvents() {
+        while (!this->sceneEvents.empty()) {
+            EventArgsScene& args = this->sceneEvents.front();
+            this->changeScene(args.getOperation(), args.getScene());
+            this->sceneEvents.pop();
+        }
+    }
+
+    void Game::onExitEvent(const EventArgsExit& args) {
         this->active = false;
     }
 
@@ -87,10 +100,14 @@ namespace corn {
         while (this->active && !this->scenes.empty()) {
             // Update scene
             this->scenes.top()->update();
+
             // Update interface
             this->interface->handleUserInput();
             this->interface->render(this->scenes.top());
             this->interface->update();
+
+            // Update scene stack
+            this->resolveSceneEvents();
         }
         return 0;
     }

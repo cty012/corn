@@ -37,7 +37,7 @@ namespace corn {
         while (this->window->pollEvent(event)) {
             switch (event.type) {
                 case (sf::Event::Closed): {
-                    EventManager::instance().emit(EventArgsClose());
+                    EventManager::instance().emit(EventArgsExit());
                     break;
                 }
                 case (sf::Event::MouseButtonPressed):
