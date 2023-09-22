@@ -1,9 +1,12 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
 #include <corn/core/input.h>
 #include <corn/core/scene.h>
 #include <corn/util/config.h>
+
+namespace sf {
+    class RenderWindow;
+}
 
 namespace corn {
     class Interface {
@@ -25,11 +28,4 @@ namespace corn {
         const Config* config;
         sf::RenderWindow* window;
     };
-
-    DisplayMode sfStyle2CornMode(unsigned int style);
-    unsigned int cornMode2SfStyle(DisplayMode mode);
-
-    Key sfInput2CornInput(sf::Keyboard::Key key, sf::Keyboard::Scancode code);
-    MouseEvent sfInput2CornInput(sf::Mouse::Button button);
-    MouseEvent sfInput2CornInput(sf::Mouse::Wheel wheel);
 }

@@ -6,13 +6,14 @@ namespace corn {
     // TODO: all
     class Component {
     public:
-        Component();
+        Component() = default;
+        virtual ~Component() = 0;
     };
 
     class CTransform : public Component {
     public:
         CTransform();
-        ~CTransform();
+        ~CTransform() override;
 
     private:
         Vec2 position;

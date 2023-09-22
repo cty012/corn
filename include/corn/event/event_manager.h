@@ -1,9 +1,9 @@
 #pragma once
 
 #include <functional>
-#include <map>
 #include <queue>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <corn/event/event_args.h>
 
@@ -44,7 +44,7 @@ namespace corn {
         int emit(const EventArgs& args);
 
     private:
-        std::map<std::string, std::vector<std::pair<ListenerID, Action>>> listeners;
+        std::unordered_map<std::string, std::vector<std::pair<ListenerID, Action>>> listeners;
 
         EventManager() = default;
         ~EventManager() = default;

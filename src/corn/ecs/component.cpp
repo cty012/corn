@@ -2,5 +2,4 @@
 
 namespace corn {
     // TODO: all
-    Component::Component() {}
 }

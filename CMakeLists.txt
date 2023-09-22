@@ -35,7 +35,7 @@ include_directories(include)
 
 # Build the DLL for the library
 add_library(corn SHARED ${HEADERS} ${SOURCES})
-target_link_libraries(corn ${SFML_LIBRARIES})
+target_link_libraries(corn PRIVATE ${SFML_LIBRARIES})
 
 # Build the examples
 function(build_example EXAMPLE_NAME)

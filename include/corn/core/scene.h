@@ -12,11 +12,13 @@ namespace corn {
     class Scene {
     public:
         Scene();
-        ~Scene();
+        virtual ~Scene();
         void update();
 
-    private:
+    protected:
         EntityManager entityManager;
+
+    private:
         std::vector<System*> systems;
     };
 }

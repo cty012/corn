@@ -1,48 +1,85 @@
 #pragma once
 
 #include <concepts>
+#include <string>
+#include <typeindex>
+#include <typeinfo>
+#include <unordered_map>
 #include <vector>
 #include <corn/ecs/component.h>
 
-template <typename T>
-concept ComponentType = std::derived_from<T, corn::Component>;
 
 namespace corn {
+    template <typename T>
+    concept ComponentType = std::derived_from<T, corn::Component>;
+
+    class EntityManager;
+
+    /**
+     * @class Entity
+     * @brief Entities in the ECS architecture.
+     *
+     * The Entity class does nothing but serves as a container for Components. They should not be created or destroyed
+     * directly. Instead, their lifetime is managed by the Entity Manager.
+     *
+     * @see EntityManager
+     * @see Component
+     * @see System
+     */
     class Entity final {
     public:
-        ~Entity();
+        using EntityID = unsigned long long int;
+
+        /// @brief Reference to the Entity Manager that created this Entity
+        EntityManager& entityManager;
 
         /**
-         * Attaching a component to the entity if not already exist
-         * @tparam T Type of the component
-         * @return Pointer to the component if successfully added, else null
+         * @return The unique ID of the Entity.
+         *
+         * The unique ID starts from 0 and adds one for each new Entity created within a game session. After it reaches
+         * the max value of EntityID, it goes back to 0.
          */
-        template <ComponentType T>
-        T* addComponent();
+        EntityID id() const;
+
+        void destroy();
 
         /**
-         * Obtain the corresponding component if exist
-         * @tparam T Type of the component
-         * @return Pointer to the component if exist, else null
+         * @brief Attach a Component to the Entity if not already exists.
+         * @tparam T Type of the Component, must derive from Component class.
+         * @param args Arguments for constructing the Component
+         * @return Pointer to the Component if successfully added, else null pointer.
+         */
+        template <ComponentType T, typename... Args>
+        T* addComponent(Args&&... args);
+
+        /**
+         * @brief Obtain the corresponding Component if exists.
+         * @tparam T Type of the Component, must derive from Component class.
+         * @return Pointer to the Component if exists, else null pointer.
          */
         template <ComponentType T>
         T* getComponent();
 
         /**
-         * Removing a component from the entity if exist
-         * @tparam T Type of the component
-         * @return Whether the component is successfully removed
+         * @brief Removing a Component from the Entity if exists.
+         * @tparam T Type of the Component, must derive from Component class.
+         * @return Whether the Component originally exists.
          */
         template <ComponentType T>
         bool removeComponent();
 
     private:
-        unsigned int uniqueId;
-        std::vector<Component*> components;
+        EntityID uniqueId;
+        std::string name;
+        /// List of all attached Components
+        std::unordered_map<std::type_index, Component*> components;
+
+        // Private constructor/destructor
+        explicit Entity(std::string name, EntityManager& entityManager);
+        ~Entity();
+        Entity(const Entity& other) = delete;
+
+        // EntityManager need access to ctor/dtor
         friend class EntityManager;
-        /**
-         * Private constructor
-         */
-        Entity();
     };
 }
