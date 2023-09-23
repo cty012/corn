@@ -1,14 +1,34 @@
+#include <stack>
+#include <vector>
 #include <corn/ecs/system.h>
 
 namespace corn {
-    System::System(EntityManager& entityManager) : entityManager(entityManager), active(true) {}
+    System::System() : active(true) {}
 
-    double System::milsec() const {
-        // TODO: Add a timer
-        return 0.0;
+    void SMovement2D::update(EntityManager& entityManager, unsigned long long int millis) {
+        std::vector<Entity*> entities = entityManager.getActiveEntities();
+        for (Entity* entity : entities) {
+            auto trans = entity->getComponent<CTransform2D>();
+            auto movement = entity->getComponent<CMovement2D>();
+            if (trans == nullptr || movement == nullptr) continue;
+            trans->location += movement->velocity.mult((double)millis / 1000.0);
+        }
     }
 
-    void SPhysics::update() {
+    SGravity::SGravity(double scale) : scale(scale) {}
+
+    void SGravity::update(EntityManager& entityManager, unsigned long long int millis) {
+        std::vector<Entity*> entities = entityManager.getActiveEntities();
+        for (Entity* entity : entities) {
+            auto movement = entity->getComponent<CMovement2D>();
+            auto gravity2D = entity->getComponent<CGravity2D>();
+            // TODO: gravity 3D
+            if (movement == nullptr || gravity2D == nullptr) continue;
+            movement->velocity.y += SGravity::g * this->scale * gravity2D->scale * (double)millis;
+        }
+    }
+
+    void SCollisionDetection::update(EntityManager& entityManager, unsigned long long int millis) {
         // TODO
     }
 }

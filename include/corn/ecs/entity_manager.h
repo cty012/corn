@@ -20,6 +20,23 @@ namespace corn {
         // Entity needs access to the destroyEntity function
         friend class Entity;
 
+        /**
+         * @struct Node
+         * @brief Tree node containing each Entity.
+         */
+        struct Node {
+            Entity* ent;                           // Entity stored in the node
+            Node* parent;                          // Parent node
+            std::vector<Node*> children;           // Child nodes
+            /**
+             * @brief Whether the node's children are sorted by their z-order (small to large)
+             *
+             * False means it must be sorted, and true means it might not be
+             */
+            bool dirty;
+            Node(Entity* ent, Node* parent);
+        };
+
         EntityManager();
         ~EntityManager() = default;
 
@@ -34,24 +51,12 @@ namespace corn {
          */
         Entity& createEntity(const std::string& name, const Entity* parent = nullptr);
 
-    private:
-        /**
-         * @struct Node
-         * @brief Tree node containing each Entity
-         */
-        struct Node {
-            Entity* ent;                           // Entity stored in the node
-            Node* parent;                          // Parent node
-            std::vector<Node*> children;           // Child nodes
-            /**
-             * @brief Whether the node's children are sorted by their z-order (large to small)
-             *
-             * False means it must be sorted, and true means it might not be
-             */
-            bool dirty;
-            Node(Entity* ent, Node* parent);
-        };
+        /// @return The root node of the Entity tree.
+        const Node* getRoot() const;
 
+        std::vector<Entity*> getActiveEntities();
+
+    private:
         /// Helper to EntityManager::destroyEntity
         /// Destroys a node and the entity inside, as well as children, but does not modify parent node
         void destroyNode(Node* node);

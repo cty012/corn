@@ -18,6 +18,7 @@ namespace corn {
      * @see System
      */
     struct Component {
+        bool active;
         Entity& entity;
         explicit Component(Entity& entity);
         virtual ~Component() = default;
@@ -28,11 +29,12 @@ namespace corn {
      * @brief Stores the location and the rotation of the object.
      *
      * @see Component
-     * @see SMovement
+     * @see SMovement2D
      */
     struct CTransform2D : public Component {
         Vec2 location;
         Deg rotation;  // TODO: currently does not consider rotation
+        int zorder;
         CTransform2D(Entity& entity, Vec2 location, Deg rotation = Deg());
     };
 
@@ -50,15 +52,15 @@ namespace corn {
     };
 
     /**
-     * @class CMovement
-     * @brief Stores the velocity of the object. Not affected by rotation.
+     * @class CMovement2D
+     * @brief Stores the velocity of the object in 2D space. Not affected by rotation.
      *
      * @see Component
-     * @see SMovement
+     * @see SMovement2D
      */
-    struct CMovement : public Component {
+    struct CMovement2D : public Component {
         Vec2 velocity;
-        CMovement(Entity& entity, Vec2 velocity);
+        explicit CMovement2D(Entity& entity, Vec2 velocity = {0, 0});
     };
 
     /**
@@ -68,9 +70,9 @@ namespace corn {
      * @see Component
      * @see SGravity
      */
-    struct CGravity : public Component {
+    struct CGravity2D : public Component {
         double scale;
-        CGravity(Entity& entity, double scale = 1.0);
+        CGravity2D(Entity& entity, double scale = 1.0);
     };
 
     /**

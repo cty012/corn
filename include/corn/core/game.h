@@ -87,7 +87,9 @@ namespace corn {
         std::queue<EventArgsScene> sceneEvents;
         Interface* interface;
 
-        EventManager::ListenerID sceneEventId;
-        EventManager::ListenerID closeEventId;
+        Stopwatch sw;
+
+        EventManager::ListenerID sceneEventID;
+        EventManager::ListenerID closeEventID;
     };
 }

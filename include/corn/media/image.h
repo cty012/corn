@@ -4,7 +4,7 @@
 #include <corn/util/color.h>
 
 namespace sf {
-    class Image;
+    class Sprite;
 }
 
 namespace corn {
@@ -14,8 +14,9 @@ namespace corn {
      */
     class Image {
     public:
-        sf::Image* image;
+        sf::Sprite* sfSprite;
         explicit Image(const std::string& path);
         Image(unsigned int width, unsigned int height, Color color);
+        ~Image();
     };
 }

@@ -1,19 +1,13 @@
 #include <corn/core/scene.h>
 
 namespace corn {
-    Scene::Scene() : entityManager(EntityManager()), systems(std::vector<System*>()) {
-        // TODO
-    }
+    Scene::Scene() : entityManager(EntityManager()), systems(std::vector<System*>()) {}
 
-    Scene::~Scene() {
-        // TODO
-    }
-
-    void Scene::update() {
+    void Scene::update(unsigned long long int millis) {
         // TODO
         for (System* system : this->systems) {
             if (system->active) {
-                system->update();
+                system->update(this->entityManager, millis);
             }
         }
     }

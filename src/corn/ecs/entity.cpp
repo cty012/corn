@@ -4,7 +4,7 @@
 
 namespace corn {
     Entity::Entity(std::string name, EntityManager& entityManager)
-        : name(std::move(name)), entityManager(entityManager),
+        : active(true), name(std::move(name)), entityManager(entityManager),
           components(std::unordered_map<std::type_index, Component*>()) {
 
         static EntityID uid = 0;

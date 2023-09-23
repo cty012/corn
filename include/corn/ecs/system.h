@@ -1,6 +1,7 @@
 #pragma once
 
 #include <corn/ecs/entity_manager.h>
+#include <corn/util/stopwatch.h>
 
 namespace corn {
     /**
@@ -11,34 +12,46 @@ namespace corn {
      */
     class System {
     public:
-        /// @brief The update() function will only be called if the system is active.
+        /// @brief The update function will only be called if the system is active.
         bool active;
 
-        explicit System(EntityManager& entityManager);
+        System();
         ~System() = default;
 
-        /**
-         * @return Number of milliseconds since the last update.
-         * If there are no previous updates then the object's creation time is used. Only count the milliseconds
-         * during which active is true.
-         */
-        [[nodiscard]] double milsec() const;
         /// @brief If active, will be called repeatedly during game loop.
-        virtual void update() = 0;
-
-    protected:
-        EntityManager& entityManager;
+        virtual void update(EntityManager& entityManager, unsigned long long int millis) = 0;
     };
 
     /**
-     * @class SPhysics
+     * @class SGravity
+     * @brief Applies gravity to the Entities in both 2D and 3D world.
+     */
+    class SGravity : public System {
+    public:
+        static constexpr double g = 5;
+        double scale;
+        explicit SGravity(double scale = 1.0);
+        void update(EntityManager& entityManager, unsigned long long int millis) override;
+    };
+
+    /**
+     * @class SMovement2D
+     * @brief Moves Entities in the 2D world.
+     */
+    class SMovement2D : public System {
+    public:
+        void update(EntityManager& entityManager, unsigned long long int millis) override;
+    };
+
+    /**
+     * @class SCollisionDetection
      * @brief Calculates and resolves collision.
      *
      * @todo Implement this class.
      * @todo Write detailed description.
      */
-    class SPhysics : public System {
+    class SCollisionDetection : public System {
     public:
-        void update() override;
+        void update(EntityManager& entityManager, unsigned long long int millis) override;
     };
 }

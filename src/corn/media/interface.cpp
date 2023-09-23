@@ -12,12 +12,12 @@ namespace corn {
         delete this->window;
     }
 
-    Interface::Interface(const Interface &other) {
+    Interface::Interface(const Interface& other) {
         this->config = other.config;
         this->window = other.window;
     }
 
-    Interface& Interface::operator=(const Interface &other) {
+    Interface& Interface::operator=(const Interface& other) {
         if (this == &other) return *this;
         this->config = other.config;
         this->window = other.window;
@@ -32,7 +32,7 @@ namespace corn {
 
     }
 
-    void Interface::handleUserInput() {
+    void Interface::handleUserInput() {  // TODO: change this
         sf::Event event{};
         while (this->window->pollEvent(event)) {
             switch (event.type) {
@@ -87,9 +87,16 @@ namespace corn {
         this->window->clear(sf::Color(r, g, b));
     }
 
-    void Interface::render(Scene *scene) {
+    void Interface::render(Scene* scene) {
         this->clear();
-        // TODO: render
+        std::vector<Entity*> entities = scene->entityManager.getActiveEntities();
+        for (Entity* entity : entities) {
+            auto trans = entity->getComponent<CTransform2D>();
+            auto sprite = entity->getComponent<CSprite>();
+            if (trans == nullptr || sprite == nullptr) continue;
+            sprite->image->sfSprite->setPosition((float)trans->location.x, (float)trans->location.y);
+            this->window->draw(*sprite->image->sfSprite);
+        }
     }
 
     void Interface::update() {

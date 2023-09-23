@@ -1,19 +1,19 @@
+#include <chrono>
+#include <thread>
 #include <corn/core/game.h>
-
-#include <utility>
 
 namespace corn {
     Game::Game(Scene* startScene, Config config)
-        : active(false), scenes(std::stack<Scene*>()), config(std::move(config)) {
+        : active(false), scenes(std::stack<Scene*>()), config(std::move(config)), sw(Stopwatch()) {
 
         this->scenes.push(startScene);
 
         // Register event listeners
-        this->sceneEventId = EventManager::instance().addListener(
+        this->sceneEventID = EventManager::instance().addListener(
                 "corn::game::scene", [this](const EventArgs &args) {
                     this->onSceneEvent(dynamic_cast<const EventArgsScene&>(args));
                 });
-        this->closeEventId = EventManager::instance().addListener(
+        this->closeEventID = EventManager::instance().addListener(
                 "corn::input::exit", [this](const EventArgs &args) {
                     this->onExitEvent(dynamic_cast<const EventArgsExit&>(args));
                 });
@@ -33,13 +33,13 @@ namespace corn {
 
     Game::~Game() {
         // Unregister event listeners
-        EventManager::instance().removeListener(this->sceneEventId);
-        EventManager::instance().removeListener(this->closeEventId);
+        EventManager::instance().removeListener(this->sceneEventID);
+        EventManager::instance().removeListener(this->closeEventID);
         // Deallocation
         delete this->interface;
         this->removeAllScenes();
         while (!this->sceneEvents.empty()) {
-            delete this->sceneEvents.front().getScene();
+            delete this->sceneEvents.front().scene;
             this->sceneEvents.pop();
         }
     }
@@ -86,7 +86,7 @@ namespace corn {
     void Game::resolveSceneEvents() {
         while (!this->sceneEvents.empty()) {
             EventArgsScene& args = this->sceneEvents.front();
-            this->changeScene(args.getOperation(), args.getScene());
+            this->changeScene(args.op, args.scene);
             this->sceneEvents.pop();
         }
     }
@@ -97,9 +97,27 @@ namespace corn {
 
     int Game::run() {
         this->active = true;
+        this->sw.clear();  // Just in case
+        this->sw.play();
+        unsigned long long int prevMillis = 0;
         while (this->active && !this->scenes.empty()) {
+            // Get millis
+            unsigned long long int millis = this->sw.millis();
+            if (millis - prevMillis < this->config.minMillis) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(this->config.minMillis - millis));
+                millis = this->sw.millis();
+            }
+            unsigned long long int delta = millis - prevMillis;
+            prevMillis = millis;
+
+            if (prevMillis > 1000000000) {
+                this->sw.clear();
+                this->sw.play();
+                prevMillis = 0;
+            }
+
             // Update scene
-            this->scenes.top()->update();
+            this->scenes.top()->update(delta);
 
             // Update interface
             this->interface->handleUserInput();

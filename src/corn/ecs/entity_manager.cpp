@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <stack>
 #include <stdexcept>
 #include <corn/ecs/entity_manager.h>
 
@@ -53,5 +54,43 @@ namespace corn {
         parent->children.erase(
                 std::remove(parent->children.begin(), parent->children.end(), node),
                 parent->children.end());
+    }
+
+    const EntityManager::Node* EntityManager::getRoot() const {
+        return &root;
+    }
+
+    std::vector<Entity*> EntityManager::getActiveEntities() {
+        auto nodeStack = std::stack<Node*>();
+        auto entities = std::vector<Entity*>();
+        nodeStack.push(&this->root);
+        while (!nodeStack.empty()) {
+            // Retrieve the next node
+            Node* next = nodeStack.top();
+            nodeStack.pop();
+
+            // Skip if not active
+            if ((next != &root) && !next->ent->active) continue;
+
+            // Sort if dirty
+            if (next->dirty) {
+                next->dirty = false;
+                std::stable_sort(next->children.begin(), next->children.end(),
+                                 [](Node* left, Node* right) {
+                    auto ltrans = left->ent->getComponent<CTransform2D>();
+                    auto rtrans = right->ent->getComponent<CTransform2D>();
+                    if (rtrans == nullptr) return false;
+                    else if (ltrans == nullptr) return true;
+                    else return ltrans->zorder < rtrans->zorder;
+                });
+            }
+
+            // Add Entity pointer to vector and children to stack
+            if (next != &root) entities.push_back(next->ent);
+            std::for_each(next->children.rbegin(), next->children.rend(), [&nodeStack](Node* child) {
+                nodeStack.push(child);
+            });
+        }
+        return entities;
     }
 }

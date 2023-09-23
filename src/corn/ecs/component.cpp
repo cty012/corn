@@ -2,16 +2,16 @@
 #include <corn/ecs/entity.h>
 
 namespace corn {
-    Component::Component(Entity& entity) : entity(entity) {}
+    Component::Component(Entity& entity) : active(true), entity(entity) {}
 
     CTransform2D::CTransform2D(Entity &entity, Vec2 location, Deg rotation)
-        : Component(entity), location(location), rotation(rotation) {}
+        : Component(entity), location(location), rotation(rotation), zorder(0) {}
 
     CSprite::CSprite(Entity& entity, Image *image) : Component(entity), image(image) {}
 
-    CMovement::CMovement(Entity& entity, Vec2 velocity) : Component(entity), velocity(velocity) {}
+    CMovement2D::CMovement2D(Entity& entity, Vec2 velocity) : Component(entity), velocity(velocity) {}
 
-    CGravity::CGravity(Entity& entity, double scale) : Component(entity), scale(scale) {}
+    CGravity2D::CGravity2D(Entity& entity, double scale) : Component(entity), scale(scale) {}
 
     CAABB::CAABB(Entity& entity, Vec2 ul, Vec2 lr) : Component(entity), ul(ul), lr(lr) {}
 }

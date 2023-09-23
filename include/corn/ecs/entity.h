@@ -32,7 +32,9 @@ namespace corn {
         // EntityManager need access to ctor/dtor
         friend class EntityManager;
 
-        /// @brief Reference to the Entity Manager that created this Entity
+        /// @brief Indicates whether the Entity is active.
+        bool active;
+        /// @brief Reference to the Entity Manager that created this Entity.
         EntityManager& entityManager;
 
         /**
@@ -43,6 +45,7 @@ namespace corn {
          */
         EntityID id() const;
 
+        /// @brief Destroys the Entity.
         void destroy();
 
         /**

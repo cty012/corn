@@ -33,14 +33,19 @@ namespace corn {
      */
     class Scene {
     public:
+        /// @brief Manages the lifetime of all Entities in this scene.
+        EntityManager entityManager;
+
         Scene();
-        virtual ~Scene();
-        void update();
+        virtual ~Scene() = default;
+        /**
+         * @brief Update all Entities, Components, and Systems in the scene.
+         * @param millis Number of milliseconds elapsed.
+         */
+        void update(unsigned long long int millis);
 
 
     protected:
-        /// @brief Manages the lifetime of all Entities in this scene.
-        EntityManager entityManager;
         /// @brief List of all Systems in this scene.
         std::vector<System*> systems;
     };
