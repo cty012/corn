@@ -8,20 +8,20 @@ namespace corn {
         sf::Image image = sf::Image();
         if (!image.loadFromFile(path))
             throw ResourceLoadFailed("Failed to load image: " + path + ".");
-        sf::Texture texture = sf::Texture();
-        if (!texture.loadFromImage(image))
+        this->texture = new sf::Texture();
+        if (!texture->loadFromImage(image))
             throw ResourceLoadFailed("Failed to load image: " + path + ".");
-        this->sfSprite = new sf::Sprite(texture);
+        this->sfSprite = new sf::Sprite(*texture);
     }
 
     Image::Image(unsigned int width, unsigned int height, Color color) {
         auto [r, g, b, a] = color.getRGBA();
         sf::Image image = sf::Image();
         image.create(width, height, sf::Color(r, g, b, a));
-        sf::Texture texture = sf::Texture();
-        if (!texture.loadFromImage(image))
+        this->texture = new sf::Texture();
+        if (!texture->loadFromImage(image))
             throw ResourceLoadFailed("Failed to load image.");
-        this->sfSprite = new sf::Sprite(texture);
+        this->sfSprite = new sf::Sprite(*texture);
     }
 
     Image::~Image() {
