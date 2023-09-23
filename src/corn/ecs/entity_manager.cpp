@@ -3,7 +3,7 @@
 #include <corn/ecs/entity_manager.h>
 
 namespace corn {
-    EntityManager::EntityManager(): root(Node(nullptr, nullptr)) {}
+    EntityManager::EntityManager() : root(Node(nullptr, nullptr)) {}
 
     EntityManager::Node::Node(Entity* ent, Node* parent)
         : ent(ent), parent(parent), children(std::vector<Node*>()), dirty(false) {}
@@ -21,7 +21,7 @@ namespace corn {
         Entity* entity = nullptr;
         while (true) {
             entity = new Entity(name, *this);
-            if (this->nodes.contains(entity->id())) break;
+            if (!this->nodes.contains(entity->id())) break;
             delete entity;
         }
 

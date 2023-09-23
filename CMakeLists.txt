@@ -17,7 +17,7 @@ if (WIN32)
 elseif (APPLE)
     set(SFML_ROOT "${CMAKE_SOURCE_DIR}/deps/SFML-2.6.0")
     set(SFML_INCLUDE_DIR "${SFML_ROOT}/include")
-    set(SFML_LIBRARY_DIR "${SFML_ROOT}/bin")
+    set(SFML_LIBRARY_DIR "${SFML_ROOT}/lib")
     set(SFML_LIBRARIES
             ${SFML_LIBRARY_DIR}/libsfml-audio.dylib
             ${SFML_LIBRARY_DIR}/libsfml-graphics.dylib

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <corn/core/input.h>
-#include <corn/core/scene.h>
-#include <corn/util/config.h>
+#include "corn/core/input.h"
+#include "corn/core/scene.h"
+#include "corn/util/config.h"
 
 namespace sf {
     class RenderWindow;

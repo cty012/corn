@@ -1,9 +1,9 @@
 #pragma once
 
 #include <stack>
-#include <corn/core/interface.h>
 #include <corn/core/scene.h>
 #include <corn/event/event_manager.h>
+#include <corn/media/interface.h>
 #include <corn/util/config.h>
 
 namespace corn {

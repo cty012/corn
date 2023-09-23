@@ -1,7 +1,7 @@
 #include <corn/core/scene.h>
 
 namespace corn {
-    Scene::Scene(): entityManager(EntityManager()), systems(std::vector<System*>()) {
+    Scene::Scene() : entityManager(EntityManager()), systems(std::vector<System*>()) {
         // TODO
     }
 

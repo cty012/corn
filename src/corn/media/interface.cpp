@@ -1,11 +1,11 @@
 #include <SFML/Graphics.hpp>
-#include <corn/core/interface.h>
-#include "interface_helper.h"
 #include <corn/event/event_manager.h>
+#include <corn/media/interface.h>
 #include <corn/util/geometry.h>
+#include "interface_helper.h"
 
 namespace corn {
-    Interface::Interface(const Config* config): config(config), window(new sf::RenderWindow()) {}
+    Interface::Interface(const Config* config) : config(config), window(new sf::RenderWindow()) {}
 
     Interface::~Interface() {
         this->window->close();

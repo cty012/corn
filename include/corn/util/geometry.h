@@ -5,17 +5,13 @@ namespace corn {
      * @class Vec2
      * @brief 2D vector class.
      */
-    class Vec2 {
-    public:
+    struct Vec2 {
         double x;
         double y;
 
         // Ctors & dtors
         Vec2();
         Vec2(double x, double y);
-        ~Vec2() = default;
-        Vec2(const Vec2 &other);
-        Vec2 &operator=(const Vec2 &other);
 
         // Operations
         /// @return A copy of the vector itself.
@@ -55,8 +51,7 @@ namespace corn {
      * @class Vec3
      * @brief 3D vector class.
      */
-    class Vec3 {
-    public:
+    struct Vec3 {
         double x;
         double y;
         double z;
@@ -64,9 +59,6 @@ namespace corn {
         // Ctors & dtors
         Vec3();
         Vec3(double x, double y, double z);
-        ~Vec3() = default;
-        Vec3(const Vec3 &other);
-        Vec3 &operator=(const Vec3 &other);
 
         // Operations
         /// @return A copy of the vector itself.
@@ -100,5 +92,16 @@ namespace corn {
          * @return Euclidean distance between the two vectors.
          */
         friend double dist(const Vec3& v1, const Vec3& v2);
+    };
+
+    /**
+     * @class Deg
+     * @brief double in range [0, 360).
+     */
+    struct Deg {
+        Deg(double val = 0.0);  // NOLINT
+        // TODO: operator overload
+    private:
+        double _val;
     };
 }

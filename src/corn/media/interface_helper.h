@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <corn/core/interface.h>
+#include <corn/media/interface.h>
 
 namespace corn {
     DisplayMode sfStyle2CornMode(int style) {

@@ -2,20 +2,9 @@
 #include <corn/util/geometry.h>
 
 namespace corn {
-    Vec2::Vec2()
-        : x(0.0), y(0.0) {}
+    Vec2::Vec2() : x(0.0), y(0.0) {}
 
-    Vec2::Vec2(double x, double y)
-        : x(x), y(y) {}
-
-    Vec2::Vec2(const Vec2 &other) = default;
-
-    Vec2 &Vec2::operator=(const Vec2 &other) {
-        if (this == &other) return *this;
-        this->x = other.x;
-        this->y = other.y;
-        return *this;
-    }
+    Vec2::Vec2(double x, double y) : x(x), y(y) {}
 
     Vec2 Vec2::operator+() const {
         return *this;

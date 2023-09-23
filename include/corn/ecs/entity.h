@@ -17,7 +17,7 @@ namespace corn {
 
     /**
      * @class Entity
-     * @brief Entities in the ECS architecture.
+     * @brief Entity in the ECS architecture.
      *
      * The Entity class does nothing but serves as a container for Components. They should not be created or destroyed
      * directly. Instead, their lifetime is managed by the Entity Manager.
@@ -29,6 +29,8 @@ namespace corn {
     class Entity final {
     public:
         using EntityID = unsigned long long int;
+        // EntityManager need access to ctor/dtor
+        friend class EntityManager;
 
         /// @brief Reference to the Entity Manager that created this Entity
         EntityManager& entityManager;
@@ -46,7 +48,7 @@ namespace corn {
         /**
          * @brief Attach a Component to the Entity if not already exists.
          * @tparam T Type of the Component, must derive from Component class.
-         * @param args Arguments for constructing the Component
+         * @param args Arguments for constructing the Component (excluding the first argument Entity& entity)
          * @return Pointer to the Component if successfully added, else null pointer.
          */
         template <ComponentType T, typename... Args>
@@ -78,8 +80,7 @@ namespace corn {
         explicit Entity(std::string name, EntityManager& entityManager);
         ~Entity();
         Entity(const Entity& other) = delete;
-
-        // EntityManager need access to ctor/dtor
-        friend class EntityManager;
     };
 }
+
+#include <corn/ecs/entity.cpp>

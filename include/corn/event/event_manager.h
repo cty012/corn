@@ -56,7 +56,7 @@ namespace corn {
         std::unordered_map<std::string, std::vector<std::pair<ListenerID, Action>>> listeners;
 
         // Constructors and destructors are hidden to maintain a singleton pattern.
-        EventManager() = default;
+        EventManager();
         ~EventManager() = default;
         EventManager(const EventManager&) = delete;
         EventManager& operator=(const EventManager&) = delete;

@@ -17,6 +17,9 @@ namespace corn {
      */
     class EntityManager {
     public:
+        // Entity needs access to the destroyEntity function
+        friend class Entity;
+
         EntityManager();
         ~EntityManager() = default;
 
@@ -65,8 +68,5 @@ namespace corn {
         std::unordered_map<Entity::EntityID, Node> nodes;
         /// @brief The root node (does not contain a entity)
         Node root;
-
-        // Entity needs access to the destroyEntity function
-        friend class Entity;
     };
 }
