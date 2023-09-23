@@ -1,8 +1,9 @@
 #pragma once
 
-#include "corn/core/input.h"
-#include "corn/core/scene.h"
-#include "corn/util/config.h"
+#include <unordered_map>
+#include <corn/core/input.h>
+#include <corn/core/scene.h>
+#include <corn/util/config.h>
 
 namespace sf {
     class RenderWindow;
@@ -19,6 +20,7 @@ namespace corn {
         void init();
 
         void handleUserInput();
+        static const std::unordered_map<Key, bool>& getKeyPressed();
 
         void clear();
         void render(Scene* scene);
@@ -27,5 +29,6 @@ namespace corn {
     private:
         const Config* config;
         sf::RenderWindow* window;
+        static std::unordered_map<Key, bool> keyPressed;
     };
 }

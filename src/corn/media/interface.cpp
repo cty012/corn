@@ -5,6 +5,8 @@
 #include "interface_helper.h"
 
 namespace corn {
+    std::unordered_map<Key, bool> Interface::keyPressed = std::unordered_map<Key, bool>();
+
     Interface::Interface(const Config* config) : config(config), window(new sf::RenderWindow()) {}
 
     Interface::~Interface() {
@@ -40,34 +42,46 @@ namespace corn {
                     EventManager::instance().emit(EventArgsExit());
                     break;
                 }
-                case (sf::Event::MouseButtonPressed):
+                case (sf::Event::MouseButtonPressed): {
+                    EventManager::instance().emit(EventArgsMouseButton(
+                            sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
+                            Vec2(event.mouseButton.x, event.mouseButton.y)));
+                    break;
+                }
                 case (sf::Event::MouseButtonReleased): {
-                    EventManager::instance().emit(EventArgsMouse(
-                            sfInput2CornInput(event.mouseButton.button),
-                            event.type == sf::Event::MouseButtonPressed ? 1.0 : -1.0,
+                    EventManager::instance().emit(EventArgsMouseButton(
+                            sfInput2CornInput(event.mouseButton.button), ButtonEvent::UP,
                             Vec2(event.mouseButton.x, event.mouseButton.y)));
                     break;
                 }
                 case (sf::Event::MouseWheelScrolled): {
-                    EventManager::instance().emit(EventArgsMouse(
-                            MouseEvent::MOVE,
+                    EventManager::instance().emit(EventArgsMouseScroll(
                             event.mouseWheelScroll.delta,
                             Vec2(event.mouseButton.x, event.mouseButton.y)));
                     break;
                 }
                 case sf::Event::MouseMoved: {
-                    EventManager::instance().emit(EventArgsMouse(
-                            MouseEvent::MOVE,
-                            0.0,
+                    EventManager::instance().emit(EventArgsMouseMove(
                             Vec2(event.mouseButton.x, event.mouseButton.y)));
                     break;
                 }
-                case (sf::Event::KeyPressed):
+                case (sf::Event::KeyPressed): {
+                    sf::Event::KeyEvent keyEvent = event.key;
+                    Key key = sfInput2CornInput(keyEvent.code, keyEvent.scancode);
+                    if (Interface::keyPressed[key]) break;
+                    Interface::keyPressed[key] = true;
+                    EventManager::instance().emit(EventArgsKeyboard(key, ButtonEvent::DOWN,
+                            (keyEvent.system << 3) + (keyEvent.control << 2)
+                            + (keyEvent.system << 1) + (keyEvent.system << 3),
+                            Vec2(event.mouseButton.x, event.mouseButton.y)));
+                    break;
+                }
                 case (sf::Event::KeyReleased): {
                     sf::Event::KeyEvent keyEvent = event.key;
-                    EventManager::instance().emit(EventArgsKeyboard(
-                            sfInput2CornInput(keyEvent.code, keyEvent.scancode),
-                            event.type == sf::Event::KeyPressed ? KeyEvent::PRESSED : KeyEvent::RELEASED ,
+                    Key key = sfInput2CornInput(keyEvent.code, keyEvent.scancode);
+                    if (!Interface::keyPressed[key]) break;
+                    Interface::keyPressed[key] = false;
+                    EventManager::instance().emit(EventArgsKeyboard(key, ButtonEvent::UP ,
                             (keyEvent.system << 3) + (keyEvent.control << 2)
                                 + (keyEvent.system << 1) + (keyEvent.system << 3),
                             Vec2(event.mouseButton.x, event.mouseButton.y)));
@@ -80,6 +94,10 @@ namespace corn {
                     break;
             }
         }
+    }
+
+    const std::unordered_map<Key, bool>& Interface::getKeyPressed() {
+        return Interface::keyPressed;
     }
 
     void Interface::clear() {

@@ -1,27 +1,16 @@
 #include <corn/event/event_args.h>
 
 namespace corn {
-    std::string EventArgsExit::type() const {
-        return "corn::input::exit";
-    }
+    EventArgsKeyboard::EventArgsKeyboard(Key key, ButtonEvent status, unsigned char modifiers, const Vec2& mousePos)
+        : key(key), status(status), modifiers(modifiers), mousePos(mousePos) {}
 
-    EventArgsKeyboard::EventArgsKeyboard(Key key, KeyEvent keyEvent, unsigned char modifiers, const Vec2& mousePos)
-        : key(key), keyEvent(keyEvent), modifiers(modifiers), mousePos(mousePos) {}
+    EventArgsMouseButton::EventArgsMouseButton(Mouse mouse, ButtonEvent status, const Vec2& mousePos)
+        : mouse(mouse), status(status), mousePos(mousePos) {}
 
-    std::string EventArgsKeyboard::type() const {
-        return "corn::input::keyboard";
-    }
+    EventArgsMouseMove::EventArgsMouseMove(const Vec2 &mousePos) : mousePos(mousePos) {}
 
-    EventArgsMouse::EventArgsMouse(MouseEvent mouseEvent, double value, const Vec2& mousePos)
-        : mouseEvent(mouseEvent), value(value), mousePos(mousePos) {}
-
-    std::string EventArgsMouse::type() const {
-        return "corn::input::mouse";
-    }
+    EventArgsMouseScroll::EventArgsMouseScroll(double value, const Vec2 &mousePos)
+        : value(value), mousePos(mousePos) {}
 
     EventArgsScene::EventArgsScene(SceneOperation op, Scene *scene): scene(scene), op(op) {}
-
-    std::string EventArgsScene::type() const {
-        return "corn::game::scene";
-    }
 }

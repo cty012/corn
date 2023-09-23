@@ -12,11 +12,11 @@ namespace corn {
         NONE,
     };
 
-    enum class KeyEvent {
-        PRESSED, RELEASED,
+    enum class Mouse {
+        LEFT, RIGHT, MIDDLE, NONE
     };
 
-    enum class MouseEvent {
-        LEFTBTN, RIGHTBTN, MIDDLEBTN, MOVE, SCROLL, NONE,
+    enum class ButtonEvent {
+        DOWN, UP,
     };
 }

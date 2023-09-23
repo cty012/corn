@@ -51,6 +51,7 @@ namespace corn {
                 break;
             case SceneOperation::POP:  // Remove the top scene
                 this->removeOneScene();
+                delete scene;
                 break;
             case SceneOperation::REPLACE:  // Remove the top scene and add new scene to top
                 this->removeOneScene();

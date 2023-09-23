@@ -220,25 +220,16 @@ namespace corn {
         }
     }
 
-    MouseEvent sfInput2CornInput(sf::Mouse::Button button) {
+    Mouse sfInput2CornInput(sf::Mouse::Button button) {
         switch (button) {
             case sf::Mouse::Button::Left:
-                return MouseEvent::LEFTBTN;
+                return Mouse::LEFT;
             case sf::Mouse::Right:
-                return MouseEvent::RIGHTBTN;
+                return Mouse::RIGHT;
             case sf::Mouse::Middle:
-                return MouseEvent::MIDDLEBTN;
+                return Mouse::MIDDLE;
             default:
-                return MouseEvent::NONE;
-        }
-    }
-
-    MouseEvent sfInput2CornInput(sf::Mouse::Wheel wheel) {
-        switch (wheel) {
-            case sf::Mouse::Wheel::VerticalWheel:
-                return MouseEvent::SCROLL;
-            default:
-                return MouseEvent::NONE;
+                return Mouse::NONE;
         }
     }
 }
