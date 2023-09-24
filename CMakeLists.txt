@@ -44,7 +44,10 @@ function(build_example EXAMPLE_NAME)
     if (WIN32)
         add_executable(${EXAMPLE_NAME} WIN32 ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
     elseif (APPLE)
-        add_executable(${EXAMPLE_NAME} MACOSX_BUNDLE ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
+        add_executable(${EXAMPLE_NAME} ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
+        set_target_properties(${EXAMPLE_NAME} PROPERTIES
+            BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "@executable_path"
+        )
     endif ()
     target_link_libraries(${EXAMPLE_NAME} corn)
 endfunction()
