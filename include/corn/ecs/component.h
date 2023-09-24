@@ -85,6 +85,10 @@ namespace corn {
      *
      * The Vec2 for the corners are relative to the world location of the entity. i.e. <0, 0> would refer to the exact
      * location of the object. Having an invalid set of upper left and lower right corner will result in no collisions.
+     *
+     * @see Component
+     * @see SCollisionDetection
+     * @see CCollisionResolve
      */
     struct CAABB : public Component {
         /// @brief Upper left corner
@@ -92,5 +96,24 @@ namespace corn {
         /// @brief Lower right corner
         Vec2 lr;
         CAABB(Entity& entity, Vec2 ul, Vec2 lr);
+
+        /// @brief Check if two AABBs overlap
+        [[nodiscard]] bool overlapWith(const CAABB& other) const;
+    };
+
+    /**
+     * @class CCollisionResolve
+     * @brief A simple collision resolve base class for collision between AABB colliding boxes.
+     *
+     * @todo Add support for all colliding boxes.
+     *
+     * @see Component
+     * @see SCollisionDetection
+     * @see CAABB
+     */
+    struct CCollisionResolve : public Component {
+        explicit CCollisionResolve(Entity& entity);
+        /// @brief Override this function to define custom collision resolves.
+        virtual void resolve(CAABB& self, CAABB& other);
     };
 }

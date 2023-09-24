@@ -60,6 +60,8 @@ namespace corn {
          * @tparam T Type of the Component, must derive from Component class.
          * @param args Arguments for constructing the Component (excluding the first argument Entity& entity)
          * @return Pointer to the Component if successfully added, else null pointer.
+         * @throw std::invalid_argument if the entity stored in the component does not match the Entity being attached
+         * to.
          *
          * If a component of the same type already exist, it will be replaced by the new component.
          */

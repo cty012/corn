@@ -14,7 +14,7 @@ constexpr size_t BIRD_HEIGHT = 50;
 const corn::Color BIRD_COLOR = corn::Color::rgb(255, 0, 0);
 
 constexpr size_t CEIL_THICKNESS = 40;
-const corn::Color CEIL_COLOR = corn::Color::rgb(255, 0, 0);
+const corn::Color CEIL_COLOR = corn::Color::rgb(255, 128, 0);
 
 constexpr double WALL_THICKNESS = 120;
 constexpr double WALL_SPEED = 200;
@@ -24,15 +24,28 @@ const corn::Color WALL_COLOR = corn::Color::rgb(50, 205, 50);
 constexpr size_t HOLE_MIN_PADDING = 120;
 constexpr size_t HOLE_SIZE = 260;
 
+class GameScene;
+
+/// Custom collision resolve class for bird
+struct BirdCollisionResolve : public corn::CCollisionResolve {
+    bool hasCollided;
+
+    explicit BirdCollisionResolve(corn::Entity& entity)
+        : corn::CCollisionResolve(entity), hasCollided(false) {}
+
+    void resolve(corn::CAABB& self, corn::CAABB& other) override;  // Implemented later
+};
+
 corn::Entity* createBird(corn::EntityManager& entityManager) {
     corn::Entity* bird = &entityManager.createEntity("bird");
-    auto transform = bird->createComponent<corn::CTransform2D>(corn::Vec2(100, 300));
+    auto transform = bird->createComponent<corn::CTransform2D>(corn::Vec2(300, 300));
     transform->zorder = 2;
     bird->createComponent<corn::CMovement2D>(corn::Vec2(0, -500));
     bird->createComponent<corn::CGravity2D>();
     bird->createComponent<corn::CAABB>(corn::Vec2(0, 0), corn::Vec2(BIRD_WIDTH, BIRD_HEIGHT));
     bird->createComponent<corn::CSprite>(
             new corn::Image(BIRD_WIDTH, BIRD_HEIGHT, BIRD_COLOR));
+    bird->addComponent<corn::CCollisionResolve>(new BirdCollisionResolve(*bird));
     return bird;
 }
 
@@ -75,18 +88,17 @@ void createCeilAndFloor(corn::EntityManager& entityManager) {
     // Components of ceil
     auto ceilTransform = ceil->createComponent<corn::CTransform2D>(corn::Vec2::ZERO);
     ceilTransform->zorder = 1;
-    ceil->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WIDTH, HEIGHT));
+    ceil->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WIDTH, CEIL_THICKNESS));
     ceil->createComponent<corn::CSprite>(new corn::Image(WIDTH, CEIL_THICKNESS, CEIL_COLOR));
-    // TODO: collision resolve
 
     // Components of floor
     auto floorTransform = floor->createComponent<corn::CTransform2D>(corn::Vec2(0, HEIGHT - CEIL_THICKNESS));
     floorTransform->zorder = 1;
-    floor->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WIDTH, HEIGHT));
+    floor->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WIDTH, CEIL_THICKNESS));
     floor->createComponent<corn::CSprite>(new corn::Image(WIDTH, CEIL_THICKNESS, CEIL_COLOR));
-    // TODO: collision resolve
 }
 
+/// A system for managing wall creation and deletion
 class WallManager : public corn::System {
 public:
     void update(corn::EntityManager& entityManager, unsigned long long int millis) override {
@@ -110,6 +122,7 @@ public:
     }
 };
 
+/// The main game scene
 class GameScene : public corn::Scene {
 public:
     GameScene() {
@@ -120,7 +133,8 @@ public:
 
         // Systems
         this->systems.push_back(new corn::SMovement2D());
-        this->systems.push_back(new corn::SGravity(0.5));
+        this->systems.push_back(new corn::SGravity());
+        this->systems.push_back(new corn::SCollisionDetection());
         this->systems.push_back(new WallManager());
 
         // Event listeners
@@ -166,6 +180,12 @@ private:
             this->birdMovement->velocity.y = -700;
     }
 };
+
+void BirdCollisionResolve::resolve(corn::CAABB& self, corn::CAABB& other) {
+    if (this->hasCollided) return;
+    this->hasCollided = true;
+    corn::EventManager::instance().emit(corn::EventArgsScene(corn::SceneOperation::REPLACE, new GameScene()));
+}
 
 int main() {
     corn::Config config;

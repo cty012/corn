@@ -23,24 +23,6 @@ namespace corn {
     };
 
     /**
-     * @class SGravity
-     * @brief Applies gravity to the Entities in both 2D and 3D world.
-     *
-     * Unit: pixels/second^2
-     *
-     * @see System
-     * @see CMovement2D
-     * @see CGravity2D
-     */
-    class SGravity : public System {
-    public:
-        static constexpr double g = 4000.0;
-        double scale;
-        explicit SGravity(double scale = 1.0);
-        void update(EntityManager& entityManager, unsigned long long int millis) override;
-    };
-
-    /**
      * @class SMovement2D
      * @brief Moves Entities in the 2D world.
      *
@@ -54,14 +36,32 @@ namespace corn {
     };
 
     /**
+     * @class SGravity
+     * @brief Applies gravity to the Entities in both 2D and 3D world.
+     *
+     * Unit: pixels/second^2
+     *
+     * @see System
+     * @see CMovement2D
+     * @see CGravity2D
+     */
+    class SGravity : public System {
+    public:
+        static constexpr double g = 2000.0;
+        double scale;
+        explicit SGravity(double scale = 1.0);
+        void update(EntityManager& entityManager, unsigned long long int millis) override;
+    };
+
+    /**
      * @class SCollisionDetection
      * @brief Calculates and resolves collision.
      *
-     * @todo Implement this class.
      * @todo Write detailed description.
      *
      * @see System
      * @see CAABB
+     * @see CCollisionResolve
      */
     class SCollisionDetection : public System {
     public:

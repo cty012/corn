@@ -1,6 +1,9 @@
+#include <corn/util/exceptions.h>
+
 namespace corn {
     template<ComponentType T>
     void Entity::addComponent(T* component) {
+        if (&component->entity != this) throw std::invalid_argument("Component is not created with the same Entity");
         auto key = std::type_index(typeid(T));
         this->components[key] = component;
     }

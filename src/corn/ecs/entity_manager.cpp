@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <stack>
-#include <stdexcept>
 #include <corn/ecs/entity_manager.h>
+#include <corn/util/exceptions.h>
 
 namespace corn {
     EntityManager::EntityManager() : root(Node(nullptr, nullptr)) {}

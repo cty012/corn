@@ -1,6 +1,6 @@
-#include <stdexcept>
 #include <cstdio>
 #include <corn/event/event_manager.h>
+#include <corn/util/exceptions.h>
 
 
 namespace corn {
