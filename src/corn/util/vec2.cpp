@@ -2,6 +2,10 @@
 #include <corn/util/geometry.h>
 
 namespace corn {
+    const Vec2 Vec2::ZERO = Vec2(0.0, 0.0);
+    const Vec2 Vec2::UNIT_X = Vec2(1.0, 0.0);
+    const Vec2 Vec2::UNIT_Y = Vec2(0.0, 1.0);
+
     Vec2::Vec2() : x(0.0), y(0.0) {}
 
     Vec2::Vec2(double x, double y) : x(x), y(y) {}

@@ -8,6 +8,9 @@ namespace corn {
     struct Vec2 {
         double x;
         double y;
+        static const Vec2 ZERO;
+        static const Vec2 UNIT_X;
+        static const Vec2 UNIT_Y;
 
         // Ctors & dtors
         Vec2();
@@ -55,6 +58,10 @@ namespace corn {
         double x;
         double y;
         double z;
+        static const Vec3 ZERO;
+        static const Vec3 UNIT_X;
+        static const Vec3 UNIT_Y;
+        static const Vec3 UNIT_Z;
 
         // Ctors & dtors
         Vec3();
@@ -97,6 +104,8 @@ namespace corn {
     /**
      * @class Deg
      * @brief double in range [0, 360).
+     *
+     * @todo Implement this struct.
      */
     struct Deg {
         Deg(double val = 0.0);  // NOLINT

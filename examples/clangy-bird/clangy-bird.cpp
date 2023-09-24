@@ -30,6 +30,7 @@ corn::Entity* createBird(corn::EntityManager& entityManager) {
     transform->zorder = 2;
     bird->createComponent<corn::CMovement2D>(corn::Vec2(0, -500));
     bird->createComponent<corn::CGravity2D>();
+    bird->createComponent<corn::CAABB>(corn::Vec2(0, 0), corn::Vec2(BIRD_WIDTH, BIRD_HEIGHT));
     bird->createComponent<corn::CSprite>(
             new corn::Image(BIRD_WIDTH, BIRD_HEIGHT, BIRD_COLOR));
     return bird;
@@ -53,18 +54,37 @@ corn::Entity* createWall(corn::EntityManager& entityManager, double x) {
     wall->createComponent<corn::CMovement2D>(corn::Vec2(-WALL_SPEED, 0));
 
     // Components of top wall
-    top->createComponent<corn::CTransform2D>(corn::Vec2(0, 0));
-    top->createComponent<corn::CAABB>(corn::Vec2(0, 0), corn::Vec2(WALL_THICKNESS, (double)topWallSize));
+    top->createComponent<corn::CTransform2D>(corn::Vec2::ZERO);
+    top->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WALL_THICKNESS, topWallSize));
     top->createComponent<corn::CSprite>(new corn::Image(
             WALL_THICKNESS, (unsigned int)topWallSize, WALL_COLOR));
 
     // Components of bottom wall
     bottom->createComponent<corn::CTransform2D>(corn::Vec2(0, topWallSize + HOLE_SIZE));
-    bottom->createComponent<corn::CAABB>(corn::Vec2(0, 0), corn::Vec2(WALL_THICKNESS, (double)bottomWallSize));
+    bottom->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WALL_THICKNESS, bottomWallSize));
     bottom->createComponent<corn::CSprite>(new corn::Image(
             WALL_THICKNESS, (unsigned int)bottomWallSize, WALL_COLOR));
 
     return wall;
+}
+
+void createCeilAndFloor(corn::EntityManager& entityManager) {
+    corn::Entity* ceil = &entityManager.createEntity("ceil");
+    corn::Entity* floor = &entityManager.createEntity("floor");
+
+    // Components of ceil
+    auto ceilTransform = ceil->createComponent<corn::CTransform2D>(corn::Vec2::ZERO);
+    ceilTransform->zorder = 1;
+    ceil->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WIDTH, HEIGHT));
+    ceil->createComponent<corn::CSprite>(new corn::Image(WIDTH, CEIL_THICKNESS, CEIL_COLOR));
+    // TODO: collision resolve
+
+    // Components of floor
+    auto floorTransform = floor->createComponent<corn::CTransform2D>(corn::Vec2(0, HEIGHT - CEIL_THICKNESS));
+    floorTransform->zorder = 1;
+    floor->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WIDTH, HEIGHT));
+    floor->createComponent<corn::CSprite>(new corn::Image(WIDTH, CEIL_THICKNESS, CEIL_COLOR));
+    // TODO: collision resolve
 }
 
 class WallManager : public corn::System {
@@ -96,6 +116,7 @@ public:
         // Entities
         this->bird = createBird(this->entityManager);
         this->birdMovement = this->bird->getComponent<corn::CMovement2D>();
+        createCeilAndFloor(this->entityManager);
 
         // Systems
         this->systems.push_back(new corn::SMovement2D());
