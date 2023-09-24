@@ -38,14 +38,21 @@ namespace corn {
         EntityManager& entityManager;
 
         /**
-         * @return The unique ID of the Entity.
+         * @brief The unique ID of the Entity.
          *
-         * The unique ID starts from 0 and adds one for each new Entity created within a game session. After it reaches
+         * The unique ID starts from 0 and adds one for each new Entity created within the same scene. After it reaches
          * the max value of EntityID, it goes back to 0.
          */
-        EntityID id() const;
+        const EntityID id;
+        /**
+         * @brief The name of the Entity.
+         *
+         * Unlike ID, the name is a mutable property assigned during creation. Multiple Entities are allowed to have
+         * the same name.
+         */
+        std::string name;
 
-        /// @brief Destroys the Entity.
+        /// @brief Destroys the Entity itself.
         void destroy();
 
         /**
@@ -73,17 +80,23 @@ namespace corn {
         template <ComponentType T>
         bool removeComponent();
 
+        /**
+         * Get the parent Entity
+         * @return
+         */
+        Entity* getParent() const;
+
+        std::vector<Entity*> getChildren() const;
+
     private:
-        EntityID uniqueId;
-        std::string name;
         /// List of all attached Components
         std::unordered_map<std::type_index, Component*> components;
 
         // Private constructor/destructor
-        explicit Entity(std::string name, EntityManager& entityManager);
+        explicit Entity(EntityID id, std::string name, EntityManager& entityManager);
         ~Entity();
         Entity(const Entity& other) = delete;
     };
 }
 
-#include <corn/ecs/entity.cpp>
+#include <corn/ecs/entity_template.cpp>

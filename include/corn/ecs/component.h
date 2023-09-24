@@ -36,6 +36,7 @@ namespace corn {
         Deg rotation;  // TODO: currently does not consider rotation
         int zorder;
         CTransform2D(Entity& entity, Vec2 location, Deg rotation = Deg());
+        Vec2 worldLocation() const;
     };
 
     /**
@@ -55,6 +56,8 @@ namespace corn {
     /**
      * @class CMovement2D
      * @brief Stores the velocity of the object in 2D space. Not affected by rotation.
+     *
+     * Unit: pixels/second
      *
      * @see Component
      * @see SMovement2D

@@ -9,42 +9,86 @@
 constexpr size_t WIDTH = 1280;
 constexpr size_t HEIGHT = 720;
 
+constexpr size_t BIRD_WIDTH = 50;
+constexpr size_t BIRD_HEIGHT = 50;
+const corn::Color BIRD_COLOR = corn::Color::rgb(255, 0, 0);
+
+constexpr size_t CEIL_THICKNESS = 40;
+// const corn::Color CEIL_COLOR = corn::Color::rgb(255, 0, 0);
+
+constexpr double WALL_THICKNESS = 120;
+constexpr double WALL_SPEED = 200;
+constexpr double WALL_INTERVAL = 300;
+const corn::Color WALL_COLOR = corn::Color::rgb(50, 205, 50);
+
+constexpr size_t HOLE_MIN_PADDING = 120;
+constexpr size_t HOLE_SIZE = 260;
+
 corn::Entity* createBird(corn::EntityManager& entityManager) {
     corn::Entity* bird = &entityManager.createEntity("bird");
-    bird->addComponent<corn::CTransform2D>(corn::Vec2(100, 300));
+    auto transform = bird->addComponent<corn::CTransform2D>(corn::Vec2(100, 300));
+    transform->zorder = 2;
     bird->addComponent<corn::CMovement2D>(corn::Vec2(0, -500));
     bird->addComponent<corn::CGravity2D>();
     bird->addComponent<corn::CSprite>(
-            new corn::Image(40, 60, corn::Color::rgb(255, 0, 0)));
+            new corn::Image(BIRD_WIDTH, BIRD_HEIGHT, BIRD_COLOR));
     return bird;
 }
 
-corn::Entity* createWall(corn::EntityManager& entityManager, double margin, unsigned int holeSize) {
+corn::Entity* createWall(corn::EntityManager& entityManager, double x) {
+    // Randomize hole location
     static std::random_device rd;
     static std::mt19937 gen(rd());
     static std::uniform_real_distribution<> dis(0.0, 1.0);
-    auto topSize = (size_t)(margin + (HEIGHT - margin * 2 - holeSize) * dis(gen));
-    size_t bottomSize = HEIGHT - topSize - holeSize;
+    double topWallSize = HOLE_MIN_PADDING + (HEIGHT - HOLE_MIN_PADDING * 2 - HOLE_SIZE) * dis(gen);
+    double bottomWallSize = HEIGHT - topWallSize - HOLE_SIZE;
 
+    // Entities
     corn::Entity* wall = &entityManager.createEntity("wall");
     corn::Entity* top = &entityManager.createEntity("top", wall);
     corn::Entity* bottom = &entityManager.createEntity("bottom", wall);
 
-    wall->addComponent<corn::CTransform2D>(corn::Vec2(WIDTH, 0));
-    wall->addComponent<corn::CMovement2D>(corn::Vec2(-100, 0));
+    // Components of base node
+    wall->addComponent<corn::CTransform2D>(corn::Vec2(x, 0));
+    wall->addComponent<corn::CMovement2D>(corn::Vec2(-WALL_SPEED, 0));
 
+    // Components of top wall
     top->addComponent<corn::CTransform2D>(corn::Vec2(0, 0));
-    top->addComponent<corn::CAABB>(corn::Vec2(0, 0), corn::Vec2(100, (double)topSize));
-    top->addComponent<corn::CSprite>(
-            new corn::Image(100, topSize, corn::Color::rgb(50, 205, 50)));
+    top->addComponent<corn::CAABB>(corn::Vec2(0, 0), corn::Vec2(WALL_THICKNESS, (double)topWallSize));
+    top->addComponent<corn::CSprite>(new corn::Image(
+            WALL_THICKNESS, (unsigned int)topWallSize, WALL_COLOR));
 
-    bottom->addComponent<corn::CTransform2D>(corn::Vec2(0, 0));
-    bottom->addComponent<corn::CAABB>(corn::Vec2(0, 0), corn::Vec2(100, (double)topSize));
-    bottom->addComponent<corn::CSprite>(
-            new corn::Image(100, bottomSize, corn::Color::rgb(50, 205, 50)));
-    // TODO: local transform
+    // Components of bottom wall
+    bottom->addComponent<corn::CTransform2D>(corn::Vec2(0, topWallSize + HOLE_SIZE));
+    bottom->addComponent<corn::CAABB>(corn::Vec2(0, 0), corn::Vec2(WALL_THICKNESS, (double)bottomWallSize));
+    bottom->addComponent<corn::CSprite>(new corn::Image(
+            WALL_THICKNESS, (unsigned int)bottomWallSize, WALL_COLOR));
+
     return wall;
 }
+
+class WallManager : public corn::System {
+public:
+    void update(corn::EntityManager& entityManager, unsigned long long int millis) override {
+        bool needNewWall = true;
+        // Iterate over existing walls
+        for (corn::Entity* entity : entityManager.getActiveEntities()) {
+            if (entity->name != "wall") continue;
+            auto* transform = entity->getComponent<corn::CTransform2D>();
+            double xLocation = transform->worldLocation().x;
+            if ((xLocation + WALL_THICKNESS) < 0) {
+                entity->destroy();
+            }
+            if (WIDTH - (xLocation + WALL_THICKNESS) < WALL_INTERVAL) {
+                needNewWall = false;
+            }
+        }
+        // Create new wall
+        if (needNewWall) {
+            createWall(entityManager, WIDTH);
+        }
+    }
+};
 
 class GameScene : public corn::Scene {
 public:
@@ -56,6 +100,7 @@ public:
         // Systems
         this->systems.push_back(new corn::SMovement2D());
         this->systems.push_back(new corn::SGravity(0.5));
+        this->systems.push_back(new WallManager());
 
         // Event listeners
         this->keyboardEventID = corn::EventManager::instance().addListener(
@@ -88,7 +133,7 @@ private:
             case corn::Key::W:
             case corn::Key::UP:
             case corn::Key::SPACE:
-                this->birdMovement->velocity.y = -800;
+                this->birdMovement->velocity.y = -700;
                 break;
             default:
                 break;
@@ -97,7 +142,7 @@ private:
 
     void onMouseEvent(const corn::EventArgsMouseButton& args) {
         if (args.mouse == corn::Mouse::LEFT && args.status == corn::ButtonEvent::DOWN)
-            this->birdMovement->velocity.y = -800;
+            this->birdMovement->velocity.y = -700;
     }
 };
 

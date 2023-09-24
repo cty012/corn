@@ -3,13 +3,9 @@
 #include <corn/ecs/entity_manager.h>
 
 namespace corn {
-    Entity::Entity(std::string name, EntityManager& entityManager)
-        : active(true), name(std::move(name)), entityManager(entityManager),
-          components(std::unordered_map<std::type_index, Component*>()) {
-
-        static EntityID uid = 0;
-        this->uniqueId = uid++;
-    }
+    Entity::Entity(EntityID id, std::string name, EntityManager& entityManager)
+        : active(true), id(id), name(std::move(name)), entityManager(entityManager),
+          components(std::unordered_map<std::type_index, Component*>()) {}
 
     Entity::~Entity() {
         // Destroy all components
@@ -19,11 +15,22 @@ namespace corn {
         }
     }
 
-    Entity::EntityID Entity::id() const {
-        return this->uniqueId;
-    }
-
     void Entity::destroy() {
         this->entityManager.destroyEntity(*this);
+    }
+
+    Entity* Entity::getParent() const {
+        EntityManager::Node* parent = this->entityManager.nodes.at(id).parent;
+        if (!parent) return nullptr;
+        return parent->ent;
+    }
+
+    std::vector<Entity*> Entity::getChildren() const {
+        std::vector<EntityManager::Node*> children = this->entityManager.nodes.at(id).children;
+        std::vector<Entity*> result = std::vector<Entity*>(children.size());
+        for (size_t i = 0; i < children.size(); i++) {
+            result[i] = children[i]->ent;
+        }
+        return result;
     }
 }

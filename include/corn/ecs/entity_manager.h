@@ -54,6 +54,9 @@ namespace corn {
         /// @return The root node of the Entity tree.
         const Node* getRoot() const;
 
+        /// @return Entity with the given ID. Nullptr if doesn't exist.
+        Entity* getEntityByID(Entity::EntityID id) const;
+
         std::vector<Entity*> getActiveEntities();
 
     private:

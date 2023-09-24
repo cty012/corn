@@ -21,20 +21,19 @@ namespace corn {
         if (parent != nullptr) {
             if (&parent->entityManager != this)
                 throw std::invalid_argument("Parent Entity must be created by the same Entity Manager.");
-            parentNode = &this->nodes.at(parent->id());
+            parentNode = &this->nodes.at(parent->id);
         }
 
         // Create the entity
-        Entity* entity = nullptr;
-        while (true) {
-            entity = new Entity(name, *this);
-            if (!this->nodes.contains(entity->id())) break;
-            delete entity;
+        static Entity::EntityID entID = 0;
+        while (this->nodes.contains(entID)) {
+            entID++;
         }
+        auto* entity = new Entity(entID++, name, *this);
 
         // Create the node
-        this->nodes.emplace(entity->id(), Node(entity, parentNode));
-        parentNode->children.push_back(&this->nodes.at(entity->id()));
+        this->nodes.emplace(entity->id, Node(entity, parentNode));
+        parentNode->children.push_back(&this->nodes.at(entity->id));
         parentNode->dirty = true;
 
         return *entity;
@@ -47,13 +46,13 @@ namespace corn {
             EntityManager::destroyNode(child);
         }
         // Destroy self
-        Entity::EntityID entID = node->ent->id();
+        Entity::EntityID entID = node->ent->id;
         delete node->ent;
         this->nodes.erase(entID);
     }
 
     void EntityManager::destroyEntity(Entity& entity) {
-        Node* node = &this->nodes.at(entity.id());
+        Node* node = &this->nodes.at(entity.id);
         Node* parent = node->parent;
         destroyNode(node);
         // Removes relation (parent --> node)
@@ -64,6 +63,11 @@ namespace corn {
 
     const EntityManager::Node* EntityManager::getRoot() const {
         return &root;
+    }
+
+    Entity* EntityManager::getEntityByID(Entity::EntityID id) const {
+        if (!this->nodes.contains(id)) return nullptr;
+        return this->nodes.at(id).ent;
     }
 
     std::vector<Entity*> EntityManager::getActiveEntities() {

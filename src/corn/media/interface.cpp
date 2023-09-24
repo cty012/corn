@@ -95,12 +95,12 @@ namespace corn {
 
     void Interface::render(Scene* scene) {
         this->clear();
-        std::vector<Entity*> entities = scene->entityManager.getActiveEntities();
-        for (Entity* entity : entities) {
+        for (Entity* entity : scene->entityManager.getActiveEntities()) {
             auto trans = entity->getComponent<CTransform2D>();
             auto sprite = entity->getComponent<CSprite>();
             if (trans == nullptr || sprite == nullptr) continue;
-            sprite->image->sfSprite->setPosition((float)trans->location.x, (float)trans->location.y);
+            auto [x, y] = trans->worldLocation();
+            sprite->image->sfSprite->setPosition((float)x, (float)y);
             this->window->draw(*sprite->image->sfSprite);
         }
     }
