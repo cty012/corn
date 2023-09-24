@@ -49,6 +49,7 @@ namespace corn {
     struct CSprite : public Component {
         Image* image;
         CSprite(Entity& entity, Image *image);
+        ~CSprite() override;
     };
 
     /**

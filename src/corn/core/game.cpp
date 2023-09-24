@@ -21,15 +21,6 @@ namespace corn {
         this->interface->init();
     }
 
-    const Config& Game::getConfig() const {
-        return this->config;
-    }
-
-    void Game::setConfig(Config newConfig) {
-        this->config = std::move(newConfig);
-        // TODO: reload settings
-    }
-
     Game::~Game() {
         // Unregister event listeners
         EventManager::instance().removeListener(this->sceneEventID);
@@ -41,6 +32,15 @@ namespace corn {
             delete this->sceneEvents.front().scene;
             this->sceneEvents.pop();
         }
+    }
+
+    const Config& Game::getConfig() const {
+        return this->config;
+    }
+
+    void Game::setConfig(Config newConfig) {
+        this->config = std::move(newConfig);
+        // TODO: reload settings
     }
 
     void Game::changeScene(corn::SceneOperation op, corn::Scene *scene) {

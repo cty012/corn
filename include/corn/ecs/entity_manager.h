@@ -38,7 +38,7 @@ namespace corn {
         };
 
         EntityManager();
-        ~EntityManager() = default;
+        ~EntityManager();
 
         /**
          * @brief Creates a new Entity with no Components attached.

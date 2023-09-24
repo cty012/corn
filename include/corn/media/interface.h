@@ -14,8 +14,8 @@ namespace corn {
     public:
         explicit Interface(const Config* settings);
         ~Interface();
-        Interface(const Interface& other);
-        Interface& operator=(const Interface& other);
+        Interface(const Interface& other) = delete;
+        Interface& operator=(const Interface& other) = delete;
 
         void init();
 

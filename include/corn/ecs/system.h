@@ -16,7 +16,7 @@ namespace corn {
         bool active;
 
         System();
-        ~System() = default;
+        virtual ~System() = default;
 
         /// @brief If active, will be called repeatedly during game loop.
         virtual void update(EntityManager& entityManager, unsigned long long int millis) = 0;

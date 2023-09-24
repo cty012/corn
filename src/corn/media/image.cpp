@@ -26,5 +26,6 @@ namespace corn {
 
     Image::~Image() {
         delete this->sfSprite;
+        delete this->texture;
     }
 }

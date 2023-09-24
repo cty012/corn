@@ -6,6 +6,12 @@
 namespace corn {
     EntityManager::EntityManager() : root(Node(nullptr, nullptr)) {}
 
+    EntityManager::~EntityManager() {
+        for (auto& [id, node] : this->nodes) {
+            delete node.ent;
+        }
+    }
+
     EntityManager::Node::Node(Entity* ent, Node* parent)
         : ent(ent), parent(parent), children(std::vector<Node*>()), dirty(false) {}
 

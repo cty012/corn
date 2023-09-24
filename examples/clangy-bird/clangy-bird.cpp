@@ -71,6 +71,9 @@ public:
     ~GameScene() override {
         corn::EventManager::instance().removeListener(this->keyboardEventID);
         corn::EventManager::instance().removeListener(this->mouseEventID);
+        for (corn::System* system : this->systems) {
+            delete system;
+        }
     }
 
 private:

@@ -9,6 +9,10 @@ namespace corn {
 
     CSprite::CSprite(Entity& entity, Image *image) : Component(entity), image(image) {}
 
+    CSprite::~CSprite() {
+        delete this->image;
+    }
+
     CMovement2D::CMovement2D(Entity& entity, Vec2 velocity) : Component(entity), velocity(velocity) {}
 
     CGravity2D::CGravity2D(Entity& entity, double scale) : Component(entity), scale(scale) {}

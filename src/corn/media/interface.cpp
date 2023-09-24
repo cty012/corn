@@ -14,18 +14,6 @@ namespace corn {
         delete this->window;
     }
 
-    Interface::Interface(const Interface& other) {
-        this->config = other.config;
-        this->window = other.window;
-    }
-
-    Interface& Interface::operator=(const Interface& other) {
-        if (this == &other) return *this;
-        this->config = other.config;
-        this->window = other.window;
-        return *this;
-    }
-
     void Interface::init() {
         this->window->create(
                 sf::VideoMode(this->config->width, this->config->height),
