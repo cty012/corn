@@ -56,16 +56,29 @@ namespace corn {
         void destroy();
 
         /**
-         * @brief Attach a Component to the Entity if not already exists.
+         * @brief Attach a Component to the Entity.
          * @tparam T Type of the Component, must derive from Component class.
          * @param args Arguments for constructing the Component (excluding the first argument Entity& entity)
          * @return Pointer to the Component if successfully added, else null pointer.
+         *
+         * If a component of the same type already exist, it will be replaced by the new component.
          */
-        template <ComponentType T, typename... Args>
-        T* addComponent(Args&&... args);
+        template <ComponentType T>
+        void addComponent(T* component);
 
         /**
-         * @brief Obtain the corresponding Component if exists.
+         * @brief Create a Component and attach it to the Entity.
+         * @tparam T Type of the Component, must derive from Component class.
+         * @param args Arguments for constructing the Component (excluding the first argument Entity& entity)
+         * @return Pointer to the Component if successfully added, else null pointer.
+         *
+         * If a component of the same type already exist, it will NOT be replaced.
+         */
+        template <ComponentType T, typename... Args>
+        T* createComponent(Args&&... args);
+
+        /**
+         * @brief Obtain the corresponding Component.
          * @tparam T Type of the Component, must derive from Component class.
          * @return Pointer to the Component if exists, else null pointer.
          */
@@ -73,7 +86,7 @@ namespace corn {
         T* getComponent();
 
         /**
-         * @brief Removing a Component from the Entity if exists.
+         * @brief Removing a Component from the Entity.
          * @tparam T Type of the Component, must derive from Component class.
          * @return Whether the Component originally exists.
          */

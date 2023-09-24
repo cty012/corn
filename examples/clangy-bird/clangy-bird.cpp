@@ -14,7 +14,7 @@ constexpr size_t BIRD_HEIGHT = 50;
 const corn::Color BIRD_COLOR = corn::Color::rgb(255, 0, 0);
 
 constexpr size_t CEIL_THICKNESS = 40;
-// const corn::Color CEIL_COLOR = corn::Color::rgb(255, 0, 0);
+const corn::Color CEIL_COLOR = corn::Color::rgb(255, 0, 0);
 
 constexpr double WALL_THICKNESS = 120;
 constexpr double WALL_SPEED = 200;
@@ -26,11 +26,11 @@ constexpr size_t HOLE_SIZE = 260;
 
 corn::Entity* createBird(corn::EntityManager& entityManager) {
     corn::Entity* bird = &entityManager.createEntity("bird");
-    auto transform = bird->addComponent<corn::CTransform2D>(corn::Vec2(100, 300));
+    auto transform = bird->createComponent<corn::CTransform2D>(corn::Vec2(100, 300));
     transform->zorder = 2;
-    bird->addComponent<corn::CMovement2D>(corn::Vec2(0, -500));
-    bird->addComponent<corn::CGravity2D>();
-    bird->addComponent<corn::CSprite>(
+    bird->createComponent<corn::CMovement2D>(corn::Vec2(0, -500));
+    bird->createComponent<corn::CGravity2D>();
+    bird->createComponent<corn::CSprite>(
             new corn::Image(BIRD_WIDTH, BIRD_HEIGHT, BIRD_COLOR));
     return bird;
 }
@@ -49,19 +49,19 @@ corn::Entity* createWall(corn::EntityManager& entityManager, double x) {
     corn::Entity* bottom = &entityManager.createEntity("bottom", wall);
 
     // Components of base node
-    wall->addComponent<corn::CTransform2D>(corn::Vec2(x, 0));
-    wall->addComponent<corn::CMovement2D>(corn::Vec2(-WALL_SPEED, 0));
+    wall->createComponent<corn::CTransform2D>(corn::Vec2(x, 0));
+    wall->createComponent<corn::CMovement2D>(corn::Vec2(-WALL_SPEED, 0));
 
     // Components of top wall
-    top->addComponent<corn::CTransform2D>(corn::Vec2(0, 0));
-    top->addComponent<corn::CAABB>(corn::Vec2(0, 0), corn::Vec2(WALL_THICKNESS, (double)topWallSize));
-    top->addComponent<corn::CSprite>(new corn::Image(
+    top->createComponent<corn::CTransform2D>(corn::Vec2(0, 0));
+    top->createComponent<corn::CAABB>(corn::Vec2(0, 0), corn::Vec2(WALL_THICKNESS, (double)topWallSize));
+    top->createComponent<corn::CSprite>(new corn::Image(
             WALL_THICKNESS, (unsigned int)topWallSize, WALL_COLOR));
 
     // Components of bottom wall
-    bottom->addComponent<corn::CTransform2D>(corn::Vec2(0, topWallSize + HOLE_SIZE));
-    bottom->addComponent<corn::CAABB>(corn::Vec2(0, 0), corn::Vec2(WALL_THICKNESS, (double)bottomWallSize));
-    bottom->addComponent<corn::CSprite>(new corn::Image(
+    bottom->createComponent<corn::CTransform2D>(corn::Vec2(0, topWallSize + HOLE_SIZE));
+    bottom->createComponent<corn::CAABB>(corn::Vec2(0, 0), corn::Vec2(WALL_THICKNESS, (double)bottomWallSize));
+    bottom->createComponent<corn::CSprite>(new corn::Image(
             WALL_THICKNESS, (unsigned int)bottomWallSize, WALL_COLOR));
 
     return wall;
