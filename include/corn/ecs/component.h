@@ -68,7 +68,7 @@ namespace corn {
     };
 
     /**
-     * @class CGravity
+     * @class CGravity2D
      * @brief Stores the velocity of the object. Not affected by rotation.
      *
      * @see Component

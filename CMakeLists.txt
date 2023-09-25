@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.26)
 project(corn)
 
 set(CMAKE_CXX_STANDARD 20)
+set(SFML_PACKAGE_NAME = "SFML-2.6.0")
 list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/deps")
 
 if (WIN32)
@@ -15,7 +16,7 @@ if (WIN32)
             sfml-window
     )
 elseif (APPLE)
-    set(SFML_ROOT "${CMAKE_SOURCE_DIR}/deps/SFML-2.6.0")
+    set(SFML_ROOT "${CMAKE_SOURCE_DIR}/deps/${SFML_PACKAGE_NAME}")
     set(SFML_INCLUDE_DIR "${SFML_ROOT}/include")
     set(SFML_LIBRARY_DIR "${SFML_ROOT}/lib")
     set(SFML_LIBRARIES
