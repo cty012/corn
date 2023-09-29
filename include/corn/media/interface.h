@@ -5,17 +5,17 @@
 #include <corn/core/scene.h>
 #include <corn/util/config.h>
 
-namespace sf {
-    class RenderWindow;
-}
-
 namespace corn {
+    class InterfaceImpl;
+
     class Interface {
     public:
         explicit Interface(const Config* settings);
         ~Interface();
         Interface(const Interface& other) = delete;
         Interface& operator=(const Interface& other) = delete;
+
+        [[nodiscard]] const InterfaceImpl& impl() const;
 
         void init();
 
@@ -28,7 +28,7 @@ namespace corn {
 
     private:
         const Config* config;
-        sf::RenderWindow* window;
+        InterfaceImpl* interfaceImpl;
         static std::unordered_map<Key, bool> keyPressed;
     };
 }
