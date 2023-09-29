@@ -5,7 +5,7 @@
 namespace corn {
     System::System() : active(true) {}
 
-    void SMovement2D::update(EntityManager& entityManager, unsigned long long int millis) {
+    void SMovement2D::update(EntityManager& entityManager, double millis) {
         for (Entity* entity : entityManager.getActiveEntities()) {
             auto trans = entity->getComponent<CTransform2D>();
             auto movement = entity->getComponent<CMovement2D>();
@@ -16,7 +16,7 @@ namespace corn {
 
     SGravity::SGravity(double scale) : scale(scale) {}
 
-    void SGravity::update(EntityManager& entityManager, unsigned long long int millis) {
+    void SGravity::update(EntityManager& entityManager, double millis) {
         for (Entity* entity : entityManager.getActiveEntities()) {
             auto movement = entity->getComponent<CMovement2D>();
             auto gravity2D = entity->getComponent<CGravity2D>();
@@ -26,7 +26,7 @@ namespace corn {
         }
     }
 
-    void SCollisionDetection::update(EntityManager& entityManager, unsigned long long int millis) {
+    void SCollisionDetection::update(EntityManager& entityManager, double millis) {
         std::vector<Entity*> entities = entityManager.getActiveEntities();
         for (size_t i = 0; i < entities.size(); i++) {
             for (size_t j = i + 1; j < entities.size(); j++) {

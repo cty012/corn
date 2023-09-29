@@ -99,25 +99,14 @@ namespace corn {
         this->active = true;
         this->sw.clear();  // Just in case
         this->sw.play();
-        unsigned long long int prevMillis = 0;
         while (this->active && !this->scenes.empty()) {
             // Get millis
-            unsigned long long int millis = this->sw.millis();
-            if (millis - prevMillis < this->config.minMillis) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(this->config.minMillis - millis));
-                millis = this->sw.millis();
-            }
-            unsigned long long int delta = millis - prevMillis;
-            prevMillis = millis;
-
-            if (prevMillis > 1000000000) {
-                this->sw.clear();
-                this->sw.play();
-                prevMillis = 0;
-            }
+            double millis = this->sw.millis();
+            this->sw.clear();
+            this->sw.play();
 
             // Update scene
-            this->scenes.top()->update(delta);
+            this->scenes.top()->update(millis);
 
             // Update interface
             this->interface->handleUserInput();

@@ -29,7 +29,9 @@ elseif (APPLE)
     include_directories(${SFML_INCLUDE_DIR})
 endif ()
 
-file(GLOB_RECURSE HEADERS "${CMAKE_SOURCE_DIR}/include/*.h")
+file(GLOB_RECURSE HEADERS
+        "${CMAKE_SOURCE_DIR}/include/*.h"
+        "${CMAKE_SOURCE_DIR}/src/*.h")
 file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
 include_directories(include)

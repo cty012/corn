@@ -23,7 +23,7 @@ namespace corn {
         void clear();
 
         /// @return The elapsed time in milliseconds.
-        unsigned long long int millis() const;
+        double millis() const;
 
         /// @return Whether the stopwatch is running.
         bool isRunning() const;
@@ -31,7 +31,7 @@ namespace corn {
     private:
         mutable std::mutex mutex;
         bool running;
-        unsigned long long int elapsedTime;
+        double elapsedTime;
         std::chrono::high_resolution_clock::time_point startTime;
     };
 }

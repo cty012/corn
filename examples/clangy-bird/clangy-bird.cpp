@@ -101,7 +101,7 @@ void createCeilAndFloor(corn::EntityManager& entityManager) {
 /// A system for managing wall creation and deletion
 class WallManager : public corn::System {
 public:
-    void update(corn::EntityManager& entityManager, unsigned long long int millis) override {
+    void update(corn::EntityManager& entityManager, double millis) override {
         bool needNewWall = true;
         // Iterate over existing walls
         for (corn::Entity* entity : entityManager.getActiveEntities()) {
