@@ -56,6 +56,12 @@ namespace corn {
         void destroy();
 
         /**
+         * @return Whether the Entity is active. An Entity is active iff itself and all its ancestors have active set
+         * to true.
+         */
+        bool isActive() const;
+
+        /**
          * @brief Attach a Component to the Entity.
          * @tparam T Type of the Component, must derive from Component class.
          * @param args Arguments for constructing the Component (excluding the first argument Entity& entity)
@@ -85,7 +91,7 @@ namespace corn {
          * @return Pointer to the Component if exists, else null pointer.
          */
         template <ComponentType T>
-        T* getComponent();
+        T* getComponent() const;
 
         /**
          * @brief Removing a Component from the Entity.

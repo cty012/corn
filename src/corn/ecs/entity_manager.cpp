@@ -4,7 +4,8 @@
 #include <corn/util/exceptions.h>
 
 namespace corn {
-    EntityManager::EntityManager() : root(Node(nullptr, nullptr)) {}
+    EntityManager::EntityManager()
+        : root(Node(nullptr, nullptr)), nodes(std::unordered_map<Entity::EntityID, Node>()) {}
 
     EntityManager::~EntityManager() {
         for (auto& [id, node] : this->nodes) {
@@ -17,12 +18,7 @@ namespace corn {
 
     Entity& EntityManager::createEntity(const std::string& name, const Entity* parent) {
         // Verify parent
-        Node* parentNode = &this->root;
-        if (parent != nullptr) {
-            if (&parent->entityManager != this)
-                throw std::invalid_argument("Parent Entity must be created by the same Entity Manager.");
-            parentNode = &this->nodes.at(parent->id);
-        }
+        Node* parentNode = this->getNodeFromEntity(parent);
 
         // Create the entity
         static Entity::EntityID entID = 0;
@@ -70,9 +66,72 @@ namespace corn {
         return this->nodes.at(id).ent;
     }
 
-    std::vector<Entity*> EntityManager::getActiveEntities() {
-        auto nodeStack = std::stack<Node*>();
+    Entity* EntityManager::getEntityByName(const std::string& name, const Entity* parent, bool recurse) const {
+        return getEntityThat([&name](Entity* entity) {
+            return entity->name == name;
+        }, parent, recurse);
+    }
+
+    std::vector<Entity*> EntityManager::getEntitiesByName(const std::string& name, const Entity* parent, bool recurse) const {
+        return getEntitiesThat([&name](Entity* entity) {
+            return entity->name == name;
+        }, parent, recurse);
+    }
+
+    Entity* EntityManager::getEntityThat(const std::function<bool(Entity*)>& filter, const Entity* parent, bool recurse) const {
+        auto nodeStack = std::stack<const Node*>();
+        const Node* parentNode = this->getNodeFromEntity(parent);
+        std::for_each(parentNode->children.rbegin(), parentNode->children.rend(), [&nodeStack](Node *child) {
+            nodeStack.push(child);
+        });
+        while (!nodeStack.empty()) {
+            // Retrieve the next node
+            const Node* next = nodeStack.top();
+            nodeStack.pop();
+
+            // Check if current Entity satisfy conditions
+            if (filter(next->ent)) return next->ent;
+
+            // Add Entity pointer to vector and children to stack
+            if (recurse) {
+                std::for_each(next->children.rbegin(), next->children.rend(), [&nodeStack](Node *child) {
+                    nodeStack.push(child);
+                });
+            }
+        }
+        return nullptr;
+    }
+
+    std::vector<Entity*> EntityManager::getEntitiesThat(
+            const std::function<bool(Entity*)>& filter, const Entity* parent, bool recurse) const {
+
         auto entities = std::vector<Entity*>();
+        auto nodeStack = std::stack<const Node*>();
+        const Node* parentNode = this->getNodeFromEntity(parent);
+        std::for_each(parentNode->children.rbegin(), parentNode->children.rend(), [&nodeStack](Node *child) {
+            nodeStack.push(child);
+        });
+        while (!nodeStack.empty()) {
+            // Retrieve the next node
+            const Node* next = nodeStack.top();
+            nodeStack.pop();
+
+            // Check if current Entity satisfy conditions
+            if (filter(next->ent)) entities.push_back(next->ent);
+
+            // Add Entity pointer to vector and children to stack
+            if (recurse) {
+                std::for_each(next->children.rbegin(), next->children.rend(), [&nodeStack](Node *child) {
+                    nodeStack.push(child);
+                });
+            }
+        }
+        return entities;
+    }
+
+    std::vector<Entity*> EntityManager::getActiveEntities() {
+        auto entities = std::vector<Entity*>();
+        auto nodeStack = std::stack<Node*>();
         nodeStack.push(&this->root);
         while (!nodeStack.empty()) {
             // Retrieve the next node
@@ -102,5 +161,19 @@ namespace corn {
             });
         }
         return entities;
+    }
+
+    const EntityManager::Node* EntityManager::getNodeFromEntity(const Entity* entity) const {
+        if (!entity) {
+            return &this->root;
+        } else if (&entity->entityManager == this) {
+            return &this->nodes.at(entity->id);
+        } else {
+            throw std::invalid_argument("Parent Entity must be created by the same Entity Manager.");
+        }
+    }
+
+    EntityManager::Node* EntityManager::getNodeFromEntity(const Entity* entity) {
+        return const_cast<EntityManager::Node*>(static_cast<const EntityManager*>(this)->getNodeFromEntity(entity));
     }
 }

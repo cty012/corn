@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <unordered_map>
 #include <vector>
 #include <corn/ecs/entity.h>
@@ -54,8 +55,47 @@ namespace corn {
         /// @return The root node of the Entity tree.
         const Node* getRoot() const;
 
-        /// @return Entity with the given ID. Nullptr if doesn't exist.
+        /**
+         * @param id ID of the Entity.
+         * @return Entity with the given ID. Null pointer if it doesn't exist.
+         *
+         * Acquiring the Entity by ID is the only method to access an Entity in O(1) time complexity. All other methods
+         * require traversing the Entity tree, which takes O(n) time.
+         */
         Entity* getEntityByID(Entity::EntityID id) const;
+
+        /**
+         * @param name Name of the Entity.
+         * @param parent Parent to start searching from.
+         * @param recurse Also searches indirect descendants of parent if set to true.
+         * @return The first entity with the given name. Null pointer if it doesn't exist.
+         */
+        Entity* getEntityByName(const std::string& name, const Entity* parent = nullptr, bool recurse = true) const;
+
+        /**
+         * @param name Name of the Entity.
+         * @param parent Parent to start searching from.
+         * @param recurse Also searches indirect descendants of parent if set to true.
+         * @return All entities with the given name.
+         */
+        std::vector<Entity*> getEntitiesByName(const std::string& name, const Entity* parent = nullptr, bool recurse = true) const;
+
+        /**
+         * @param filter A function that takes an Entity pointer and returns whether it satisfy the conditions.
+         * @param parent Parent to start searching from.
+         * @param recurse Also searches indirect descendants of parent if set to true.
+         * @return The first entity that satisfy the conditions given by filter. Null pointer if it doesn't exist.
+         */
+        Entity* getEntityThat(const std::function<bool(Entity*)>& filter, const Entity* parent = nullptr, bool recurse = true) const;
+
+        /**
+         * @param name A function that takes an Entity pointer and returns whether it satisfy the conditions.
+         * @param parent Parent to start searching from.
+         * @param recurse Also searches indirect descendants of parent if set to true.
+         * @return All entities that satisfy the conditions given by filter.
+         */
+        std::vector<Entity*> getEntitiesThat(
+                const std::function<bool(Entity*)>& filter, const Entity* parent = nullptr, bool recurse = true) const;
 
         std::vector<Entity*> getActiveEntities();
 
@@ -72,9 +112,18 @@ namespace corn {
          */
         void destroyEntity(Entity& entity);
 
-        /// @brief Quick access for finding nodes by entity ID (does not contain root)
-        std::unordered_map<Entity::EntityID, Node> nodes;
+        /**
+         * @brief Given a pointer to Entity, return the Node containing it.
+         * @throw std::invalid_argument if parent is not a valid Entity created by the Entity Manager.
+         *
+         * The two functions are the same, but one is the const version of the other.
+         */
+        const Node* getNodeFromEntity(const Entity* entity) const;
+        Node* getNodeFromEntity(const Entity* entity);
+
         /// @brief The root node (does not contain a entity)
         Node root;
+        /// @brief Quick access for finding nodes by entity ID (does not contain root)
+        std::unordered_map<Entity::EntityID, Node> nodes;
     };
 }
