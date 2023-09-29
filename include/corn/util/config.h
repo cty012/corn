@@ -24,7 +24,7 @@ namespace corn {
                                                                // @todo If set to 0, will use screen width
         size_t height = 720;                                   // Window height (in pixels)
                                                                // @todo If set to 0, will use screen height
-        std::string title = "My CORN Game";                    // Game title displayed at the top of the window
+        std::string title = "My Corn Game";                    // Game title displayed at the top of the window
         Color background = Color::rgb(60, 179, 113);       // Background color of the game window
         DisplayMode mode = DisplayMode::WINDOWED;              // Display mode
         unsigned long long int minMillis = 0;                  // Minimum milliseconds per frame
