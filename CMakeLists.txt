@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.26)
 project(corn)
 
+option(BUILD_EXAMPLES "Whether or not to build the example programs in the `examples/` folder." ON)
+set(SFML_PACKAGE_NAME "SFML" CACHE STRING "Name of the SFML folder inside `deps/`. Only used on MacOS.")
+set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build (Debug or Release)")
+
 set(CMAKE_CXX_STANDARD 20)
-set(SFML_PACKAGE_NAME = "SFML-2.6.0")
 list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/deps")
 
 if (WIN32)
@@ -55,4 +58,6 @@ function(build_example EXAMPLE_NAME)
     target_link_libraries(${EXAMPLE_NAME} corn)
 endfunction()
 
-build_example(clangy-bird)
+if (BUILD_EXAMPLES)
+    build_example("clangy-bird")
+endif ()
