@@ -16,7 +16,7 @@ namespace corn {
     public:
         friend class UIElement;
 
-        explicit UIManager(const Config* config, EntityManager* entityManager);
+        explicit UIManager(EntityManager* entityManager);
         ~UIManager();
 
         [[nodiscard]] EntityManager* getEntityManager() const;
@@ -33,7 +33,6 @@ namespace corn {
     private:
         void destroyElement(UIElement& element);  // TODO: Implement this
 
-        const Config* config;
         EntityManager* entityManager;
         // TODO: tree structure
     };

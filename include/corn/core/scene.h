@@ -3,6 +3,7 @@
 #include <vector>
 #include <corn/ecs/entity.h>
 #include <corn/ecs/system.h>
+#include <corn/ui/ui_manager.h>
 
 namespace corn {
     /**
@@ -35,6 +36,7 @@ namespace corn {
     public:
         /// @brief Manages the lifetime of all Entities in this scene.
         EntityManager entityManager;
+        UIManager uiManager;
 
         Scene();
         virtual ~Scene() = default;
