@@ -11,7 +11,7 @@
 
 namespace corn {
     template <typename T>
-    concept ComponentType = std::derived_from<T, corn::Component>;
+    concept ComponentType = std::derived_from<T, Component>;
 
     class EntityManager;
 
@@ -58,8 +58,7 @@ namespace corn {
         /**
          * @brief Attach a Component to the Entity.
          * @tparam T Type of the Component, must derive from Component class.
-         * @param args Arguments for constructing the Component (excluding the first argument Entity& entity)
-         * @return Pointer to the Component if successfully added, else null pointer.
+         * @param component The component to be attached. Destruction will be managed automatically.
          * @throw std::invalid_argument if the entity stored in the component does not match the Entity being attached
          * to.
          *
@@ -71,7 +70,7 @@ namespace corn {
         /**
          * @brief Create a Component and attach it to the Entity.
          * @tparam T Type of the Component, must derive from Component class.
-         * @param args Arguments for constructing the Component (excluding the first argument Entity& entity)
+         * @param args Arguments for constructing the Component (excluding the first argument Entity& entity).
          * @return Pointer to the Component if successfully added, else null pointer.
          *
          * If a component of the same type already exist, it will NOT be replaced.
