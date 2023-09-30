@@ -12,7 +12,9 @@
 ## Requirements
 
  - C++ 20
- - SFML 2.6
+ - On Windows: MinGW-w64
+ - On MacOS: clang
+ - [SFML](https://www.sfml-dev.org/) 2.6
 
 ## Installation
 
@@ -25,11 +27,17 @@ Currently only available in source code. Will provide compiled dll/dylib in the 
     git clone https://github.com/cty012/corn.git
     ```
 
- 2. Install MinGW on your machine. Unfortunately MSVC is not supported.
+ 2. Install MinGW-w64 on your machine. Unfortunately MSVC is not supported.
 
  3. Install SFML 2.6 in the `deps` folder. See [SFML official website](https://www.sfml-dev.org/) for detailed instructions.
 
- 4. Build the source code using cmake.
+ 4. Build the source code:
+    ```shell
+    mkdir build
+    cd build
+    cmake -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=../mingw-toolchain.cmake ..
+    mingw32-make
+    ```
 
 ### For MacOS:
 
@@ -45,12 +53,12 @@ Currently only available in source code. Will provide compiled dll/dylib in the 
 
 ## Documentation
 
- To generate the documentation, [Doxygen](https://www.doxygen.nl/) is required. Go to the `docs` folder and run
+ The documentation of this project is generated using [Doxygen](https://www.doxygen.nl/).
+ To generate the documentation, navigate to the `docs` directory and run
  ```shell
  doxygen
  ```
 
-## Acknowledgments
+## Credits
 
- - [SFML](https://www.sfml-dev.org/)
- - [Doxygen](https://www.doxygen.nl/)
+ - [SFML](https://www.sfml-dev.org/) - Licensed under [zlib/libpng license](https://www.sfml-dev.org/license.php)
