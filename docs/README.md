@@ -29,13 +29,13 @@ Currently only available in source code. Will provide compiled dll/dylib in the 
 
  2. Install MinGW-w64 on your machine. Unfortunately MSVC is not supported.
 
- 3. Install SFML 2.6 in the `deps` folder. See [SFML official website](https://www.sfml-dev.org/) for detailed instructions.
+ 3. Install SFML 2.6 binaries in the `deps` folder. See [SFML official website](https://www.sfml-dev.org/) for detailed instructions.
 
  4. Build the source code:
     ```shell
     mkdir build
     cd build
-    cmake -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=../mingw-toolchain.cmake ..
+    cmake -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=../cmake/mingw-toolchain.cmake ..
     mingw32-make
     ```
 
@@ -46,10 +46,18 @@ Currently only available in source code. Will provide compiled dll/dylib in the 
     git clone https://github.com/cty012/corn.git
     ```
 
- 2. Install SFML 2.6 in the `deps` folder. See [SFML official website](https://www.sfml-dev.org/) for detailed instructions.
-    Then copy the name of the package, go to `CMakeLists.txt` and paste it as the new `SFML_PACKAGE_NAME` variable.
+ 2. Install SFML 2.6 binaries in the `deps` folder. See [SFML official website](https://www.sfml-dev.org/) for detailed instructions.
+    Choose the appropriate binary according to your Mac's architecture.
 
- 3. Build the source code using cmake.
+ 3. Build the source code. If you are using ARM64 architecture:
+    ```shell
+    mkdir build
+    cd build
+    cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/clang-<ARCHITECTURE>-toolchain.cmake -DSFML_PACKAGE_NAME=<PKG_NAME>..
+    mingw32-make
+    ```
+    Replace <ARCHITECTURE> with your Mac's architecture (arm64 or x86_64),
+    and replace <PKG_NAME> with the name of the directory containing your SFML binaries installed in `/deps` previously.
 
 ## Documentation
 
