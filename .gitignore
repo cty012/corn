@@ -1,6 +1,9 @@
-# Others
+# Editor
 .idea
 .vscode
+*.swp
+
+# Others
 .DS_Store
 build/
 cmake-build-debug/
