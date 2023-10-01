@@ -7,15 +7,15 @@
 namespace corn {
     struct EventArgs {
         /// @return Type of the event
-        [[nodiscard]] virtual constexpr std::string type() const = 0;
+        [[nodiscard]] virtual constexpr const char* type() const = 0;
     };
 
     struct EventArgsExit : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const override { return "corn::input::exit"; }
+        [[nodiscard]] constexpr const char* type() const override { return "corn::input::exit"; }
     };
 
     struct EventArgsKeyboard : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const override { return "corn::input::keyboard"; }
+        [[nodiscard]] constexpr const char* type() const override { return "corn::input::keyboard"; }
         EventArgsKeyboard(Key key, ButtonEvent status, unsigned char modifiers, const Vec2& mousePos);
         Key key;
         ButtonEvent status;
@@ -28,7 +28,7 @@ namespace corn {
     };
 
     struct EventArgsMouseButton : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const override { return "corn::input::mousebtn"; }
+        [[nodiscard]] constexpr const char* type() const override { return "corn::input::mousebtn"; }
         EventArgsMouseButton(Mouse mouse, ButtonEvent status, const Vec2& mousePos);
         Mouse mouse;
         ButtonEvent status;
@@ -36,13 +36,13 @@ namespace corn {
     };
 
     struct EventArgsMouseMove : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const override { return "corn::input::mousemv"; }
+        [[nodiscard]] constexpr const char* type() const override { return "corn::input::mousemv"; }
         explicit EventArgsMouseMove(const Vec2& mousePos);
         Vec2 mousePos;
     };
 
     struct EventArgsMouseScroll : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const override { return "corn::input::mousesc"; }
+        [[nodiscard]] constexpr const char* type() const override { return "corn::input::mousesc"; }
         EventArgsMouseScroll(double value, const Vec2& mousePos);
         double value;
         Vec2 mousePos;
@@ -52,7 +52,7 @@ namespace corn {
     enum class SceneOperation;
 
     struct EventArgsScene : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const override { return "corn::game::scene"; }
+        [[nodiscard]] constexpr const char* type() const override { return "corn::game::scene"; }
         EventArgsScene(SceneOperation op, Scene* scene);
         SceneOperation op;
         Scene* scene;

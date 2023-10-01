@@ -1,8 +1,8 @@
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.22)
 project(corn)
 
 option(BUILD_EXAMPLES "Whether or not to build the example programs in the `examples/` folder." ON)
-set(SFML_PACKAGE_NAME "SFML-2.6" CACHE STRING "Name of the SFML folder inside `deps/`. Only used on MacOS.")
+set(SFML_PACKAGE_NAME "SFML-2.6" CACHE STRING "Name of the SFML folder inside `deps/`. Only used on MacOS and Linux.")
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build (Debug or Release)")
 
 set(CMAKE_CXX_STANDARD 20)
@@ -30,6 +30,18 @@ elseif (APPLE)
             ${SFML_LIBRARY_DIR}/libsfml-window.dylib
     )
     include_directories(${SFML_INCLUDE_DIR})
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(SFML_ROOT "${CMAKE_SOURCE_DIR}/deps/${SFML_PACKAGE_NAME}")
+    set(SFML_INCLUDE_DIR "${SFML_ROOT}/include")
+    set(SFML_LIBRARY_DIR "${SFML_ROOT}/lib")
+    set(SFML_LIBRARIES
+            ${SFML_LIBRARY_DIR}/libsfml-audio.so
+            ${SFML_LIBRARY_DIR}/libsfml-graphics.so
+            ${SFML_LIBRARY_DIR}/libsfml-network.so
+            ${SFML_LIBRARY_DIR}/libsfml-system.so
+            ${SFML_LIBRARY_DIR}/libsfml-window.so
+    )
+    include_directories(${SFML_INCLUDE_DIR})
 endif ()
 
 file(GLOB_RECURSE HEADERS
@@ -53,6 +65,11 @@ function(build_example EXAMPLE_NAME)
         add_executable(${EXAMPLE_NAME} ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
         set_target_properties(${EXAMPLE_NAME} PROPERTIES
             BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "@executable_path"
+        )
+    elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        add_executable(${EXAMPLE_NAME} ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
+        set_target_properties(${EXAMPLE_NAME} PROPERTIES
+            BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "$ORIGIN"
         )
     endif ()
     target_link_libraries(${EXAMPLE_NAME} corn)

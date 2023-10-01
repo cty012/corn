@@ -43,7 +43,7 @@ namespace corn {
                 action(args);
             } catch (const std::exception& e) {
                 fprintf(stderr, "Exception occurred when emitting event [%s]: %s",
-                        args.type().c_str(), e.what());
+                        args.type(), e.what());
             }
         }
         return (int)callbacks.size();
