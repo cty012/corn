@@ -2,27 +2,30 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/cty012/corn/blob/main/LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-red.svg)](https://github.com/cty012/corn)
 
-Corn is a simple 2D game engine crafted with C++.
+Corn is a lightweight, cross-platform PC-based game engine that supports Windows, Mac, and Linux (tested on Ubuntu).
+It's designed to be easy to use and efficient, allowing developers to create high-quality games with ease.
 
 ## Features
 - 2D rendering (3D in future plans)
-- Compatible with Windows and MacOS
+- Compatible with Windows, MacOS, and Linux
 
 ## Prerequisites
 - C++ 20
-- MinGW-w64 (Windows) / clang (MacOS)
-- [SFML 2.6](https://www.sfml-dev.org)
+- MinGW-w64 (Windows) / clang (MacOS) / GNU (Linux)
+- [CMake](https://cmake.org/) (only if building from the source)
+- [SFML 2.6](https://www.sfml-dev.org/) (only if building from the source)
 
 ## Getting Started
 
 ### Windows:
-1. Clone the repo:
+1. Clone the repo and create the `deps/` folder:
    ```shell
    git clone https://github.com/cty012/corn.git
    cd corn
+   mkdir deps
    ```
 2. Install [MinGW-w64](https://www.mingw-w64.org/downloads/). (MSVC not supported)
-3. Install [SFML 2.6](https://www.sfml-dev.org) binaries in the `deps` folder.
+3. Install [SFML 2.6](https://www.sfml-dev.org/) binaries in the `deps/` folder.
 4. Build the source:
    ```shell
    mkdir build && cd build
@@ -31,19 +34,38 @@ Corn is a simple 2D game engine crafted with C++.
    ```
 
 ### MacOS:
+1. Clone the repo and create the `deps/` folder:
+   ```shell
+   git clone https://github.com/cty012/corn.git
+   cd corn
+   mkdir deps
+   ```
+2. Install [SFML 2.6](https://www.sfml-dev.org/) binaries in the `deps/` folder.
+3. Build the source:
+   ```shell
+   mkdir build && cd build
+   cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/clang-<ARCHITECTURE>-toolchain.cmake -DSFML_PACKAGE_NAME=<PKG_NAME> ..
+   make
+   ```
+   Replace `<ARCHITECTURE>` with your Mac's architecture (arm64 or x86_64), and `<PKG_NAME>` with the directory name containing your SFML binaries in `deps/`.
+
+### Linux:
 1. Clone the repo:
    ```shell
    git clone https://github.com/cty012/corn.git
    cd corn
    ```
-2. Install [SFML 2.6](https://www.sfml-dev.org) binaries in the `deps` folder.
+2. Install SFML and its dependencies to the default location using your package manager or from the [SFML website](https://www.sfml-dev.org/).
+   For example, on Ubuntu:
+   ```shell
+   sudo apt install libsfml-dev
+   ```
 3. Build the source:
    ```shell
    mkdir build && cd build
-   cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/clang-<ARCHITECTURE>-toolchain.cmake -DSFML_PACKAGE_NAME=<PKG_NAME>..
+   cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/gnu-toolchain.cmake ..
    make
    ```
-   Replace `<ARCHITECTURE>` with your Mac's architecture (arm64 or x86_64), and `<PKG_NAME>` with the directory name containing your SFML binaries in `deps`.
 
 ## Documentation
 The documentation of this project is generated using [Doxygen](https://www.doxygen.nl/).
