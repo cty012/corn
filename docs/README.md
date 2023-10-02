@@ -2,7 +2,8 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/cty012/corn/blob/main/LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-red.svg)](https://github.com/cty012/corn)
 
-Corn is a simple 2D game engine crafted with C++.
+Corn is a lightweight, cross-platform PC-based game engine that supports Windows, Mac, and Linux (tested on Ubuntu).
+It's designed to be easy to use and efficient, allowing developers to create high-quality games with ease.
 
 ## Features
 - 2D rendering (3D in future plans)
@@ -54,7 +55,11 @@ Corn is a simple 2D game engine crafted with C++.
    git clone https://github.com/cty012/corn.git
    cd corn
    ```
-2. Install [SFML 2.6](https://www.sfml-dev.org/) and its dependencies. Do not put them in the `deps/` folder. Put them in the default location instead.
+2. Install SFML and its dependencies to the default location using your package manager or from the [SFML website](https://www.sfml-dev.org/).
+   For example, on Ubuntu:
+   ```shell
+   sudo apt install libsfml-dev
+   ```
 3. Build the source:
    ```shell
    mkdir build && cd build
