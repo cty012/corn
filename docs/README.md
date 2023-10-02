@@ -49,20 +49,18 @@ Corn is a simple 2D game engine crafted with C++.
    Replace `<ARCHITECTURE>` with your Mac's architecture (arm64 or x86_64), and `<PKG_NAME>` with the directory name containing your SFML binaries in `deps/`.
 
 ### Linux:
-1. Clone the repo and create the `deps/` folder:
+1. Clone the repo:
    ```shell
    git clone https://github.com/cty012/corn.git
    cd corn
-   mkdir deps
    ```
-2. Install [SFML 2.6](https://www.sfml-dev.org/) binaries in the `deps/` folder.
+2. Install [SFML 2.6](https://www.sfml-dev.org/) and its dependencies. Do not put them in the `deps/` folder. Put them in the default location instead.
 3. Build the source:
    ```shell
    mkdir build && cd build
-   cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/gnu-toolchain.cmake -DSFML_PACKAGE_NAME=<PKG_NAME> ..
+   cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/gnu-toolchain.cmake ..
    make
    ```
-   Replace `<PKG_NAME>` with the directory name containing your SFML binaries in `deps/`.
 
 ## Documentation
 The documentation of this project is generated using [Doxygen](https://www.doxygen.nl/).

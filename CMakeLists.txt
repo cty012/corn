@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 project(corn)
 
 option(BUILD_EXAMPLES "Whether or not to build the example programs in the `examples/` folder." ON)
-set(SFML_PACKAGE_NAME "SFML-2.6" CACHE STRING "Name of the SFML folder inside `deps/`. Only used on MacOS and Linux.")
+set(SFML_PACKAGE_NAME "SFML-2.6" CACHE STRING "Name of the SFML folder inside `deps/`. Only used on MacOS.")
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build (Debug or Release)")
 
 set(CMAKE_CXX_STANDARD 20)
@@ -31,17 +31,14 @@ elseif (APPLE)
     )
     include_directories(${SFML_INCLUDE_DIR})
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    set(SFML_ROOT "${CMAKE_SOURCE_DIR}/deps/${SFML_PACKAGE_NAME}")
-    set(SFML_INCLUDE_DIR "${SFML_ROOT}/include")
-    set(SFML_LIBRARY_DIR "${SFML_ROOT}/lib")
+    find_package(SFML 2.6 REQUIRED COMPONENTS audio graphics network system window)
     set(SFML_LIBRARIES
-            ${SFML_LIBRARY_DIR}/libsfml-audio.so
-            ${SFML_LIBRARY_DIR}/libsfml-graphics.so
-            ${SFML_LIBRARY_DIR}/libsfml-network.so
-            ${SFML_LIBRARY_DIR}/libsfml-system.so
-            ${SFML_LIBRARY_DIR}/libsfml-window.so
+            sfml-audio
+            sfml-graphics
+            sfml-network
+            sfml-system
+            sfml-window
     )
-    include_directories(${SFML_INCLUDE_DIR})
 endif ()
 
 file(GLOB_RECURSE HEADERS
