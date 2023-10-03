@@ -89,7 +89,7 @@ namespace corn {
         Entity* getEntityThat(const std::function<bool(Entity*)>& filter, const Entity* parent = nullptr, bool recurse = true) const;
 
         /**
-         * @param name A function that takes an Entity pointer and returns whether it satisfy the conditions.
+         * @param filter A function that takes an Entity pointer and returns whether it satisfy the conditions.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
          * @return All entities that satisfy the conditions given by filter.
@@ -97,11 +97,16 @@ namespace corn {
         std::vector<Entity*> getEntitiesThat(
                 const std::function<bool(Entity*)>& filter, const Entity* parent = nullptr, bool recurse = true) const;
 
+        /**
+         * @return All active entities. See `Entity::isActive()` for definition of active.
+         *
+         * Also cleans up dirty nodes in the process.
+         */
         std::vector<Entity*> getActiveEntities();
 
     private:
         /// Helper to EntityManager::destroyEntity
-        /// Destroys a node and the entity inside, as well as children, but does not modify parent node
+        /// Destroys a node and the entity inside, as well as all descendant nodes, but does not modify parent node
         void destroyNode(Node* node);
 
         /**
