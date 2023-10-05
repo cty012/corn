@@ -26,9 +26,9 @@ namespace corn {
          * @brief Tree node containing each Entity.
          */
         struct Node {
-            Entity* ent;                           // Entity stored in the node
-            Node* parent;                          // Parent node
-            std::vector<Node*> children;           // Child nodes
+            Entity* ent;                           ///< Entity stored in the node
+            Node* parent;                          ///< Parent node
+            std::vector<Node*> children;           ///< Child nodes
             /**
              * @brief Whether the node's children are sorted by their z-order (small to large)
              *
@@ -68,7 +68,7 @@ namespace corn {
          * @param name Name of the Entity.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
-         * @return The first entity with the given name. Null pointer if it doesn't exist.
+         * @return The first Entity with the given name. Null pointer if it doesn't exist.
          */
         Entity* getEntityByName(const std::string& name, const Entity* parent = nullptr, bool recurse = true) const;
 
@@ -76,33 +76,63 @@ namespace corn {
          * @param name Name of the Entity.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
-         * @return All entities with the given name.
+         * @return All Entities with the given name.
          */
-        std::vector<Entity*> getEntitiesByName(const std::string& name, const Entity* parent = nullptr, bool recurse = true) const;
+        std::vector<Entity*> getEntitiesByName(
+                const std::string& name, const Entity* parent = nullptr, bool recurse = true) const;
 
         /**
-         * @param filter A function that takes an Entity pointer and returns whether it satisfy the conditions.
+         * @param pred A predicate function that takes an Entity pointer and returns whether it satisfy the conditions.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
-         * @return The first entity that satisfy the conditions given by filter. Null pointer if it doesn't exist.
+         * @return The first Entity that satisfy the conditions given by filter. Null pointer if it doesn't exist.
          */
-        Entity* getEntityThat(const std::function<bool(Entity*)>& filter, const Entity* parent = nullptr, bool recurse = true) const;
+        Entity* getEntityThat(
+                const std::function<bool(Entity*)>& pred, const Entity* parent = nullptr, bool recurse = true) const;
 
         /**
-         * @param filter A function that takes an Entity pointer and returns whether it satisfy the conditions.
+         * @param pred A predicate function that takes an Entity pointer and returns whether it satisfy the conditions.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
-         * @return All entities that satisfy the conditions given by filter.
+         * @return All Entities that satisfy the conditions given by filter.
          */
         std::vector<Entity*> getEntitiesThat(
-                const std::function<bool(Entity*)>& filter, const Entity* parent = nullptr, bool recurse = true) const;
+                const std::function<bool(Entity*)>& pred, const Entity* parent = nullptr, bool recurse = true) const;
 
         /**
-         * @return All active entities. See `Entity::isActive()` for definition of active.
-         *
-         * Also cleans up dirty nodes in the process.
+         * @param parent Parent to start searching from.
+         * @param recurse Also searches indirect descendants of parent if set to true.
+         * @return All Entities.
          */
-        std::vector<Entity*> getActiveEntities();
+        std::vector<Entity*> getAllEntities(const Entity* parent = nullptr, bool recurse = true) const;
+
+        /**
+         * @param parent Parent to start searching from.
+         * @param recurse Also searches indirect descendants of parent if set to true.
+         * @return All active Entities. See `Entity::isActive()` for definition of active.
+         */
+        std::vector<Entity*> getAllActiveEntities(const Entity* parent = nullptr, bool recurse = true) const;
+
+        /**
+         * @tparam T List of type of the Components, must derive from Component class.
+         * @param parent Parent to start searching from.
+         * @param recurse Also searches indirect descendants of parent if set to true.
+         * @return All Entities with the list of Components.
+         */
+        template <ComponentType... T>
+        std::vector<Entity*> getEntitiesWith(const Entity* parent = nullptr, bool recurse = true) const;
+
+        /**
+         * @tparam T List of type of the Components, must derive from Component class.
+         * @param parent Parent to start searching from.
+         * @param recurse Also searches indirect descendants of parent if set to true.
+         * @return All active Entities with the list of Components. See `Entity::isActive()` for definition of active.
+         */
+        template <ComponentType... T>
+        std::vector<Entity*> getActiveEntitiesWith(const Entity* parent = nullptr, bool recurse = true) const;
+
+        /// @brief Cleans up dirty active nodes. Auto-called before rendering.
+        void tidy();
 
     private:
         /// Helper to EntityManager::destroyEntity
@@ -126,9 +156,26 @@ namespace corn {
         const Node* getNodeFromEntity(const Entity* entity) const;
         Node* getNodeFromEntity(const Entity* entity);
 
+        /**
+         * @brief Helper to all getEntity/getEntities functions.
+         * @param pred A predicate function that takes an Entity pointer and returns whether it satisfy the conditions.
+         *             Set it to null pointer to disable it.
+         * @param onlyActive Whether to only consider active entities. See `Entity::isActive()` for definition of
+         *                   active.
+         * @param limit Maximum number of entities to match. If set to 0, will match as much as possible.
+         * @param parent Parent to start searching from.
+         * @param recurse Also searches indirect descendants of parent if set to true.
+         * @return
+         */
+        std::vector<Entity*> getEntitiesHelper(
+                const std::function<bool(Entity*)>& pred, bool onlyActive, size_t limit,
+                const Entity* parent, bool recurse) const;
+
         /// @brief The root node (does not contain a entity)
         Node root;
         /// @brief Quick access for finding nodes by entity ID (does not contain root)
         std::unordered_map<Entity::EntityID, Node> nodes;
     };
 }
+
+#include "entity_manager_template.cpp"

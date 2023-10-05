@@ -67,70 +67,42 @@ namespace corn {
     }
 
     Entity* EntityManager::getEntityByName(const std::string& name, const Entity* parent, bool recurse) const {
-        return getEntityThat([&name](Entity* entity) {
-            return entity->name == name;
-        }, parent, recurse);
+        std::vector<Entity*> result = getEntitiesHelper([&name](Entity* entity) {
+                return entity->name == name;
+            }, false, 0, parent, recurse);
+        return result.empty() ? nullptr : result[0];
     }
 
-    std::vector<Entity*> EntityManager::getEntitiesByName(const std::string& name, const Entity* parent, bool recurse) const {
-        return getEntitiesThat([&name](Entity* entity) {
-            return entity->name == name;
-        }, parent, recurse);
+    std::vector<Entity*> EntityManager::getEntitiesByName(
+            const std::string& name, const Entity* parent, bool recurse) const {
+
+        return getEntitiesHelper([&name](Entity* entity) {
+                return entity->name == name;
+            }, false, 0, parent, recurse);
     }
 
-    Entity* EntityManager::getEntityThat(const std::function<bool(Entity*)>& filter, const Entity* parent, bool recurse) const {
-        auto nodeStack = std::stack<const Node*>();
-        const Node* parentNode = this->getNodeFromEntity(parent);
-        std::for_each(parentNode->children.rbegin(), parentNode->children.rend(), [&nodeStack](Node *child) {
-            nodeStack.push(child);
-        });
-        while (!nodeStack.empty()) {
-            // Retrieve the next node
-            const Node* next = nodeStack.top();
-            nodeStack.pop();
+    Entity* EntityManager::getEntityThat(
+            const std::function<bool(Entity*)>& pred, const Entity* parent, bool recurse) const {
 
-            // Check if current Entity satisfy conditions
-            if (filter(next->ent)) return next->ent;
-
-            // Add Entity pointer to vector and children to stack
-            if (recurse) {
-                std::for_each(next->children.rbegin(), next->children.rend(), [&nodeStack](Node *child) {
-                    nodeStack.push(child);
-                });
-            }
-        }
-        return nullptr;
+        std::vector<Entity*> result = getEntitiesHelper(pred, false, 0, parent, recurse);
+        return result.empty() ? nullptr : result[0];
     }
 
     std::vector<Entity*> EntityManager::getEntitiesThat(
-            const std::function<bool(Entity*)>& filter, const Entity* parent, bool recurse) const {
+            const std::function<bool(Entity*)>& pred, const Entity* parent, bool recurse) const {
 
-        auto entities = std::vector<Entity*>();
-        auto nodeStack = std::stack<const Node*>();
-        const Node* parentNode = this->getNodeFromEntity(parent);
-        std::for_each(parentNode->children.rbegin(), parentNode->children.rend(), [&nodeStack](Node *child) {
-            nodeStack.push(child);
-        });
-        while (!nodeStack.empty()) {
-            // Retrieve the next node
-            const Node* next = nodeStack.top();
-            nodeStack.pop();
-
-            // Check if current Entity satisfy conditions
-            if (filter(next->ent)) entities.push_back(next->ent);
-
-            // Add Entity pointer to vector and children to stack
-            if (recurse) {
-                std::for_each(next->children.rbegin(), next->children.rend(), [&nodeStack](Node *child) {
-                    nodeStack.push(child);
-                });
-            }
-        }
-        return entities;
+        return getEntitiesHelper(pred, false, 0, parent, recurse);
     }
 
-    std::vector<Entity*> EntityManager::getActiveEntities() {
-        auto entities = std::vector<Entity*>();
+    std::vector<Entity*> EntityManager::getAllEntities(const Entity* parent, bool recurse) const {
+        return getEntitiesHelper(nullptr, false, 0, parent, recurse);
+    }
+
+    std::vector<Entity*> EntityManager::getAllActiveEntities(const Entity* parent, bool recurse) const {
+        return getEntitiesHelper(nullptr, true, 0, parent, recurse);
+    }
+
+    void EntityManager::tidy() {
         auto nodeStack = std::stack<Node*>();
         nodeStack.push(&this->root);
         while (!nodeStack.empty()) {
@@ -146,21 +118,19 @@ namespace corn {
                 next->dirty = false;
                 std::stable_sort(next->children.begin(), next->children.end(),
                                  [](Node* left, Node* right) {
-                    auto ltrans = left->ent->getComponent<CTransform2D>();
-                    auto rtrans = right->ent->getComponent<CTransform2D>();
-                    if (rtrans == nullptr) return false;
-                    else if (ltrans == nullptr) return true;
-                    else return ltrans->zorder < rtrans->zorder;
-                });
+                                     auto ltrans = left->ent->getComponent<CTransform2D>();
+                                     auto rtrans = right->ent->getComponent<CTransform2D>();
+                                     if (rtrans == nullptr) return false;
+                                     else if (ltrans == nullptr) return true;
+                                     else return ltrans->zorder < rtrans->zorder;
+                                 });
             }
 
-            // Add Entity pointer to vector and children to stack
-            if (next != &root) entities.push_back(next->ent);
+            // Add children to stack
             std::for_each(next->children.rbegin(), next->children.rend(), [&nodeStack](Node* child) {
                 nodeStack.push(child);
             });
         }
-        return entities;
     }
 
     const EntityManager::Node* EntityManager::getNodeFromEntity(const Entity* entity) const {
@@ -175,5 +145,39 @@ namespace corn {
 
     EntityManager::Node* EntityManager::getNodeFromEntity(const Entity* entity) {
         return const_cast<EntityManager::Node*>(static_cast<const EntityManager*>(this)->getNodeFromEntity(entity));
+    }
+
+    std::vector<Entity*> EntityManager::getEntitiesHelper(
+            const std::function<bool(Entity*)> &pred, bool onlyActive,
+            size_t limit, const Entity *parent, bool recurse) const {
+
+        auto entities = std::vector<Entity*>();
+        auto nodeStack = std::stack<const Node*>();
+        const Node* parentNode = this->getNodeFromEntity(parent);
+        std::for_each(parentNode->children.rbegin(), parentNode->children.rend(), [&nodeStack](Node *child) {
+            nodeStack.push(child);
+        });
+        while (!nodeStack.empty()) {
+            // Retrieve the next node
+            const Node* next = nodeStack.top();
+            nodeStack.pop();
+
+            // Skip if not active
+            if (onlyActive && (next != &root) && !next->ent->active) continue;
+
+            // Check if current Entity satisfy conditions
+            if (pred && pred(next->ent)) {
+                entities.push_back(next->ent);
+                if ((--limit) == 0) break;
+            }
+
+            // Add Entity pointer to vector and children to stack
+            if (recurse) {
+                std::for_each(next->children.rbegin(), next->children.rend(), [&nodeStack](Node *child) {
+                    nodeStack.push(child);
+                });
+            }
+        }
+        return entities;
     }
 }

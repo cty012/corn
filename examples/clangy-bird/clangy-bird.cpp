@@ -26,6 +26,11 @@ constexpr size_t HOLE_SIZE = 260;
 
 class GameScene;
 
+/// Component for identifying walls
+struct Wall : public corn::Component {
+    explicit Wall(corn::Entity& entity): corn::Component(entity) {}
+};
+
 /// Custom collision resolve class for bird
 struct BirdCollisionResolve : public corn::CCollisionResolve {
     bool hasCollided;
@@ -65,6 +70,7 @@ corn::Entity* createWall(corn::EntityManager& entityManager, double x) {
     // Components of base node
     wall->createComponent<corn::CTransform2D>(corn::Vec2(x, 0));
     wall->createComponent<corn::CMovement2D>(corn::Vec2(-WALL_SPEED, 0));
+    wall->createComponent<Wall>();
 
     // Components of top wall
     top->createComponent<corn::CTransform2D>(corn::Vec2::ZERO);
@@ -104,8 +110,7 @@ public:
     void update(corn::EntityManager& entityManager, double millis) override {
         bool needNewWall = true;
         // Iterate over existing walls
-        for (corn::Entity* entity : entityManager.getActiveEntities()) {
-            if (entity->name != "wall") continue;
+        for (corn::Entity* entity : entityManager.getEntitiesWith<Wall>()) {
             auto* transform = entity->getComponent<corn::CTransform2D>();
             double xLocation = transform->worldLocation().x;
             if ((xLocation + WALL_THICKNESS) < 0) {

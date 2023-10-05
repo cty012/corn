@@ -105,10 +105,10 @@ namespace corn {
 
     void Interface::render(Scene* scene) {
         this->clear();
-        for (Entity* entity : scene->entityManager.getActiveEntities()) {
+        scene->entityManager.tidy();
+        for (Entity* entity : scene->entityManager.getActiveEntitiesWith<CTransform2D, CSprite>()) {
             auto trans = entity->getComponent<CTransform2D>();
             auto sprite = entity->getComponent<CSprite>();
-            if (trans == nullptr || sprite == nullptr) continue;
             auto [x, y] = trans->worldLocation();
             sprite->image->impl().sfSprite->setPosition((float)x, (float)y);
             this->interfaceImpl->window->draw(*sprite->image->impl().sfSprite);
