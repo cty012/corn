@@ -8,6 +8,17 @@ set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build (Debug or 
 set(CMAKE_CXX_STANDARD 20)
 list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/deps")
 
+# Build the DLL for the library
+file(GLOB_RECURSE HEADERS
+        "${CMAKE_SOURCE_DIR}/include/*.h"
+        "${CMAKE_SOURCE_DIR}/src/*.h")
+file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
+
+add_library(corn SHARED ${HEADERS} ${SOURCES})
+
+target_include_directories(corn PRIVATE "include")
+
+# Link with SFML
 if (WIN32)
     set(SFML_STATIC_LIBRARIES TRUE)
     find_package(SFML 2.6 REQUIRED COMPONENTS audio graphics network system window)
@@ -29,7 +40,7 @@ elseif (APPLE)
             ${SFML_LIBRARY_DIR}/libsfml-system.dylib
             ${SFML_LIBRARY_DIR}/libsfml-window.dylib
     )
-    include_directories(${SFML_INCLUDE_DIR})
+    target_include_directories(corn PRIVATE ${SFML_INCLUDE_DIR})
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     find_package(SFML 2.6 REQUIRED COMPONENTS audio graphics network system window)
     set(SFML_LIBRARIES
@@ -41,15 +52,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     )
 endif ()
 
-file(GLOB_RECURSE HEADERS
-        "${CMAKE_SOURCE_DIR}/include/*.h"
-        "${CMAKE_SOURCE_DIR}/src/*.h")
-file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
-
-include_directories(include)
-
-# Build the DLL for the library
-add_library(corn SHARED ${HEADERS} ${SOURCES})
 target_link_libraries(corn PRIVATE ${SFML_LIBRARIES})
 
 # Build the examples
@@ -69,6 +71,7 @@ function(build_example EXAMPLE_NAME)
             BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "$ORIGIN"
         )
     endif ()
+    target_include_directories(${EXAMPLE_NAME} PRIVATE "include")
     target_link_libraries(${EXAMPLE_NAME} corn)
 endfunction()
 
