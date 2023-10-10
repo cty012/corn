@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <vector>
 #include <corn/ecs/entity.h>
+#include <corn/event/event_args.h>
+#include <corn/event/event_manager.h>
 
 namespace corn {
     /**
@@ -131,7 +133,7 @@ namespace corn {
         template <ComponentType... T>
         std::vector<Entity*> getActiveEntitiesWith(const Entity* parent = nullptr, bool recurse = true) const;
 
-        /// @brief Cleans up dirty active nodes. Auto-called before rendering.
+        /// @brief Cleans up all dirty nodes. Auto-called before rendering.
         void tidy();
 
     private:
@@ -165,7 +167,7 @@ namespace corn {
          * @param limit Maximum number of entities to match. If set to 0, will match as much as possible.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
-         * @return
+         * @return All entities satisfying the given conditions.
          */
         std::vector<Entity*> getEntitiesHelper(
                 const std::function<bool(Entity*)>& pred, bool onlyActive, size_t limit,
@@ -175,6 +177,9 @@ namespace corn {
         Node root;
         /// @brief Quick access for finding nodes by entity ID (does not contain root)
         std::unordered_map<Entity::EntityID, Node> nodes;
+
+        /// @brief Event listeners
+        EventManager::ListenerID zorderEventID;
     };
 }
 

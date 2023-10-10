@@ -8,14 +8,14 @@
 namespace corn {
     std::unordered_map<Key, bool> Interface::keyPressed = std::unordered_map<Key, bool>();
 
-    InterfaceImpl::InterfaceImpl() : window(new sf::RenderWindow()) {}
+    InterfaceImpl::InterfaceImpl(): window(new sf::RenderWindow()) {}
 
     InterfaceImpl::~InterfaceImpl() {
         this->window->close();
         delete this->window;
     }
 
-    Interface::Interface(const Config* config) : config(config), interfaceImpl(new InterfaceImpl()) {}
+    Interface::Interface(const Config* config): config(config), interfaceImpl(new InterfaceImpl()) {}
 
     Interface::~Interface() {
         delete this->interfaceImpl;

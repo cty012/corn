@@ -5,9 +5,22 @@
 
 namespace corn {
     EntityManager::EntityManager()
-        : root(Node(nullptr, nullptr)), nodes(std::unordered_map<Entity::EntityID, Node>()) {}
+        : root(Node(nullptr, nullptr)), nodes(std::unordered_map<Entity::EntityID, Node>()) {
+
+        // Listen to zorder change events
+        this->zorderEventID = EventManager::instance().addListener(
+                "corn::game::ecs::zorder", [this](const EventArgs& args) {
+                    const auto& _args = dynamic_cast<const EventArgsZOrderChange&>(args);
+                    if (!_args.entity || &_args.entity->entityManager != this) return;
+                    Node* node = this->getNodeFromEntity(_args.entity);
+                    node->parent->dirty = true;
+                });
+    }
 
     EntityManager::~EntityManager() {
+        // Unregister event listeners
+        EventManager::instance().removeListener(this->zorderEventID);
+
         for (auto& [id, node] : this->nodes) {
             delete node.ent;
         }
@@ -103,33 +116,29 @@ namespace corn {
     }
 
     void EntityManager::tidy() {
-        auto nodeStack = std::stack<Node*>();
-        nodeStack.push(&this->root);
-        while (!nodeStack.empty()) {
-            // Retrieve the next node
-            Node* next = nodeStack.top();
-            nodeStack.pop();
+        if (this->root.dirty) {
+            this->root.dirty = false;
+            std::stable_sort(this->root.children.begin(), this->root.children.end(),
+                             [](Node* left, Node* right) {
+                                 auto lTrans = left->ent->getComponent<CTransform2D>();
+                                 auto rTrans = right->ent->getComponent<CTransform2D>();
+                                 if (lTrans == nullptr) return true;
+                                 else if (rTrans == nullptr) return false;
+                                 else return lTrans->getZOrder() < rTrans->getZOrder();
+                             });
+        }
 
-            // Skip if not active
-            if ((next != &root) && !next->ent->active) continue;
-
-            // Sort if dirty
-            if (next->dirty) {
-                next->dirty = false;
-                std::stable_sort(next->children.begin(), next->children.end(),
-                                 [](Node* left, Node* right) {
-                                     auto ltrans = left->ent->getComponent<CTransform2D>();
-                                     auto rtrans = right->ent->getComponent<CTransform2D>();
-                                     if (rtrans == nullptr) return false;
-                                     else if (ltrans == nullptr) return true;
-                                     else return ltrans->zorder < rtrans->zorder;
-                                 });
-            }
-
-            // Add children to stack
-            std::for_each(next->children.rbegin(), next->children.rend(), [&nodeStack](Node* child) {
-                nodeStack.push(child);
-            });
+        for (auto& [id, node] : this->nodes) {
+            if (!node.dirty) continue;
+            node.dirty = false;
+            std::stable_sort(node.children.begin(), node.children.end(),
+                             [](Node* left, Node* right) {
+                                 auto lTrans = left->ent->getComponent<CTransform2D>();
+                                 auto rTrans = right->ent->getComponent<CTransform2D>();
+                                 if (lTrans == nullptr) return true;
+                                 else if (rTrans == nullptr) return false;
+                                 else return lTrans->getZOrder() < rTrans->getZOrder();
+                             });
         }
     }
 

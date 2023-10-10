@@ -34,9 +34,12 @@ namespace corn {
     struct CTransform2D : public Component {
         Vec2 location;
         Deg rotation;  // TODO: currently does not consider rotation
-        int zorder;
         CTransform2D(Entity& entity, Vec2 location, Deg rotation = Deg());
-        Vec2 worldLocation() const;
+        [[nodiscard]] Vec2 worldLocation() const;
+        [[nodiscard]] int getZOrder() const;
+        void setZOrder(int _zorder);
+    private:
+        int zorder;
     };
 
     /**
@@ -76,7 +79,7 @@ namespace corn {
      */
     struct CGravity2D : public Component {
         double scale;
-        CGravity2D(Entity& entity, double scale = 1.0);
+        explicit CGravity2D(Entity& entity, double scale = 1.0);
     };
 
     /**

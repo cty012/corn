@@ -2,6 +2,7 @@
 #include <corn/ecs/component.h>
 #include <corn/ecs/entity.h>
 #include <corn/ecs/entity_manager.h>
+#include <corn/event/event_manager.h>
 
 namespace corn {
     Component::Component(Entity& entity) : active(true), entity(entity) {}
@@ -19,6 +20,15 @@ namespace corn {
             current = current->getParent();
         }
         return result;
+    }
+
+    int CTransform2D::getZOrder() const {
+        return this->zorder;
+    }
+
+    void CTransform2D::setZOrder(int _zorder) {
+        this->zorder = _zorder;
+        EventManager::instance().emit(EventArgsZOrderChange(&this->entity));
     }
 
     CSprite::CSprite(Entity& entity, Image *image) : Component(entity), image(image) {}

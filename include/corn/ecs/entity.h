@@ -44,6 +44,7 @@ namespace corn {
          * the max value of EntityID, it goes back to 0.
          */
         const EntityID id;
+
         /**
          * @brief The name of the Entity.
          *
@@ -56,15 +57,15 @@ namespace corn {
         void destroy();
 
         /**
-         * @return Whether the Entity is active. An Entity is active iff itself and all its ancestors have active set
-         * to true.
+         * @return Whether the Entity is active. An Entity is active iff itself and all its ancestors have
+         * Entity::active set to true.
          */
         bool isActive() const;
 
         /**
          * @brief Attach a Component to the Entity.
          * @tparam T Type of the Component, must derive from Component class.
-         * @param args Arguments for constructing the Component (excluding the first argument Entity& entity)
+         * @param args Arguments for constructing the Component (excluding the first argument Entity& entity).
          * @return Pointer to the Component if successfully added, else null pointer.
          * @throw std::invalid_argument if the entity stored in the component does not match the Entity being attached
          * to.
@@ -77,7 +78,7 @@ namespace corn {
         /**
          * @brief Create a Component and attach it to the Entity.
          * @tparam T Type of the Component, must derive from Component class.
-         * @param args Arguments for constructing the Component (excluding the first argument Entity& entity)
+         * @param args Arguments for constructing the Component (excluding the first argument Entity& entity).
          * @return Pointer to the Component if successfully added, else null pointer.
          *
          * If a component of the same type already exist, it will NOT be replaced.
@@ -101,12 +102,10 @@ namespace corn {
         template <ComponentType T>
         bool removeComponent();
 
-        /**
-         * Get the parent Entity
-         * @return
-         */
+        /// @return Get the parent Entity.
         Entity* getParent() const;
 
+        /// @return Get the list of child Entities.
         std::vector<Entity*> getChildren() const;
 
     private:
