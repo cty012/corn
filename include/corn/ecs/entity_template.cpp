@@ -3,8 +3,10 @@
 namespace corn {
     template<ComponentType T>
     void Entity::addComponent(T* component) {
-        if (&component->entity != this) throw std::invalid_argument("Component is not created with the same Entity");
+        if (&component->entity != this)
+            throw std::invalid_argument("Component is not created with the same Entity");
         auto key = std::type_index(typeid(T));
+        delete this->components[key];
         this->components[key] = component;
     }
 
@@ -18,10 +20,10 @@ namespace corn {
     }
 
     template<ComponentType T>
-    T* Entity::getComponent() {
+    T* Entity::getComponent() const {
         auto key = std::type_index(typeid(T));
         if (this->components.find(key) == this->components.end()) return nullptr;
-        return dynamic_cast<T*>(this->components[key]);
+        return dynamic_cast<T*>(this->components.at(key));
     }
 
     template<ComponentType T>

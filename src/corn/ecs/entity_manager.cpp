@@ -4,9 +4,23 @@
 #include <corn/util/exceptions.h>
 
 namespace corn {
-    EntityManager::EntityManager() : root(Node(nullptr, nullptr)) {}
+    EntityManager::EntityManager()
+        : root(Node(nullptr, nullptr)), nodes(std::unordered_map<Entity::EntityID, Node>()) {
+
+        // Listen to zorder change events
+        this->zorderEventID = EventManager::instance().addListener(
+                "corn::game::ecs::zorder", [this](const EventArgs& args) {
+                    const auto& _args = dynamic_cast<const EventArgsZOrderChange&>(args);
+                    if (!_args.entity || &_args.entity->entityManager != this) return;
+                    Node* node = this->getNodeFromEntity(_args.entity);
+                    node->parent->dirty = true;
+                });
+    }
 
     EntityManager::~EntityManager() {
+        // Unregister event listeners
+        EventManager::instance().removeListener(this->zorderEventID);
+
         for (auto& [id, node] : this->nodes) {
             delete node.ent;
         }
@@ -17,12 +31,7 @@ namespace corn {
 
     Entity& EntityManager::createEntity(const std::string& name, const Entity* parent) {
         // Verify parent
-        Node* parentNode = &this->root;
-        if (parent != nullptr) {
-            if (&parent->entityManager != this)
-                throw std::invalid_argument("Parent Entity must be created by the same Entity Manager.");
-            parentNode = &this->nodes.at(parent->id);
-        }
+        Node* parentNode = this->getNodeFromEntity(parent);
 
         // Create the entity
         static Entity::EntityID entID = 0;
@@ -70,36 +79,113 @@ namespace corn {
         return this->nodes.at(id).ent;
     }
 
-    std::vector<Entity*> EntityManager::getActiveEntities() {
-        auto nodeStack = std::stack<Node*>();
+    Entity* EntityManager::getEntityByName(const std::string& name, const Entity* parent, bool recurse) const {
+        std::vector<Entity*> result = getEntitiesHelper([&name](Entity* entity) {
+                return entity->name == name;
+            }, false, 0, parent, recurse);
+        return result.empty() ? nullptr : result[0];
+    }
+
+    std::vector<Entity*> EntityManager::getEntitiesByName(
+            const std::string& name, const Entity* parent, bool recurse) const {
+
+        return getEntitiesHelper([&name](Entity* entity) {
+                return entity->name == name;
+            }, false, 0, parent, recurse);
+    }
+
+    Entity* EntityManager::getEntityThat(
+            const std::function<bool(Entity*)>& pred, const Entity* parent, bool recurse) const {
+
+        std::vector<Entity*> result = getEntitiesHelper(pred, false, 0, parent, recurse);
+        return result.empty() ? nullptr : result[0];
+    }
+
+    std::vector<Entity*> EntityManager::getEntitiesThat(
+            const std::function<bool(Entity*)>& pred, const Entity* parent, bool recurse) const {
+
+        return getEntitiesHelper(pred, false, 0, parent, recurse);
+    }
+
+    std::vector<Entity*> EntityManager::getAllEntities(const Entity* parent, bool recurse) const {
+        return getEntitiesHelper(nullptr, false, 0, parent, recurse);
+    }
+
+    std::vector<Entity*> EntityManager::getAllActiveEntities(const Entity* parent, bool recurse) const {
+        return getEntitiesHelper(nullptr, true, 0, parent, recurse);
+    }
+
+    void EntityManager::tidy() {
+        if (this->root.dirty) {
+            this->root.dirty = false;
+            std::stable_sort(this->root.children.begin(), this->root.children.end(),
+                             [](Node* left, Node* right) {
+                                 auto lTrans = left->ent->getComponent<CTransform2D>();
+                                 auto rTrans = right->ent->getComponent<CTransform2D>();
+                                 if (lTrans == nullptr) return true;
+                                 else if (rTrans == nullptr) return false;
+                                 else return lTrans->getZOrder() < rTrans->getZOrder();
+                             });
+        }
+
+        for (auto& [id, node] : this->nodes) {
+            if (!node.dirty) continue;
+            node.dirty = false;
+            std::stable_sort(node.children.begin(), node.children.end(),
+                             [](Node* left, Node* right) {
+                                 auto lTrans = left->ent->getComponent<CTransform2D>();
+                                 auto rTrans = right->ent->getComponent<CTransform2D>();
+                                 if (lTrans == nullptr) return true;
+                                 else if (rTrans == nullptr) return false;
+                                 else return lTrans->getZOrder() < rTrans->getZOrder();
+                             });
+        }
+    }
+
+    const EntityManager::Node* EntityManager::getNodeFromEntity(const Entity* entity) const {
+        if (!entity) {
+            return &this->root;
+        } else if (&entity->entityManager == this) {
+            return &this->nodes.at(entity->id);
+        } else {
+            throw std::invalid_argument("Parent Entity must be created by the same Entity Manager.");
+        }
+    }
+
+    EntityManager::Node* EntityManager::getNodeFromEntity(const Entity* entity) {
+        return const_cast<EntityManager::Node*>(static_cast<const EntityManager*>(this)->getNodeFromEntity(entity));
+    }
+
+    std::vector<Entity*> EntityManager::getEntitiesHelper(
+            const std::function<bool(Entity*)> &pred, bool onlyActive,
+            size_t limit, const Entity *parent, bool recurse) const {
+
         auto entities = std::vector<Entity*>();
-        nodeStack.push(&this->root);
+        auto nodeStack = std::stack<const Node*>();
+        const Node* parentNode = this->getNodeFromEntity(parent);
+        std::for_each(parentNode->children.rbegin(), parentNode->children.rend(), [&nodeStack](Node *child) {
+            nodeStack.push(child);
+        });
         while (!nodeStack.empty()) {
             // Retrieve the next node
-            Node* next = nodeStack.top();
+            const Node* next = nodeStack.top();
             nodeStack.pop();
 
             // Skip if not active
-            if ((next != &root) && !next->ent->active) continue;
+            if (onlyActive && (next != &root) && !next->ent->active) continue;
 
-            // Sort if dirty
-            if (next->dirty) {
-                next->dirty = false;
-                std::stable_sort(next->children.begin(), next->children.end(),
-                                 [](Node* left, Node* right) {
-                    auto ltrans = left->ent->getComponent<CTransform2D>();
-                    auto rtrans = right->ent->getComponent<CTransform2D>();
-                    if (rtrans == nullptr) return false;
-                    else if (ltrans == nullptr) return true;
-                    else return ltrans->zorder < rtrans->zorder;
-                });
+            // Check if current Entity satisfy conditions
+            if (pred && pred(next->ent)) {
+                entities.push_back(next->ent);
+                if ((--limit) == 0) break;
             }
 
             // Add Entity pointer to vector and children to stack
-            if (next != &root) entities.push_back(next->ent);
-            std::for_each(next->children.rbegin(), next->children.rend(), [&nodeStack](Node* child) {
-                nodeStack.push(child);
-            });
+            if (recurse) {
+                std::for_each(next->children.rbegin(), next->children.rend(), [&nodeStack](Node *child) {
+                    nodeStack.push(child);
+                });
+            }
         }
         return entities;
     }

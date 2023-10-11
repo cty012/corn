@@ -9,11 +9,11 @@ namespace corn {
 
         // Register event listeners
         this->sceneEventID = EventManager::instance().addListener(
-                "corn::game::scene", [this](const EventArgs &args) {
+                "corn::game::scene", [this](const EventArgs& args) {
                     this->onSceneEvent(dynamic_cast<const EventArgsScene&>(args));
                 });
         this->closeEventID = EventManager::instance().addListener(
-                "corn::input::exit", [this](const EventArgs &args) {
+                "corn::input::exit", [this](const EventArgs& args) {
                     this->onExitEvent(dynamic_cast<const EventArgsExit&>(args));
                 });
 
@@ -25,6 +25,7 @@ namespace corn {
         // Unregister event listeners
         EventManager::instance().removeListener(this->sceneEventID);
         EventManager::instance().removeListener(this->closeEventID);
+
         // Deallocation
         delete this->interface;
         this->removeAllScenes();
@@ -43,7 +44,7 @@ namespace corn {
         // TODO: reload settings
     }
 
-    void Game::changeScene(corn::SceneOperation op, corn::Scene *scene) {
+    void Game::changeScene(corn::SceneOperation op, corn::Scene* scene) {
         switch (op) {
             case SceneOperation::PUSH:  // Add new scene to top
                 this->scenes.push(scene);

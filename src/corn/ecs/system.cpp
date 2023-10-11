@@ -6,10 +6,9 @@ namespace corn {
     System::System() : active(true) {}
 
     void SMovement2D::update(EntityManager& entityManager, double millis) {
-        for (Entity* entity : entityManager.getActiveEntities()) {
+        for (Entity* entity : entityManager.getEntitiesWith<CTransform2D, CMovement2D>()) {
             auto trans = entity->getComponent<CTransform2D>();
             auto movement = entity->getComponent<CMovement2D>();
-            if (!trans || !movement) continue;
             trans->location += movement->velocity.mult((double)millis / 1000.0);
         }
     }
@@ -17,17 +16,16 @@ namespace corn {
     SGravity::SGravity(double scale) : scale(scale) {}
 
     void SGravity::update(EntityManager& entityManager, double millis) {
-        for (Entity* entity : entityManager.getActiveEntities()) {
+        for (Entity* entity : entityManager.getEntitiesWith<CMovement2D, CGravity2D>()) {
             auto movement = entity->getComponent<CMovement2D>();
             auto gravity2D = entity->getComponent<CGravity2D>();
             // TODO: gravity 3D
-            if (!movement || !gravity2D) continue;
             movement->velocity.y += SGravity::g * this->scale * gravity2D->scale * ((double)millis / 1000.0);
         }
     }
 
     void SCollisionDetection::update(EntityManager& entityManager, double millis) {
-        std::vector<Entity*> entities = entityManager.getActiveEntities();
+        std::vector<Entity*> entities = entityManager.getEntitiesWith<CTransform2D, CAABB>();
         for (size_t i = 0; i < entities.size(); i++) {
             for (size_t j = i + 1; j < entities.size(); j++) {
                 auto* aabb1 = entities[i]->getComponent<CAABB>();

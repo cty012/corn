@@ -26,6 +26,11 @@ constexpr size_t HOLE_SIZE = 260;
 
 class GameScene;
 
+/// Component for identifying walls
+struct Wall : public corn::Component {
+    explicit Wall(corn::Entity& entity): corn::Component(entity) {}
+};
+
 /// Custom collision resolve class for bird
 struct BirdCollisionResolve : public corn::CCollisionResolve {
     bool hasCollided;
@@ -39,7 +44,7 @@ struct BirdCollisionResolve : public corn::CCollisionResolve {
 corn::Entity* createBird(corn::EntityManager& entityManager) {
     corn::Entity* bird = &entityManager.createEntity("bird");
     auto transform = bird->createComponent<corn::CTransform2D>(corn::Vec2(300, 300));
-    transform->zorder = 2;
+    transform->setZOrder(2);
     bird->createComponent<corn::CMovement2D>(corn::Vec2(0, -500));
     bird->createComponent<corn::CGravity2D>();
     bird->createComponent<corn::CAABB>(corn::Vec2(0, 0), corn::Vec2(BIRD_WIDTH, BIRD_HEIGHT));
@@ -65,6 +70,7 @@ corn::Entity* createWall(corn::EntityManager& entityManager, double x) {
     // Components of base node
     wall->createComponent<corn::CTransform2D>(corn::Vec2(x, 0));
     wall->createComponent<corn::CMovement2D>(corn::Vec2(-WALL_SPEED, 0));
+    wall->createComponent<Wall>();
 
     // Components of top wall
     top->createComponent<corn::CTransform2D>(corn::Vec2::ZERO);
@@ -87,13 +93,13 @@ void createCeilAndFloor(corn::EntityManager& entityManager) {
 
     // Components of ceil
     auto ceilTransform = ceil->createComponent<corn::CTransform2D>(corn::Vec2::ZERO);
-    ceilTransform->zorder = 1;
+    ceilTransform->setZOrder(1);
     ceil->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WIDTH, CEIL_THICKNESS));
     ceil->createComponent<corn::CSprite>(new corn::Image(WIDTH, CEIL_THICKNESS, CEIL_COLOR));
 
     // Components of floor
     auto floorTransform = floor->createComponent<corn::CTransform2D>(corn::Vec2(0, HEIGHT - CEIL_THICKNESS));
-    floorTransform->zorder = 1;
+    floorTransform->setZOrder(1);
     floor->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WIDTH, CEIL_THICKNESS));
     floor->createComponent<corn::CSprite>(new corn::Image(WIDTH, CEIL_THICKNESS, CEIL_COLOR));
 }
@@ -104,8 +110,7 @@ public:
     void update(corn::EntityManager& entityManager, double millis) override {
         bool needNewWall = true;
         // Iterate over existing walls
-        for (corn::Entity* entity : entityManager.getActiveEntities()) {
-            if (entity->name != "wall") continue;
+        for (corn::Entity* entity : entityManager.getEntitiesWith<Wall>()) {
             auto* transform = entity->getComponent<corn::CTransform2D>();
             double xLocation = transform->worldLocation().x;
             if ((xLocation + WALL_THICKNESS) < 0) {
