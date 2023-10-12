@@ -5,6 +5,7 @@
 
 namespace corn {
     class Entity;
+    class EntityManager;
 
     /**
      * @class Component
@@ -20,6 +21,7 @@ namespace corn {
     struct Component {
         bool active;
         Entity& entity;
+        EntityManager& entityManager;
         explicit Component(Entity& entity);
         virtual ~Component() = default;
     };
@@ -52,6 +54,7 @@ namespace corn {
      */
     struct CSprite : public Component {
         Image* image;
+        bool visible;
         CSprite(Entity& entity, Image *image);
         ~CSprite() override;
     };
@@ -118,5 +121,35 @@ namespace corn {
         explicit CCollisionResolve(Entity& entity);
         /// @brief Override this function to define custom collision resolves.
         virtual void resolve(CAABB& self, CAABB& other);
+    };
+
+    enum class CameraType{ _2D, _3D };
+    /**
+     * @class CCamera
+     *
+     * @todo Implement this
+     */
+    struct CCamera : public Component {
+        /// @brief 2D camera renders entities with 2D transforms, and the same for 3D cameras.
+        CameraType cameraType;
+
+        /// @brief Whether the camera will be actively rendering.
+        bool active;
+
+        /// @brief The opacity of the camera, on a scale of [0, 255].
+        unsigned char opacity;
+
+        /**
+         * @brief The location of the camera relative to the Transform.
+         *
+         * Suppose anchor = <x, y, z>, and transform is bounded by (<l, u>, <r, b>). The location of the camera is
+         * defined as <l(1 - x) + rx, u(1 - y) + by>. Same for 3D case.
+         */
+        Vec3 anchor;
+
+        // TODO: viewport
+
+        CCamera(Entity& entity, CameraType cameraType, Vec3 anchor = Vec3::ZERO);
+        ~CCamera();
     };
 }

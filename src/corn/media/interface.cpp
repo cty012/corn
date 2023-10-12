@@ -109,6 +109,7 @@ namespace corn {
         for (Entity* entity : scene->entityManager.getActiveEntitiesWith<CTransform2D, CSprite>()) {
             auto trans = entity->getComponent<CTransform2D>();
             auto sprite = entity->getComponent<CSprite>();
+            if (!sprite->visible) continue;
             auto [x, y] = trans->worldLocation();
             sprite->image->impl().sfSprite->setPosition((float)x, (float)y);
             this->interfaceImpl->window->draw(*sprite->image->impl().sfSprite);

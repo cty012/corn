@@ -177,6 +177,8 @@ namespace corn {
         Node root;
         /// @brief Quick access for finding nodes by entity ID (does not contain root)
         std::unordered_map<Entity::EntityID, Node> nodes;
+        /// @brief List of camera entities for quick access
+        std::vector<Entity*> cameras;  // TODO: listen to add/remove camera events
 
         /// @brief Event listeners
         EventManager::ListenerID zorderEventID;
