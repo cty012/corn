@@ -142,14 +142,17 @@ namespace corn {
         /**
          * @brief The location of the camera relative to the Transform.
          *
-         * Suppose anchor = <x, y, z>, and transform is bounded by (<l, u>, <r, b>). The location of the camera is
-         * defined as <l(1 - x) + rx, u(1 - y) + by>. Same for 3D case.
+         * The rotation stored in the transform component is applied to the anchor, and then the result is added to the
+         * location stored in the transform component. The result will be the center of the Camera.
          */
         Vec3 anchor;
 
-        // TODO: viewport
+        // TODO: viewport (relative to the screen)
 
-        CCamera(Entity& entity, CameraType cameraType, Vec3 anchor = Vec3::ZERO);
-        ~CCamera();
+        /// @brief Creates a 2D camera
+        /// @brief Creates a 3D camera
+        CCamera(Entity& entity, Vec2 anchor);
+        CCamera(Entity& entity, Vec3 anchor);
+        ~CCamera() override;
     };
 }

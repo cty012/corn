@@ -8,6 +8,8 @@
 #include <corn/event/event_manager.h>
 
 namespace corn {
+    class Interface;
+
     /**
      * @class EntityManager
      * @brief Manages all Entities in a scene
@@ -22,6 +24,7 @@ namespace corn {
     public:
         // Entity needs access to the destroyEntity function
         friend class Entity;
+        friend class Interface;
 
         /**
          * @struct Node
@@ -178,10 +181,10 @@ namespace corn {
         /// @brief Quick access for finding nodes by entity ID (does not contain root)
         std::unordered_map<Entity::EntityID, Node> nodes;
         /// @brief List of camera entities for quick access
-        std::vector<Entity*> cameras;  // TODO: listen to add/remove camera events
+        std::vector<const CCamera*> cameras;
 
         /// @brief Event listeners
-        EventManager::ListenerID zorderEventID;
+        std::vector<EventManager::ListenerID> eventIDs;
     };
 }
 

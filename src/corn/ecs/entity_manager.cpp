@@ -2,25 +2,43 @@
 #include <stack>
 #include <corn/ecs/entity_manager.h>
 #include <corn/util/exceptions.h>
+#include "../event/event_args_extend.h"
 
 namespace corn {
     EntityManager::EntityManager()
         : root(Node(nullptr, nullptr)), nodes(std::unordered_map<Entity::EntityID, Node>()) {
 
         // Listen to zorder change events
-        this->zorderEventID = EventManager::instance().addListener(
+        this->eventIDs.push_back(EventManager::instance().addListener(
                 "corn::game::ecs::zorder", [this](const EventArgs& args) {
                     const auto& _args = dynamic_cast<const EventArgsZOrderChange&>(args);
                     if (!_args.entity || &_args.entity->entityManager != this) return;
                     Node* node = this->getNodeFromEntity(_args.entity);
                     node->parent->dirty = true;
-                });
+                }));
+        this->eventIDs.push_back(EventManager::instance().addListener(
+                "corn::game::ecs::camera", [this](const EventArgs& args) {
+                    const auto& _args = dynamic_cast<const EventArgsCamera&>(args);
+                    if (!_args.camera || &_args.camera->entityManager != this) return;
+                    switch (_args.eventType) {
+                        case CameraEventType::ADD:
+                            this->cameras.push_back(_args.camera);
+                            break;
+                        case CameraEventType::REMOVE:
+                            this->cameras.erase(std::remove(
+                                    this->cameras.begin(), this->cameras.end(), _args.camera), this->cameras.end());
+                            break;
+                    }
+                }));
     }
 
     EntityManager::~EntityManager() {
         // Unregister event listeners
-        EventManager::instance().removeListener(this->zorderEventID);
+        for (EventManager::ListenerID id : this->eventIDs) {
+            EventManager::instance().removeListener(id);
+        }
 
+        // Delete entities
         for (auto& [id, node] : this->nodes) {
             delete node.ent;
         }

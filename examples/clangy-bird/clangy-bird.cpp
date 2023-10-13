@@ -41,6 +41,13 @@ struct BirdCollisionResolve : public corn::CCollisionResolve {
     void resolve(corn::CAABB& self, corn::CAABB& other) override;  // Implemented later
 };
 
+corn::Entity* createCamera(corn::EntityManager& entityManager) {
+    corn::Entity* camera = &entityManager.createEntity("camera");
+    camera->createComponent<corn::CTransform2D>(corn::Vec2(-(double)WIDTH / 2, -(double)HEIGHT / 2));
+    camera->createComponent<corn::CCamera>(corn::Vec2::ZERO);
+    return camera;
+}
+
 corn::Entity* createBird(corn::EntityManager& entityManager) {
     corn::Entity* bird = &entityManager.createEntity("bird");
     auto transform = bird->createComponent<corn::CTransform2D>(corn::Vec2(300, 300));
@@ -131,6 +138,9 @@ public:
 class GameScene : public corn::Scene {
 public:
     GameScene() {
+        // Camera
+        createCamera(this->entityManager);
+
         // Entities
         this->bird = createBird(this->entityManager);
         this->birdMovement = this->bird->getComponent<corn::CMovement2D>();

@@ -1,3 +1,4 @@
+#include <corn/ecs/component.h>
 #include <corn/event/event_manager.h>
 #include <corn/media/interface.h>
 #include <corn/util/geometry.h>
@@ -32,7 +33,12 @@ namespace corn {
                 cornMode2SfStyle(this->config->mode));
     }
 
-    void Interface::handleUserInput() {  // TODO: change this
+    Vec2 Interface::screenSize() const {
+        sf::Vector2u size = this->interfaceImpl->window->getSize();
+        return {(double)size.x, (double)size.y};
+    }
+
+    void Interface::handleUserInput() const {  // TODO: change this
         sf::Event event{};
         while (this->interfaceImpl->window->pollEvent(event)) {
             switch (event.type) {
@@ -104,15 +110,31 @@ namespace corn {
     }
 
     void Interface::render(Scene* scene) {
+        Vec2 halfScreenSize = this->screenSize().mult(0.5);
+
         this->clear();
         scene->entityManager.tidy();
-        for (Entity* entity : scene->entityManager.getActiveEntitiesWith<CTransform2D, CSprite>()) {
-            auto trans = entity->getComponent<CTransform2D>();
-            auto sprite = entity->getComponent<CSprite>();
-            if (!sprite->visible) continue;
-            auto [x, y] = trans->worldLocation();
-            sprite->image->impl().sfSprite->setPosition((float)x, (float)y);
-            this->interfaceImpl->window->draw(*sprite->image->impl().sfSprite);
+        for (const CCamera* camera : scene->entityManager.cameras) {
+            if (!camera->active) continue;
+
+            // TODO: 3D
+            if (camera->cameraType == CameraType::_3D) return;
+
+            // Calculate center of camera
+            auto cameraTransform = camera->entity.getComponent<CTransform2D>();
+            if (!cameraTransform) return;
+            Vec2 cameraCenter = cameraTransform->location + Vec2(camera->anchor.x, camera->anchor.y) + halfScreenSize;
+
+            // Render entities
+            // TODO: rotation
+            for (Entity* entity: scene->entityManager.getActiveEntitiesWith<CTransform2D, CSprite>()) {
+                auto transform = entity->getComponent<CTransform2D>();
+                auto sprite = entity->getComponent<CSprite>();
+                if (!sprite->visible) continue;
+                auto [x, y] = transform->worldLocation() - cameraCenter;
+                sprite->image->impl().sfSprite->setPosition((float) x, (float) y);
+                this->interfaceImpl->window->draw(*sprite->image->impl().sfSprite);
+            }
         }
     }
 

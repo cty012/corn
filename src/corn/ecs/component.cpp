@@ -3,6 +3,7 @@
 #include <corn/ecs/entity.h>
 #include <corn/ecs/entity_manager.h>
 #include <corn/event/event_manager.h>
+#include "../event/event_args_extend.h"
 
 namespace corn {
     Component::Component(Entity& entity): active(true), entity(entity), entityManager(entity.entityManager) {}
@@ -62,12 +63,20 @@ namespace corn {
 
     void CCollisionResolve::resolve(CAABB& self, CAABB& other) {}
 
-    CCamera::CCamera(Entity& entity, CameraType cameraType, Vec3 anchor)
-        : Component(entity), cameraType(cameraType), anchor(anchor), active(true), opacity(1) {
-        // TODO: emit add camera events
+    CCamera::CCamera(Entity& entity, Vec2 anchor)
+            : Component(entity), cameraType(CameraType::_2D),
+            anchor(anchor.x, anchor.y, 0), active(true), opacity(1) {
+
+        EventManager::instance().emit(EventArgsCamera(CameraEventType::ADD, this));
+    }
+
+    CCamera::CCamera(Entity& entity, Vec3 anchor)
+        : Component(entity), cameraType(CameraType::_3D), anchor(anchor), active(true), opacity(1) {
+
+        EventManager::instance().emit(EventArgsCamera(CameraEventType::ADD, this));
     }
 
     CCamera::~CCamera() {
-        // TODO: emit remove camera events
+        EventManager::instance().emit(EventArgsCamera(CameraEventType::REMOVE, this));
     }
 }

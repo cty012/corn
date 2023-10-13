@@ -57,12 +57,4 @@ namespace corn {
         SceneOperation op;
         Scene* scene;
     };
-
-    class Entity;
-
-    struct EventArgsZOrderChange : public EventArgs {
-        [[nodiscard]] constexpr const char* type() const override { return "corn::game::ecs::zorder"; }
-        explicit EventArgsZOrderChange(Entity* entity);
-        Entity* entity;
-    };
 }
