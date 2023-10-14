@@ -15,8 +15,9 @@ namespace corn {
         Entity* current = this->entity.getParent();
         while (current) {
             auto* transform = current->getComponent<CTransform2D>();
-            if (!transform) break;
-            result += transform->location;
+            if (transform) {
+                result += transform->location;
+            }
             current = current->getParent();
         }
         return result;
