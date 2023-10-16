@@ -22,8 +22,8 @@ namespace corn {
         Vec3(double x, double y, double z);
 
         // Conversions
-        Vec2 vec2() const;
-        Vec4 vec4(double w) const;
+        [[nodiscard]] Vec2 vec2() const;
+        [[nodiscard]] Vec4 vec4(double w) const;
 
         // Operations
         /// @return A copy of the vector itself.

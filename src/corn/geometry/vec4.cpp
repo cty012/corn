@@ -10,7 +10,7 @@ namespace corn {
     const Vec4 Vec4::UNIT_Z = Vec4(0.0, 0.0, 1.0, 0.0);
     const Vec4 Vec4::UNIT_W = Vec4(0.0, 0.0, 0.0, 1.0);
 
-    Vec4::Vec4() : x(0.0), y(0.0), z(0.0) {}
+    Vec4::Vec4() : x(0.0), y(0.0), z(0.0), w(0.0) {}
 
     Vec4::Vec4(double x, double y, double z, double w) : x(x), y(y), z(z), w(w) {}
 
