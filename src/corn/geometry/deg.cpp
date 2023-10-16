@@ -1,5 +1,5 @@
 #include <cmath>
-#include <corn/util/geometry.h>
+#include <corn/geometry/deg.h>
 
 namespace corn {
     Deg::Deg(double val) {

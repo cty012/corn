@@ -1,7 +1,8 @@
 #pragma once
 
+#include <corn/geometry/deg.h>
+#include <corn/geometry/vec2.h>
 #include <corn/media/image.h>
-#include <corn/util/geometry.h>
 
 namespace corn {
     class Entity;

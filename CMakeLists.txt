@@ -9,6 +9,11 @@ set(CMAKE_CXX_STANDARD 20)
 list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/deps")
 
 # Build the DLL for the library
+if (MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+endif()
+
 file(GLOB_RECURSE HEADERS
         "${CMAKE_SOURCE_DIR}/include/*.h"
         "${CMAKE_SOURCE_DIR}/src/*.h")
@@ -77,5 +82,9 @@ function(build_example EXAMPLE_NAME)
 endfunction()
 
 if (BUILD_EXAMPLES)
+    if(MSVC)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    endif()
+
     build_example("clangy-bird")
 endif ()

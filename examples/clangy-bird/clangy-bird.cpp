@@ -3,6 +3,7 @@
 #include <corn/core.h>
 #include <corn/ecs.h>
 #include <corn/event.h>
+#include <corn/geometry.h>
 #include <corn/media.h>
 #include <corn/util.h>
 

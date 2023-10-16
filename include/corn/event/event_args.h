@@ -2,7 +2,7 @@
 
 #include <string>
 #include <corn/core/input.h>
-#include <corn/util/geometry.h>
+#include <corn/geometry/vec2.h>
 
 namespace corn {
     struct EventArgs {

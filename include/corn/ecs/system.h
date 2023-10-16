@@ -6,9 +6,13 @@
 namespace corn {
     /**
      * @class System
-     * @brief Base class for all Systems.
+     * @brief System in the ECS architecture. Base class for all Systems.
      *
-     * @todo Write detailed description.
+     * All systems must implement the update function, which will be called once every game loop.
+     *
+     * @see Entity
+     * @see EntityManager
+     * @see Component
      */
     class System {
     public:
@@ -55,9 +59,10 @@ namespace corn {
 
     /**
      * @class SCollisionDetection
-     * @brief Calculates and resolves collision.
+     * @brief Detects and resolves collision.
      *
-     * @todo Write detailed description.
+     * The system retrieves all Entities with a position and collision detection component and detects any collision
+     * between them. If detected, it will invoke any collision resolvers attached to either Entity.
      *
      * @see System
      * @see CAABB
