@@ -8,14 +8,14 @@
 namespace corn {
     std::unordered_map<Key, bool> Interface::keyPressed = std::unordered_map<Key, bool>();
 
-    InterfaceImpl::InterfaceImpl() : window(new sf::RenderWindow()) {}
+    InterfaceImpl::InterfaceImpl(): window(new sf::RenderWindow()) {}
 
     InterfaceImpl::~InterfaceImpl() {
         this->window->close();
         delete this->window;
     }
 
-    Interface::Interface(const Config* config) : config(config), interfaceImpl(new InterfaceImpl()) {}
+    Interface::Interface(const Config* config): config(config), interfaceImpl(new InterfaceImpl()) {}
 
     Interface::~Interface() {
         delete this->interfaceImpl;
@@ -105,10 +105,10 @@ namespace corn {
 
     void Interface::render(Scene* scene) {
         this->clear();
-        for (Entity* entity : scene->entityManager.getActiveEntities()) {
+        scene->entityManager.tidy();
+        for (Entity* entity : scene->entityManager.getActiveEntitiesWith<CTransform2D, CSprite>()) {
             auto trans = entity->getComponent<CTransform2D>();
             auto sprite = entity->getComponent<CSprite>();
-            if (trans == nullptr || sprite == nullptr) continue;
             auto [x, y] = trans->worldLocation();
             sprite->image->impl().sfSprite->setPosition((float)x, (float)y);
             this->interfaceImpl->window->draw(*sprite->image->impl().sfSprite);
