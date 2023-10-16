@@ -11,20 +11,31 @@ It's designed to be easy to use and efficient, allowing developers to create hig
 
 ## Prerequisites
 - C++ 20
-- MinGW-w64 (Windows) / clang (MacOS) / GNU (Linux)
+- Visual Studio (Windows) / MinGW-w64 (Windows) / Clang (MacOS) / GCC (Linux)
 - [CMake](https://cmake.org/) (only if building from the source)
 - [SFML 2.6](https://www.sfml-dev.org/) (only if building from the source)
 
 ## Getting Started
 
-### Windows:
+### Windows (Visual Studio):
 1. Clone the repo and create the `deps/` folder:
    ```shell
    git clone https://github.com/cty012/corn.git
    cd corn
    mkdir deps
    ```
-2. Install [MinGW-w64](https://www.mingw-w64.org/downloads/). (MSVC not supported)
+2. Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
+3. Install [SFML 2.6](https://www.sfml-dev.org/) binaries in the `deps/` folder.
+4. Build the source using Visual Studio IDE.
+
+### Windows (MinGW-w64):
+1. Clone the repo and create the `deps/` folder:
+   ```shell
+   git clone https://github.com/cty012/corn.git
+   cd corn
+   mkdir deps
+   ```
+2. Install [MinGW-w64](https://www.mingw-w64.org/downloads/).
 3. Install [SFML 2.6](https://www.sfml-dev.org/) binaries in the `deps/` folder.
 4. Build the source:
    ```shell
