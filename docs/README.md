@@ -28,9 +28,8 @@ It's designed to be easy to use and efficient, allowing developers to create hig
 3. Install [SFML 2.6](https://www.sfml-dev.org/) binaries in the `deps/` folder.
 4. Build the source:
    ```shell
-   mkdir build && cd build
-   cmake -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=../cmake/mingw-toolchain.cmake ..
-   mingw32-make
+   cmd.exe /c 'cmake -B build -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=cmake/mingw-toolchain.cmake'
+   mingw32-make -C build
    ```
 
 ### MacOS:
@@ -43,9 +42,8 @@ It's designed to be easy to use and efficient, allowing developers to create hig
 2. Install [SFML 2.6](https://www.sfml-dev.org/) binaries in the `deps/` folder.
 3. Build the source:
    ```shell
-   mkdir build && cd build
-   cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/clang-<ARCHITECTURE>-toolchain.cmake -DSFML_PACKAGE_NAME=<PKG_NAME> ..
-   make
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=cmake/clang-<ARCHITECTURE>-toolchain.cmake -DSFML_PACKAGE_NAME=<PKG_NAME>
+   make -C build
    ```
    Replace `<ARCHITECTURE>` with your Mac's architecture (arm64 or x86_64), and `<PKG_NAME>` with the directory name containing your SFML binaries in `deps/`.
 
@@ -62,9 +60,8 @@ It's designed to be easy to use and efficient, allowing developers to create hig
    ```
 3. Build the source:
    ```shell
-   mkdir build && cd build
-   cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/gnu-toolchain.cmake ..
-   make
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=cmake/gcc-toolchain.cmake
+   make -C build
    ```
 
 ## Documentation
