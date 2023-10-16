@@ -1,5 +1,6 @@
 #include <cmath>
-#include <corn/util/geometry.h>
+#include <corn/geometry/vec2.h>
+#include <corn/geometry/vec3.h>
 
 namespace corn {
     const Vec2 Vec2::ZERO = Vec2(0.0, 0.0);
@@ -9,6 +10,10 @@ namespace corn {
     Vec2::Vec2() : x(0.0), y(0.0) {}
 
     Vec2::Vec2(double x, double y) : x(x), y(y) {}
+
+    Vec3 Vec2::vec3(double z) const {
+        return {this->x, this->y, z};
+    }
 
     Vec2 Vec2::operator+() const {
         return *this;

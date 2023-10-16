@@ -1,6 +1,5 @@
-#include <corn/util/exceptions.h>
-
 #include <utility>
+#include <corn/util/exceptions.h>
 
 namespace corn {
     ResourceLoadFailed::ResourceLoadFailed(std::string msg) : msg(std::move(msg)) {}
