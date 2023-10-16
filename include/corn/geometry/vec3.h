@@ -53,4 +53,9 @@ namespace corn {
         /// @return Normalized vector. Zero if this is a zero vector.
         [[nodiscard]] Vec3 normalize() const;
     };
+
+    inline const Vec3 Vec3::ZERO = {0.0, 0.0, 0.0};
+    inline const Vec3 Vec3::UNIT_X = {1.0, 0.0, 0.0};
+    inline const Vec3 Vec3::UNIT_Y = {0.0, 1.0, 0.0};
+    inline const Vec3 Vec3::UNIT_Z = {0.0, 0.0, 1.0};
 }

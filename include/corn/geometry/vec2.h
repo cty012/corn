@@ -49,4 +49,8 @@ namespace corn {
         /// @return Normalized vector. Zero if this is a zero vector.
         [[nodiscard]] Vec2 normalize() const;
     };
+
+    inline const Vec2 Vec2::ZERO = {0.0, 0.0};
+    inline const Vec2 Vec2::UNIT_X = {1.0, 0.0};
+    inline const Vec2 Vec2::UNIT_Y = {0.0, 1.0};
 }
