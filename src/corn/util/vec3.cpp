@@ -2,11 +2,6 @@
 #include <corn/util/geometry.h>
 
 namespace corn {
-    const Vec3 Vec3::ZERO = Vec3(0.0, 0.0, 0.0);
-    const Vec3 Vec3::UNIT_X = Vec3(1.0, 0.0, 0.0);
-    const Vec3 Vec3::UNIT_Y = Vec3(0.0, 1.0, 0.0);
-    const Vec3 Vec3::UNIT_Z = Vec3(0.0, 0.0, 1.0);
-
     Vec3::Vec3() : x(0.0), y(0.0), z(0.0) {}
 
     Vec3::Vec3(double x, double y, double z) : x(x), y(y), z(z) {}
