@@ -41,6 +41,8 @@ namespace corn {
 
         /// @return Dot product of this and other.
         [[nodiscard]] double dot(const Vec3 &other) const;
+        /// @return Cross product of this and other.
+        [[nodiscard]] Vec3 cross(const Vec3 &other) const;
         /// @return Element-wise multiplication of this and other.
         Vec3 operator*(const Vec3 &other) const;
         /// @return Results of multiplying by a scalar.

@@ -30,15 +30,15 @@ namespace corn {
         return {-this->x, -this->y, -this->z, -this->w};
     }
 
-    Vec4 Vec4::operator+(const Vec4 &other) const {
+    Vec4 Vec4::operator+(const Vec4& other) const {
         return {this->x + other.x, this->y + other.y, this->z + other.z, this->w + other.w};
     }
 
-    Vec4 Vec4::operator-(const Vec4 &other) const {
+    Vec4 Vec4::operator-(const Vec4& other) const {
         return {this->x - other.x, this->y - other.y, this->z - other.z, this->w - other.w};
     }
 
-    Vec4& Vec4::operator+=(const Vec4 &other) {
+    Vec4& Vec4::operator+=(const Vec4& other) {
         this->x += other.x;
         this->y += other.y;
         this->z += other.z;
@@ -46,7 +46,7 @@ namespace corn {
         return *this;
     }
 
-    Vec4& Vec4::operator-=(const Vec4 &other) {
+    Vec4& Vec4::operator-=(const Vec4& other) {
         this->x -= other.x;
         this->y -= other.y;
         this->z -= other.z;
@@ -54,11 +54,11 @@ namespace corn {
         return *this;
     }
 
-    double Vec4::dot(const Vec4 &other) const {
+    double Vec4::dot(const Vec4& other) const {
         return this->x * other.x + this->y * other.y + this->z * other.z + this->w * other.w;
     }
 
-    Vec4 Vec4::operator*(const Vec4 &other) const {
+    Vec4 Vec4::operator*(const Vec4& other) const {
         return {this->x * other.x, this->y * other.y, this->z * other.z, this->w * other.w};
     }
 

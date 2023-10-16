@@ -28,31 +28,31 @@ namespace corn {
         return {-this->x, -this->y};
     }
 
-    Vec2 Vec2::operator+(const Vec2 &other) const {
+    Vec2 Vec2::operator+(const Vec2& other) const {
         return {this->x + other.x, this->y + other.y};
     }
 
-    Vec2 Vec2::operator-(const Vec2 &other) const {
+    Vec2 Vec2::operator-(const Vec2& other) const {
         return {this->x - other.x, this->y - other.y};
     }
 
-    Vec2& Vec2::operator+=(const Vec2 &other) {
+    Vec2& Vec2::operator+=(const Vec2& other) {
         this->x += other.x;
         this->y += other.y;
         return *this;
     }
 
-    Vec2& Vec2::operator-=(const Vec2 &other) {
+    Vec2& Vec2::operator-=(const Vec2& other) {
         this->x -= other.x;
         this->y -= other.y;
         return *this;
     }
 
-    double Vec2::dot(const Vec2 &other) const {
+    double Vec2::dot(const Vec2& other) const {
         return this->x * other.x + this->y * other.y;
     }
 
-    Vec2 Vec2::operator*(const Vec2 &other) const {
+    Vec2 Vec2::operator*(const Vec2& other) const {
         return {this->x * other.x, this->y * other.y};
     }
 

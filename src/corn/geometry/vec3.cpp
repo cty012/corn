@@ -29,33 +29,38 @@ namespace corn {
         return {-this->x, -this->y, -this->z};
     }
 
-    Vec3 Vec3::operator+(const Vec3 &other) const {
+    Vec3 Vec3::operator+(const Vec3& other) const {
         return {this->x + other.x, this->y + other.y, this->z + other.z};
     }
 
-    Vec3 Vec3::operator-(const Vec3 &other) const {
+    Vec3 Vec3::operator-(const Vec3& other) const {
         return {this->x - other.x, this->y - other.y, this->z - other.z};
     }
 
-    Vec3& Vec3::operator+=(const Vec3 &other) {
+    Vec3& Vec3::operator+=(const Vec3& other) {
         this->x += other.x;
         this->y += other.y;
         this->z += other.z;
         return *this;
     }
 
-    Vec3& Vec3::operator-=(const Vec3 &other) {
+    Vec3& Vec3::operator-=(const Vec3& other) {
         this->x -= other.x;
         this->y -= other.y;
         this->z -= other.z;
         return *this;
     }
 
-    double Vec3::dot(const Vec3 &other) const {
+    double Vec3::dot(const Vec3& other) const {
         return this->x * other.x + this->y * other.y + this->z * other.z;
     }
 
-    Vec3 Vec3::operator*(const Vec3 &other) const {
+    Vec3 Vec3::cross(const Vec3& other) const {
+        const Vec3& o = other;
+        return {y * o.z - o.y * z, z * o.x - o.z * x, x * o.y - o.x * y};
+    }
+
+    Vec3 Vec3::operator*(const Vec3& other) const {
         return {this->x * other.x, this->y * other.y, this->z * other.z};
     }
 
