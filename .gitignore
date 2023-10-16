@@ -1,5 +1,6 @@
 # Editor
 .idea
+.vs
 .vscode
 *.swp
 
@@ -7,5 +8,6 @@
 .DS_Store
 build/
 cmake-build-debug/
+out/
 deps/
 docs/doxygen-output/

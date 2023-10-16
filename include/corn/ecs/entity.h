@@ -44,6 +44,7 @@ namespace corn {
          * the max value of EntityID, it goes back to 0.
          */
         const EntityID id;
+
         /**
          * @brief The name of the Entity.
          *
@@ -54,6 +55,12 @@ namespace corn {
 
         /// @brief Destroys the Entity itself.
         void destroy();
+
+        /**
+         * @return Whether the Entity is active. An Entity is active iff itself and all its ancestors have
+         * Entity::active set to true.
+         */
+        bool isActive() const;
 
         /**
          * @brief Attach a Component to the Entity.
@@ -84,7 +91,7 @@ namespace corn {
          * @return Pointer to the Component if exists, else null pointer.
          */
         template <ComponentType T>
-        T* getComponent();
+        T* getComponent() const;
 
         /**
          * @brief Removing a Component from the Entity.
@@ -94,12 +101,10 @@ namespace corn {
         template <ComponentType T>
         bool removeComponent();
 
-        /**
-         * Get the parent Entity
-         * @return
-         */
+        /// @return Get the parent Entity.
         Entity* getParent() const;
 
+        /// @return Get the list of child Entities.
         std::vector<Entity*> getChildren() const;
 
     private:

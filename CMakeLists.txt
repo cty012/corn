@@ -9,6 +9,11 @@ set(CMAKE_CXX_STANDARD 20)
 list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/deps")
 
 # Build the DLL for the library
+if (MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+endif()
+
 file(GLOB_RECURSE HEADERS
         "${CMAKE_SOURCE_DIR}/include/*.h"
         "${CMAKE_SOURCE_DIR}/src/*.h")
@@ -59,7 +64,8 @@ function(build_example EXAMPLE_NAME)
     file(GLOB EXAMPLE_HEADERS "${CMAKE_SOURCE_DIR}/examples/${EXAMPLE_NAME}/*.h")
     file(GLOB EXAMPLE_SOURCES "${CMAKE_SOURCE_DIR}/examples/${EXAMPLE_NAME}/*.cpp")
     if (WIN32)
-        add_executable(${EXAMPLE_NAME} WIN32 ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
+        add_executable(${EXAMPLE_NAME} ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
+#        add_executable(${EXAMPLE_NAME} WIN32 ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
     elseif (APPLE)
         add_executable(${EXAMPLE_NAME} ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
         set_target_properties(${EXAMPLE_NAME} PROPERTIES
@@ -76,5 +82,9 @@ function(build_example EXAMPLE_NAME)
 endfunction()
 
 if (BUILD_EXAMPLES)
+    if(MSVC)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    endif()
+
     build_example("clangy-bird")
 endif ()

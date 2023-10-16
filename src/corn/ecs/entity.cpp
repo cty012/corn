@@ -19,6 +19,15 @@ namespace corn {
         this->entityManager.destroyEntity(*this);
     }
 
+    bool Entity::isActive() const {
+        const Entity* current = this;
+        while (current) {
+            if (!this->active) return false;
+            current = current->getParent();
+        }
+        return true;
+    }
+
     Entity* Entity::getParent() const {
         EntityManager::Node* parent = this->entityManager.nodes.at(id).parent;
         if (!parent) return nullptr;
