@@ -1,6 +1,7 @@
 #include <cmath>
 #include <corn/geometry/vec2.h>
 #include <corn/geometry/vec3.h>
+#include <corn/geometry/vec4.h>
 
 namespace corn {
     const Vec3 Vec3::ZERO = Vec3(0.0, 0.0, 0.0);
@@ -14,6 +15,10 @@ namespace corn {
 
     Vec2 Vec3::vec2() const {
         return {this->x, this->y};
+    }
+
+    Vec4 Vec3::vec4(double w) const {
+        return {this->x, this->y, this->z, w};
     }
 
     Vec3 Vec3::operator+() const {
@@ -65,9 +70,5 @@ namespace corn {
     Vec3 Vec3::normalize() const {
         double n = this->norm();
         return n == 0 ? *this : this->mult(1 / n);
-    }
-
-    double dist(const Vec3& v1, const Vec3& v2) {
-        return (v1 - v2).norm();
     }
 }

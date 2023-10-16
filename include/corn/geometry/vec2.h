@@ -2,6 +2,7 @@
 
 namespace corn {
     struct Vec3;
+    struct Vec4;
 
     /**
      * @class Vec2
@@ -14,13 +15,13 @@ namespace corn {
         static const Vec2 UNIT_X;
         static const Vec2 UNIT_Y;
 
-        // Ctors & dtors
+        // Constructors
         Vec2();
         Vec2(double x, double y);
 
         // Conversions
         Vec3 vec3(double z) const;
-//        Vec4 vec4(double z, double w) const;
+        Vec4 vec4(double z, double w) const;
 
         // Operations
         /// @return A copy of the vector itself.

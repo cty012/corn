@@ -1,23 +1,24 @@
 #pragma once
 
+#include <concepts>
+#include <type_traits>
 #include <corn/geometry/deg.h>
 #include <corn/geometry/vec2.h>
 #include <corn/geometry/vec3.h>
 
 namespace corn {
-    /**
-     * @param v1 First vector.
-     * @param v2 Second vector.
-     * @return Euclidean distance between the two 2D vectors.
-     */
-    double dist(const Vec2& v1, const Vec2& v2);
+    template <typename Vec>
+    concept VectorType = std::is_same_v<Vec, Vec2> || std::is_same_v<Vec, Vec3>;
 
     /**
      * @param v1 First vector.
      * @param v2 Second vector.
-     * @return Euclidean distance between the two 3D vectors.
+     * @return Euclidean distance between the two vectors.
      */
-    double dist(const Vec3& v1, const Vec3& v2);
+    template <VectorType Vec>
+    double dist(const Vec& v1, const Vec& v2);
 
     // TODO: vector rotation, etc.
 }
+
+#include "operations_template.cpp"
