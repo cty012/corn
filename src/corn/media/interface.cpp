@@ -1,6 +1,6 @@
 #include <corn/event/event_manager.h>
+#include <corn/geometry/vec2.h>
 #include <corn/media/interface.h>
-#include <corn/util/geometry.h>
 #include "image_impl.h"
 #include "interface_impl.h"
 #include "interface_helper.h"
