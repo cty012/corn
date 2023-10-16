@@ -5,8 +5,8 @@ namespace corn {
     struct Vec3;
 
     /**
-     * @class Vec3
-     * @brief 3D vector class.
+     * @class Vec4
+     * @brief 4D vector class.
      */
     struct Vec4 {
         double x;
@@ -33,18 +33,24 @@ namespace corn {
         /// @return The reversed vector.
         Vec4 operator-() const;
         /// @return Result of adding this and other.
-        Vec4 operator+(const Vec4 &other) const;
+        Vec4 operator+(const Vec4& other) const;
         /// @return Result of subtracting other from this.
-        Vec4 operator-(const Vec4 &other) const;
-        /// @return Add other to this vector.
-        Vec4& operator+=(const Vec4 &other);
-        /// @return Subtract other from this vector.
-        Vec4& operator-=(const Vec4 &other);
+        Vec4 operator-(const Vec4& other) const;
+        /**
+         * @brief Add other to this vector in-place.
+         * @return Reference to itself.
+         */
+        Vec4& operator+=(const Vec4& other);
+        /**
+         * @brief Subtract other from this vector in-place.
+         * @return Reference to itself.
+         */
+        Vec4& operator-=(const Vec4& other);
 
         /// @return Dot product of this and other.
-        [[nodiscard]] double dot(const Vec4 &other) const;
+        [[nodiscard]] double dot(const Vec4& other) const;
         /// @return Element-wise multiplication of this and other.
-        Vec4 operator*(const Vec4 &other) const;
+        Vec4 operator*(const Vec4& other) const;
         /// @return Results of multiplying by a scalar.
         [[nodiscard]] Vec4 mult(double factor) const;
 

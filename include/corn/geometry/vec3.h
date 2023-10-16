@@ -31,20 +31,26 @@ namespace corn {
         /// @return The reversed vector.
         Vec3 operator-() const;
         /// @return Result of adding this and other.
-        Vec3 operator+(const Vec3 &other) const;
+        Vec3 operator+(const Vec3& other) const;
         /// @return Result of subtracting other from this.
-        Vec3 operator-(const Vec3 &other) const;
-        /// @return Add other to this vector.
-        Vec3& operator+=(const Vec3 &other);
-        /// @return Subtract other from this vector.
-        Vec3& operator-=(const Vec3 &other);
+        Vec3 operator-(const Vec3& other) const;
+        /**
+         * @brief Add other to this vector in-place.
+         * @return Reference to itself.
+         */
+        Vec3& operator+=(const Vec3& other);
+        /**
+         * @brief Subtract other from this vector in-place.
+         * @return Reference to itself.
+         */
+        Vec3& operator-=(const Vec3& other);
 
         /// @return Dot product of this and other.
-        [[nodiscard]] double dot(const Vec3 &other) const;
+        [[nodiscard]] double dot(const Vec3& other) const;
         /// @return Cross product of this and other.
-        [[nodiscard]] Vec3 cross(const Vec3 &other) const;
+        [[nodiscard]] Vec3 cross(const Vec3& other) const;
         /// @return Element-wise multiplication of this and other.
-        Vec3 operator*(const Vec3 &other) const;
+        Vec3 operator*(const Vec3& other) const;
         /// @return Results of multiplying by a scalar.
         [[nodiscard]] Vec3 mult(double factor) const;
 
