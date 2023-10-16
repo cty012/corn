@@ -50,6 +50,10 @@ namespace corn {
         friend double dist(const Vec2& v1, const Vec2& v2);
     };
 
+    inline const Vec2 Vec2::ZERO = { 0.0, 0.0 };
+    inline const Vec2 Vec2::UNIT_X = { 1.0, 0.0 };
+    inline const Vec2 Vec2::UNIT_Y = { 0.0, 1.0 };
+
     /**
      * @class Vec3
      * @brief 3D vector class.
@@ -100,6 +104,11 @@ namespace corn {
          */
         friend double dist(const Vec3& v1, const Vec3& v2);
     };
+
+    inline const Vec3 Vec3::ZERO = { 0.0, 0.0, 0.0 };
+    inline const Vec3 Vec3::UNIT_X = { 1.0, 0.0, 0.0 };
+    inline const Vec3 Vec3::UNIT_Y = { 0.0, 1.0, 0.0 };
+    inline const Vec3 Vec3::UNIT_Z = { 0.0, 0.0, 1.0 };
 
     /**
      * @class Deg
