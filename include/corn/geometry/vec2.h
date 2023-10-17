@@ -9,11 +9,8 @@ namespace corn {
      * @brief 2D vector class.
      */
     struct Vec2 {
-        double x;
-        double y;
-        static const Vec2 ZERO;
-        static const Vec2 UNIT_X;
-        static const Vec2 UNIT_Y;
+        double x, y;
+        static const Vec2 ZERO, UNIT_X, UNIT_Y;
 
         // Constructors
         Vec2();

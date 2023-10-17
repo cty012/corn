@@ -9,15 +9,8 @@ namespace corn {
      * @brief 4D vector class.
      */
     struct Vec4 {
-        double x;
-        double y;
-        double z;
-        double w;
-        static const Vec4 ZERO;
-        static const Vec4 UNIT_X;
-        static const Vec4 UNIT_Y;
-        static const Vec4 UNIT_Z;
-        static const Vec4 UNIT_W;
+        double x, y, z, w;
+        static const Vec4 ZERO, UNIT_X, UNIT_Y, UNIT_Z, UNIT_W;
 
         // Constructors
         Vec4();

@@ -9,13 +9,8 @@ namespace corn {
      * @brief 3D vector class.
      */
     struct Vec3 {
-        double x;
-        double y;
-        double z;
-        static const Vec3 ZERO;
-        static const Vec3 UNIT_X;
-        static const Vec3 UNIT_Y;
-        static const Vec3 UNIT_Z;
+        double x, y, z;
+        static const Vec3 ZERO, UNIT_X, UNIT_Y, UNIT_Z;
 
         // Constructors
         Vec3();
