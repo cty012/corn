@@ -110,7 +110,7 @@ namespace corn {
             auto trans = entity->getComponent<CTransform2D>();
             auto sprite = entity->getComponent<CSprite>();
             auto [x, y] = trans->worldLocation();
-            sprite->image->impl().sfSprite->setPosition((float)x, (float)y);
+            sprite->image->impl().sfSprite->setPosition(x, y);
             this->interfaceImpl->window->draw(*sprite->image->impl().sfSprite);
         }
     }

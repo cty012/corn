@@ -68,7 +68,7 @@ namespace corn {
      */
     struct CMovement2D : public Component {
         Vec2 velocity;
-        explicit CMovement2D(Entity& entity, Vec2 velocity = {0, 0});
+        explicit CMovement2D(Entity& entity, Vec2 velocity = {0.0f, 0.0f});
     };
 
     /**
@@ -79,8 +79,8 @@ namespace corn {
      * @see SGravity
      */
     struct CGravity2D : public Component {
-        double scale;
-        explicit CGravity2D(Entity& entity, double scale = 1.0);
+        float scale;
+        explicit CGravity2D(Entity& entity, float scale = 1.0);
     };
 
     /**

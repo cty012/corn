@@ -15,7 +15,7 @@ namespace corn {
         if (!this->running) return;  // No effect if stopwatch already paused
         this->running = false;
         auto endTime = std::chrono::high_resolution_clock::now();
-        this->elapsedTime += std::chrono::duration<double, std::milli>(
+        this->elapsedTime += std::chrono::duration<float, std::milli>(
                 endTime - this->startTime).count();
     }
 
@@ -25,11 +25,11 @@ namespace corn {
         this->elapsedTime = 0;
     }
 
-    double Stopwatch::millis() const {
+    float Stopwatch::millis() const {
         std::lock_guard<std::mutex> lock(mutex);
         if (this->running) {
             auto currentTime = std::chrono::high_resolution_clock::now();
-            return this->elapsedTime + std::chrono::duration<double, std::milli>(
+            return this->elapsedTime + std::chrono::duration<float, std::milli>(
                     currentTime - this->startTime).count();
         } else {
             return this->elapsedTime;

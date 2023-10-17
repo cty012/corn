@@ -3,15 +3,15 @@
 namespace corn {
     /**
      * @class Deg
-     * @brief double in range [0, 360).
+     * @brief float in range [0, 360).
      *
      * @todo Implement this struct.
      */
     struct Deg {
-        Deg(double val = 0.0);  // NOLINT
+        Deg(float val = 0.0);  // NOLINT
 
-        [[nodiscard]] double get() const;
-        void set(double val);
+        [[nodiscard]] float get() const;
+        void set(float val);
 
         // TODO: operator overload
 
@@ -35,13 +35,13 @@ namespace corn {
         Deg& operator-=(const Deg& other);
 
         /// @return Results of multiplying by a scalar.
-        [[nodiscard]] Deg mult(double factor) const;
+        [[nodiscard]] Deg mult(float factor) const;
         /// @return Sine of the degree.
-        [[nodiscard]] double sin() const;
+        [[nodiscard]] float sin() const;
         /// @return Cosine of the degree.
-        [[nodiscard]] double cos() const;
+        [[nodiscard]] float cos() const;
 
     private:
-        double _val;
+        float _val;
     };
 }

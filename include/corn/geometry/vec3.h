@@ -9,16 +9,16 @@ namespace corn {
      * @brief 3D vector class.
      */
     struct Vec3 {
-        double x, y, z;
+        float x, y, z;
         static const Vec3 ZERO, UNIT_X, UNIT_Y, UNIT_Z;
 
         // Constructors
         Vec3();
-        Vec3(double x, double y, double z);
+        Vec3(float x, float y, float z);
 
         // Conversions
         [[nodiscard]] Vec2 vec2() const;
-        [[nodiscard]] Vec4 vec4(double w) const;
+        [[nodiscard]] Vec4 vec4(float w) const;
 
         // Operations
         /// @return A copy of the vector itself.
@@ -41,16 +41,21 @@ namespace corn {
         Vec3& operator-=(const Vec3& other);
 
         /// @return Dot product of this and other.
-        [[nodiscard]] double dot(const Vec3& other) const;
+        [[nodiscard]] float dot(const Vec3& other) const;
         /// @return Cross product of this and other.
         [[nodiscard]] Vec3 cross(const Vec3& other) const;
         /// @return Element-wise multiplication of this and other.
         Vec3 operator*(const Vec3& other) const;
+        /**
+         * @brief Element-wise in-place multiplication of this and other.
+         * @return Reference to itself.
+         */
+        Vec3 operator*=(const Vec3& other);
         /// @return Results of multiplying by a scalar.
-        [[nodiscard]] Vec3 mult(double factor) const;
+        [[nodiscard]] Vec3 mult(float factor) const;
 
         /// @return 2-norm of the vector.
-        [[nodiscard]] double norm() const;
+        [[nodiscard]] float norm() const;
         /// @return Normalized vector. Zero if this is a zero vector.
         [[nodiscard]] Vec3 normalize() const;
     };

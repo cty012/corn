@@ -2,17 +2,17 @@
 #include <corn/geometry/deg.h>
 
 namespace corn {
-    Deg::Deg(double val): _val(0.0) {
+    Deg::Deg(float val): _val(0.0) {
         this->set(val);
     }
 
-    double Deg::get() const {
-        return _val;
+    float Deg::get() const {
+        return this->_val;
     }
 
-    void Deg::set(double val) {
-        val = std::fmod(val, 360.0);
-        _val = val >= 0 ? val : val + 360.0;
+    void Deg::set(float val) {
+        val = fmodf(val, 360.0);
+        this->_val = val >= 0 ? val : val + 360.0f;
     }
 
     Deg Deg::operator+() const {
@@ -20,7 +20,7 @@ namespace corn {
     }
 
     Deg Deg::operator-() const {
-        return -_val;
+        return -this->_val;
     }
 
     Deg Deg::operator+(const Deg& other) const {
@@ -41,15 +41,17 @@ namespace corn {
         return *this;
     }
 
-    Deg Deg::mult(double factor) const {
+    Deg Deg::mult(float factor) const {
         return this->_val * factor;
     }
 
-    double Deg::sin() const {
-        return std::sin(this->_val);
+    float Deg::sin() const {
+        static constexpr float degToRad = M_PI / 180;
+        return std::sin(this->_val * degToRad);
     }
 
-    double Deg::cos() const {
-        return std::cos(this->_val);
+    float Deg::cos() const {
+        static constexpr float degToRad = M_PI / 180;
+        return std::cos(this->_val * degToRad);
     }
 }

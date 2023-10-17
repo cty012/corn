@@ -17,9 +17,9 @@ const corn::Color BIRD_COLOR = corn::Color::rgb(255, 0, 0);
 constexpr size_t CEIL_THICKNESS = 40;
 const corn::Color CEIL_COLOR = corn::Color::rgb(255, 128, 0);
 
-constexpr double WALL_THICKNESS = 120;
-constexpr double WALL_SPEED = 200;
-constexpr double WALL_INTERVAL = 300;
+constexpr float WALL_THICKNESS = 120.0f;
+constexpr float WALL_SPEED = 200.0f;
+constexpr float WALL_INTERVAL = 300.0f;
 const corn::Color WALL_COLOR = corn::Color::rgb(50, 205, 50);
 
 constexpr size_t HOLE_MIN_PADDING = 120;
@@ -108,7 +108,7 @@ void createCeilAndFloor(corn::EntityManager& entityManager) {
 /// A system for managing wall creation and deletion
 class WallManager : public corn::System {
 public:
-    void update(corn::EntityManager& entityManager, double millis) override {
+    void update(corn::EntityManager& entityManager, float millis) override {
         bool needNewWall = true;
         // Iterate over existing walls
         for (corn::Entity* entity : entityManager.getEntitiesWith<Wall>()) {

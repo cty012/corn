@@ -42,7 +42,7 @@ namespace corn {
          * @brief Update all Entities, Components, and Systems in the scene.
          * @param millis Number of milliseconds elapsed.
          */
-        void update(double millis);
+        void update(float millis);
 
 
     protected:

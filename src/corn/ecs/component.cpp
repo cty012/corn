@@ -40,7 +40,7 @@ namespace corn {
 
     CMovement2D::CMovement2D(Entity& entity, Vec2 velocity) : Component(entity), velocity(velocity) {}
 
-    CGravity2D::CGravity2D(Entity& entity, double scale) : Component(entity), scale(scale) {}
+    CGravity2D::CGravity2D(Entity& entity, float scale) : Component(entity), scale(scale) {}
 
     CAABB::CAABB(Entity& entity, Vec2 ul, Vec2 lr) : Component(entity), ul(ul), lr(lr) {}
 
