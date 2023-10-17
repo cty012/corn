@@ -2,6 +2,7 @@
 
 #include <corn/geometry/deg.h>
 #include <corn/geometry/vec2.h>
+#include <corn/geometry/vec3.h>
 #include <corn/media/image.h>
 
 namespace corn {
