@@ -5,7 +5,7 @@
 #include <corn/event/event_manager.h>
 
 namespace corn {
-    Component::Component(Entity& entity) : active(true), entity(entity) {}
+    Component::Component(Entity& entity): active(true), entity(entity) {}
 
     CTransform2D::CTransform2D(Entity &entity, Vec2 location, Deg rotation)
         : Component(entity), location(location), rotation(rotation), zorder(0) {}
@@ -47,17 +47,41 @@ namespace corn {
         EventManager::instance().emit(EventArgsZOrderChange(&this->entity));
     }
 
-    CSprite::CSprite(Entity& entity, Image *image) : Component(entity), image(image) {}
+    CSprite::CSprite(Entity& entity, Image *image, Vec2 topLeft)
+        : Component(entity), image(image), topLeft(topLeft) {}
 
     CSprite::~CSprite() {
         delete this->image;
     }
 
-    CMovement2D::CMovement2D(Entity& entity, Vec2 velocity) : Component(entity), velocity(velocity) {}
+    CMovement2D::CMovement2D(Entity& entity, Vec2 velocity, float angularVelocity)
+        : Component(entity), velocity(velocity), angularVelocity(angularVelocity) {}
 
-    CGravity2D::CGravity2D(Entity& entity, float scale) : Component(entity), scale(scale) {}
+    void CMovement2D::setWorldVelocity(Vec2 newVelocity) {
+        auto* transform = this->entity.getComponent<CTransform2D>();
+        if (!transform) {
+            this->velocity = newVelocity;
+            return;
+        }
+        CTransform2D worldTransform = transform->worldTransform();
+        Deg parentRotation = worldTransform.rotation - transform->rotation;
+        this->velocity = (-parentRotation).rotate(newVelocity);
+    }
 
-    CAABB::CAABB(Entity& entity, Vec2 ul, Vec2 lr) : Component(entity), ul(ul), lr(lr) {}
+    void CMovement2D::addWorldVelocityOffset(Vec2 offset) {
+        auto* transform = this->entity.getComponent<CTransform2D>();
+        if (!transform) {
+            this->velocity += offset;
+            return;
+        }
+        CTransform2D worldTransform = transform->worldTransform();
+        Deg parentRotation = worldTransform.rotation - transform->rotation;
+        this->velocity += (-parentRotation).rotate(offset);
+    }
+
+    CGravity2D::CGravity2D(Entity& entity, float scale): Component(entity), scale(scale) {}
+
+    CAABB::CAABB(Entity& entity, Vec2 ul, Vec2 lr): Component(entity), ul(ul), lr(lr) {}
 
     bool CAABB::overlapWith(const CAABB& other) const {
         auto* transform1 = this->entity.getComponent<CTransform2D>();
@@ -77,7 +101,7 @@ namespace corn {
         return xDirection && yDirection;
     }
 
-    CCollisionResolve::CCollisionResolve(Entity &entity) : Component(entity) {}
+    CCollisionResolve::CCollisionResolve(Entity &entity): Component(entity) {}
 
     void CCollisionResolve::resolve(CAABB& self, CAABB& other) {}
 }

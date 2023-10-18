@@ -7,9 +7,10 @@ namespace corn {
 
     void SMovement2D::update(EntityManager& entityManager, float millis) {
         for (Entity* entity : entityManager.getEntitiesWith<CTransform2D, CMovement2D>()) {
-            auto trans = entity->getComponent<CTransform2D>();
+            auto transform = entity->getComponent<CTransform2D>();
             auto movement = entity->getComponent<CMovement2D>();
-            trans->location += movement->velocity.mult(millis / 1000.0f);
+            transform->addWorldLocationOffset(movement->velocity.mult(millis / 1000.0f));
+            transform->rotation += movement->angularVelocity * (millis / 1000.0f);
         }
     }
 
@@ -20,7 +21,8 @@ namespace corn {
             auto movement = entity->getComponent<CMovement2D>();
             auto gravity2D = entity->getComponent<CGravity2D>();
             // TODO: gravity 3D
-            movement->velocity.y += SGravity::g * this->scale * gravity2D->scale * (millis / 1000.0f);
+            movement->addWorldVelocityOffset(
+                    Vec2(0, SGravity::g * this->scale * gravity2D->scale * (millis / 1000.0f)));
         }
     }
 

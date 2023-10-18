@@ -58,6 +58,6 @@ namespace corn {
     Vec2 Deg::rotate(const Vec2& point) const {
         float cdeg = this->cos();
         float sdeg = this->sin();
-        return {point.x * cdeg - point.y * sdeg, point.x * sdeg + point.y * cdeg};
+        return {point.x * cdeg + point.y * sdeg, -point.x * sdeg + point.y * cdeg};
     }
 }

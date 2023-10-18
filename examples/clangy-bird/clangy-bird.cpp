@@ -44,13 +44,15 @@ struct BirdCollisionResolve : public corn::CCollisionResolve {
 
 corn::Entity* createBird(corn::EntityManager& entityManager) {
     corn::Entity* bird = &entityManager.createEntity("bird");
-    auto transform = bird->createComponent<corn::CTransform2D>(corn::Vec2(300, 300));
+    auto transform = bird->createComponent<corn::CTransform2D>(corn::Vec2(400, 300));
     transform->setZOrder(2);
-    bird->createComponent<corn::CMovement2D>(corn::Vec2(0, -500));
+    bird->createComponent<corn::CMovement2D>(corn::Vec2(0, -500), -180);
     bird->createComponent<corn::CGravity2D>();
-    bird->createComponent<corn::CAABB>(corn::Vec2(0, 0), corn::Vec2(BIRD_WIDTH, BIRD_HEIGHT));
+    corn::Vec2 bottomRight = corn::Vec2(BIRD_WIDTH * 0.5, BIRD_HEIGHT * 0.5);
+    corn::Vec2 topLeft = -bottomRight;
+    bird->createComponent<corn::CAABB>(topLeft, bottomRight);
     bird->createComponent<corn::CSprite>(
-            new corn::Image(BIRD_WIDTH, BIRD_HEIGHT, BIRD_COLOR));
+            new corn::Image(BIRD_WIDTH, BIRD_HEIGHT, BIRD_COLOR), topLeft);
     bird->addComponent<corn::CCollisionResolve>(new BirdCollisionResolve(*bird));
     return bird;
 }

@@ -49,15 +49,14 @@ namespace corn {
      * @class CSprite
      * @brief Stores the image of the Entity. An Entity is only rendered if it has a CSprite Component.
      *
-     * @todo: Allow more advanced placement.
-     *
      * @see Component
      * @see Image
      * @see Interface
      */
     struct CSprite : public Component {
         Image* image;
-        CSprite(Entity& entity, Image *image);
+        Vec2 topLeft;
+        CSprite(Entity& entity, Image *image, Vec2 topLeft = Vec2::ZERO);
         ~CSprite() override;
     };
 
@@ -65,14 +64,18 @@ namespace corn {
      * @class CMovement2D
      * @brief Stores the velocity of the object in 2D space. Not affected by rotation.
      *
-     * Unit: pixels/second
+     * Unit: pixels/second & degrees/second
      *
      * @see Component
      * @see SMovement2D
      */
     struct CMovement2D : public Component {
         Vec2 velocity;
-        explicit CMovement2D(Entity& entity, Vec2 velocity = {0.0f, 0.0f});
+        float angularVelocity;
+        explicit CMovement2D(Entity& entity, Vec2 velocity = Vec2::ZERO, float angularVelocity = 0.0f);
+        [[nodiscard]] CMovement2D worldVelocity() const;  // TODO: implement this
+        void setWorldVelocity(Vec2 newVelocity);  // TODO: fix this
+        void addWorldVelocityOffset(Vec2 offset);  // TODO: fix this
     };
 
     /**
@@ -84,7 +87,7 @@ namespace corn {
      */
     struct CGravity2D : public Component {
         float scale;
-        explicit CGravity2D(Entity& entity, float scale = 1.0);
+        explicit CGravity2D(Entity& entity, float scale = 1.0f);
     };
 
     /**
