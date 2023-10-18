@@ -54,4 +54,10 @@ namespace corn {
         static constexpr float degToRad = M_PI / 180;
         return std::cos(this->_val * degToRad);
     }
+
+    Vec2 Deg::rotate(const Vec2& point) const {
+        float cdeg = this->cos();
+        float sdeg = this->sin();
+        return {point.x * cdeg - point.y * sdeg, point.x * sdeg + point.y * cdeg};
+    }
 }

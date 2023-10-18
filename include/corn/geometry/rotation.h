@@ -51,8 +51,8 @@ namespace corn {
         // /// @brief Convert to Euler angles.
         // [[nodiscard]] EulerAngles euler() const;
 
-        /// @brief Transform a 3D point.
-        [[nodiscard]] Vec3 transform(const Vec3& point) const;
+        /// @brief Rotate a 3D point.
+        [[nodiscard]] Vec3 rotate(const Vec3& point) const;
 
         // Operations
         /// @return A copy of the quaternion itself.

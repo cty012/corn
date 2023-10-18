@@ -10,17 +10,32 @@ namespace corn {
     CTransform2D::CTransform2D(Entity &entity, Vec2 location, Deg rotation)
         : Component(entity), location(location), rotation(rotation), zorder(0) {}
 
-    Vec2 CTransform2D::worldLocation() const {
-        Vec2 result = this->location;
-        Entity* current = this->entity.getParent();
-        while (current) {
-            auto* transform = current->getComponent<CTransform2D>();
-            if (transform) {
-                result += transform->location;
+    CTransform2D CTransform2D::worldTransform() const {
+        CTransform2D transform = *this;
+        Entity* ancestor = this->entity.getParent();
+        while (ancestor) {
+            auto* ancestorTransform = ancestor->getComponent<CTransform2D>();
+            if (ancestorTransform) {
+                transform.rotation += ancestorTransform->rotation;
+                transform.location = ancestorTransform->rotation.rotate(transform.location);
+                transform.location += ancestorTransform->location;
             }
-            current = current->getParent();
+            ancestor = ancestor->getParent();
         }
-        return result;
+        return transform;
+    }
+
+    void CTransform2D::setWorldLocation(Vec2 newLocation) {
+        CTransform2D worldTransform = this->worldTransform();
+        Deg parentRotation = worldTransform.rotation - this->rotation;
+        Vec2 parentLocation = worldTransform.location - parentRotation.rotate(this->location);
+        this->location = (-parentRotation).rotate(location - parentLocation);
+    }
+
+    void CTransform2D::addWorldLocationOffset(Vec2 offset) {
+        CTransform2D worldTransform = this->worldTransform();
+        Deg parentRotation = worldTransform.rotation - this->rotation;
+        this->location += (-parentRotation).rotate(offset);
     }
 
     int CTransform2D::getZOrder() const {
@@ -48,8 +63,8 @@ namespace corn {
         auto* transform1 = this->entity.getComponent<CTransform2D>();
         auto* transform2 = other.entity.getComponent<CTransform2D>();
         if (!transform1 || !transform2) return false;
-        Vec2 worldLocation1 = transform1->worldLocation();
-        Vec2 worldLocation2 = transform2->worldLocation();
+        Vec2 worldLocation1 = transform1->worldTransform().location;
+        Vec2 worldLocation2 = transform2->worldTransform().location;
         Vec2 ul1 = this->ul + worldLocation1;
         Vec2 lr1 = this->lr + worldLocation1;
         Vec2 ul2 = other.ul + worldLocation2;

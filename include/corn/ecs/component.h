@@ -34,9 +34,11 @@ namespace corn {
      */
     struct CTransform2D : public Component {
         Vec2 location;
-        Deg rotation;  // TODO: currently does not consider rotation
+        Deg rotation;
         CTransform2D(Entity& entity, Vec2 location, Deg rotation = Deg());
-        [[nodiscard]] Vec2 worldLocation() const;
+        [[nodiscard]] CTransform2D worldTransform() const;
+        void setWorldLocation(Vec2 newLocation);
+        void addWorldLocationOffset(Vec2 offset);
         [[nodiscard]] int getZOrder() const;
         void setZOrder(int _zorder);
     private:
@@ -46,6 +48,8 @@ namespace corn {
     /**
      * @class CSprite
      * @brief Stores the image of the Entity. An Entity is only rendered if it has a CSprite Component.
+     *
+     * @todo: Allow more advanced placement.
      *
      * @see Component
      * @see Image
@@ -89,6 +93,8 @@ namespace corn {
      *
      * The Vec2 for the corners are relative to the world location of the entity. i.e. <0, 0> would refer to the exact
      * location of the object. Having an invalid set of upper left and lower right corner will result in no collisions.
+     *
+     * Note that the AABB is not affected by rotation.
      *
      * @see Component
      * @see SCollisionDetection

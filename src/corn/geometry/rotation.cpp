@@ -32,7 +32,7 @@ namespace corn {
         val = {a, a_ * normalizedAxis.x, a_ * normalizedAxis.y, a_ * normalizedAxis.z};
     }
 
-    Vec3 Quaternion::transform(const Vec3& point) const {
+    Vec3 Quaternion::rotate(const Vec3& point) const {
         Quaternion p = {0, point.x, point.y, point.z};
         Vec4 result = ((*this) * p * this->inv()).val;
         return {result.y, result.z, result.w};  // NOLINT

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <corn/geometry/vec2.h>
+
 namespace corn {
     /**
      * @class Deg
@@ -12,8 +14,6 @@ namespace corn {
 
         [[nodiscard]] float get() const;
         void set(float val);
-
-        // TODO: operator overload
 
         /// @return A copy of the degree itself.
         Deg operator+() const;
@@ -40,6 +40,8 @@ namespace corn {
         [[nodiscard]] float sin() const;
         /// @return Cosine of the degree.
         [[nodiscard]] float cos() const;
+        /// @brief Rotate a 2D point.
+        [[nodiscard]] Vec2 rotate(const Vec2& point) const;
 
     private:
         float _val;

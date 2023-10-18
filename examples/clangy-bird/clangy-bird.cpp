@@ -113,7 +113,7 @@ public:
         // Iterate over existing walls
         for (corn::Entity* entity : entityManager.getEntitiesWith<Wall>()) {
             auto* transform = entity->getComponent<corn::CTransform2D>();
-            double xLocation = transform->worldLocation().x;
+            double xLocation = transform->worldTransform().location.x;
             if ((xLocation + WALL_THICKNESS) < 0) {
                 entity->destroy();
             }
