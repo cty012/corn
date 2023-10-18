@@ -51,6 +51,9 @@ namespace corn {
         // /// @brief Convert to Euler angles.
         // [[nodiscard]] EulerAngles euler() const;
 
+        /// @brief Transform a 3D point.
+        [[nodiscard]] Vec3 transform(const Vec3& point) const;
+
         // Operations
         /// @return A copy of the quaternion itself.
         Quaternion operator+() const;
@@ -74,11 +77,13 @@ namespace corn {
         /// @return Multiplying this and other. Same as applying other and this on a 3D point.
         Quaternion operator*(const Quaternion& other) const;
         /// @return Multiplying this and other in-place.
-        Quaternion operator*=(const Quaternion& other);
+        Quaternion& operator*=(const Quaternion& other);
 
         /// @return 2-norm of the quaternion.
         [[nodiscard]] float norm() const;
         /// @return Normalized quaternion. Zero if this is a zero quaternion.
-        [[nodiscard]] Vec4 normalize() const;
+        [[nodiscard]] Quaternion normalize() const;
+        /// @return Inverse of the quaternion.
+        [[nodiscard]] Quaternion inv() const;
     };
 }

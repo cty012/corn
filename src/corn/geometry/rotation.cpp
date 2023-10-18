@@ -32,6 +32,12 @@ namespace corn {
         val = {a, a_ * normalizedAxis.x, a_ * normalizedAxis.y, a_ * normalizedAxis.z};
     }
 
+    Vec3 Quaternion::transform(const Vec3& point) const {
+        Quaternion p = {0, point.x, point.y, point.z};
+        Vec4 result = ((*this) * p * this->inv()).val;
+        return {result.y, result.z, result.w};  // NOLINT
+    }
+
     Quaternion Quaternion::operator+() const {
         return *this;
     }
@@ -68,7 +74,7 @@ namespace corn {
         };
     }
 
-    Quaternion Quaternion::operator*=(const Quaternion& other) {
+    Quaternion& Quaternion::operator*=(const Quaternion& other) {
         const Vec4& o = other.val;
         float x = val.x * o.x - val.y * o.y - val.z * o.z - val.w * o.w;
         float y = val.x * o.y + val.y * o.x + val.z * o.w - val.w * o.z;
@@ -78,13 +84,18 @@ namespace corn {
         val.y = y;
         val.z = z;
         val.w = w;
+        return *this;
     }
 
     float Quaternion::norm() const {
         return this->val.norm();
     }
 
-    Vec4 Quaternion::normalize() const {
+    Quaternion Quaternion::normalize() const {
         return this->val.normalize();
+    }
+
+    Quaternion Quaternion::inv() const {
+        return {-this->val.x, this->val.y, this->val.z, this->val.w};
     }
 }
