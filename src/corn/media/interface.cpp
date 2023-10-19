@@ -109,12 +109,12 @@ namespace corn {
         for (Entity* entity : scene->entityManager.getActiveEntitiesWith<CTransform2D, CSprite>()) {
             auto transform = entity->getComponent<CTransform2D>();
             auto sprite = entity->getComponent<CSprite>();
-            CTransform2D worldTransform = transform->worldTransform();
-            auto [ancX, ancY] = worldTransform.location;
+            auto [worldLocation, worldRotation] = transform->worldTransform();
+            auto [ancX, ancY] = worldLocation;
             auto [locX, locY] = sprite->topLeft;
             sprite->image->impl().sfSprite->setOrigin(-locX, -locY);
             sprite->image->impl().sfSprite->setPosition(ancX, ancY);
-            sprite->image->impl().sfSprite->setRotation(-worldTransform.rotation.get());
+            sprite->image->impl().sfSprite->setRotation(-worldRotation.get());
             this->interfaceImpl->window->draw(*sprite->image->impl().sfSprite);
         }
     }

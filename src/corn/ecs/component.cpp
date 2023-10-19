@@ -10,15 +10,15 @@ namespace corn {
     CTransform2D::CTransform2D(Entity &entity, Vec2 location, Deg rotation)
         : Component(entity), location(location), rotation(rotation), zorder(0) {}
 
-    CTransform2D CTransform2D::worldTransform() const {
-        CTransform2D transform = *this;
+    std::pair<Vec2, Deg> CTransform2D::worldTransform() const {
+        std::pair<Vec2, Deg> transform = {this->location, this->rotation};
         Entity* ancestor = this->entity.getParent();
         while (ancestor) {
             auto* ancestorTransform = ancestor->getComponent<CTransform2D>();
             if (ancestorTransform) {
-                transform.rotation += ancestorTransform->rotation;
-                transform.location = ancestorTransform->rotation.rotate(transform.location);
-                transform.location += ancestorTransform->location;
+                transform.second += ancestorTransform->rotation;
+                transform.first = ancestorTransform->rotation.rotate(transform.first);
+                transform.first += ancestorTransform->location;
             }
             ancestor = ancestor->getParent();
         }
@@ -26,15 +26,15 @@ namespace corn {
     }
 
     void CTransform2D::setWorldLocation(Vec2 newLocation) {
-        CTransform2D worldTransform = this->worldTransform();
-        Deg parentWorldRotation = worldTransform.rotation - this->rotation;
-        Vec2 parentWorldLocation = worldTransform.location - parentWorldRotation.rotate(this->location);
+        auto [worldLocation, worldRotation] = this->worldTransform();
+        Deg parentWorldRotation = worldRotation - this->rotation;
+        Vec2 parentWorldLocation = worldLocation - parentWorldRotation.rotate(this->location);
         this->location = (-parentWorldRotation).rotate(newLocation - parentWorldLocation);
     }
 
     void CTransform2D::addWorldLocationOffset(Vec2 offset) {
-        CTransform2D worldTransform = this->worldTransform();
-        Deg parentWorldRotation = worldTransform.rotation - this->rotation;
+        Deg worldRotation = this->worldTransform().second;
+        Deg parentWorldRotation = worldRotation - this->rotation;
         this->location += (-parentWorldRotation).rotate(offset);
     }
 
@@ -57,17 +57,17 @@ namespace corn {
     CMovement2D::CMovement2D(Entity& entity, Vec2 velocity, float angularVelocity)
         : Component(entity), velocity(velocity), angularVelocity(angularVelocity) {}
 
-    CMovement2D CMovement2D::worldMovement() const {
-        CMovement2D movement = *this;
+    std::pair<Vec2, float> CMovement2D::worldMovement() const {
+        std::pair<Vec2, float> movement = {this->velocity, this->angularVelocity};
         Entity* ancestor = this->entity.getParent();
         while (ancestor) {
             auto* ancestorMovement = ancestor->getComponent<CMovement2D>();
             if (ancestorMovement) {
-                movement.angularVelocity += ancestorMovement->angularVelocity;
+                movement.second += ancestorMovement->angularVelocity;
                 auto* ancestorTransform = ancestor->getComponent<CTransform2D>();
                 if (ancestorTransform) {
-                    movement.velocity = ancestorTransform->rotation.rotate(movement.velocity);
-                    movement.velocity += ancestorMovement->velocity;
+                    movement.first = ancestorTransform->rotation.rotate(movement.first);
+                    movement.first += ancestorMovement->velocity;
                 }
             }
             ancestor = ancestor->getParent();
@@ -88,8 +88,8 @@ namespace corn {
         }
 
         // Calculate parent world velocity
-        CMovement2D worldMovement = this->worldMovement();
-        Vec2 parentWorldVelocity = worldMovement.velocity - parentWorldRotation.rotate(this->velocity);
+        Vec2 worldVelocity = this->worldMovement().first;
+        Vec2 parentWorldVelocity = worldVelocity - parentWorldRotation.rotate(this->velocity);
 
         this->velocity = (-parentWorldRotation).rotate(newVelocity - parentWorldVelocity);
     }
@@ -117,8 +117,8 @@ namespace corn {
         auto* transform1 = this->entity.getComponent<CTransform2D>();
         auto* transform2 = other.entity.getComponent<CTransform2D>();
         if (!transform1 || !transform2) return false;
-        Vec2 worldLocation1 = transform1->worldTransform().location;
-        Vec2 worldLocation2 = transform2->worldTransform().location;
+        Vec2 worldLocation1 = transform1->worldTransform().first;
+        Vec2 worldLocation2 = transform2->worldTransform().first;
         Vec2 ul1 = this->ul + worldLocation1;
         Vec2 lr1 = this->lr + worldLocation1;
         Vec2 ul2 = other.ul + worldLocation2;

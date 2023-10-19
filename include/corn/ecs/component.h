@@ -1,5 +1,6 @@
 #pragma once
 
+#include <utility>
 #include <corn/geometry/deg.h>
 #include <corn/geometry/vec2.h>
 #include <corn/media/image.h>
@@ -36,7 +37,7 @@ namespace corn {
         Vec2 location;
         Deg rotation;
         CTransform2D(Entity& entity, Vec2 location, Deg rotation = Deg());
-        [[nodiscard]] CTransform2D worldTransform() const;
+        [[nodiscard]] std::pair<Vec2, Deg> worldTransform() const;
         void setWorldLocation(Vec2 newLocation);
         void addWorldLocationOffset(Vec2 offset);
         [[nodiscard]] int getZOrder() const;
@@ -74,7 +75,7 @@ namespace corn {
         Vec2 velocity;
         float angularVelocity;
         explicit CMovement2D(Entity& entity, Vec2 velocity = Vec2::ZERO, float angularVelocity = 0.0f);
-        [[nodiscard]] CMovement2D worldMovement() const;
+        [[nodiscard]] std::pair<Vec2, float> worldMovement() const;
         void setWorldVelocity(Vec2 newVelocity);
         void addWorldVelocityOffset(Vec2 offset);
     };
