@@ -90,6 +90,7 @@ namespace corn {
         // Calculate parent world velocity
         CMovement2D worldMovement = this->worldMovement();
         Vec2 parentWorldVelocity = worldMovement.velocity - parentWorldRotation.rotate(this->velocity);
+
         this->velocity = (-parentWorldRotation).rotate(newVelocity - parentWorldVelocity);
     }
 

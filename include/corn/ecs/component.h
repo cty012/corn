@@ -27,7 +27,7 @@ namespace corn {
 
     /**
      * @class CTransform2D
-     * @brief Stores the location and the rotation of the object.
+     * @brief Stores the location and the rotation of the 2D object.
      *
      * @see Component
      * @see SMovement2D
@@ -47,7 +47,8 @@ namespace corn {
 
     /**
      * @class CSprite
-     * @brief Stores the image of the Entity. An Entity is only rendered if it has a CSprite Component.
+     * @brief Stores the image of the Entity. A 2D Entity is only rendered if it has a CSprite Component and a
+     * CTransform2D Component.
      *
      * @see Component
      * @see Image
@@ -62,7 +63,7 @@ namespace corn {
 
     /**
      * @class CMovement2D
-     * @brief Stores the velocity of the object in 2D space. Not affected by rotation.
+     * @brief Stores the velocity of the object in 2D space.
      *
      * Unit: pixels/second & degrees/second
      *
@@ -80,7 +81,7 @@ namespace corn {
 
     /**
      * @class CGravity2D
-     * @brief Stores the velocity of the object. Not affected by rotation.
+     * @brief Constantly increases world velocity.
      *
      * @see Component
      * @see SGravity
