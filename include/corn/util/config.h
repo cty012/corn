@@ -10,6 +10,7 @@ namespace corn {
      */
     enum class DisplayMode {
         WINDOWED,
+        WINDOWED_FIXED,               // Not resizable
         FULLSCREEN,
         // BORDERLESS,
     };

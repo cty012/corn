@@ -27,10 +27,13 @@ namespace corn {
     }
 
     void Interface::init() {
+        sf::ContextSettings contextSettings;
+        contextSettings.antialiasingLevel = 16;
         this->interfaceImpl->window->create(
                 sf::VideoMode(this->config->width, this->config->height),
                 this->config->title,
-                cornMode2SfStyle(this->config->mode));
+                cornMode2SfStyle(this->config->mode),
+                contextSettings);
     }
 
     Vec2 Interface::screenSize() const {

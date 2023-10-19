@@ -138,7 +138,7 @@ public:
 /// The main game scene
 class GameScene : public corn::Scene {
 public:
-    GameScene() {
+    GameScene(): paused(false) {
         // Camera
         createCamera(this->entityManager);
 
@@ -172,7 +172,19 @@ public:
         }
     }
 
+    bool isPaused() const {
+        return this->paused;
+    }
+
+    void togglePause() {
+        this->paused = !this->paused;
+        for (corn::System* system : this->systems) {
+            system->active = !this->paused;
+        }
+    }
+
 private:
+    bool paused;
     corn::Entity* bird;
     corn::CMovement2D* birdMovement;
     corn::EventManager::ListenerID keyboardEventID;
@@ -184,8 +196,12 @@ private:
             case corn::Key::W:
             case corn::Key::UP:
             case corn::Key::SPACE:
-                this->birdMovement->velocity.y = -700;
+                if (!this->paused) {
+                    this->birdMovement->velocity.y = -700;
+                }
                 break;
+            case corn::Key::ESC:
+                this->togglePause();
             default:
                 break;
         }
