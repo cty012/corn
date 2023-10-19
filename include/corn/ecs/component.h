@@ -73,9 +73,9 @@ namespace corn {
         Vec2 velocity;
         float angularVelocity;
         explicit CMovement2D(Entity& entity, Vec2 velocity = Vec2::ZERO, float angularVelocity = 0.0f);
-        [[nodiscard]] CMovement2D worldVelocity() const;  // TODO: implement this
-        void setWorldVelocity(Vec2 newVelocity);  // TODO: fix this
-        void addWorldVelocityOffset(Vec2 offset);  // TODO: fix this
+        [[nodiscard]] CMovement2D worldMovement() const;
+        void setWorldVelocity(Vec2 newVelocity);
+        void addWorldVelocityOffset(Vec2 offset);
     };
 
     /**

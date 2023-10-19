@@ -27,15 +27,15 @@ namespace corn {
 
     void CTransform2D::setWorldLocation(Vec2 newLocation) {
         CTransform2D worldTransform = this->worldTransform();
-        Deg parentRotation = worldTransform.rotation - this->rotation;
-        Vec2 parentLocation = worldTransform.location - parentRotation.rotate(this->location);
-        this->location = (-parentRotation).rotate(location - parentLocation);
+        Deg parentWorldRotation = worldTransform.rotation - this->rotation;
+        Vec2 parentWorldLocation = worldTransform.location - parentWorldRotation.rotate(this->location);
+        this->location = (-parentWorldRotation).rotate(newLocation - parentWorldLocation);
     }
 
     void CTransform2D::addWorldLocationOffset(Vec2 offset) {
         CTransform2D worldTransform = this->worldTransform();
-        Deg parentRotation = worldTransform.rotation - this->rotation;
-        this->location += (-parentRotation).rotate(offset);
+        Deg parentWorldRotation = worldTransform.rotation - this->rotation;
+        this->location += (-parentWorldRotation).rotate(offset);
     }
 
     int CTransform2D::getZOrder() const {
@@ -57,26 +57,55 @@ namespace corn {
     CMovement2D::CMovement2D(Entity& entity, Vec2 velocity, float angularVelocity)
         : Component(entity), velocity(velocity), angularVelocity(angularVelocity) {}
 
-    void CMovement2D::setWorldVelocity(Vec2 newVelocity) {
-        auto* transform = this->entity.getComponent<CTransform2D>();
-        if (!transform) {
-            this->velocity = newVelocity;
-            return;
+    CMovement2D CMovement2D::worldMovement() const {
+        CMovement2D movement = *this;
+        Entity* ancestor = this->entity.getParent();
+        while (ancestor) {
+            auto* ancestorMovement = ancestor->getComponent<CMovement2D>();
+            if (ancestorMovement) {
+                movement.angularVelocity += ancestorMovement->angularVelocity;
+                auto* ancestorTransform = ancestor->getComponent<CTransform2D>();
+                if (ancestorTransform) {
+                    movement.velocity = ancestorTransform->rotation.rotate(movement.velocity);
+                    movement.velocity += ancestorMovement->velocity;
+                }
+            }
+            ancestor = ancestor->getParent();
         }
-        CTransform2D worldTransform = transform->worldTransform();
-        Deg parentRotation = worldTransform.rotation - transform->rotation;
-        this->velocity = (-parentRotation).rotate(newVelocity);
+        return movement;
+    }
+
+    void CMovement2D::setWorldVelocity(Vec2 newVelocity) {
+        // Calculate parent rotation
+        Deg parentWorldRotation = 0.0f;
+        Entity* current = this->entity.getParent();
+        while (current) {
+            auto currentTransform = current->getComponent<CTransform2D>();
+            if (currentTransform) {
+                parentWorldRotation += currentTransform->rotation;
+            }
+            current = current->getParent();
+        }
+
+        // Calculate parent world velocity
+        CMovement2D worldMovement = this->worldMovement();
+        Vec2 parentWorldVelocity = worldMovement.velocity - parentWorldRotation.rotate(this->velocity);
+        this->velocity = (-parentWorldRotation).rotate(newVelocity - parentWorldVelocity);
     }
 
     void CMovement2D::addWorldVelocityOffset(Vec2 offset) {
-        auto* transform = this->entity.getComponent<CTransform2D>();
-        if (!transform) {
-            this->velocity += offset;
-            return;
+        // Calculate parent rotation
+        Deg parentWorldRotation = 0.0f;
+        Entity* current = this->entity.getParent();
+        while (current) {
+            auto currentTransform = current->getComponent<CTransform2D>();
+            if (currentTransform) {
+                parentWorldRotation += currentTransform->rotation;
+            }
+            current = current->getParent();
         }
-        CTransform2D worldTransform = transform->worldTransform();
-        Deg parentRotation = worldTransform.rotation - transform->rotation;
-        this->velocity += (-parentRotation).rotate(offset);
+
+        this->velocity += (-parentWorldRotation).rotate(offset);
     }
 
     CGravity2D::CGravity2D(Entity& entity, float scale): Component(entity), scale(scale) {}
