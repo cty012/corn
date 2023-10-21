@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 project(corn)
 
 option(BUILD_EXAMPLES "Whether or not to build the example programs in the `examples/` folder." ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(SFML_PACKAGE_NAME "SFML-2.6" CACHE STRING "Name of the SFML folder inside `deps/`. Only used on MacOS.")
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build (Debug or Release)")
 

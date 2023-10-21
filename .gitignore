@@ -1,8 +1,11 @@
 # Editor
-.idea
-.vs
-.vscode
+.idea/
+.vs/
+.vscode/
 *.swp
+
+# Clangd
+.cache/
 
 # Others
 .DS_Store
