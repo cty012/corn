@@ -157,8 +157,8 @@ namespace corn {
     }
 
     std::vector<Entity*> EntityManager::getEntitiesHelper(
-            const std::function<bool(Entity*)> &pred, bool onlyActive,
-            size_t limit, const Entity *parent, bool recurse) const {
+            const std::function<bool(Entity*)>& pred, bool onlyActive,
+            size_t limit, const Entity* parent, bool recurse) const {
 
         auto entities = std::vector<Entity*>();
         auto nodeStack = std::stack<const Node*>();

@@ -1,6 +1,6 @@
 #include <corn/event/event_manager.h>
+#include <corn/geometry/vec2.h>
 #include <corn/media/interface.h>
-#include <corn/util/geometry.h>
 #include "image_impl.h"
 #include "interface_impl.h"
 #include "interface_helper.h"
@@ -107,10 +107,14 @@ namespace corn {
         this->clear();
         scene->entityManager.tidy();
         for (Entity* entity : scene->entityManager.getActiveEntitiesWith<CTransform2D, CSprite>()) {
-            auto trans = entity->getComponent<CTransform2D>();
+            auto transform = entity->getComponent<CTransform2D>();
             auto sprite = entity->getComponent<CSprite>();
-            auto [x, y] = trans->worldLocation();
-            sprite->image->impl().sfSprite->setPosition((float)x, (float)y);
+            auto [worldLocation, worldRotation] = transform->worldTransform();
+            auto [ancX, ancY] = worldLocation;
+            auto [locX, locY] = sprite->topLeft;
+            sprite->image->impl().sfSprite->setOrigin(-locX, -locY);
+            sprite->image->impl().sfSprite->setPosition(ancX, ancY);
+            sprite->image->impl().sfSprite->setRotation(-worldRotation.get());
             this->interfaceImpl->window->draw(*sprite->image->impl().sfSprite);
         }
     }

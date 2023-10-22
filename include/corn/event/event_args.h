@@ -2,7 +2,7 @@
 
 #include <string>
 #include <corn/core/input.h>
-#include <corn/util/geometry.h>
+#include <corn/geometry/vec2.h>
 
 namespace corn {
     struct EventArgs {
@@ -43,8 +43,8 @@ namespace corn {
 
     struct EventArgsMouseScroll : public EventArgs {
         [[nodiscard]] constexpr const char* type() const override { return "corn::input::mousesc"; }
-        EventArgsMouseScroll(double value, const Vec2& mousePos);
-        double value;
+        EventArgsMouseScroll(float value, const Vec2& mousePos);
+        float value;
         Vec2 mousePos;
     };
 

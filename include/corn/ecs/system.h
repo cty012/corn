@@ -6,9 +6,13 @@
 namespace corn {
     /**
      * @class System
-     * @brief Base class for all Systems.
+     * @brief System in the ECS architecture. Base class for all Systems.
      *
-     * @todo Write detailed description.
+     * All systems must implement the update function, which will be called once every game loop.
+     *
+     * @see Entity
+     * @see EntityManager
+     * @see Component
      */
     class System {
     public:
@@ -19,7 +23,7 @@ namespace corn {
         virtual ~System() = default;
 
         /// @brief If active, will be called repeatedly during game loop.
-        virtual void update(EntityManager& entityManager, double millis) = 0;
+        virtual void update(EntityManager& entityManager, float millis) = 0;
     };
 
     /**
@@ -32,7 +36,7 @@ namespace corn {
      */
     class SMovement2D : public System {
     public:
-        void update(EntityManager& entityManager, double millis) override;
+        void update(EntityManager& entityManager, float millis) override;
     };
 
     /**
@@ -47,17 +51,18 @@ namespace corn {
      */
     class SGravity : public System {
     public:
-        static constexpr double g = 2000.0;
-        double scale;
-        explicit SGravity(double scale = 1.0);
-        void update(EntityManager& entityManager, double millis) override;
+        static constexpr float g = 2000.0;
+        float scale;
+        explicit SGravity(float scale = 1.0);
+        void update(EntityManager& entityManager, float millis) override;
     };
 
     /**
      * @class SCollisionDetection
-     * @brief Calculates and resolves collision.
+     * @brief Detects and resolves collision.
      *
-     * @todo Write detailed description.
+     * The system retrieves all Entities with a position and collision detection component and detects any collision
+     * between them. If detected, it will invoke any collision resolvers attached to either Entity.
      *
      * @see System
      * @see CAABB
@@ -65,6 +70,6 @@ namespace corn {
      */
     class SCollisionDetection : public System {
     public:
-        void update(EntityManager& entityManager, double millis) override;
+        void update(EntityManager& entityManager, float millis) override;
     };
 }

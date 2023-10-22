@@ -1,7 +1,9 @@
 #pragma once
 
+#include <utility>
+#include <corn/geometry/deg.h>
+#include <corn/geometry/vec2.h>
 #include <corn/media/image.h>
-#include <corn/util/geometry.h>
 
 namespace corn {
     class Entity;
@@ -26,16 +28,18 @@ namespace corn {
 
     /**
      * @class CTransform2D
-     * @brief Stores the location and the rotation of the object.
+     * @brief Stores the location and the rotation of the 2D object.
      *
      * @see Component
      * @see SMovement2D
      */
     struct CTransform2D : public Component {
         Vec2 location;
-        Deg rotation;  // TODO: currently does not consider rotation
+        Deg rotation;
         CTransform2D(Entity& entity, Vec2 location, Deg rotation = Deg());
-        [[nodiscard]] Vec2 worldLocation() const;
+        [[nodiscard]] std::pair<Vec2, Deg> worldTransform() const;
+        void setWorldLocation(Vec2 newLocation);
+        void addWorldLocationOffset(Vec2 offset);
         [[nodiscard]] int getZOrder() const;
         void setZOrder(int _zorder);
     private:
@@ -44,7 +48,8 @@ namespace corn {
 
     /**
      * @class CSprite
-     * @brief Stores the image of the Entity. An Entity is only rendered if it has a CSprite Component.
+     * @brief Stores the image of the Entity. A 2D Entity is only rendered if it has a CSprite Component and a
+     * CTransform2D Component.
      *
      * @see Component
      * @see Image
@@ -52,34 +57,39 @@ namespace corn {
      */
     struct CSprite : public Component {
         Image* image;
-        CSprite(Entity& entity, Image *image);
+        Vec2 topLeft;
+        CSprite(Entity& entity, Image *image, Vec2 topLeft = Vec2::ZERO());
         ~CSprite() override;
     };
 
     /**
      * @class CMovement2D
-     * @brief Stores the velocity of the object in 2D space. Not affected by rotation.
+     * @brief Stores the velocity of the object in 2D space.
      *
-     * Unit: pixels/second
+     * Unit: pixels/second & degrees/second
      *
      * @see Component
      * @see SMovement2D
      */
     struct CMovement2D : public Component {
         Vec2 velocity;
-        explicit CMovement2D(Entity& entity, Vec2 velocity = {0, 0});
+        float angularVelocity;
+        explicit CMovement2D(Entity& entity, Vec2 velocity = Vec2::ZERO(), float angularVelocity = 0.0f);
+        [[nodiscard]] std::pair<Vec2, float> worldMovement() const;
+        void setWorldVelocity(Vec2 newVelocity);
+        void addWorldVelocityOffset(Vec2 offset);
     };
 
     /**
      * @class CGravity2D
-     * @brief Stores the velocity of the object. Not affected by rotation.
+     * @brief Constantly increases world velocity.
      *
      * @see Component
      * @see SGravity
      */
     struct CGravity2D : public Component {
-        double scale;
-        explicit CGravity2D(Entity& entity, double scale = 1.0);
+        float scale;
+        explicit CGravity2D(Entity& entity, float scale = 1.0f);
     };
 
     /**
@@ -88,6 +98,8 @@ namespace corn {
      *
      * The Vec2 for the corners are relative to the world location of the entity. i.e. <0, 0> would refer to the exact
      * location of the object. Having an invalid set of upper left and lower right corner will result in no collisions.
+     *
+     * Note that the AABB is not affected by rotation.
      *
      * @see Component
      * @see SCollisionDetection
