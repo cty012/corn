@@ -26,10 +26,10 @@ namespace corn {
      * @see RelativeFrame
      */
     struct ReferenceFrame {
-        double left;
-        double top;
-        double right;
-        double bottom;
+        float left;
+        float top;
+        float right;
+        float bottom;
 
         /// @brief Converts the relative location into an absolute location.
         [[nodiscard]] Vec2 map(const Vec4& relativeLocation) const;

@@ -23,7 +23,7 @@ namespace corn {
         virtual ~System() = default;
 
         /// @brief If active, will be called repeatedly during game loop.
-        virtual void update(EntityManager& entityManager, double millis) = 0;
+        virtual void update(EntityManager& entityManager, float millis) = 0;
     };
 
     /**
@@ -36,7 +36,7 @@ namespace corn {
      */
     class SMovement2D : public System {
     public:
-        void update(EntityManager& entityManager, double millis) override;
+        void update(EntityManager& entityManager, float millis) override;
     };
 
     /**
@@ -51,10 +51,10 @@ namespace corn {
      */
     class SGravity : public System {
     public:
-        static constexpr double g = 2000.0;
-        double scale;
-        explicit SGravity(double scale = 1.0);
-        void update(EntityManager& entityManager, double millis) override;
+        static constexpr float g = 2000.0;
+        float scale;
+        explicit SGravity(float scale = 1.0);
+        void update(EntityManager& entityManager, float millis) override;
     };
 
     /**
@@ -70,6 +70,6 @@ namespace corn {
      */
     class SCollisionDetection : public System {
     public:
-        void update(EntityManager& entityManager, double millis) override;
+        void update(EntityManager& entityManager, float millis) override;
     };
 }

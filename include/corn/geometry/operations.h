@@ -16,7 +16,7 @@ namespace corn {
      * @return Euclidean distance between the two vectors.
      */
     template <VectorType Vec>
-    double dist(const Vec& v1, const Vec& v2);
+    float dist(const Vec& v1, const Vec& v2);
 
     // TODO: vector rotation, etc.
 }

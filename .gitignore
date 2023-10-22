@@ -10,7 +10,7 @@
 # Others
 .DS_Store
 build/
-cmake-build-debug/
+cmake-build-*/
 out/
 deps/
 docs/doxygen-output/

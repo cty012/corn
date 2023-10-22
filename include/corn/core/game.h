@@ -1,5 +1,6 @@
 #pragma once
 
+#include <queue>
 #include <stack>
 #include <corn/core/scene.h>
 #include <corn/event/event_manager.h>

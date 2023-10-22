@@ -20,10 +20,13 @@ namespace corn {
         sf::Image image = sf::Image();
         if (!image.loadFromFile(path))
             throw ResourceLoadFailed(msg);
+        auto [w, h] = image.getSize();
+        this->width = w;
+        this->height = h;
         this->imageImpl = new ImageImpl(image, msg);
     }
 
-    Image::Image(unsigned int width, unsigned int height, Color color) {
+    Image::Image(unsigned int width, unsigned int height, Color color): width(width), height(height) {
         std::string msg = "Failed to load image.";
         auto [r, g, b, a] = color.getRGBA();
         sf::Image image = sf::Image();
@@ -33,6 +36,16 @@ namespace corn {
 
     Image::~Image() {
         delete this->imageImpl;
+    }
+
+    std::pair<unsigned int, unsigned int> Image::getSize() const {
+        return {this->width, this->height};
+    }
+
+    Image& Image::resize(unsigned int newWidth, unsigned int newHeight) {
+        this->width = newWidth;
+        this->height = newHeight;
+        return *this;
     }
 
     const ImageImpl& Image::impl() const {

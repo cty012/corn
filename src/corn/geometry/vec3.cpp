@@ -6,13 +6,13 @@
 namespace corn {
     Vec3::Vec3() : x(0.0), y(0.0), z(0.0) {}
 
-    Vec3::Vec3(double x, double y, double z) : x(x), y(y), z(z) {}
+    Vec3::Vec3(float x, float y, float z) : x(x), y(y), z(z) {}
 
     Vec2 Vec3::vec2() const {
         return {this->x, this->y};
     }
 
-    Vec4 Vec3::vec4(double w) const {
+    Vec4 Vec3::vec4(float w) const {
         return {this->x, this->y, this->z, w};
     }
 
@@ -46,7 +46,7 @@ namespace corn {
         return *this;
     }
 
-    double Vec3::dot(const Vec3& other) const {
+    float Vec3::dot(const Vec3& other) const {
         return this->x * other.x + this->y * other.y + this->z * other.z;
     }
 
@@ -59,16 +59,23 @@ namespace corn {
         return {this->x * other.x, this->y * other.y, this->z * other.z};
     }
 
-    Vec3 Vec3::mult(double factor) const {
+    Vec3 Vec3::operator*=(const Vec3& other) {
+        this->x *= other.x;
+        this->y *= other.y;
+        this->z *= other.z;
+        return *this;
+    }
+
+    Vec3 Vec3::mult(float factor) const {
         return {this->x * factor, this->y * factor, this->z * factor};
     }
 
-    double Vec3::norm() const {
+    float Vec3::norm() const {
         return std::sqrt(this->dot(*this));
     }
 
     Vec3 Vec3::normalize() const {
-        double n = this->norm();
+        float n = this->norm();
         return n == 0 ? *this : this->mult(1 / n);
     }
 }

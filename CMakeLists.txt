@@ -62,6 +62,9 @@ target_link_libraries(corn PRIVATE ${SFML_LIBRARIES})
 
 # Build the examples
 function(build_example EXAMPLE_NAME)
+    if(MSVC)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    endif()
     file(GLOB EXAMPLE_HEADERS "${CMAKE_SOURCE_DIR}/examples/${EXAMPLE_NAME}/*.h")
     file(GLOB EXAMPLE_SOURCES "${CMAKE_SOURCE_DIR}/examples/${EXAMPLE_NAME}/*.cpp")
     if (WIN32)
@@ -83,9 +86,5 @@ function(build_example EXAMPLE_NAME)
 endfunction()
 
 if (BUILD_EXAMPLES)
-    if(MSVC)
-        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    endif()
-
     build_example("clangy-bird")
 endif ()
