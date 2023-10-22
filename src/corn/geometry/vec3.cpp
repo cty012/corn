@@ -8,6 +8,26 @@ namespace corn {
 
     Vec3::Vec3(float x, float y, float z) : x(x), y(y), z(z) {}
 
+    const Vec3& Vec3::ZERO() {
+        static const Vec3 zero = {0.0f, 0.0f, 0.0f};
+        return zero;
+    }
+
+    const Vec3& Vec3::UNIT_X() {
+        static const Vec3 unitX = {1.0f, 0.0f, 0.0f};
+        return unitX;
+    }
+
+    const Vec3& Vec3::UNIT_Y() {
+        static const Vec3 unitY = {0.0f, 1.0f, 0.0f};
+        return unitY;
+    }
+
+    const Vec3& Vec3::UNIT_Z() {
+        static const Vec3 unitZ = {0.0f, 0.0f, 1.0f};
+        return unitZ;
+    }
+
     Vec2 Vec3::vec2() const {
         return {this->x, this->y};
     }

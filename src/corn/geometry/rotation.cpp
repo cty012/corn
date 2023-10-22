@@ -3,9 +3,9 @@
 
 namespace corn {
     Quaternion EulerAngles::quat() const {
-        return Quaternion(this->yaw, Vec3::UNIT_Y)
-            * Quaternion(this->pitch, Vec3::UNIT_X)
-            * Quaternion(this->roll, Vec3::UNIT_Z);
+        return Quaternion(this->yaw, Vec3::UNIT_Y())
+            * Quaternion(this->pitch, Vec3::UNIT_X())
+            * Quaternion(this->roll, Vec3::UNIT_Z());
         // float cyaw = this->yaw.cos();
         // float syaw = this->yaw.sin();
         // float cpitch = this->yaw.cos();
