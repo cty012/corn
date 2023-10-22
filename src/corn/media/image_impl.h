@@ -5,6 +5,7 @@
 namespace corn {
     class ImageImpl {
     public:
+        sf::Image image;
         sf::Texture* texture;
         sf::Sprite* sfSprite;
 

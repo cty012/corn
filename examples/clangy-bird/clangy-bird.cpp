@@ -57,13 +57,13 @@ corn::Entity* createBird(corn::EntityManager& entityManager) {
     return bird;
 }
 
-corn::Entity* createWall(corn::EntityManager& entityManager, double x) {
+corn::Entity* createWall(corn::EntityManager& entityManager, float x) {
     // Randomize hole location
     static std::random_device rd;
     static std::mt19937 gen(rd());
     static std::uniform_real_distribution<> dis(0.0, 1.0);
-    double topWallSize = HOLE_MIN_PADDING + (HEIGHT - HOLE_MIN_PADDING * 2 - HOLE_SIZE) * dis(gen);
-    double bottomWallSize = HEIGHT - topWallSize - HOLE_SIZE;
+    float topWallSize = HOLE_MIN_PADDING + (HEIGHT - HOLE_MIN_PADDING * 2 - HOLE_SIZE) * (float)dis(gen);
+    float bottomWallSize = HEIGHT - topWallSize - HOLE_SIZE;
 
     // Entities
     corn::Entity* wall = &entityManager.createEntity("wall");
@@ -115,7 +115,7 @@ public:
         // Iterate over existing walls
         for (corn::Entity* entity : entityManager.getEntitiesWith<Wall>()) {
             auto* transform = entity->getComponent<corn::CTransform2D>();
-            double locationX = transform->worldTransform().first.x;
+            float locationX = transform->worldTransform().first.x;
             if ((locationX + WALL_THICKNESS) < 0) {
                 entity->destroy();
             }

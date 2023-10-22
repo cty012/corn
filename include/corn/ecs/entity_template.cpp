@@ -1,3 +1,5 @@
+#pragma once
+
 #include <corn/util/exceptions.h>
 
 namespace corn {
