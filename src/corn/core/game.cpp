@@ -102,7 +102,7 @@ namespace corn {
         this->sw.play();
         while (this->active && !this->scenes.empty()) {
             // Get millis
-            double millis = this->sw.millis();
+            float millis = this->sw.millis();
             this->sw.clear();
             this->sw.play();
 

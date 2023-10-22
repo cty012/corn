@@ -129,13 +129,18 @@ namespace corn {
             Vec2 cameraCenter = cameraTransform->location + Vec2(camera->anchor.x, camera->anchor.y) + halfScreenSize;
 
             // Render entities
-            // TODO: rotation
             for (Entity* entity: scene->entityManager.getActiveEntitiesWith<CTransform2D, CSprite>()) {
                 auto transform = entity->getComponent<CTransform2D>();
                 auto sprite = entity->getComponent<CSprite>();
                 if (!sprite->visible) continue;
-                auto [x, y] = transform->worldLocation() - cameraCenter;
-                sprite->image->impl().sfSprite->setPosition((float) x, (float) y);
+
+                // TODO: rotation wrt. camera
+                auto [worldLocation, worldRotation] = transform->worldTransform();
+                auto [ancX, ancY] = worldLocation;
+                auto [locX, locY] = sprite->topLeft;
+                sprite->image->impl().sfSprite->setOrigin(-locX, -locY);
+                sprite->image->impl().sfSprite->setPosition(ancX, ancY);
+                sprite->image->impl().sfSprite->setRotation(-worldRotation.get());
                 this->interfaceImpl->window->draw(*sprite->image->impl().sfSprite);
             }
         }

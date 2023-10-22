@@ -3,7 +3,7 @@
 namespace corn {
     Scene::Scene() : entityManager(EntityManager()), systems(std::vector<System*>()) {}
 
-    void Scene::update(double millis) {
+    void Scene::update(float millis) {
         // TODO
         for (System* system : this->systems) {
             if (system->active) {
