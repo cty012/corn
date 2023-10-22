@@ -76,14 +76,14 @@ corn::Entity* createWall(corn::EntityManager& entityManager, double x) {
     wall->createComponent<Wall>();
 
     // Components of top wall
-    top->createComponent<corn::CTransform2D>(corn::Vec2::ZERO);
-    top->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WALL_THICKNESS, topWallSize));
+    top->createComponent<corn::CTransform2D>(corn::Vec2::ZERO());
+    top->createComponent<corn::CAABB>(corn::Vec2::ZERO(), corn::Vec2(WALL_THICKNESS, topWallSize));
     top->createComponent<corn::CSprite>(new corn::Image(
             WALL_THICKNESS, (unsigned int)topWallSize, WALL_COLOR));
 
     // Components of bottom wall
     bottom->createComponent<corn::CTransform2D>(corn::Vec2(0, topWallSize + HOLE_SIZE));
-    bottom->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WALL_THICKNESS, bottomWallSize));
+    bottom->createComponent<corn::CAABB>(corn::Vec2::ZERO(), corn::Vec2(WALL_THICKNESS, bottomWallSize));
     bottom->createComponent<corn::CSprite>(new corn::Image(
             WALL_THICKNESS, (unsigned int)bottomWallSize, WALL_COLOR));
 
@@ -95,15 +95,15 @@ void createCeilAndFloor(corn::EntityManager& entityManager) {
     corn::Entity* floor = &entityManager.createEntity("floor");
 
     // Components of ceil
-    auto ceilTransform = ceil->createComponent<corn::CTransform2D>(corn::Vec2::ZERO);
+    auto ceilTransform = ceil->createComponent<corn::CTransform2D>(corn::Vec2::ZERO());
     ceilTransform->setZOrder(1);
-    ceil->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WIDTH, CEIL_THICKNESS));
+    ceil->createComponent<corn::CAABB>(corn::Vec2::ZERO(), corn::Vec2(WIDTH, CEIL_THICKNESS));
     ceil->createComponent<corn::CSprite>(new corn::Image(WIDTH, CEIL_THICKNESS, CEIL_COLOR));
 
     // Components of floor
     auto floorTransform = floor->createComponent<corn::CTransform2D>(corn::Vec2(0, HEIGHT - CEIL_THICKNESS));
     floorTransform->setZOrder(1);
-    floor->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WIDTH, CEIL_THICKNESS));
+    floor->createComponent<corn::CAABB>(corn::Vec2::ZERO(), corn::Vec2(WIDTH, CEIL_THICKNESS));
     floor->createComponent<corn::CSprite>(new corn::Image(WIDTH, CEIL_THICKNESS, CEIL_COLOR));
 }
 

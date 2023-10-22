@@ -1,5 +1,6 @@
 #include <cmath>
 #include <corn/geometry/deg.h>
+#include <corn/util/constants.h>
 
 namespace corn {
     Deg::Deg(float val): _val(0.0) {
@@ -46,12 +47,12 @@ namespace corn {
     }
 
     float Deg::sin() const {
-        static constexpr float degToRad = M_PI / 180;
+        static constexpr float degToRad = PI / 180;
         return std::sin(this->_val * degToRad);
     }
 
     float Deg::cos() const {
-        static constexpr float degToRad = M_PI / 180;
+        static constexpr float degToRad = PI / 180;
         return std::cos(this->_val * degToRad);
     }
 

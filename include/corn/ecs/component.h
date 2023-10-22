@@ -58,7 +58,7 @@ namespace corn {
     struct CSprite : public Component {
         Image* image;
         Vec2 topLeft;
-        CSprite(Entity& entity, Image *image, Vec2 topLeft = Vec2::ZERO);
+        CSprite(Entity& entity, Image *image, Vec2 topLeft = Vec2::ZERO());
         ~CSprite() override;
     };
 
@@ -74,7 +74,7 @@ namespace corn {
     struct CMovement2D : public Component {
         Vec2 velocity;
         float angularVelocity;
-        explicit CMovement2D(Entity& entity, Vec2 velocity = Vec2::ZERO, float angularVelocity = 0.0f);
+        explicit CMovement2D(Entity& entity, Vec2 velocity = Vec2::ZERO(), float angularVelocity = 0.0f);
         [[nodiscard]] std::pair<Vec2, float> worldMovement() const;
         void setWorldVelocity(Vec2 newVelocity);
         void addWorldVelocityOffset(Vec2 offset);
