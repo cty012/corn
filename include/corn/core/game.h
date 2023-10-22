@@ -32,6 +32,8 @@ namespace corn {
          */
         explicit Game(Scene* startScene, Config config = Config());
         ~Game();
+        Game(const Game& other) = delete;
+        Game& operator=(const Game& other) = delete;
 
         /// @return Config data of the game object.
         [[nodiscard]] const Config& getConfig() const;

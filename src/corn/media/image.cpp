@@ -3,7 +3,7 @@
 #include "image_impl.h"
 
 namespace corn {
-    ImageImpl::ImageImpl(const sf::Image& image, const std::string& errorMsg) {
+    ImageImpl::ImageImpl(const sf::Image& image, const std::string& errorMsg): image(image) {
         this->texture = new sf::Texture();
         if (!this->texture->loadFromImage(image))
             throw ResourceLoadFailed(errorMsg);
@@ -36,6 +36,19 @@ namespace corn {
 
     Image::~Image() {
         delete this->imageImpl;
+    }
+
+    Image::Image(const Image& other): width(other.width), height(other.height) {
+        this->imageImpl = new ImageImpl(other.imageImpl->image, "Failed to copy image.");
+    }
+
+    Image& Image::operator=(const Image& other) {
+        if (&other == this) return *this;
+        delete this->imageImpl;
+        this->width = other.width;
+        this->height = other.height;
+        this->imageImpl = new ImageImpl(other.imageImpl->image, "Failed to copy image.");
+        return *this;
     }
 
     std::pair<unsigned int, unsigned int> Image::getSize() const {

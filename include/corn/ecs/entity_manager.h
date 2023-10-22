@@ -42,6 +42,8 @@ namespace corn {
 
         EntityManager();
         ~EntityManager();
+        EntityManager(const EntityManager& other) = delete;
+        EntityManager& operator=(const EntityManager& other) = delete;
 
         /**
          * @brief Creates a new Entity with no Components attached.
