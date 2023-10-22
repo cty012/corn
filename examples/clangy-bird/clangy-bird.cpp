@@ -17,9 +17,9 @@ const corn::Color BIRD_COLOR = corn::Color::rgb(255, 0, 0);
 constexpr size_t CEIL_THICKNESS = 40;
 const corn::Color CEIL_COLOR = corn::Color::rgb(255, 128, 0);
 
-constexpr double WALL_THICKNESS = 120;
-constexpr double WALL_SPEED = 200;
-constexpr double WALL_INTERVAL = 300;
+constexpr float WALL_THICKNESS = 120.0f;
+constexpr float WALL_SPEED = 200.0f;
+constexpr float WALL_INTERVAL = 300.0f;
 const corn::Color WALL_COLOR = corn::Color::rgb(50, 205, 50);
 
 constexpr size_t HOLE_MIN_PADDING = 120;
@@ -44,13 +44,15 @@ struct BirdCollisionResolve : public corn::CCollisionResolve {
 
 corn::Entity* createBird(corn::EntityManager& entityManager) {
     corn::Entity* bird = &entityManager.createEntity("bird");
-    auto transform = bird->createComponent<corn::CTransform2D>(corn::Vec2(300, 300));
+    auto transform = bird->createComponent<corn::CTransform2D>(corn::Vec2(400, 300));
     transform->setZOrder(2);
-    bird->createComponent<corn::CMovement2D>(corn::Vec2(0, -500));
+    bird->createComponent<corn::CMovement2D>(corn::Vec2(0, -500), -180);
     bird->createComponent<corn::CGravity2D>();
-    bird->createComponent<corn::CAABB>(corn::Vec2(0, 0), corn::Vec2(BIRD_WIDTH, BIRD_HEIGHT));
+    corn::Vec2 bottomRight = corn::Vec2(BIRD_WIDTH * 0.5, BIRD_HEIGHT * 0.5);
+    corn::Vec2 topLeft = -bottomRight;
+    bird->createComponent<corn::CAABB>(topLeft, bottomRight);
     bird->createComponent<corn::CSprite>(
-            new corn::Image(BIRD_WIDTH, BIRD_HEIGHT, BIRD_COLOR));
+            new corn::Image(BIRD_WIDTH, BIRD_HEIGHT, BIRD_COLOR), topLeft);
     bird->addComponent<corn::CCollisionResolve>(new BirdCollisionResolve(*bird));
     return bird;
 }
@@ -74,14 +76,14 @@ corn::Entity* createWall(corn::EntityManager& entityManager, double x) {
     wall->createComponent<Wall>();
 
     // Components of top wall
-    top->createComponent<corn::CTransform2D>(corn::Vec2::ZERO);
-    top->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WALL_THICKNESS, topWallSize));
+    top->createComponent<corn::CTransform2D>(corn::Vec2::ZERO());
+    top->createComponent<corn::CAABB>(corn::Vec2::ZERO(), corn::Vec2(WALL_THICKNESS, topWallSize));
     top->createComponent<corn::CSprite>(new corn::Image(
             WALL_THICKNESS, (unsigned int)topWallSize, WALL_COLOR));
 
     // Components of bottom wall
     bottom->createComponent<corn::CTransform2D>(corn::Vec2(0, topWallSize + HOLE_SIZE));
-    bottom->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WALL_THICKNESS, bottomWallSize));
+    bottom->createComponent<corn::CAABB>(corn::Vec2::ZERO(), corn::Vec2(WALL_THICKNESS, bottomWallSize));
     bottom->createComponent<corn::CSprite>(new corn::Image(
             WALL_THICKNESS, (unsigned int)bottomWallSize, WALL_COLOR));
 
@@ -93,31 +95,31 @@ void createCeilAndFloor(corn::EntityManager& entityManager) {
     corn::Entity* floor = &entityManager.createEntity("floor");
 
     // Components of ceil
-    auto ceilTransform = ceil->createComponent<corn::CTransform2D>(corn::Vec2::ZERO);
+    auto ceilTransform = ceil->createComponent<corn::CTransform2D>(corn::Vec2::ZERO());
     ceilTransform->setZOrder(1);
-    ceil->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WIDTH, CEIL_THICKNESS));
+    ceil->createComponent<corn::CAABB>(corn::Vec2::ZERO(), corn::Vec2(WIDTH, CEIL_THICKNESS));
     ceil->createComponent<corn::CSprite>(new corn::Image(WIDTH, CEIL_THICKNESS, CEIL_COLOR));
 
     // Components of floor
     auto floorTransform = floor->createComponent<corn::CTransform2D>(corn::Vec2(0, HEIGHT - CEIL_THICKNESS));
     floorTransform->setZOrder(1);
-    floor->createComponent<corn::CAABB>(corn::Vec2::ZERO, corn::Vec2(WIDTH, CEIL_THICKNESS));
+    floor->createComponent<corn::CAABB>(corn::Vec2::ZERO(), corn::Vec2(WIDTH, CEIL_THICKNESS));
     floor->createComponent<corn::CSprite>(new corn::Image(WIDTH, CEIL_THICKNESS, CEIL_COLOR));
 }
 
 /// A system for managing wall creation and deletion
 class WallManager : public corn::System {
 public:
-    void update(corn::EntityManager& entityManager, double millis) override {
+    void update(corn::EntityManager& entityManager, float millis) override {
         bool needNewWall = true;
         // Iterate over existing walls
         for (corn::Entity* entity : entityManager.getEntitiesWith<Wall>()) {
             auto* transform = entity->getComponent<corn::CTransform2D>();
-            double xLocation = transform->worldLocation().x;
-            if ((xLocation + WALL_THICKNESS) < 0) {
+            double locationX = transform->worldTransform().first.x;
+            if ((locationX + WALL_THICKNESS) < 0) {
                 entity->destroy();
             }
-            if (WIDTH - (xLocation + WALL_THICKNESS) < WALL_INTERVAL) {
+            if (WIDTH - (locationX + WALL_THICKNESS) < WALL_INTERVAL) {
                 needNewWall = false;
             }
         }

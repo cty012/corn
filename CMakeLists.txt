@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.22)
 project(corn)
 
 option(BUILD_EXAMPLES "Whether or not to build the example programs in the `examples/` folder." ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(SFML_PACKAGE_NAME "SFML-2.6" CACHE STRING "Name of the SFML folder inside `deps/`. Only used on MacOS.")
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build (Debug or Release)")
 
@@ -61,6 +62,9 @@ target_link_libraries(corn PRIVATE ${SFML_LIBRARIES})
 
 # Build the examples
 function(build_example EXAMPLE_NAME)
+    if(MSVC)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    endif()
     file(GLOB EXAMPLE_HEADERS "${CMAKE_SOURCE_DIR}/examples/${EXAMPLE_NAME}/*.h")
     file(GLOB EXAMPLE_SOURCES "${CMAKE_SOURCE_DIR}/examples/${EXAMPLE_NAME}/*.cpp")
     if (WIN32)
@@ -82,9 +86,5 @@ function(build_example EXAMPLE_NAME)
 endfunction()
 
 if (BUILD_EXAMPLES)
-    if(MSVC)
-        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    endif()
-
     build_example("clangy-bird")
 endif ()
