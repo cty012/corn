@@ -23,7 +23,7 @@ namespace corn {
      * @see Interface
      * @see Config
      */
-    class Game {
+    class Game final {
     public:
         /**
          * @brief Constructor of the Game class.
