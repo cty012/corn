@@ -7,4 +7,10 @@ namespace corn {
     const char* ResourceLoadFailed::what() const noexcept {
         return this->msg.c_str();
     }
+
+    RelValParseFailed::RelValParseFailed(std::string msg) : msg(std::move(msg)) {}
+
+    const char* RelValParseFailed::what() const noexcept {
+        return this->msg.c_str();
+    }
 }
