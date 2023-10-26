@@ -38,7 +38,7 @@ namespace corn {
 
     Vec2 Interface::screenSize() const {
         sf::Vector2u size = this->interfaceImpl->window->getSize();
-        return {(double)size.x, (double)size.y};
+        return {(float)size.x, (float)size.y};
     }
 
     void Interface::handleUserInput() const {  // TODO: change this

@@ -202,7 +202,7 @@ namespace corn::impl::rel_val {
     };
 
     /// @brief Default constructor.
-    Token::Token(TokenType type, std::string  name, float val, bool hasUnit)
+    Token::Token(TokenType type, std::string name, float val, bool hasUnit)
             : type(type), name(std::move(name)), value(val, hasUnit) {}
 
     /**
