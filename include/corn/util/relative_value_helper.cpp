@@ -18,7 +18,6 @@ namespace corn::impl::rel_val {
         return str.substr(start, end - start + 1);
     }
 
-
     /**
      * @class impl::rel_val::TokenType
      * @brief Types of tokens.
@@ -67,28 +66,28 @@ namespace corn::impl::rel_val {
             {
                 '+', {0, [](bool a, bool b) -> bool {
                     if (a != b)
-                        throw RelValParseFailed("Cannot add number literals and numbers with units.");
+                        throw RelValParseFailed("Cannot add number literals and numbers with unit.");
                     return a;
                 }}
             },
             {
                 '-', {0, [](bool a, bool b) -> bool {
                     if (a != b)
-                        throw RelValParseFailed("Cannot subtract number literals and numbers with units.");
+                        throw RelValParseFailed("Cannot subtract number literals and numbers with unit.");
                     return a;
                 }}
             },
             {
                 '*', {1, [](bool a, bool b) -> bool {
                     if (a && b)
-                        throw RelValParseFailed("Cannot multiply two numbers with units.");
+                        throw RelValParseFailed("Cannot multiply two numbers with unit.");
                     return a || b;
                 }}
             },
             {
                 '/', {1, [](bool a, bool b) -> bool {
-                    if (b)
-                        throw RelValParseFailed("Numbers with units cannot be the denominator.");
+                    if (!a && b)
+                        throw RelValParseFailed("Cannot divide number literals by numbers with unit.");
                     return a;
                 }}
             },
@@ -118,7 +117,7 @@ namespace corn::impl::rel_val {
             },
             {
                 '/', [](Value a, Value b) -> Value {
-                    return Value(a.val / b.val, a.hasUnit);
+                    return Value(a.val / b.val, a.hasUnit && !b.hasUnit);
                 }
             },
     };
@@ -135,8 +134,10 @@ namespace corn::impl::rel_val {
     const std::unordered_map<std::string, const std::function<bool(const std::vector<bool>&)>> _functions = {
             {
                 "eval", [](const std::vector<bool>& operands) -> bool {
-                    if (operators.size() != 1)
-                        throw RelValParseFailed("Invalid expression inside parentheses.");
+                    if (operators.empty())
+                        throw RelValParseFailed("Empty parentheses.");
+                    else if (operators.size() > 1)
+                        throw RelValParseFailed("Separator `,` used outside of function call.");
                     return operands[0];
                 }
             },
@@ -247,5 +248,13 @@ namespace corn::impl::rel_val {
      */
     bool precedes(char op1, char op2) {
         return _operators.at(op1).first > _operators.at(op2).first;
+    }
+
+    /**
+     * @param token Input token.
+     * @return Whether the token represents the end of a function param list.
+     */
+    bool isEndFunctionToken(const Token& token) {
+        return token.type == TokenType::FUNCTION && token.name.empty();
     }
 }
