@@ -23,7 +23,7 @@ namespace corn {
 
     private:
         std::vector<impl::rel_val::Token> tokens;
-        std::array<std::string, N> units;
+        std::array<std::string, N> unitIdx;
     };
 }
 

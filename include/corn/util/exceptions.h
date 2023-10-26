@@ -10,7 +10,7 @@
 namespace corn {
     class ResourceLoadFailed : public std::exception {
     public:
-        explicit ResourceLoadFailed(std::string msg);
+        explicit ResourceLoadFailed(const std::string& msg);
         [[nodiscard]] const char* what() const noexcept override;
     private:
         std::string msg;
@@ -18,7 +18,7 @@ namespace corn {
 
     class RelValParseFailed : public std::exception {
     public:
-        explicit RelValParseFailed(std::string msg);
+        explicit RelValParseFailed(const std::string& msg);
         [[nodiscard]] const char* what() const noexcept override;
     private:
         std::string msg;
