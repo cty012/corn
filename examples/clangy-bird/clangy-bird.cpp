@@ -210,8 +210,9 @@ private:
     }
 
     void onMouseEvent(const corn::EventArgsMouseButton& args) {
-        if (args.mouse == corn::Mouse::LEFT && args.status == corn::ButtonEvent::DOWN)
+        if (!this->paused && args.mouse == corn::Mouse::LEFT && args.status == corn::ButtonEvent::DOWN) {
             this->birdMovement->velocity.y = -700;
+        }
     }
 };
 

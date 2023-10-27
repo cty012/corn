@@ -1,10 +1,16 @@
 cmake_minimum_required(VERSION 3.22)
 project(corn)
 
-option(BUILD_EXAMPLES "Whether or not to build the example programs in the `examples/` folder." ON)
+option(BUILD_EXAMPLES "Build the example programs in the `examples/` folder." ON)
+option(BUILD_TESTS "Build the test cases in the `test/` folder." OFF)
+set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build (Debug or Release)")
+
+set(CORN_OUTPUT_DIR "${CMAKE_BINARY_DIR}/lib")
+set(EXAMPLES_OUTPUT_DIR "${CMAKE_BINARY_DIR}/examples")
+set(TEST_OUTPUT_DIR "${CMAKE_BINARY_DIR}/tests")
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(SFML_PACKAGE_NAME "SFML-2.6" CACHE STRING "Name of the SFML folder inside `deps/`. Only used on MacOS.")
-set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build (Debug or Release)")
 
 set(CMAKE_CXX_STANDARD 20)
 list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/deps")
@@ -13,16 +19,18 @@ list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/deps")
 if (MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-endif()
+endif ()
 
 file(GLOB_RECURSE HEADERS
         "${CMAKE_SOURCE_DIR}/include/*.h"
-        "${CMAKE_SOURCE_DIR}/src/*.h")
+        "${CMAKE_SOURCE_DIR}/src/*.h"
+)
 file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/src/*.cpp")
 
 add_library(corn SHARED ${HEADERS} ${SOURCES})
-
-target_include_directories(corn PRIVATE "include")
+set_target_properties(corn PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CORN_OUTPUT_DIR}")
+set(CORN_OUTPUT_PATH $<TARGET_FILE:corn>)
+target_include_directories(corn PRIVATE "${CMAKE_SOURCE_DIR}/include")
 
 # Link with SFML
 if (WIN32)
@@ -60,31 +68,12 @@ endif ()
 
 target_link_libraries(corn PRIVATE ${SFML_LIBRARIES})
 
-# Build the examples
-function(build_example EXAMPLE_NAME)
-    if(MSVC)
-        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-    endif()
-    file(GLOB EXAMPLE_HEADERS "${CMAKE_SOURCE_DIR}/examples/${EXAMPLE_NAME}/*.h")
-    file(GLOB EXAMPLE_SOURCES "${CMAKE_SOURCE_DIR}/examples/${EXAMPLE_NAME}/*.cpp")
-    if (WIN32)
-        add_executable(${EXAMPLE_NAME} ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
-#        add_executable(${EXAMPLE_NAME} WIN32 ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
-    elseif (APPLE)
-        add_executable(${EXAMPLE_NAME} ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
-        set_target_properties(${EXAMPLE_NAME} PROPERTIES
-            BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "@executable_path"
-        )
-    elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        add_executable(${EXAMPLE_NAME} ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
-        set_target_properties(${EXAMPLE_NAME} PROPERTIES
-            BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "$ORIGIN"
-        )
-    endif ()
-    target_include_directories(${EXAMPLE_NAME} PRIVATE "include")
-    target_link_libraries(${EXAMPLE_NAME} corn)
-endfunction()
-
+# Build examples
 if (BUILD_EXAMPLES)
-    build_example("clangy-bird")
+    add_subdirectory("examples")
+endif ()
+
+# Build test cases
+if (BUILD_TESTS)
+    add_subdirectory("test")
 endif ()
