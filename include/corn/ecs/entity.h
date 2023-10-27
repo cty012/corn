@@ -119,4 +119,4 @@ namespace corn {
     };
 }
 
-#include <corn/ecs/entity_template.cpp>
+#include <corn/ecs/entity_template.h>

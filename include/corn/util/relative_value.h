@@ -16,15 +16,15 @@ namespace corn {
     class RelativeValue {
     public:
         RelativeValue();
-        static RelativeValue fromString(const std::string& expression, const std::array<std::string, N>& units);
+        static RelativeValue<N> fromString(const std::string& expression, const std::array<std::string, N>& units);
 
         template <typename... Values> requires ValidRelValArgs<N, Values...>
         float calc(Values... values);
 
     private:
         std::vector<impl::rel_val::Token> tokens;
-        std::array<std::string, N> unitIdx;
+        std::unordered_map<std::string, size_t> unitIdx;
     };
 }
 
-#include "relative_value_template.cpp"
+#include "relative_value_template.h"

@@ -2,6 +2,7 @@
 
 #include <string>
 #include <unordered_set>
+#include <corn/util/exceptions.h>
 
 namespace corn::impl::rel_val {
     // Utility function
@@ -218,7 +219,7 @@ namespace corn::impl::rel_val {
         } else if (tokenStr == ")") {
             this->type = TokenType::PARENTHESIS_RIGHT;
             this->name = ")";
-        } else if (tokenStr == ")") {
+        } else if (tokenStr == ",") {
             this->type = TokenType::SEPARATOR;
             this->name = ",";
         } else if (tokenStr.size() == 1 && _operators.contains(tokenStr[0])) {
@@ -227,15 +228,16 @@ namespace corn::impl::rel_val {
         } else if (_functions.contains(tokenStr)) {
             this->type = TokenType::FUNCTION;
             this->name = tokenStr;
-        }
-        try {
-            std::size_t idx;
-            this->value.val = std::stof(tokenStr, &idx);
-            this->type = TokenType::VALUE;
-            this->name = tokenStr.substr(idx);
-            this->value.hasUnit = !this->name.empty();
-        } catch (const std::exception&) {
-            this->type = TokenType::INVALID;
+        } else {
+            try {
+                std::size_t idx;
+                this->value.val = std::stof(tokenStr, &idx);
+                this->type = TokenType::VALUE;
+                this->name = tokenStr.substr(idx);
+                this->value.hasUnit = !this->name.empty();
+            } catch (const std::exception&) {
+                this->type = TokenType::INVALID;
+            }
         }
     }
 

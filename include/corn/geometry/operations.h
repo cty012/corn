@@ -21,4 +21,4 @@ namespace corn {
     // TODO: vector rotation, etc.
 }
 
-#include "operations_template.cpp"
+#include "operations_template.h"

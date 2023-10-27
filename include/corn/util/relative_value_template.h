@@ -1,7 +1,7 @@
 #pragma once
 
-#include <corn/util/exceptions.h>
-#include "relative_value_helper.cpp"
+#include <stack>
+#include "relative_value_helper.h"
 
 namespace corn {
     namespace impl::rel_val {
@@ -11,7 +11,7 @@ namespace corn {
          * @param units Unordered map of all valid units to their index.
          * @return A vector of tokens.
          */
-        std::vector<Token> tokenize(const std::string& expression, const std::unordered_map<std::string, size_t>& units) {
+        std::vector<Token> tokenize(const std::string& expression, const std::unordered_map<std::string, size_t>& unitIdx) {
             if (expression.empty())
                 throw RelValParseFailed("Cannot parse empty expression.");
 
@@ -25,11 +25,14 @@ namespace corn {
                     _operators.contains(expression[i])) {
 
                     // If there's a word before the operator, add it to the result
-                    if (i > tokenStart) {
-                        Token token(trim(expression.substr(tokenStart, i - tokenStart)));
+                    std::string temp = trim(expression.substr(tokenStart, i - tokenStart));
+                    if (!temp.empty()) {
+                        Token token(temp);
                         // Detect unrecognizable tokens
-                        if (token.type == TokenType::INVALID || token.type == TokenType::VALUE && !units.contains(token.name))
-                            throw RelValParseFailed("Token `" + token.name + "` cannot be recognized.");
+                        if (token.type == TokenType::INVALID ||
+                            token.type == TokenType::VALUE && !(token.name.empty() || unitIdx.contains(token.name))
+                        )
+                            throw RelValParseFailed("Token `" + temp + "` cannot be recognized.");
                         result.push_back(token);
                     }
 
@@ -181,7 +184,6 @@ namespace corn {
                 switch (token.type) {
                     case TokenType::VALUE:
                         // If is value, push to stack.
-                        // TODO: expand the unit
                         valueStack.push(token);
                         break;
                     case TokenType::SEPARATOR: {
@@ -209,7 +211,6 @@ namespace corn {
                     }
                     case TokenType::OPERATOR: {
                         // If is operator, calculate the resulting unit.
-                        // TODO: calculate actual value
                         if (valueStack.size() <= 2)
                             throw RelValParseFailed("Binary operator `" + token.name + "` require two operands.");
                         // Retrieve last two values
@@ -226,7 +227,6 @@ namespace corn {
                     case TokenType::FUNCTION: {
                         // If is function, retrieve the list of arguments and calculate the resulting unit.
                         // The pairing of function call and function end token is already validated in toPostfix.
-                        // TODO: calculate actual value
                         // First pop the separator
                         valueStack.pop();
                         // Retrieve values until reaching end
@@ -262,12 +262,12 @@ namespace corn {
         RelativeValue<N> result;
 
         // Convert units to unordered map
-        for (size_t i = 0; i < units; i++) {
-            result->unitIdx[units[i]] = i;
+        for (size_t i = 0; i < N; i++) {
+            result.unitIdx[units.at(i)] = i;
         }
 
         // Tokenization
-        std::vector<impl::rel_val::Token> tokens = impl::rel_val::tokenize(expression, result->units);
+        std::vector<impl::rel_val::Token> tokens = impl::rel_val::tokenize(expression, result.unitIdx);
         // Infix to postfix
         result.tokens = impl::rel_val::toPostfix(tokens);
         // Validation

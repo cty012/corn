@@ -188,4 +188,4 @@ namespace corn {
     };
 }
 
-#include "entity_manager_template.cpp"
+#include "entity_manager_template.h"
