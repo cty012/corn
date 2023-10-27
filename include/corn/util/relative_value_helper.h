@@ -46,6 +46,7 @@ namespace corn::impl::rel_val {
     struct Token {
         Token(TokenType type, std::string name, float val, bool hasUnit);
         explicit Token(const std::string& tokenStr);
+        std::string toString() const;
         TokenType type;
         std::string name;
         Value value;
@@ -238,6 +239,25 @@ namespace corn::impl::rel_val {
             } catch (const std::exception&) {
                 this->type = TokenType::INVALID;
             }
+        }
+    }
+
+    /// @return String representation of the Token
+    std::string Token::toString() const {
+        switch (this->type) {
+            case TokenType::OPERATOR:
+            case TokenType::FUNCTION:
+                return this->name;
+            case TokenType::PARENTHESIS_LEFT:
+                return "(";
+            case TokenType::PARENTHESIS_RIGHT:
+                return ")";
+            case TokenType::SEPARATOR:
+                return ",";
+            case TokenType::VALUE:
+                return std::to_string(this->value.val) + this->name;
+            case TokenType::INVALID:
+                return "!";
         }
     }
 

@@ -211,7 +211,7 @@ namespace corn {
                     }
                     case TokenType::OPERATOR: {
                         // If is operator, calculate the resulting unit.
-                        if (valueStack.size() <= 2)
+                        if (valueStack.size() < 2)
                             throw RelValParseFailed("Binary operator `" + token.name + "` require two operands.");
                         // Retrieve last two values
                         Token token2 = valueStack.top();
@@ -249,7 +249,7 @@ namespace corn {
             }
 
             // Finally, check that the valueStack has one value left.
-            if (valueStack.size() != 1 || valueStack.top().type == TokenType::VALUE)
+            if (valueStack.size() != 1 || valueStack.top().type != TokenType::VALUE)
                 throw RelValParseFailed("Invalid expression.");
         }
     }

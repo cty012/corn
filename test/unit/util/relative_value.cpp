@@ -100,26 +100,26 @@ namespace corn::test::relative_value {
         for (size_t i = 0; i < units.size(); i++) {
             unitIdx[units[i]] = i;
         }
+        std::vector<Token> result;
 
         // Basic tokenization
-        TestTokenVectorsEqual(
-                tokenize("min(5px - 10.6, 10%w)", unitIdx),
-                constructTokenVector("min", "(", "5px", "-", "10.6", ",", "10%w", ")"));
+        EXPECT_NO_THROW(result = tokenize("min(5px - 10.6, 10%w)", unitIdx));
+        TestTokenVectorsEqual(result, constructTokenVector(
+                "min", "(", "5px", "-", "10.6", ",", "10%w", ")"));
 
         // Single token
-        TestTokenVectorsEqual(
-                tokenize("eval", unitIdx),
-                constructTokenVector("eval"));
+        EXPECT_NO_THROW(result = tokenize("eval", unitIdx));
+        TestTokenVectorsEqual(result, constructTokenVector("eval"));
 
         // Multiple tokens
-        TestTokenVectorsEqual(
-                tokenize("min(max(3 * 4, 5), eval(1024 / 6.px))", unitIdx),
-                constructTokenVector("min", "(", "max", "(", "3", "*", "4", ",", "5", ")", ",", "eval", "(", "1024", "/", "6.px", ")", ")"));
+        EXPECT_NO_THROW(result = tokenize("min(max(3 * 4, 5), eval(1024 / 6.px))", unitIdx));
+        TestTokenVectorsEqual(result, constructTokenVector(
+                "min", "(", "max", "(", "3", "*", "4", ",", "5", ")", ",", "eval", "(", "1024", "/", "6.px", ")", ")"));
 
         // Nested functions
-        TestTokenVectorsEqual(
-                tokenize("eval(min(3, 4), max(5, 6))", unitIdx),
-                constructTokenVector("eval", "(", "min", "(", "3", ",", "4", ")", ",", "max", "(", "5", ",", "6", ")", ")"));
+        EXPECT_NO_THROW(result = tokenize("eval(min(3, 4), max(5, 6))", unitIdx));
+        TestTokenVectorsEqual(result, constructTokenVector(
+                "eval", "(", "min", "(", "3", ",", "4", ")", ",", "max", "(", "5", ",", "6", ")", ")"));
 
         // Empty string
         EXPECT_THROW(tokenize("", unitIdx), RelValParseFailed);
@@ -129,22 +129,19 @@ namespace corn::test::relative_value {
         EXPECT_THROW(tokenize("1 px", unitIdx), RelValParseFailed);
 
         // Whitespace handling
-        TestTokenVectorsEqual(
-                tokenize(" min ( 5px , 10 ) ", unitIdx),
-                constructTokenVector("min", "(", "5px", ",", "10", ")"));
+        EXPECT_NO_THROW(result = tokenize(" min ( 5px , 10 ) ", unitIdx));
+        TestTokenVectorsEqual(result, constructTokenVector("min", "(", "5px", ",", "10", ")"));
 
         // No space between tokens
-        TestTokenVectorsEqual(
-                tokenize("min(,3,4,)", unitIdx),
-                constructTokenVector("min", "(", ",", "3", ",", "4", ",", ")"));
-        TestTokenVectorsEqual(
-                tokenize("min(max(3,4),5)", unitIdx),
-                constructTokenVector("min", "(", "max", "(", "3", ",", "4", ")", ",", "5", ")"));
+        EXPECT_NO_THROW(result = tokenize("min(,3,4,)", unitIdx));
+        TestTokenVectorsEqual(result, constructTokenVector("min", "(", ",", "3", ",", "4", ",", ")"));
+        EXPECT_NO_THROW(result = tokenize("min(max(3,4),5)", unitIdx));
+        TestTokenVectorsEqual(result, constructTokenVector(
+                "min", "(", "max", "(", "3", ",", "4", ")", ",", "5", ")"));
 
         // Consecutive comma
-        TestTokenVectorsEqual(
-                tokenize("min(10,,20)", unitIdx),
-                constructTokenVector("min", "(", "10", ",", ",", "20", ")"));
+        EXPECT_NO_THROW(result = tokenize("min(10,,20)", unitIdx));
+        TestTokenVectorsEqual(result, constructTokenVector("min", "(", "10", ",", ",", "20", ")"));
 
         // Units without numbers
         EXPECT_THROW(tokenize("max(px, %w)", unitIdx), RelValParseFailed);
@@ -156,8 +153,9 @@ namespace corn::test::relative_value {
     TEST(RelativeValue, calculate) {
         std::array<std::string, 3> units = {"px", "%w", "%h"};
 
-        RelativeValue<3> relval;
-        EXPECT_NO_THROW(relval = RelativeValue<3>::fromString("10 + 5", units));
-        relval.calc(1.0f, 1000.0f, 100.0f);
+        // Basic calculation
+        RelativeValue<3> result;
+        EXPECT_NO_THROW(result = RelativeValue<3>::fromString("10px + 5%w", units));
+        EXPECT_EQ(result.calc(1.0f, 3.0f, 0.0f), 25);
     }
 }
