@@ -9,7 +9,14 @@ namespace corn::test::relative_value {
     requires ((std::is_same_v<Strings, std::string> || std::is_same_v<Strings, const char*>) && ...)
     std::vector<Token> constructTokenVector(Strings... tokens) {
         std::vector<Token> result;
-        (result.emplace_back(std::string(tokens)), ...);
+        (
+            result.push_back(
+                std::string(tokens).empty() ?
+                Token(TokenType::END_FUNC, "", 0.0f, false) :
+                Token(std::string(tokens))
+            ),
+            ...
+        );
         return result;
     }
 
@@ -36,7 +43,7 @@ namespace corn::test::relative_value {
         return true;
     }
 
-    bool TestTokenVectorsEqual(const std::vector<Token>& tokens1, const std::vector<Token>& tokens2) {
+    bool _TestTokenVectorsEqual(const std::vector<Token>& tokens1, const std::vector<Token>& tokens2) {
         EXPECT_EQ_RETURN(tokens1.size(), tokens2.size(), false);
         bool result = true;
         for (size_t i = 0; i < tokens1.size(); i++) {
@@ -45,6 +52,19 @@ namespace corn::test::relative_value {
             if (!temp) result = false;
         }
         EXPECT_TRUE(result);
+        return result;
+    }
+
+    bool TestTokenVectorsEqual(const std::vector<Token>& tokens1, const std::vector<Token>& tokens2) {
+        bool result = _TestTokenVectorsEqual(tokens1, tokens2);
+        if (!result) {
+            std::cout << "  tokens1: {" << std::endl << "    ";
+            for (const Token& token1: tokens1) std::cout << token1.toString() << " ";
+            std::cout << std::endl << "  }" << std::endl;
+            std::cout << "  tokens2: {" << std::endl << "    ";
+            for (const Token& token2: tokens2) std::cout << token2.toString() << " ";
+            std::cout << std::endl << "  }" << std::endl;
+        }
         return result;
     }
 
@@ -150,12 +170,29 @@ namespace corn::test::relative_value {
         EXPECT_THROW(tokenize("10.5.3", unitIdx), RelValParseFailed);
     }
 
+    TEST(RelativeValue, convert_to_postfix) {
+        std::array<std::string, 3> units = {"px", "%w", "%h"};
+        std::unordered_map<std::string, size_t> unitIdx;
+        for (size_t i = 0; i < units.size(); i++) {
+            unitIdx[units[i]] = i;
+        }
+        std::vector<Token> result;
+
+        EXPECT_NO_THROW(result = toPostfix(tokenize("10px + 5%w", unitIdx)));
+        TestTokenVectorsEqual(result, constructTokenVector("10px", "5%w", "+"));
+        EXPECT_NO_THROW(result = toPostfix(tokenize("28%h + 2 * (10px + 5%w)", unitIdx)));
+        TestTokenVectorsEqual(result, constructTokenVector(
+                "28%h", "2", "", "10px", "5%w", "+", ",", "eval", "*", "+"));
+    }
+
     TEST(RelativeValue, calculate) {
         std::array<std::string, 3> units = {"px", "%w", "%h"};
+        RelativeValue<3> result;
 
         // Basic calculation
-        RelativeValue<3> result;
         EXPECT_NO_THROW(result = RelativeValue<3>::fromString("10px + 5%w", units));
-        EXPECT_EQ(result.calc(1.0f, 3.0f, 0.0f), 25);
+        EXPECT_FLOAT_EQ(result.calc(1.0f, 3.0f, 0.0f), 25.0f);
+        EXPECT_NO_THROW(result = RelativeValue<3>::fromString("28%h + 2 * (10px + 5%w)", units));
+        EXPECT_FLOAT_EQ(result.calc(1.0f, 3.0f, 1.5f), 92.0f);
     }
 }

@@ -62,9 +62,9 @@ namespace corn {
                 const Token& token = tokens[i];
                 switch (token.type) {
                     case TokenType::FUNCTION:
-                        // If is a function, push empty function to represent the end of argument list.
+                        // If is a function, push end function token to represent the end of argument list.
                         // Validate that it is succeeded by `(`.
-                        temp.emplace_back(TokenType::FUNCTION, "", 0.0f, false);
+                        temp.emplace_back(TokenType::END_FUNC, "", 0.0f, false);
                         operatorStack.push(token);
                         if (i + 1 == tokens.size() || tokens[i + 1].type != TokenType::PARENTHESIS_LEFT)
                             throw RelValParseFailed("`(` expected after function " + token.name + ".");
@@ -73,7 +73,7 @@ namespace corn {
                         // If is `(`, push it to the operator stack.
                         // If previous  token is not function, add an `eval` function manually.
                         if (i == 0 || tokens[i - 1].type != TokenType::FUNCTION) {
-                            temp.emplace_back(TokenType::FUNCTION, "", 0.0f, false);
+                            temp.emplace_back(TokenType::END_FUNC, "", 0.0f, false);
                             operatorStack.emplace(TokenType::FUNCTION, "eval", 0.0f, false);
                         }
                         // Push the `(`
@@ -115,16 +115,18 @@ namespace corn {
                         // If is `,`, push all operators until reaches end function token, then push itself.
                         // Validate that such `(` can be found.
                         while (true) {
-                            if (operatorStack.empty())
+                            if (operatorStack.empty()) {
+                                std::cout << "<" << operatorStack.top().toString() << ">" << std::endl;
                                 throw RelValParseFailed("Separator `,` used outside of function call.");
-                            else if (isEndFunctionToken(operatorStack.top()))
+                            }
+                            else if (operatorStack.top().type == TokenType::END_FUNC)
                                 break;
                             // Keep moving operators from the stack to the result vector if not reached destination.
                             result.push_back(operatorStack.top());
                             operatorStack.pop();
                         }
                         // Push the operator itself to the stack
-                        operatorStack.push(token);
+                        result.push_back(token);
                         break;
                     case TokenType::OPERATOR:
                         // If is an operator:
@@ -142,16 +144,15 @@ namespace corn {
                         // Push the operator itself to the stack
                         operatorStack.push(token);
                         break;
-                    case TokenType::FUNCTION:
+                    case TokenType::END_FUNC:
                         // If is an end function token, push to both operator stack and result
-                        if (isEndFunctionToken(token)) {
-                            result.push_back(token);
-                            operatorStack.push(token);
-                            break;
-                        }
+                        result.push_back(token);
+                        operatorStack.push(token);
+                        break;
+                    case TokenType::FUNCTION:
                         // If is a function, push itself and pop end function token from the stack.
-                        // Function call must be preceded by a separator, which forces the top of the stack to be an
-                        // end function token.
+                        // Function call must be preceded by a separator, which forces the top two of the stack to be
+                        // the separator and the end function token.
                         result.push_back(token);
                         operatorStack.pop();
                         break;
@@ -189,7 +190,7 @@ namespace corn {
                     case TokenType::SEPARATOR: {
                         // If is separator, validate that there is exactly one value since last end function token or
                         // separator.
-                        if (valueStack.size() <= 2)
+                        if (valueStack.size() < 2)
                             throw RelValParseFailed("Separator `,` used outside of function call.");
                         // Retrieve last two values and verify
                         Token token2 = valueStack.top();
@@ -198,10 +199,10 @@ namespace corn {
                         if (token2.type != TokenType::VALUE)
                             throw RelValParseFailed("Invalid syntax of function arguments.");
                         // Push last value and new separator
-                        if (token1.type == TokenType::SEPARATOR) {
+                        if (token1.type == TokenType::SEPARATOR) {  // Remove the last separator
                             valueStack.top() = token2;
                             valueStack.push(token);
-                        } else if (!isEndFunctionToken(token1)) {
+                        } else if (token1.type == TokenType::END_FUNC) {  // If this is the first separator, don't remove
                             valueStack.push(token2);
                             valueStack.push(token);
                         } else {
@@ -224,6 +225,10 @@ namespace corn {
                         valueStack.top().value.hasUnit = result;
                         break;
                     }
+                    case TokenType::END_FUNC:
+                        // If is end function token, push to stack.
+                        valueStack.push(token);
+                        break;
                     case TokenType::FUNCTION: {
                         // If is function, retrieve the list of arguments and calculate the resulting unit.
                         // The pairing of function call and function end token is already validated in toPostfix.
@@ -231,7 +236,7 @@ namespace corn {
                         valueStack.pop();
                         // Retrieve values until reaching end
                         std::vector<bool> operands;
-                        while (!isEndFunctionToken(valueStack.top())) {
+                        while (valueStack.top().type != TokenType::END_FUNC) {
                             operands.push_back(valueStack.top().value.hasUnit);
                             valueStack.pop();
                         }
@@ -305,11 +310,15 @@ namespace corn {
                     valueStack.top().value = impl::rel_val::operators.at(token.name[0])(token1.value, token2.value);
                     break;
                 }
+                case impl::rel_val::TokenType::END_FUNC:
+                    // If is end function token, push to stack.
+                    valueStack.push(token);
+                    break;
                 case impl::rel_val::TokenType::FUNCTION: {
                     // If is function, retrieve the list of arguments and calculate the resulting unit.
                     // Retrieve values until reaching end
                     std::vector<impl::rel_val::Value> operands;
-                    while (!isEndFunctionToken(valueStack.top())) {
+                    while (valueStack.top().type != impl::rel_val::TokenType::END_FUNC) {
                         operands.push_back(valueStack.top().value);
                         valueStack.pop();
                     }

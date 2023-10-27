@@ -24,7 +24,7 @@ namespace corn::impl::rel_val {
      * @brief Types of tokens.
      */
     enum class TokenType {
-        OPERATOR, FUNCTION, PARENTHESIS_LEFT, PARENTHESIS_RIGHT, SEPARATOR, VALUE, INVALID,
+        OPERATOR, FUNCTION, END_FUNC, PARENTHESIS_LEFT, PARENTHESIS_RIGHT, SEPARATOR, VALUE, INVALID,
     };
 
     /**
@@ -46,7 +46,7 @@ namespace corn::impl::rel_val {
     struct Token {
         Token(TokenType type, std::string name, float val, bool hasUnit);
         explicit Token(const std::string& tokenStr);
-        std::string toString() const;
+        [[nodiscard]] std::string toString() const;
         TokenType type;
         std::string name;
         Value value;
@@ -136,9 +136,9 @@ namespace corn::impl::rel_val {
     const std::unordered_map<std::string, const std::function<bool(const std::vector<bool>&)>> _functions = {
             {
                 "eval", [](const std::vector<bool>& operands) -> bool {
-                    if (operators.empty())
+                    if (operands.empty())
                         throw RelValParseFailed("Empty parentheses.");
-                    else if (operators.size() > 1)
+                    else if (operands.size() > 1)
                         throw RelValParseFailed("Separator `,` used outside of function call.");
                     return operands[0];
                 }
@@ -248,6 +248,8 @@ namespace corn::impl::rel_val {
             case TokenType::OPERATOR:
             case TokenType::FUNCTION:
                 return this->name;
+            case TokenType::END_FUNC:
+                return "[END_FUNC]";
             case TokenType::PARENTHESIS_LEFT:
                 return "(";
             case TokenType::PARENTHESIS_RIGHT:
@@ -259,6 +261,7 @@ namespace corn::impl::rel_val {
             case TokenType::INVALID:
                 return "!";
         }
+        return "";
     }
 
     /**
@@ -270,13 +273,5 @@ namespace corn::impl::rel_val {
      */
     bool precedes(char op1, char op2) {
         return _operators.at(op1).first > _operators.at(op2).first;
-    }
-
-    /**
-     * @param token Input token.
-     * @return Whether the token represents the end of a function param list.
-     */
-    bool isEndFunctionToken(const Token& token) {
-        return token.type == TokenType::FUNCTION && token.name.empty();
     }
 }
