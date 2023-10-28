@@ -4,6 +4,8 @@ namespace corn {
     Scene::Scene()
         : entityManager(EntityManager()), uiManager(UIManager(&entityManager)), systems(std::vector<System*>()) {}
 
+    Scene::~Scene() = default;
+
     void Scene::update(float millis) {
         // TODO
         for (System* system : this->systems) {

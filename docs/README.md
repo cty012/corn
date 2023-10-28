@@ -6,14 +6,14 @@ Corn is a lightweight, cross-platform PC-based game engine that supports Windows
 It's designed to be easy to use and efficient, allowing developers to create high-quality games with ease.
 
 ## Features
+- Compatible with Windows, macOS, and Linux
 - 2D rendering (3D in future plans)
-- Compatible with Windows, MacOS, and Linux
 
 ## Prerequisites
-- C++ 20
-- Visual Studio (Windows) / MinGW-w64 (Windows) / Clang (MacOS) / GCC (Linux)
-- [CMake](https://cmake.org/) (only if building from the source)
-- [SFML 2.6](https://www.sfml-dev.org/) (only if building from the source)
+- Visual Studio 2022 (Windows) / MinGW-w64 13.1.0 (Windows) / Clang (MacOS) / GCC (Linux)
+- (Optional) [CMake](https://cmake.org/): only if building from the source
+- (Optional) [SFML 2.6](https://www.sfml-dev.org/): only if building from the source
+- (Optional) [Google test](https://github.com/google/googletest): only if building the test cases
 
 ## Getting Started
 
@@ -83,4 +83,5 @@ cd docs && doxygen
 ```
 
 ## Acknowledgments
-- [SFML](https://www.sfml-dev.org/) - Licensed under [zlib/libpng license](https://www.sfml-dev.org/license.php)
+- [SFML](https://www.sfml-dev.org/) - Licensed under [zlib/libpng License](https://www.sfml-dev.org/license.php)
+- [Google Test](https://google.github.io/googletest) - Licensed under [BSD 3-Clause License](https://github.com/google/googletest/blob/main/LICENSE)

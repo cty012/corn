@@ -10,10 +10,12 @@ namespace corn {
 
     unsigned int cornMode2SfStyle(DisplayMode mode) {
         switch (mode) {
-            case DisplayMode::FULLSCREEN:
-                return 0b1101;
             case DisplayMode::WINDOWED:
-                return 0b0101;
+                return sf::Style::Titlebar | sf::Style::Resize | sf::Style::Close;
+            case DisplayMode::WINDOWED_FIXED:
+                return sf::Style::Titlebar | sf::Style::Close;
+            case DisplayMode::FULLSCREEN:
+                return sf::Style::Fullscreen;
             default:
                 return 0b0101;
         }

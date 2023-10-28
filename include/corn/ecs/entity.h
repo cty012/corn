@@ -13,8 +13,6 @@ namespace corn {
     template <typename T>
     concept ComponentType = std::derived_from<T, Component>;
 
-    class EntityManager;
-
     /**
      * @class Entity
      * @brief Entity in the ECS architecture.
@@ -118,4 +116,4 @@ namespace corn {
     };
 }
 
-#include <corn/ecs/entity_template.cpp>
+#include <corn/ecs/entity_template.h>

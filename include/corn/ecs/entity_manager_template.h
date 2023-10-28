@@ -1,3 +1,5 @@
+#pragma once
+
 namespace corn {
     template<ComponentType... T>
     std::vector<Entity*> EntityManager::getEntitiesWith(const Entity* parent, bool recurse) const {

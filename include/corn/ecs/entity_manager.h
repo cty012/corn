@@ -22,6 +22,7 @@ namespace corn {
     public:
         // Entity needs access to the destroyEntity function
         friend class Entity;
+        friend class Interface;
 
         /**
          * @struct Node
@@ -42,6 +43,8 @@ namespace corn {
 
         EntityManager();
         ~EntityManager();
+        EntityManager(const EntityManager& other) = delete;
+        EntityManager& operator=(const EntityManager& other) = delete;
 
         /**
          * @brief Creates a new Entity with no Components attached.
@@ -177,10 +180,12 @@ namespace corn {
         Node root;
         /// @brief Quick access for finding nodes by entity ID (does not contain root)
         std::unordered_map<Entity::EntityID, Node> nodes;
+        /// @brief List of camera entities for quick access
+        std::vector<const CCamera*> cameras;
 
         /// @brief Event listeners
-        EventManager::ListenerID zorderEventID;
+        std::vector<EventManager::ListenerID> eventIDs;
     };
 }
 
-#include "entity_manager_template.cpp"
+#include "entity_manager_template.h"
