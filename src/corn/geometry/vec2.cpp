@@ -9,17 +9,17 @@ namespace corn {
     Vec2::Vec2(float x, float y) : x(x), y(y) {}
 
     const Vec2& Vec2::ZERO() {
-        static Vec2 zero = {0.0f, 0.0f};
+        static const Vec2 zero = {0.0f, 0.0f};
         return zero;
     }
 
     const Vec2& Vec2::UNIT_X() {
-        static Vec2 unitX = { 1.0f, 0.0f };
+        static const Vec2 unitX = {1.0f, 0.0f};
         return unitX;
     }
 
     const Vec2& Vec2::UNIT_Y() {
-        static Vec2 unitY = { 0.0f, 1.0f };
+        static const Vec2 unitY = {0.0f, 1.0f};
         return unitY;
     }
 

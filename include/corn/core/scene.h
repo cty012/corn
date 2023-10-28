@@ -38,6 +38,9 @@ namespace corn {
 
         Scene();
         virtual ~Scene();
+        Scene(const Scene& other) = delete;
+        Scene& operator=(const Scene& other) = delete;
+
         /**
          * @brief Update all Entities, Components, and Systems in the scene.
          * @param millis Number of milliseconds elapsed.
