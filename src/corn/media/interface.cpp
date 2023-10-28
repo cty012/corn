@@ -172,6 +172,7 @@ namespace corn {
                 float y = camera->viewport.y.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
                 sf::View view(sf::FloatRect(-x, -y, windowSize.x, windowSize.y));
                 sf::Sprite cameraSprite(camera->viewport.impl->texture.getTexture());
+                cameraSprite.setColor(sf::Color(255, 255, 255, camera->opacity));
                 this->interfaceImpl->window->setView(view);
                 this->interfaceImpl->window->draw(cameraSprite);
             }

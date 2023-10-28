@@ -136,7 +136,7 @@ namespace corn {
 
     CCamera::CCamera(Entity& entity, Vec2 anchor, Color background)
         : Component(entity), cameraType(CameraType::_2D), background(background),
-        anchor(anchor.vec3(0)), active(true), opacity(1) {
+        anchor(anchor.vec3(0)), active(true), opacity(255) {
 
         this->setViewport("0px", "0px", "100%ww", "100%wh");
         this->setFov("100%vw", "100%vh");
@@ -145,7 +145,7 @@ namespace corn {
 
     CCamera::CCamera(Entity& entity, Vec3 anchor, Color background)
         : Component(entity), cameraType(CameraType::_3D), background(background),
-        anchor(anchor), active(true), opacity(1) {
+        anchor(anchor), active(true), opacity(255) {
 
         EventManager::instance().emit(EventArgsCamera(CameraEventType::ADD, this));
     }
