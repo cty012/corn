@@ -1,10 +1,10 @@
 #pragma once
 
-#include <string>
+#include <functional>
 #include <unordered_set>
 #include <corn/util/exceptions.h>
 
-namespace corn::impl::rel_val {
+namespace corn::impl::expression {
     // Utility function
     std::string trim(const std::string& str) {
         const std::string whitespace = " \t\n\r\f\v";
@@ -20,7 +20,7 @@ namespace corn::impl::rel_val {
     }
 
     /**
-     * @class impl::rel_val::TokenType
+     * @class impl::expression::TokenType
      * @brief Types of tokens.
      */
     enum class TokenType {
@@ -28,7 +28,7 @@ namespace corn::impl::rel_val {
     };
 
     /**
-     * @class impl::rel_val::Value
+     * @class impl::expression::Value
      * @brief Simple struct for holding a floating point number with or without unit.
      */
     struct Value {
@@ -37,7 +37,7 @@ namespace corn::impl::rel_val {
     };
 
     /**
-     * @class impl::rel_val::Token
+     * @class impl::expression::Token
      * @brief Stores all information about the token.
      *
      * If token is not a VALUE, the string representation will be stored in name. If it is a VALUE, the numerical
@@ -68,28 +68,28 @@ namespace corn::impl::rel_val {
             {
                 '+', {0, [](bool a, bool b) -> bool {
                     if (a != b)
-                        throw RelValParseFailed("Cannot add number literals and numbers with unit.");
+                        throw ExpressionParseFailed("Cannot add number literals and numbers with unit.");
                     return a;
                 }}
             },
             {
                 '-', {0, [](bool a, bool b) -> bool {
                     if (a != b)
-                        throw RelValParseFailed("Cannot subtract number literals and numbers with unit.");
+                        throw ExpressionParseFailed("Cannot subtract number literals and numbers with unit.");
                     return a;
                 }}
             },
             {
                 '*', {1, [](bool a, bool b) -> bool {
                     if (a && b)
-                        throw RelValParseFailed("Cannot multiply two numbers with unit.");
+                        throw ExpressionParseFailed("Cannot multiply two numbers with unit.");
                     return a || b;
                 }}
             },
             {
                 '/', {1, [](bool a, bool b) -> bool {
                     if (!a && b)
-                        throw RelValParseFailed("Cannot divide number literals by numbers with unit.");
+                        throw ExpressionParseFailed("Cannot divide number literals by numbers with unit.");
                     return a && !b;
                 }}
             },
@@ -137,35 +137,35 @@ namespace corn::impl::rel_val {
             {
                 "eval", [](const std::vector<bool>& operands) -> bool {
                     if (operands.empty())
-                        throw RelValParseFailed("Empty parentheses.");
+                        throw ExpressionParseFailed("Empty parentheses.");
                     else if (operands.size() > 1)
-                        throw RelValParseFailed("Separator `,` used outside of function call.");
+                        throw ExpressionParseFailed("Separator `,` used outside of function call.");
                     return operands[0];
                 }
             },
             {
                 "min", [](const std::vector<bool>& operands) -> bool {
                     if (operands.empty())
-                        throw RelValParseFailed("Function `min` takes at least one operand.");
+                        throw ExpressionParseFailed("Function `min` takes at least one operand.");
                     size_t countHasUnit = 0;
                     for (bool operand : operands) {
                         countHasUnit += operand;
                     }
                     if (countHasUnit != 0 && countHasUnit != operands.size())
-                        throw RelValParseFailed("Cannot take minimum of number literals and numbers with units.");
+                        throw ExpressionParseFailed("Cannot take minimum of number literals and numbers with units.");
                     return operands[0];
                 }
             },
             {
                 "max", [](const std::vector<bool>& operands) -> bool {
                     if (operands.empty())
-                        throw RelValParseFailed("Function `max` takes at least one operand.");
+                        throw ExpressionParseFailed("Function `max` takes at least one operand.");
                     size_t countHasUnit = 0;
                     for (bool operand : operands) {
                         countHasUnit += operand;
                     }
                     if (countHasUnit != 0 && countHasUnit != operands.size())
-                        throw RelValParseFailed("Cannot take maximum of number literals and numbers with units.");
+                        throw ExpressionParseFailed("Cannot take maximum of number literals and numbers with units.");
                     return operands[0];
                 }
             },
@@ -211,7 +211,9 @@ namespace corn::impl::rel_val {
      * @param tokenStr String representation of the token.
      * @return The token type.
      *
-     * Having type VALUE does not imply that the unit exists.
+     * Warning: having type VALUE does not imply that the unit exists. It only means that a floating point number can
+     * be parsed from it (and the remaining part becomes the unit). If there is no remaining part, the number is
+     * interpreted as a number literal.
      */
     Token::Token(const std::string& tokenStr): value() {
         if (tokenStr == "(") {

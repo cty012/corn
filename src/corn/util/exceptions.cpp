@@ -10,11 +10,11 @@ namespace corn {
         return this->msg.c_str();
     }
 
-    RelValParseFailed::RelValParseFailed(const std::string& msg) {
-        this->msg = "Error parsing relative value from string:\n    " + msg + "\n";
+    ExpressionParseFailed::ExpressionParseFailed(const std::string& msg) {
+        this->msg = "Error parsing expression from string:\n    " + msg + "\n";
     }
 
-    const char* RelValParseFailed::what() const noexcept {
+    const char* ExpressionParseFailed::what() const noexcept {
         return this->msg.c_str();
     }
 }

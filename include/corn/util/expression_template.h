@@ -1,10 +1,10 @@
 #pragma once
 
 #include <stack>
-#include "relative_value_helper.h"
+#include "expression_helper.h"
 
 namespace corn {
-    namespace impl::rel_val {
+    namespace impl::expression {
         /**
          * @brief Breaks the input string into tokens.
          * @param expression The expression string to be calculated.
@@ -13,7 +13,7 @@ namespace corn {
          */
         std::vector<Token> tokenize(const std::string& expression, const std::unordered_map<std::string, size_t>& unitIdx) {
             if (expression.empty())
-                throw RelValParseFailed("Cannot parse empty expression.");
+                throw ExpressionParseFailed("Cannot parse empty expression.");
 
             std::vector<Token> result;
             size_t tokenStart = 0;
@@ -32,7 +32,7 @@ namespace corn {
                         if (token.type == TokenType::INVALID ||
                             token.type == TokenType::VALUE && !(token.name.empty() || unitIdx.contains(token.name))
                         )
-                            throw RelValParseFailed("Token `" + temp + "` cannot be recognized.");
+                            throw ExpressionParseFailed("Token `" + temp + "` cannot be recognized.");
                         result.push_back(token);
                     }
 
@@ -67,7 +67,7 @@ namespace corn {
                         temp.emplace_back(TokenType::END_FUNC, "", 0.0f, false);
                         operatorStack.push(token);
                         if (i + 1 == tokens.size() || tokens[i + 1].type != TokenType::PARENTHESIS_LEFT)
-                            throw RelValParseFailed("`(` expected after function " + token.name + ".");
+                            throw ExpressionParseFailed("`(` expected after function " + token.name + ".");
                         break;
                     case TokenType::PARENTHESIS_LEFT:
                         // If is `(`, push it to the operator stack.
@@ -83,7 +83,7 @@ namespace corn {
                         // If is `)`, pop the `(` on the operator stack.
                         // Validate that the top of the stack is `(`.
                         if (operatorStack.empty() || operatorStack.top().type != TokenType::PARENTHESIS_LEFT)
-                            throw RelValParseFailed("Token `)` is not paired with `(`.");
+                            throw ExpressionParseFailed("Token `)` is not paired with `(`.");
                         // Pop the `(`
                         operatorStack.pop();
                         // Push a separator before pushing the function
@@ -101,7 +101,7 @@ namespace corn {
 
             // Verify that the operator stack is empty
             if (!operatorStack.empty()) {
-                throw RelValParseFailed("Token `(` is not paired with `)`.");
+                throw ExpressionParseFailed("Token `(` is not paired with `)`.");
             }
 
             // Second pass: convert all binary operators to postfix
@@ -116,8 +116,7 @@ namespace corn {
                         // Validate that such `(` can be found.
                         while (true) {
                             if (operatorStack.empty()) {
-                                std::cout << "<" << operatorStack.top().toString() << ">" << std::endl;
-                                throw RelValParseFailed("Separator `,` used outside of function call.");
+                                throw ExpressionParseFailed("Separator `,` used outside of function call.");
                             }
                             else if (operatorStack.top().type == TokenType::END_FUNC)
                                 break;
@@ -166,7 +165,7 @@ namespace corn {
             // Validate there are no `(` remaining on the operator stack.
             while (!operatorStack.empty()) {
                 if (operatorStack.top().type == TokenType::PARENTHESIS_LEFT)
-                    throw RelValParseFailed("Token `(` is not paired with `)`.");
+                    throw ExpressionParseFailed("Token `(` is not paired with `)`.");
                 result.push_back(operatorStack.top());
                 operatorStack.pop();
             }
@@ -191,13 +190,13 @@ namespace corn {
                         // If is separator, validate that there is exactly one value since last end function token or
                         // separator.
                         if (valueStack.size() < 2)
-                            throw RelValParseFailed("Separator `,` used outside of function call.");
+                            throw ExpressionParseFailed("Separator `,` used outside of function call.");
                         // Retrieve last two values and verify
                         Token token2 = valueStack.top();
                         valueStack.pop();
                         Token token1 = valueStack.top();  // No need to pop this. Can use it to store result.
                         if (token2.type != TokenType::VALUE)
-                            throw RelValParseFailed("Invalid syntax of function arguments.");
+                            throw ExpressionParseFailed("Invalid syntax of function arguments.");
                         // Push last value and new separator
                         if (token1.type == TokenType::SEPARATOR) {  // Remove the last separator
                             valueStack.top() = token2;
@@ -206,20 +205,20 @@ namespace corn {
                             valueStack.push(token2);
                             valueStack.push(token);
                         } else {
-                            throw RelValParseFailed("Invalid syntax of function arguments.");
+                            throw ExpressionParseFailed("Invalid syntax of function arguments.");
                         }
                         break;
                     }
                     case TokenType::OPERATOR: {
                         // If is operator, calculate the resulting unit.
                         if (valueStack.size() < 2)
-                            throw RelValParseFailed("Binary operator `" + token.name + "` require two operands.");
+                            throw ExpressionParseFailed("Binary operator `" + token.name + "` require two operands.");
                         // Retrieve last two values
                         Token token2 = valueStack.top();
                         valueStack.pop();
                         Token token1 = valueStack.top();  // No need to pop this. Can use it to store result.
                         if (token1.type != TokenType::VALUE || token2.type != TokenType::VALUE)
-                            throw RelValParseFailed("Binary operators `" + token.name + "` require two operands.");
+                            throw ExpressionParseFailed("Binary operators `" + token.name + "` require two operands.");
                         // Calculate and store result
                         bool result = _operators.at(token.name[0]).second(token1.value.hasUnit, token2.value.hasUnit);
                         valueStack.top().value.hasUnit = result;
@@ -255,16 +254,16 @@ namespace corn {
 
             // Finally, check that the valueStack has one value left.
             if (valueStack.size() != 1 || valueStack.top().type != TokenType::VALUE)
-                throw RelValParseFailed("Invalid expression.");
+                throw ExpressionParseFailed("Invalid expression.");
         }
     }
 
     template <std::size_t N>
-    RelativeValue<N>::RelativeValue(): tokens(), unitIdx() {}
+    Expression<N>::Expression(): tokens(), unitIdx() {}
 
     template <std::size_t N>
-    RelativeValue<N> RelativeValue<N>::fromString(const std::string& expression, const std::array<std::string, N>& units) {
-        RelativeValue<N> result;
+    Expression<N> Expression<N>::fromString(const std::string& expression, const std::array<std::string, N>& units) {
+        Expression<N> result;
 
         // Convert units to unordered map
         for (size_t i = 0; i < N; i++) {
@@ -272,60 +271,60 @@ namespace corn {
         }
 
         // Tokenization
-        std::vector<impl::rel_val::Token> tokens = impl::rel_val::tokenize(expression, result.unitIdx);
+        std::vector<impl::expression::Token> tokens = impl::expression::tokenize(expression, result.unitIdx);
         // Infix to postfix
-        result.tokens = impl::rel_val::toPostfix(tokens);
+        result.tokens = impl::expression::toPostfix(tokens);
         // Validation
-        impl::rel_val::validate(result.tokens);
+        impl::expression::validate(result.tokens);
 
         return result;
     }
 
     template <std::size_t N>
-    template <typename... Values> requires ValidRelValArgs<N, Values...>
-    float RelativeValue<N>::calc(Values... unitValues) {
+    template <typename... Values> requires ValidExpressionArgs<N, Values...>
+    float Expression<N>::calc(Values... unitValues) {
         std::array<float, N> valuesArray = { unitValues... };
-        std::stack<impl::rel_val::Token> valueStack;
+        std::stack<impl::expression::Token> valueStack;
 
-        for (const impl::rel_val::Token& token : tokens) {
+        for (const impl::expression::Token& token : tokens) {
             switch (token.type) {
-                case impl::rel_val::TokenType::VALUE: {
+                case impl::expression::TokenType::VALUE: {
                     // If is value, push to stack.
                     float newVal = token.value.hasUnit ?
                             token.value.val * valuesArray[this->unitIdx[token.name]] : token.value.val;
                     valueStack.emplace(token.type, "", newVal, token.value.hasUnit);
                     break;
                 }
-                case impl::rel_val::TokenType::SEPARATOR: {
+                case impl::expression::TokenType::SEPARATOR: {
                     // If is separator, skip.
                     break;
                 }
-                case impl::rel_val::TokenType::OPERATOR: {
+                case impl::expression::TokenType::OPERATOR: {
                     // If is operator, calculate the resulting unit.
                     // Retrieve last two values
-                    impl::rel_val::Token token2 = valueStack.top();
+                    impl::expression::Token token2 = valueStack.top();
                     valueStack.pop();
-                    impl::rel_val::Token token1 = valueStack.top();  // No need to pop this. Can use it to store result.
+                    impl::expression::Token token1 = valueStack.top();  // No need to pop this. Can use it to store result.
                     // Calculate and store result
-                    valueStack.top().value = impl::rel_val::operators.at(token.name[0])(token1.value, token2.value);
+                    valueStack.top().value = impl::expression::operators.at(token.name[0])(token1.value, token2.value);
                     break;
                 }
-                case impl::rel_val::TokenType::END_FUNC:
+                case impl::expression::TokenType::END_FUNC:
                     // If is end function token, push to stack.
                     valueStack.push(token);
                     break;
-                case impl::rel_val::TokenType::FUNCTION: {
+                case impl::expression::TokenType::FUNCTION: {
                     // If is function, retrieve the list of arguments and calculate the resulting unit.
                     // Retrieve values until reaching end
-                    std::vector<impl::rel_val::Value> operands;
-                    while (valueStack.top().type != impl::rel_val::TokenType::END_FUNC) {
+                    std::vector<impl::expression::Value> operands;
+                    while (valueStack.top().type != impl::expression::TokenType::END_FUNC) {
                         operands.push_back(valueStack.top().value);
                         valueStack.pop();
                     }
                     std::reverse(operands.begin(), operands.end());
                     // Calculate and store result
-                    valueStack.top().type = impl::rel_val::TokenType::VALUE;
-                    valueStack.top().value = impl::rel_val::functions.at(token.name)(operands);
+                    valueStack.top().type = impl::expression::TokenType::VALUE;
+                    valueStack.top().value = impl::expression::functions.at(token.name)(operands);
                     break;
                 }
                 default:

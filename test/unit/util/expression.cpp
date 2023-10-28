@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include <corn/util/relative_value.h>
+#include <corn/util/expression.h>
 #include <utility.h>
 
-namespace corn::test::relative_value {
-    using namespace corn::impl::rel_val;
+namespace corn::test::expression {
+    using namespace corn::impl::expression;
 
     template <typename... Strings>
     requires ((std::is_same_v<Strings, std::string> || std::is_same_v<Strings, const char*>) && ...)
@@ -26,6 +26,7 @@ namespace corn::test::relative_value {
             case TokenType::PARENTHESIS_LEFT:
             case TokenType::PARENTHESIS_RIGHT:
             case TokenType::SEPARATOR:
+            case TokenType::END_FUNC:
             case TokenType::INVALID:
                 return true;
             case TokenType::VALUE:
@@ -43,7 +44,7 @@ namespace corn::test::relative_value {
         return true;
     }
 
-    bool _TestTokenVectorsEqual(const std::vector<Token>& tokens1, const std::vector<Token>& tokens2) {
+    bool TestTokenVectorsEqual_(const std::vector<Token>& tokens1, const std::vector<Token>& tokens2) {
         EXPECT_EQ_RETURN(tokens1.size(), tokens2.size(), false);
         bool result = true;
         for (size_t i = 0; i < tokens1.size(); i++) {
@@ -56,7 +57,7 @@ namespace corn::test::relative_value {
     }
 
     bool TestTokenVectorsEqual(const std::vector<Token>& tokens1, const std::vector<Token>& tokens2) {
-        bool result = _TestTokenVectorsEqual(tokens1, tokens2);
+        bool result = TestTokenVectorsEqual_(tokens1, tokens2);
         if (!result) {
             std::cout << "  tokens1: {" << std::endl << "    ";
             for (const Token& token1: tokens1) std::cout << token1.toString() << " ";
@@ -68,7 +69,7 @@ namespace corn::test::relative_value {
         return result;
     }
 
-    TEST(RelativeValue, token_is_interpreted_correctly) {
+    TEST(Expression, token_is_interpreted_correctly) {
         Token parenthesisLeft("(");
         EXPECT_EQ(parenthesisLeft.type, TokenType::PARENTHESIS_LEFT);
 
@@ -126,7 +127,7 @@ namespace corn::test::relative_value {
         EXPECT_EQ(invalid1.type, TokenType::INVALID);
     }
 
-    TEST(RelativeValue, tokenization) {
+    TEST(Expression, tokenization) {
         std::vector<std::string> units = {"px", "%w", "%h"};
         std::unordered_map<std::string, size_t> unitIdx;
         for (size_t i = 0; i < units.size(); i++) {
@@ -154,11 +155,11 @@ namespace corn::test::relative_value {
                 "eval", "(", "min", "(", "3", ",", "4", ")", ",", "max", "(", "5", ",", "6", ")", ")"));
 
         // Empty string
-        EXPECT_THROW(tokenize("", unitIdx), RelValParseFailed);
+        EXPECT_THROW(tokenize("", unitIdx), ExpressionParseFailed);
 
         // Invalid tokens
-        EXPECT_THROW(tokenize("hello world", unitIdx), RelValParseFailed);
-        EXPECT_THROW(tokenize("1 px", unitIdx), RelValParseFailed);
+        EXPECT_THROW(tokenize("hello world", unitIdx), ExpressionParseFailed);
+        EXPECT_THROW(tokenize("1 px", unitIdx), ExpressionParseFailed);
 
         // Whitespace handling
         EXPECT_NO_THROW(result = tokenize(" min ( 5px , 10 ) ", unitIdx));
@@ -176,13 +177,13 @@ namespace corn::test::relative_value {
         TestTokenVectorsEqual(result, constructTokenVector("min", "(", "10", ",", ",", "20", ")"));
 
         // Units without numbers
-        EXPECT_THROW(tokenize("max(px, %w)", unitIdx), RelValParseFailed);
+        EXPECT_THROW(tokenize("max(px, %w)", unitIdx), ExpressionParseFailed);
 
         // Numbers with multiple decimal points
-        EXPECT_THROW(tokenize("10.5.3", unitIdx), RelValParseFailed);
+        EXPECT_THROW(tokenize("10.5.3", unitIdx), ExpressionParseFailed);
     }
 
-    TEST(RelativeValue, convert_to_postfix) {
+    TEST(Expression, convert_to_postfix) {
         std::array<std::string, 3> units = {"px", "%w", "%h"};
         std::unordered_map<std::string, size_t> unitIdx;
         for (size_t i = 0; i < units.size(); i++) {
@@ -197,44 +198,44 @@ namespace corn::test::relative_value {
                 "28%h", "2", "", "10px", "5%w", "+", ",", "eval", "*", "+"));
     }
 
-    TEST(RelativeValue, calculate) {
+    TEST(Expression, calculate) {
         std::array<std::string, 3> units = {"px", "%w", "%h"};
-        RelativeValue<3> result;
+        Expression<3> result;
 
         // Basic calculation
-        EXPECT_NO_THROW(result = RelativeValue<3>::fromString("10px + 5%w", units));
+        EXPECT_NO_THROW(result = Expression<3>::fromString("10px + 5%w", units));
         EXPECT_FLOAT_EQ(result.calc(1.0f, 3.0f, 0.0f), 25.0f);
-        EXPECT_NO_THROW(result = RelativeValue<3>::fromString("28%h + 2 * (10px + 5%w)", units));
+        EXPECT_NO_THROW(result = Expression<3>::fromString("28%h + 2 * (10px + 5%w)", units));
         EXPECT_FLOAT_EQ(result.calc(1.0f, 3.0f, 1.5f), 92.0f);
 
         // Unit manipulation
-        EXPECT_NO_THROW(result = RelativeValue<3>::fromString("36px * (7px / 4.5%w)", units));
+        EXPECT_NO_THROW(result = Expression<3>::fromString("36px * (7px / 4.5%w)", units));
         EXPECT_FLOAT_EQ(result.calc(10.0f, 5.0f, 0.0f), 1120.0f);
 
         // Functions
-        EXPECT_NO_THROW(result = RelativeValue<3>::fromString("min(100%w, 100%h * 16/9, 2000px) - 16px", units));
+        EXPECT_NO_THROW(result = Expression<3>::fromString("min(100%w, 100%h * 16/9, 2000px) - 16px", units));
         EXPECT_FLOAT_EQ(result.calc(1.0f, 19.20f, 10.90f), 1904.0f);
         EXPECT_FLOAT_EQ(result.calc(1.0f, 19.20f, 1.080f), 176.0f);
-        EXPECT_NO_THROW(result = RelativeValue<3>::fromString("min(5, 7, 3, (0-6)*2, 1*3*2, 4, 2/0.6) + 1.2*3.4", units));
+        EXPECT_NO_THROW(result = Expression<3>::fromString("min(5, 7, 3, (0-6)*2, 1*3*2, 4, 2/0.6) + 1.2*3.4", units));
         EXPECT_FLOAT_EQ(result.calc(0.0f, 0.0f, 0.0f), -7.92f);
 
         // Nested functions
-        EXPECT_NO_THROW(result = RelativeValue<3>::fromString("max(min(100%w, 720px), 0px)", units));
+        EXPECT_NO_THROW(result = Expression<3>::fromString("max(min(100%w, 720px), 0px)", units));
         EXPECT_FLOAT_EQ(result.calc(1.0f, -1.0f, 0.0f), 0.0f);
         EXPECT_FLOAT_EQ(result.calc(1.0f, 1.1f, 0.0f), 110.0f);
         EXPECT_FLOAT_EQ(result.calc(1.0f, 10.0f, 0.0f), 720.0f);
 
         // Unary operators not supported
-        EXPECT_THROW(RelativeValue<3>::fromString("-10px", units), RelValParseFailed);
-        EXPECT_THROW(RelativeValue<3>::fromString("1 + -1", units), RelValParseFailed);
+        EXPECT_THROW(Expression<3>::fromString("-10px", units), ExpressionParseFailed);
+        EXPECT_THROW(Expression<3>::fromString("1 + -1", units), ExpressionParseFailed);
 
         // Invalid function arguments
         // `max` needs at least one argument
-        EXPECT_THROW(RelativeValue<3>::fromString("max()", units), RelValParseFailed);
+        EXPECT_THROW(Expression<3>::fromString("max()", units), ExpressionParseFailed);
         // `min` requires arguments to have the same unit (px, %w, and %h are all considered as length unit)
-        EXPECT_THROW(RelativeValue<3>::fromString("min(2, 3px)", units), RelValParseFailed);
+        EXPECT_THROW(Expression<3>::fromString("min(2, 3px)", units), ExpressionParseFailed);
         // Parentheses are Interpreted as the `eval` function, which requires 1 argument of any unit.
-        EXPECT_THROW(RelativeValue<3>::fromString("(1, 2)", units), RelValParseFailed);
-        EXPECT_THROW(RelativeValue<3>::fromString("eval()", units), RelValParseFailed);
+        EXPECT_THROW(Expression<3>::fromString("(1, 2)", units), ExpressionParseFailed);
+        EXPECT_THROW(Expression<3>::fromString("eval()", units), ExpressionParseFailed);
     }
 }

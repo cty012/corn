@@ -16,9 +16,9 @@ namespace corn {
         std::string msg;
     };
 
-    class RelValParseFailed : public std::exception {
+    class ExpressionParseFailed : public std::exception {
     public:
-        explicit RelValParseFailed(const std::string& msg);
+        explicit ExpressionParseFailed(const std::string& msg);
         [[nodiscard]] const char* what() const noexcept override;
     private:
         std::string msg;
