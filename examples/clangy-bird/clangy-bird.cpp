@@ -42,6 +42,20 @@ struct BirdCollisionResolve : public corn::CCollisionResolve {
     void resolve(corn::CAABB& self, corn::CAABB& other) override;  // Implemented later
 };
 
+corn::Entity* createCamera(corn::EntityManager& entityManager) {
+    corn::Entity* camera = &entityManager.createEntity("camera");
+    camera->createComponent<corn::CTransform2D>(corn::Vec2((float)WIDTH / 2, (float)HEIGHT / 2));
+    auto* ccamera = camera->createComponent<corn::CCamera>(
+            corn::Vec2::ZERO(), corn::Color::rgb(60, 179, 113));
+    ccamera->setViewport(
+      "(100%ww - min(100%ww * 9, 100%wh * 16) / 9) / 2",
+      "(100%wh - min(100%ww * 9, 100%wh * 16) / 16) / 2",
+      "min(100%ww * 9, 100%wh * 16) / 9",
+      "min(100%ww * 9, 100%wh * 16) / 16");
+    ccamera->setFov(std::to_string(WIDTH) + "px", std::to_string(HEIGHT) + "px");
+    return camera;
+}
+
 corn::Entity* createBird(corn::EntityManager& entityManager) {
     corn::Entity* bird = &entityManager.createEntity("bird");
     auto transform = bird->createComponent<corn::CTransform2D>(corn::Vec2(400, 300));
@@ -133,7 +147,10 @@ public:
 /// The main game scene
 class GameScene : public corn::Scene {
 public:
-    GameScene() {
+    GameScene(): paused(false) {
+        // Camera
+        createCamera(this->entityManager);
+
         // Entities
         this->bird = createBird(this->entityManager);
         this->birdMovement = this->bird->getComponent<corn::CMovement2D>();
@@ -164,7 +181,19 @@ public:
         }
     }
 
+    bool isPaused() const {
+        return this->paused;
+    }
+
+    void togglePause() {
+        this->paused = !this->paused;
+        for (corn::System* system : this->systems) {
+            system->active = !this->paused;
+        }
+    }
+
 private:
+    bool paused;
     corn::Entity* bird;
     corn::CMovement2D* birdMovement;
     corn::EventManager::ListenerID keyboardEventID;
@@ -176,16 +205,21 @@ private:
             case corn::Key::W:
             case corn::Key::UP:
             case corn::Key::SPACE:
-                this->birdMovement->velocity.y = -700;
+                if (!this->paused) {
+                    this->birdMovement->velocity.y = -700;
+                }
                 break;
+            case corn::Key::ESC:
+                this->togglePause();
             default:
                 break;
         }
     }
 
     void onMouseEvent(const corn::EventArgsMouseButton& args) {
-        if (args.mouse == corn::Mouse::LEFT && args.status == corn::ButtonEvent::DOWN)
+        if (!this->paused && args.mouse == corn::Mouse::LEFT && args.status == corn::ButtonEvent::DOWN) {
             this->birdMovement->velocity.y = -700;
+        }
     }
 };
 

@@ -5,6 +5,8 @@
 namespace corn {
     System::System() : active(true) {}
 
+    System::~System() = default;
+
     void SMovement2D::update(EntityManager& entityManager, float millis) {
         for (Entity* entity : entityManager.getEntitiesWith<CTransform2D, CMovement2D>()) {
             auto transform = entity->getComponent<CTransform2D>();

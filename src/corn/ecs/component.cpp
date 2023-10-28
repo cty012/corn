@@ -1,11 +1,13 @@
 #include <cmath>
+#include <array>
 #include <corn/ecs/component.h>
 #include <corn/ecs/entity.h>
 #include <corn/ecs/entity_manager.h>
 #include <corn/event/event_manager.h>
+#include "../event/event_args_extend.h"
 
 namespace corn {
-    Component::Component(Entity& entity): active(true), entity(entity) {}
+    Component::Component(Entity& entity): active(true), entity(entity), entityManager(entity.entityManager) {}
 
     CTransform2D::CTransform2D(Entity &entity, Vec2 location, Deg rotation)
         : Component(entity), location(location), rotation(rotation), zorder(0) {}
@@ -48,7 +50,7 @@ namespace corn {
     }
 
     CSprite::CSprite(Entity& entity, Image *image, Vec2 topLeft)
-        : Component(entity), image(image), topLeft(topLeft) {}
+        : Component(entity), image(image), topLeft(topLeft), visible(true) {}
 
     CSprite::~CSprite() {
         delete this->image;
@@ -125,13 +127,44 @@ namespace corn {
         Vec2 lr2 = other.lr + worldLocation2;
         bool xDirection = std::min(lr1.x, lr2.x) > std::max(ul1.x, ul2.x);
         bool yDirection = std::min(lr1.y, lr2.y) > std::max(ul1.y, ul2.y);
-        if (xDirection && yDirection && this->entity.name == "bottom" && other.entity.name == "bird") {
-            int x = 1;
-        }
         return xDirection && yDirection;
     }
 
     CCollisionResolve::CCollisionResolve(Entity &entity): Component(entity) {}
 
     void CCollisionResolve::resolve(CAABB& self, CAABB& other) {}
+
+    CCamera::CCamera(Entity& entity, Vec2 anchor, Color background)
+        : Component(entity), cameraType(CameraType::_2D), background(background),
+        anchor(anchor.vec3(0)), active(true), opacity(255) {
+
+        this->setViewport("0px", "0px", "100%ww", "100%wh");
+        this->setFov("100%vw", "100%vh");
+        EventManager::instance().emit(EventArgsCamera(CameraEventType::ADD, this));
+    }
+
+    CCamera::CCamera(Entity& entity, Vec3 anchor, Color background)
+        : Component(entity), cameraType(CameraType::_3D), background(background),
+        anchor(anchor), active(true), opacity(255) {
+
+        EventManager::instance().emit(EventArgsCamera(CameraEventType::ADD, this));
+    }
+
+    CCamera::~CCamera() {
+        EventManager::instance().emit(EventArgsCamera(CameraEventType::REMOVE, this));
+    }
+
+    void CCamera::setViewport(const std::string& x, const std::string& y, const std::string& w, const std::string& h) {
+        static const std::array<std::string, 3> units = {"px", "%ww", "%wh"};
+        this->viewport.x = Expression<3>::fromString(x, units);
+        this->viewport.y = Expression<3>::fromString(y, units);
+        this->viewport.w = Expression<3>::fromString(w, units);
+        this->viewport.h = Expression<3>::fromString(h, units);
+    }
+
+    void CCamera::setFov(const std::string& w, const std::string& h) {
+        static const std::array<std::string, 3> units = {"px", "%vw", "%vh"};
+        this->fovW = Expression<3>::fromString(w, units);
+        this->fovH = Expression<3>::fromString(h, units);
+    }
 }

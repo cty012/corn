@@ -1,4 +1,5 @@
 #include <corn/event/event_args.h>
+#include "event_args_extend.h"
 
 namespace corn {
     EventArgsKeyboard::EventArgsKeyboard(Key key, ButtonEvent status, unsigned char modifiers, const Vec2& mousePos)
@@ -15,4 +16,7 @@ namespace corn {
     EventArgsScene::EventArgsScene(SceneOperation op, Scene* scene): scene(scene), op(op) {}
 
     EventArgsZOrderChange::EventArgsZOrderChange(Entity* entity): entity(entity) {}
+
+    EventArgsCamera::EventArgsCamera(CameraEventType eventType, const CCamera* camera)
+        : eventType(eventType), camera(camera) {}
 }
