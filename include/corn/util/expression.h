@@ -42,11 +42,10 @@ namespace corn {
         /**
          * @param input The input string containing the expression.
          * @param units An array of valid units.
-         * @return The Expression object constructed from the string.
          * @throw ExpressionParseFailed Will throw if has invalid syntax or operator/function is called on invalid
          * number or types of operands.
          */
-        static Expression<N> fromString(const std::string& input, const std::array<std::string, N>& units);
+        Expression(const std::string& input, const std::array<std::string, N>& units);
 
         /**
          * @param values A pack of floating point numbers, each representing the value of the corresponding unit.

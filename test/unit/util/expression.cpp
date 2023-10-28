@@ -204,39 +204,39 @@ namespace corn::test::expression {
         Expression<3> result;
 
         // Basic calculation
-        EXPECT_NO_THROW(result = Expression<3>::fromString("10px + 5%w", units));
+        EXPECT_NO_THROW(result = Expression("10px + 5%w", units));
         EXPECT_FLOAT_EQ(result.calc(1.0f, 3.0f, 0.0f), 25.0f);
-        EXPECT_NO_THROW(result = Expression<3>::fromString("28%h + 2 * (10px + 5%w)", units));
+        EXPECT_NO_THROW(result = Expression("28%h + 2 * (10px + 5%w)", units));
         EXPECT_FLOAT_EQ(result.calc(1.0f, 3.0f, 1.5f), 92.0f);
 
         // Unit manipulation
-        EXPECT_NO_THROW(result = Expression<3>::fromString("36px * (7px / 4.5%w)", units));
+        EXPECT_NO_THROW(result = Expression("36px * (7px / 4.5%w)", units));
         EXPECT_FLOAT_EQ(result.calc(10.0f, 5.0f, 0.0f), 1120.0f);
 
         // Functions
-        EXPECT_NO_THROW(result = Expression<3>::fromString("min(100%w, 100%h * 16/9, 2000px) - 16px", units));
+        EXPECT_NO_THROW(result = Expression("min(100%w, 100%h * 16/9, 2000px) - 16px", units));
         EXPECT_FLOAT_EQ(result.calc(1.0f, 19.20f, 10.90f), 1904.0f);
         EXPECT_FLOAT_EQ(result.calc(1.0f, 19.20f, 1.080f), 176.0f);
-        EXPECT_NO_THROW(result = Expression<3>::fromString("min(5, 7, 3, (0-6)*2, 1*3*2, 4, 2/0.6) + 1.2*3.4", units));
+        EXPECT_NO_THROW(result = Expression("min(5, 7, 3, (0-6)*2, 1*3*2, 4, 2/0.6) + 1.2*3.4", units));
         EXPECT_FLOAT_EQ(result.calc(0.0f, 0.0f, 0.0f), -7.92f);
 
         // Nested functions
-        EXPECT_NO_THROW(result = Expression<3>::fromString("max(min(100%w, 720px), 0px)", units));
+        EXPECT_NO_THROW(result = Expression("max(min(100%w, 720px), 0px)", units));
         EXPECT_FLOAT_EQ(result.calc(1.0f, -1.0f, 0.0f), 0.0f);
         EXPECT_FLOAT_EQ(result.calc(1.0f, 1.1f, 0.0f), 110.0f);
         EXPECT_FLOAT_EQ(result.calc(1.0f, 10.0f, 0.0f), 720.0f);
 
         // Unary operators not supported
-        EXPECT_THROW(Expression<3>::fromString("-10px", units), ExpressionParseFailed);
-        EXPECT_THROW(Expression<3>::fromString("1 + -1", units), ExpressionParseFailed);
+        EXPECT_THROW(Expression("-10px", units), ExpressionParseFailed);
+        EXPECT_THROW(Expression("1 + -1", units), ExpressionParseFailed);
 
         // Invalid function arguments
         // `max` needs at least one argument
-        EXPECT_THROW(Expression<3>::fromString("max()", units), ExpressionParseFailed);
+        EXPECT_THROW(Expression("max()", units), ExpressionParseFailed);
         // `min` requires arguments to have the same unit (px, %w, and %h are all considered as length unit)
-        EXPECT_THROW(Expression<3>::fromString("min(2, 3px)", units), ExpressionParseFailed);
+        EXPECT_THROW(Expression("min(2, 3px)", units), ExpressionParseFailed);
         // Parentheses are Interpreted as the `eval` function, which requires 1 argument of any unit.
-        EXPECT_THROW(Expression<3>::fromString("(1, 2)", units), ExpressionParseFailed);
-        EXPECT_THROW(Expression<3>::fromString("eval()", units), ExpressionParseFailed);
+        EXPECT_THROW(Expression("(1, 2)", units), ExpressionParseFailed);
+        EXPECT_THROW(Expression("eval()", units), ExpressionParseFailed);
     }
 }
