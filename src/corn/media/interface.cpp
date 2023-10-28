@@ -52,24 +52,24 @@ namespace corn {
                 case (sf::Event::MouseButtonPressed): {
                     EventManager::instance().emit(EventArgsMouseButton(
                             sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
-                            Vec2(event.mouseButton.x, event.mouseButton.y)));
+                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y)));
                     break;
                 }
                 case (sf::Event::MouseButtonReleased): {
                     EventManager::instance().emit(EventArgsMouseButton(
                             sfInput2CornInput(event.mouseButton.button), ButtonEvent::UP,
-                            Vec2(event.mouseButton.x, event.mouseButton.y)));
+                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y)));
                     break;
                 }
                 case (sf::Event::MouseWheelScrolled): {
                     EventManager::instance().emit(EventArgsMouseScroll(
                             event.mouseWheelScroll.delta,
-                            Vec2(event.mouseButton.x, event.mouseButton.y)));
+                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y)));
                     break;
                 }
                 case sf::Event::MouseMoved: {
                     EventManager::instance().emit(EventArgsMouseMove(
-                            Vec2(event.mouseButton.x, event.mouseButton.y)));
+                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y)));
                     break;
                 }
                 case (sf::Event::KeyPressed): {
@@ -80,7 +80,7 @@ namespace corn {
                     EventManager::instance().emit(EventArgsKeyboard(key, ButtonEvent::DOWN,
                             (keyEvent.system << 3) + (keyEvent.control << 2)
                             + (keyEvent.system << 1) + (keyEvent.system << 3),
-                            Vec2(event.mouseButton.x, event.mouseButton.y)));
+                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y)));
                     break;
                 }
                 case (sf::Event::KeyReleased): {
@@ -91,7 +91,7 @@ namespace corn {
                     EventManager::instance().emit(EventArgsKeyboard(key, ButtonEvent::UP ,
                             (keyEvent.system << 3) + (keyEvent.control << 2)
                                 + (keyEvent.system << 1) + (keyEvent.system << 3),
-                            Vec2(event.mouseButton.x, event.mouseButton.y)));
+                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y)));
                     break;
                 }
                 case (sf::Event::TextEntered):

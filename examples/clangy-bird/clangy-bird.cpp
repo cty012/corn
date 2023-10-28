@@ -45,7 +45,14 @@ struct BirdCollisionResolve : public corn::CCollisionResolve {
 corn::Entity* createCamera(corn::EntityManager& entityManager) {
     corn::Entity* camera = &entityManager.createEntity("camera");
     camera->createComponent<corn::CTransform2D>(corn::Vec2(-(double)WIDTH / 2, -(double)HEIGHT / 2));
-    camera->createComponent<corn::CCamera>(corn::Vec2::ZERO());
+    auto* ccamera = camera->createComponent<corn::CCamera>(
+            corn::Vec2::ZERO(), corn::Color::rgb(60, 179, 113));
+    ccamera->setViewport(
+      "(100%ww - min(100%ww, 100%wh * 16/9)) / 2",
+      "(100%wh - min(100%wh, 100%ww * 9/16)) / 2",
+      "min(100%ww, 100%wh * 16/9)",
+      "min(100%wh, 100%ww * 9/16)");
+    ccamera->setFov("100%w", "100%h");
     return camera;
 }
 

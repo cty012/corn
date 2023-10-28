@@ -5,6 +5,7 @@
 #include <corn/geometry/vec2.h>
 #include <corn/geometry/vec3.h>
 #include <corn/media/image.h>
+#include <corn/util/expression.h>
 
 namespace corn {
     class Entity;
@@ -137,6 +138,7 @@ namespace corn {
     };
 
     enum class CameraType{ _2D, _3D };
+
     /**
      * @class CCamera
      *
@@ -160,12 +162,67 @@ namespace corn {
          */
         Vec3 anchor;
 
-        // TODO: viewport (relative to the screen)
+        /// @brief The background color of the camera's field of view.
+        Color background;
+
+        /**
+         * @brief Defines the viewport's top-left corner and the width and height.
+         *
+         * The viewport defines where the contents of the camera will be rendered on the window.
+         * Units include pixels (px), percentage of window width (%ww), and percentage of window height (%wh).
+         *
+         * @todo: Create a CameraViewport class for storing the RenderTexture.
+         * use `texture.draw(sf::Sprite item, sf::Transform stretchTransform);`
+         *
+         * For detailed usage, see the documentation of @Expression.
+         */
+        Expression<3> viewportX, viewportY, viewportW, viewportH;
+
+        /**
+         * @brief Defines the field of view's width and height.
+         *
+         * The field of view is centered at the camera's location (stored in the Transform component).
+         * Units include pixels (px), percentage of viewport width (%vw), and percentage of viewport height (%vh).
+         *
+         * If the FOV size doesn't match with the viewport size, the FOV will be stretched to fit the viewport.
+         *
+         * For detailed usage, see the documentation of @Expression.
+         */
+        Expression<3> fovW, fovH;
 
         /// @brief Creates a 2D camera
+        CCamera(Entity& entity, Vec2 anchor, Color background = Color::rgb(0, 0, 0, 0));
         /// @brief Creates a 3D camera
-        CCamera(Entity& entity, Vec2 anchor);
-        CCamera(Entity& entity, Vec3 anchor);
+        CCamera(Entity& entity, Vec3 anchor, Color background = Color::rgb(0, 0, 0, 0));
+
         ~CCamera() override;
+
+        /**
+         * @brief Set the top-left corner, width, and height of the viewport.
+         *
+         * E.g. To render to the entire window, use:
+         * `setViewport("0px", "0px", "100%ww", "100%wh")`
+         *
+         * To maintain an aspect ratio of 16:9 while fitting inside the window, use:
+         * ```
+         * setViewport(
+         *   "(100%ww - min(100%ww, 100%wh * 16/9)) / 2",
+         *   "(100%wh - min(100%wh, 100%ww * 9/16)) / 2",
+         *   "min(100%ww, 100%wh * 16/9)",
+         *   "min(100%wh, 100%ww * 9/16)"
+         * )
+         * ```
+         */
+        void setViewport(const std::string& x, const std::string& y, const std::string& w, const std::string& h);
+
+        /**
+         * @brief Set the width and height of the field of view.
+         *
+         * Similar to @setViewport, but uses viewport width (%vw) and viewport height (%vh).
+         *
+         * To capture a fixed FOV (such as 1920x1080), use `setFov("1920px", "1080px")`.
+         * To let the FOV change size with the viewport, use `setFov("100%w", "100%h")`.
+         */
+        void setFov(const std::string& w, const std::string& h);
     };
 }
