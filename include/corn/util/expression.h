@@ -10,13 +10,11 @@ namespace corn {
     template <std::size_t N, typename... Values>
     concept ValidExpressionArgs = (sizeof...(Values) == N) && (std::same_as<float, Values> && ...);
 
-    namespace impl::expression {
-        struct Token;
-    }
+    struct Token;
 
     /**
      * @class Expression
-     * @tparam N Number of units
+     * @tparam N Number of units.
      * @brief Holds an algebra expression. Can calculate the exact value by specifying the value of each unit.
      *
      * Supports:
@@ -33,14 +31,33 @@ namespace corn {
     template <std::size_t N>
     class Expression {
     public:
+        // Ctor, dtor, copy/move constructors, and assignment operators.
         Expression();
-        static Expression<N> fromString(const std::string& expression, const std::array<std::string, N>& units);
+        ~Expression();
+        Expression(const Expression& other);
+        Expression& operator=(const Expression& other);
+        Expression(Expression&& other) noexcept;
+        Expression& operator=(Expression&& other) noexcept;
 
+        /**
+         * @param input The input string containing the expression.
+         * @param units An array of valid units.
+         * @return The Expression object constructed from the string.
+         * @throw ExpressionParseFailed Will throw if has invalid syntax or operator/function is called on invalid
+         * number or types of operands.
+         */
+        static Expression<N> fromString(const std::string& input, const std::array<std::string, N>& units);
+
+        /**
+         * @param values A pack of floating point numbers, each representing the value of the corresponding unit.
+         * @return The result of plugging in the unit values into the expression.
+         * @throw std::exception Some errors (such as division by zero) can only be detected at runtime.
+         */
         template <typename... Values> requires ValidExpressionArgs<N, Values...>
         float calc(Values... values);
 
     private:
-        std::vector<impl::expression::Token> tokens;
+        std::vector<Token>* tokens;
         std::unordered_map<std::string, size_t> unitIdx;
     };
 }
