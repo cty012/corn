@@ -10,11 +10,16 @@ namespace corn {
      */
     struct Vec3 {
         float x, y, z;
-        static const Vec3 ZERO, UNIT_X, UNIT_Y, UNIT_Z;
 
         // Constructors
         Vec3();
         Vec3(float x, float y, float z);
+
+        // Constants
+        static const Vec3& ZERO();
+        static const Vec3& UNIT_X();
+        static const Vec3& UNIT_Y();
+        static const Vec3& UNIT_Z();
 
         // Conversions
         [[nodiscard]] Vec2 vec2() const;
@@ -59,9 +64,4 @@ namespace corn {
         /// @return Normalized vector. Zero if this is a zero vector.
         [[nodiscard]] Vec3 normalize() const;
     };
-
-    inline const Vec3 Vec3::ZERO = {0.0, 0.0, 0.0};
-    inline const Vec3 Vec3::UNIT_X = {1.0, 0.0, 0.0};
-    inline const Vec3 Vec3::UNIT_Y = {0.0, 1.0, 0.0};
-    inline const Vec3 Vec3::UNIT_Z = {0.0, 0.0, 1.0};
 }

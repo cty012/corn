@@ -2,6 +2,8 @@
 #include <corn/util/color.h>
 
 namespace corn {
+    Color::Color(): red(), green(), blue(), alpha() {}
+
     Color::Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
         : red(r), green(g), blue(b), alpha(a) {}
 

@@ -8,12 +8,17 @@
 #include <string>
 
 namespace corn {
-    /**
-     * Currently empty
-     */
     class ResourceLoadFailed : public std::exception {
     public:
-        explicit ResourceLoadFailed(std::string msg);
+        explicit ResourceLoadFailed(const std::string& msg);
+        [[nodiscard]] const char* what() const noexcept override;
+    private:
+        std::string msg;
+    };
+
+    class ExpressionParseFailed : public std::exception {
+    public:
+        explicit ExpressionParseFailed(const std::string& msg);
         [[nodiscard]] const char* what() const noexcept override;
     private:
         std::string msg;

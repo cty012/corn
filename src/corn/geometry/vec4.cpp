@@ -16,6 +16,31 @@ namespace corn {
         return {this->x, this->y, this->z};
     }
 
+    const Vec4& Vec4::ZERO() {
+        static const Vec4 zero = {0.0f, 0.0f, 0.0f, 0.0f};
+        return zero;
+    }
+
+    const Vec4& Vec4::UNIT_X() {
+        static const Vec4 unitX = {1.0f, 0.0f, 0.0f, 0.0f};
+        return unitX;
+    }
+
+    const Vec4& Vec4::UNIT_Y() {
+        static const Vec4 unitY = {0.0f, 1.0f, 0.0f, 0.0f};
+        return unitY;
+    }
+
+    const Vec4& Vec4::UNIT_Z() {
+        static const Vec4 unitZ = {0.0f, 0.0f, 1.0f, 0.0f};
+        return unitZ;
+    }
+
+    const Vec4& Vec4::UNIT_W() {
+        static const Vec4 unitZ = {0.0f, 0.0f, 0.0f, 1.0f};
+        return unitZ;
+    }
+
     Vec4 Vec4::operator+() const {
         return *this;
     }
