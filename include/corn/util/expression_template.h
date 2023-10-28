@@ -77,7 +77,7 @@ namespace corn {
 
     template <std::size_t N>
     template <typename... Values> requires ValidExpressionArgs<N, Values...>
-    float Expression<N>::calc(Values... unitValues) {
+    float Expression<N>::calc(Values... unitValues) const {
         if (this->tokens == nullptr) {
             throw std::logic_error(
                     "Invalid operation: The Expression object was default-constructed and is not fully initialized.");

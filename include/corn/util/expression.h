@@ -54,7 +54,7 @@ namespace corn {
          * @throw std::exception Some errors (such as division by zero) can only be detected at runtime.
          */
         template <typename... Values> requires ValidExpressionArgs<N, Values...>
-        float calc(Values... values);
+        float calc(Values... values) const;
 
     private:
         std::vector<Token>* tokens;

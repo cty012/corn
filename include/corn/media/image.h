@@ -20,6 +20,8 @@ namespace corn {
         explicit Image(const std::string& path);  // TODO: allow resizing image
         Image(unsigned int width, unsigned int height, Color color);
         ~Image();
+        Image(const Image& other) = delete;
+        Image& operator=(const Image& other) = delete;
 
         [[nodiscard]] std::pair<unsigned int, unsigned int> getSize() const;
         Image& resize(unsigned int width, unsigned int height);

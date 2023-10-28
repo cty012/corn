@@ -4,6 +4,7 @@
 #include <corn/geometry/deg.h>
 #include <corn/geometry/vec2.h>
 #include <corn/geometry/vec3.h>
+#include <corn/media/camera_viewport.h>
 #include <corn/media/image.h>
 #include <corn/util/expression.h>
 
@@ -165,18 +166,8 @@ namespace corn {
         /// @brief The background color of the camera's field of view.
         Color background;
 
-        /**
-         * @brief Defines the viewport's top-left corner and the width and height.
-         *
-         * The viewport defines where the contents of the camera will be rendered on the window.
-         * Units include pixels (px), percentage of window width (%ww), and percentage of window height (%wh).
-         *
-         * @todo: Create a CameraViewport class for storing the RenderTexture.
-         * use `texture.draw(sf::Sprite item, sf::Transform stretchTransform);`
-         *
-         * For detailed usage, see the documentation of @Expression.
-         */
-        Expression<3> viewportX, viewportY, viewportW, viewportH;
+        /// @brief Viewport of the camera.
+        CameraViewport viewport;
 
         /**
          * @brief Defines the field of view's width and height.
@@ -206,10 +197,10 @@ namespace corn {
          * To maintain an aspect ratio of 16:9 while fitting inside the window, use:
          * ```
          * setViewport(
-         *   "(100%ww - min(100%ww, 100%wh * 16/9)) / 2",
-         *   "(100%wh - min(100%wh, 100%ww * 9/16)) / 2",
-         *   "min(100%ww, 100%wh * 16/9)",
-         *   "min(100%wh, 100%ww * 9/16)"
+         *   "(100%ww - min(100%ww * 9, 100%wh * 16) / 9) / 2",
+         *   "(100%wh - min(100%ww * 9, 100%wh * 16) / 16) / 2",
+         *   "min(100%ww * 9, 100%wh * 16) / 9",
+         *   "min(100%ww * 9, 100%wh * 16) / 16"
          * )
          * ```
          */

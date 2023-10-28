@@ -6,6 +6,8 @@
 namespace corn {
     EventManager::EventManager() : listeners() {}
 
+    EventManager::~EventManager() = default;
+
     EventManager& EventManager::instance() {
         static EventManager instance;
         return instance;

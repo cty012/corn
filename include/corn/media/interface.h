@@ -19,7 +19,7 @@ namespace corn {
 
         void init();
 
-        [[nodiscard]] Vec2 screenSize() const;
+        [[nodiscard]] Vec2 windowSize() const;
 
         void handleUserInput() const;
         static const std::unordered_map<Key, bool>& getKeyPressed();

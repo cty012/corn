@@ -8,8 +8,6 @@
 #include <corn/event/event_manager.h>
 
 namespace corn {
-    class Interface;
-
     /**
      * @class EntityManager
      * @brief Manages all Entities in a scene

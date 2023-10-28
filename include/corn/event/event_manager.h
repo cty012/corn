@@ -56,7 +56,7 @@ namespace corn {
 
         // Constructors and destructors are hidden to maintain a singleton pattern.
         EventManager();
-        ~EventManager() = default;
+        ~EventManager();
         EventManager(const EventManager&) = delete;
         EventManager& operator=(const EventManager&) = delete;
     };

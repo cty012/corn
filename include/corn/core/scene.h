@@ -37,7 +37,7 @@ namespace corn {
         EntityManager entityManager;
 
         Scene();
-        virtual ~Scene() = default;
+        virtual ~Scene();
         /**
          * @brief Update all Entities, Components, and Systems in the scene.
          * @param millis Number of milliseconds elapsed.
