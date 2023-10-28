@@ -90,7 +90,7 @@ namespace corn::impl::rel_val {
                 '/', {1, [](bool a, bool b) -> bool {
                     if (!a && b)
                         throw RelValParseFailed("Cannot divide number literals by numbers with unit.");
-                    return a;
+                    return a && !b;
                 }}
             },
     };

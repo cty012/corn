@@ -98,11 +98,17 @@ namespace corn::test::relative_value {
         EXPECT_FLOAT_EQ(pureInt2.value.val, 100.0f);
         EXPECT_EQ(pureInt2.value.hasUnit, false);
 
-        Token pureFloat("123.25");
-        EXPECT_EQ(pureFloat.type, TokenType::VALUE);
-        EXPECT_EQ(pureFloat.name, "");
-        EXPECT_FLOAT_EQ(pureFloat.value.val, 123.25f);
-        EXPECT_EQ(pureFloat.value.hasUnit, false);
+        Token pureFloat1("123.25");
+        EXPECT_EQ(pureFloat1.type, TokenType::VALUE);
+        EXPECT_EQ(pureFloat1.name, "");
+        EXPECT_FLOAT_EQ(pureFloat1.value.val, 123.25f);
+        EXPECT_EQ(pureFloat1.value.hasUnit, false);
+
+        Token pureFloat2(".20");
+        EXPECT_EQ(pureFloat2.type, TokenType::VALUE);
+        EXPECT_EQ(pureFloat2.name, "");
+        EXPECT_FLOAT_EQ(pureFloat2.value.val, 0.2f);
+        EXPECT_EQ(pureFloat2.value.hasUnit, false);
 
         Token pxValue(".25px");
         EXPECT_EQ(pxValue.type, TokenType::VALUE);
@@ -110,8 +116,14 @@ namespace corn::test::relative_value {
         EXPECT_FLOAT_EQ(pxValue.value.val, 0.25f);
         EXPECT_EQ(pxValue.value.hasUnit, true);
 
-        Token invalid("px");
-        EXPECT_EQ(invalid.type, TokenType::INVALID);
+        Token value1("192.168.1.1");
+        EXPECT_EQ(value1.type, TokenType::VALUE);
+        EXPECT_EQ(value1.name, ".1.1");
+        EXPECT_FLOAT_EQ(value1.value.val, 192.168f);
+        EXPECT_EQ(value1.value.hasUnit, true);
+
+        Token invalid1("px");
+        EXPECT_EQ(invalid1.type, TokenType::INVALID);
     }
 
     TEST(RelativeValue, tokenization) {
@@ -194,5 +206,35 @@ namespace corn::test::relative_value {
         EXPECT_FLOAT_EQ(result.calc(1.0f, 3.0f, 0.0f), 25.0f);
         EXPECT_NO_THROW(result = RelativeValue<3>::fromString("28%h + 2 * (10px + 5%w)", units));
         EXPECT_FLOAT_EQ(result.calc(1.0f, 3.0f, 1.5f), 92.0f);
+
+        // Unit manipulation
+        EXPECT_NO_THROW(result = RelativeValue<3>::fromString("36px * (7px / 4.5%w)", units));
+        EXPECT_FLOAT_EQ(result.calc(10.0f, 5.0f, 0.0f), 1120.0f);
+
+        // Functions
+        EXPECT_NO_THROW(result = RelativeValue<3>::fromString("min(100%w, 100%h * 16/9, 2000px) - 16px", units));
+        EXPECT_FLOAT_EQ(result.calc(1.0f, 19.20f, 10.90f), 1904.0f);
+        EXPECT_FLOAT_EQ(result.calc(1.0f, 19.20f, 1.080f), 176.0f);
+        EXPECT_NO_THROW(result = RelativeValue<3>::fromString("min(5, 7, 3, (0-6)*2, 1*3*2, 4, 2/0.6) + 1.2*3.4", units));
+        EXPECT_FLOAT_EQ(result.calc(0.0f, 0.0f, 0.0f), -7.92f);
+
+        // Nested functions
+        EXPECT_NO_THROW(result = RelativeValue<3>::fromString("max(min(100%w, 720px), 0px)", units));
+        EXPECT_FLOAT_EQ(result.calc(1.0f, -1.0f, 0.0f), 0.0f);
+        EXPECT_FLOAT_EQ(result.calc(1.0f, 1.1f, 0.0f), 110.0f);
+        EXPECT_FLOAT_EQ(result.calc(1.0f, 10.0f, 0.0f), 720.0f);
+
+        // Unary operators not supported
+        EXPECT_THROW(RelativeValue<3>::fromString("-10px", units), RelValParseFailed);
+        EXPECT_THROW(RelativeValue<3>::fromString("1 + -1", units), RelValParseFailed);
+
+        // Invalid function arguments
+        // `max` needs at least one argument
+        EXPECT_THROW(RelativeValue<3>::fromString("max()", units), RelValParseFailed);
+        // `min` requires arguments to have the same unit (px, %w, and %h are all considered as length unit)
+        EXPECT_THROW(RelativeValue<3>::fromString("min(2, 3px)", units), RelValParseFailed);
+        // Parentheses are Interpreted as the `eval` function, which requires 1 argument of any unit.
+        EXPECT_THROW(RelativeValue<3>::fromString("(1, 2)", units), RelValParseFailed);
+        EXPECT_THROW(RelativeValue<3>::fromString("eval()", units), RelValParseFailed);
     }
 }
