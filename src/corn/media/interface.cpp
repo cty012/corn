@@ -17,20 +17,24 @@ namespace corn {
         delete this->window;
     }
 
-    Interface::Interface(const Config* config): config(config), interfaceImpl(new InterfaceImpl()) {}
-
-    Interface::~Interface() {
-        delete this->interfaceImpl;
+    CameraViewportImpl* InterfaceImpl::getCameraViewportImpl(const CameraViewport& cameraViewport) {
+        return cameraViewport.impl;
     }
 
-    const InterfaceImpl& Interface::impl() const {
-        return *this->interfaceImpl;
+    ImageImpl* InterfaceImpl::getImageImpl(const Image& image) {
+        return image.impl;
+    }
+
+    Interface::Interface(const Config* config): config(config), impl(new InterfaceImpl()) {}
+
+    Interface::~Interface() {
+        delete this->impl;
     }
 
     void Interface::init() {
         sf::ContextSettings contextSettings;
         contextSettings.antialiasingLevel = 16;
-        this->interfaceImpl->window->create(
+        this->impl->window->create(
                 sf::VideoMode(this->config->width, this->config->height),
                 this->config->title,
                 cornMode2SfStyle(this->config->mode),
@@ -38,13 +42,13 @@ namespace corn {
     }
 
     Vec2 Interface::windowSize() const {
-        sf::Vector2u size = this->interfaceImpl->window->getSize();
+        sf::Vector2u size = this->impl->window->getSize();
         return {(float)size.x, (float)size.y};
     }
 
     void Interface::handleUserInput() const {  // TODO: change this
         sf::Event event{};
-        while (this->interfaceImpl->window->pollEvent(event)) {
+        while (this->impl->window->pollEvent(event)) {
             switch (event.type) {
                 case (sf::Event::Closed): {
                     EventManager::instance().emit(EventArgsExit());
@@ -110,7 +114,7 @@ namespace corn {
 
     void Interface::clear() {
         auto [r, g, b] = this->config->background.getRGB();
-        this->interfaceImpl->window->clear(sf::Color(r, g, b));
+        this->impl->window->clear(sf::Color(r, g, b));
     }
 
     bool renderCamera(Scene* scene, const CCamera* camera, const Vec2& percentWindowSize) {
@@ -133,9 +137,10 @@ namespace corn {
         stretchTransform.scale(viewportSize.x / fovSize.x, viewportSize.y / fovSize.y);
 
         // Reset the camera viewport
-        camera->viewport.impl->setSize(viewportSize);
+        CameraViewportImpl* viewportImpl = InterfaceImpl::getCameraViewportImpl(camera->viewport);
+        viewportImpl->setSize(viewportSize);
         auto [r, g, b, a] = camera->background.getRGBA();
-        camera->viewport.impl->texture.clear(sf::Color(r, g, b, a));
+        viewportImpl->texture.clear(sf::Color(r, g, b, a));
 
         // Calculate center of camera
         Vec2 cameraCenter = cameraTransform->location + camera->anchor.vec2();
@@ -150,13 +155,14 @@ namespace corn {
             auto [worldLocation, worldRotation] = transform->worldTransform();
             auto [ancX, ancY] = worldLocation - cameraTL;
             auto [locX, locY] = sprite->topLeft;
-            sprite->image->impl().sfSprite->setOrigin(-locX, -locY);
-            sprite->image->impl().sfSprite->setPosition(ancX, ancY);
-            sprite->image->impl().sfSprite->setRotation(-worldRotation.get());
-            camera->viewport.impl->texture.draw(*sprite->image->impl().sfSprite, stretchTransform);
+            ImageImpl* imageImpl = InterfaceImpl::getImageImpl(*sprite->image);
+            imageImpl->sfSprite->setOrigin(-locX, -locY);
+            imageImpl->sfSprite->setPosition(ancX, ancY);
+            imageImpl->sfSprite->setRotation(-worldRotation.get());
+            viewportImpl->texture.draw(*imageImpl->sfSprite, stretchTransform);
         }
 
-        camera->viewport.impl->texture.display();
+        viewportImpl->texture.display();
         return true;
     }
 
@@ -171,18 +177,18 @@ namespace corn {
                 float x = camera->viewport.x.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
                 float y = camera->viewport.y.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
                 sf::View view(sf::FloatRect(-x, -y, windowSize.x, windowSize.y));
-                sf::Sprite cameraSprite(camera->viewport.impl->texture.getTexture());
+                sf::Sprite cameraSprite(InterfaceImpl::getCameraViewportImpl(camera->viewport)->texture.getTexture());
                 cameraSprite.setColor(sf::Color(255, 255, 255, camera->opacity));
-                this->interfaceImpl->window->setView(view);
-                this->interfaceImpl->window->draw(cameraSprite);
+                this->impl->window->setView(view);
+                this->impl->window->draw(cameraSprite);
             }
         }
 
-        this->interfaceImpl->window->setView(this->interfaceImpl->window->getDefaultView());
-        this->interfaceImpl->window->display();
+        this->impl->window->setView(this->impl->window->getDefaultView());
+        this->impl->window->display();
     }
 
     void Interface::update() {
-        this->interfaceImpl->window->display();
+        this->impl->window->display();
     }
 }
