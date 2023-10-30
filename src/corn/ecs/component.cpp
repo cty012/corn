@@ -7,7 +7,7 @@
 #include "../event/event_args_extend.h"
 
 namespace corn {
-    Component::Component(Entity& entity): active(true), entity(entity), entityManager(entity.entityManager) {}
+    Component::Component(Entity& entity): active(true), entity(entity) {}
 
     CTransform2D::CTransform2D(Entity &entity, Vec2 location, Deg rotation)
         : Component(entity), location(location), rotation(rotation), zorder(0) {}

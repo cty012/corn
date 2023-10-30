@@ -139,7 +139,7 @@ namespace corn {
 
         // Calculate center of camera
         Vec2 cameraCenter = cameraTransform->location + camera->anchor.vec2();
-        Vec2 cameraTL = cameraCenter - fovSize.mult(0.5);
+        Vec2 cameraTL = cameraCenter - fovSize * 0.5;
 
         // Render entities
         for (Entity* entity: scene->entityManager.getActiveEntitiesWith<CTransform2D, CSprite>()) {
@@ -162,7 +162,7 @@ namespace corn {
 
     void Interface::render(Scene* scene) {
         Vec2 windowSize = this->windowSize();
-        Vec2 percentWindowSize = windowSize.mult(0.01);
+        Vec2 percentWindowSize = windowSize * 0.01;
 
         this->clear();
         scene->entityManager.tidy();

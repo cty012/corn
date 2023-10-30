@@ -11,7 +11,7 @@ namespace corn {
         for (Entity* entity : entityManager.getEntitiesWith<CTransform2D, CMovement2D>()) {
             auto transform = entity->getComponent<CTransform2D>();
             auto movement = entity->getComponent<CMovement2D>();
-            transform->addWorldLocationOffset(movement->velocity.mult(millis / 1000.0f));
+            transform->addWorldLocationOffset(movement->velocity * (millis / 1000.0f));
             transform->rotation += movement->angularVelocity * (millis / 1000.0f);
         }
     }

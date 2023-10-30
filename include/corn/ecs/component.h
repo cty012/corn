@@ -24,9 +24,8 @@ namespace corn {
      * @see System
      */
     struct Component {
-        bool active;
         Entity& entity;
-        EntityManager& entityManager;
+        bool active;
         explicit Component(Entity& entity);
         virtual ~Component() = default;
     };
