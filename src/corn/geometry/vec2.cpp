@@ -31,58 +31,58 @@ namespace corn {
         return {this->x, this->y, z, w};
     }
 
-    Vec2 Vec2::operator+() const {
-        return *this;
-    }
-
-    Vec2 Vec2::operator-() const {
-        return {-this->x, -this->y};
-    }
-
-    Vec2 Vec2::operator+(const Vec2& other) const {
-        return {this->x + other.x, this->y + other.y};
-    }
-
-    Vec2 Vec2::operator-(const Vec2& other) const {
-        return {this->x - other.x, this->y - other.y};
-    }
-
-    Vec2& Vec2::operator+=(const Vec2& other) {
-        this->x += other.x;
-        this->y += other.y;
-        return *this;
-    }
-
-    Vec2& Vec2::operator-=(const Vec2& other) {
-        this->x -= other.x;
-        this->y -= other.y;
-        return *this;
-    }
-
-    float Vec2::dot(const Vec2& other) const {
-        return this->x * other.x + this->y * other.y;
-    }
-
-    Vec2 Vec2::operator*(const Vec2& other) const {
-        return {this->x * other.x, this->y * other.y};
-    }
-
-    Vec2 Vec2::operator*=(const Vec2& other) {
-        this->x *= other.x;
-        this->y *= other.y;
-        return *this;
-    }
-
-    Vec2 Vec2::mult(float factor) const {
-        return {this->x * factor, this->y * factor};
-    }
-
     float Vec2::norm() const {
-        return std::sqrt(this->dot(*this));
+        return std::sqrt(this->x * this->x + this->y * this->y);
     }
 
     Vec2 Vec2::normalize() const {
         float n = this->norm();
-        return n == 0 ? *this : this->mult(1 / n);
+        return n == 0 ? *this : *this * (1 / n);
+    }
+
+    Vec2 operator+(const Vec2& rhs) {
+        return rhs;
+    }
+
+    Vec2 operator-(const Vec2& rhs) {
+        return {-rhs.x, -rhs.y};
+    }
+
+    Vec2 operator+(const Vec2& lhs, const Vec2& rhs) {
+        return {lhs.x + rhs.x, lhs.y + rhs.y};
+    }
+
+    Vec2 operator-(const Vec2& lhs, const Vec2& rhs) {
+        return {lhs.x - rhs.x, lhs.y - rhs.y};
+    }
+
+    Vec2 operator*(const Vec2& lhs, const Vec2& rhs) {
+        return {lhs.x * rhs.x, lhs.y * rhs.y};
+    }
+
+    Vec2 operator*(const Vec2& vec, float scalar) {
+        return {vec.x * scalar, vec.y * scalar};
+    }
+
+    Vec2 operator*(float scalar, const Vec2& vec) {
+        return {scalar * vec.x, scalar * vec.y};
+    }
+
+    Vec2& operator+=(Vec2& lhs, const Vec2& rhs) {
+        lhs.x += rhs.x;
+        lhs.y += rhs.y;
+        return lhs;
+    }
+
+    Vec2& operator-=(Vec2& lhs, const Vec2& rhs) {
+        lhs.x -= rhs.x;
+        lhs.y -= rhs.y;
+        return lhs;
+    }
+
+    Vec2& operator*=(Vec2& lhs, const Vec2& rhs) {
+        lhs.x *= rhs.x;
+        lhs.y *= rhs.y;
+        return lhs;
     }
 }

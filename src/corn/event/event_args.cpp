@@ -13,7 +13,7 @@ namespace corn {
     EventArgsMouseScroll::EventArgsMouseScroll(float value, const Vec2& mousePos)
         : value(value), mousePos(mousePos) {}
 
-    EventArgsScene::EventArgsScene(SceneOperation op, Scene* scene): scene(scene), op(op) {}
+    EventArgsScene::EventArgsScene(SceneOperation op, Scene* scene): op(op), scene(scene) {}
 
     EventArgsZOrderChange::EventArgsZOrderChange(Entity* entity): entity(entity) {}
 

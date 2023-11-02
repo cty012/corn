@@ -11,7 +11,7 @@ namespace corn {
         for (Entity* entity : entityManager.getEntitiesWith<CTransform2D, CMovement2D>()) {
             auto transform = entity->getComponent<CTransform2D>();
             auto movement = entity->getComponent<CMovement2D>();
-            transform->addWorldLocationOffset(movement->velocity.mult(millis / 1000.0f));
+            transform->addWorldLocationOffset(movement->velocity * (millis / 1000.0f));
             transform->rotation += movement->angularVelocity * (millis / 1000.0f);
         }
     }
@@ -29,6 +29,7 @@ namespace corn {
     }
 
     void SCollisionDetection::update(EntityManager& entityManager, float millis) {
+        (void)millis;
         std::vector<Entity*> entities = entityManager.getEntitiesWith<CTransform2D, CAABB>();
         for (size_t i = 0; i < entities.size(); i++) {
             for (size_t j = i + 1; j < entities.size(); j++) {
