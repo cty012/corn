@@ -3,7 +3,7 @@
 
 namespace corn {
     Game::Game(Scene* startScene, Config config)
-        : active(false), scenes(std::stack<Scene*>()), config(std::move(config)), sw(Stopwatch()) {
+        : active(false), config(std::move(config)), scenes(std::stack<Scene*>()), sw(Stopwatch()) {
 
         this->scenes.push(startScene);
 
@@ -93,6 +93,7 @@ namespace corn {
     }
 
     void Game::onExitEvent(const EventArgsExit& args) {
+        (void)args;
         this->active = false;
     }
 

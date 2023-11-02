@@ -36,66 +36,61 @@ namespace corn {
         return {this->x, this->y, this->z, w};
     }
 
-    Vec3 Vec3::operator+() const {
-        return *this;
-    }
-
-    Vec3 Vec3::operator-() const {
-        return {-this->x, -this->y, -this->z};
-    }
-
-    Vec3 Vec3::operator+(const Vec3& other) const {
-        return {this->x + other.x, this->y + other.y, this->z + other.z};
-    }
-
-    Vec3 Vec3::operator-(const Vec3& other) const {
-        return {this->x - other.x, this->y - other.y, this->z - other.z};
-    }
-
-    Vec3& Vec3::operator+=(const Vec3& other) {
-        this->x += other.x;
-        this->y += other.y;
-        this->z += other.z;
-        return *this;
-    }
-
-    Vec3& Vec3::operator-=(const Vec3& other) {
-        this->x -= other.x;
-        this->y -= other.y;
-        this->z -= other.z;
-        return *this;
-    }
-
-    float Vec3::dot(const Vec3& other) const {
-        return this->x * other.x + this->y * other.y + this->z * other.z;
-    }
-
-    Vec3 Vec3::cross(const Vec3& other) const {
-        const Vec3& o = other;
-        return {y * o.z - o.y * z, z * o.x - o.z * x, x * o.y - o.x * y};
-    }
-
-    Vec3 Vec3::operator*(const Vec3& other) const {
-        return {this->x * other.x, this->y * other.y, this->z * other.z};
-    }
-
-    Vec3 Vec3::operator*=(const Vec3& other) {
-        this->x *= other.x;
-        this->y *= other.y;
-        this->z *= other.z;
-        return *this;
-    }
-
-    Vec3 Vec3::mult(float factor) const {
-        return {this->x * factor, this->y * factor, this->z * factor};
-    }
-
     float Vec3::norm() const {
-        return std::sqrt(this->dot(*this));
+        return std::sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
     }
 
     Vec3 Vec3::normalize() const {
         float n = this->norm();
-        return n == 0 ? *this : this->mult(1 / n);
+        return n == 0 ? *this : *this * (1 / n);
+    }
+
+    Vec3 operator+(const Vec3& rhs) {
+        return rhs;
+    }
+
+    Vec3 operator-(const Vec3& rhs) {
+        return {-rhs.x, -rhs.y, -rhs.z};
+    }
+
+    Vec3 operator+(const Vec3& lhs, const Vec3& rhs) {
+        return {lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z};
+    }
+
+    Vec3 operator-(const Vec3& lhs, const Vec3& rhs) {
+        return {lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
+    }
+
+    Vec3 operator*(const Vec3& lhs, const Vec3& rhs) {
+        return {lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z};
+    }
+
+    Vec3 operator*(const Vec3& vec, float scalar) {
+        return {vec.x * scalar, vec.y * scalar, vec.z * scalar};
+    }
+
+    Vec3 operator*(float scalar, const Vec3& vec) {
+        return {scalar * vec.x, scalar * vec.y, scalar * vec.z};
+    }
+
+    Vec3& operator+=(Vec3& lhs, const Vec3& rhs) {
+        lhs.x += rhs.x;
+        lhs.y += rhs.y;
+        lhs.z += rhs.z;
+        return lhs;
+    }
+
+    Vec3& operator-=(Vec3& lhs, const Vec3& rhs) {
+        lhs.x -= rhs.x;
+        lhs.y -= rhs.y;
+        lhs.z -= rhs.z;
+        return lhs;
+    }
+
+    Vec3& operator*=(Vec3& lhs, const Vec3& rhs) {
+        lhs.x *= rhs.x;
+        lhs.y *= rhs.y;
+        lhs.z *= rhs.z;
+        return lhs;
     }
 }
