@@ -6,12 +6,12 @@ namespace corn {
         // Verify parent
         Node* parentNode = this->getNodeFromWidget(parent);
 
-        // Create the entity
-        static Entity::EntityID entID = 0;
-        while (this->nodes.contains(entID)) {
-            entID++;
+        // Create the widget
+        static UIWidget::WidgetID widgetID = 0;
+        while (this->nodes.contains(widgetID)) {
+            widgetID++;
         }
-        T* widget = new T(*this, std::forward<Args>(args)...);
+        T* widget = new T(widgetID, name, *this, std::forward<Args>(args)...);
 
         // Create the node
         this->nodes.emplace(widget->id, Node(widget, parentNode));

@@ -29,7 +29,7 @@ namespace corn {
         const WidgetID id;
 
         /**
-         * @brief The name of the Entity.
+         * @brief The name of the widget.
          *
          * Unlike ID, the name is a mutable property assigned during creation. Multiple Entities are allowed to have
          * the same name.

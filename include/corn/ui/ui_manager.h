@@ -1,6 +1,6 @@
 #pragma once
 
-#include <corn/ecs/entity_manager.h>
+#include <corn/core/scene.h>
 #include <corn/ui/ui_widget.h>
 #include <corn/util/config.h>
 
@@ -10,7 +10,7 @@ namespace corn {
 
     /**
      * @class UIManager
-     * @brief Manages all UI elements.
+     * @brief Manages all UI widgets.
      */
     class UIManager {
     public:
@@ -67,8 +67,8 @@ namespace corn {
         void destroyWidget(UIWidget& widget);
 
         /**
-         * @brief Given a pointer to Entity, return the Node containing it.
-         * @throw std::invalid_argument if parent is not a valid Entity created by the Entity Manager.
+         * @brief Given a pointer to widget, return the Node containing it.
+         * @throw std::invalid_argument if parent is not a valid widget created by the widget Manager.
          *
          * The two functions are the same, but one is the const version of the other.
          */
