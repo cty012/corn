@@ -23,7 +23,7 @@ namespace corn {
         auto [w, h] = image.getSize();
         this->width = w;
         this->height = h;
-        this->imageImpl = new ImageImpl(image, msg);
+        this->impl = new ImageImpl(image, msg);
     }
 
     Image::Image(unsigned int width, unsigned int height, Color color): width(width), height(height) {
@@ -31,23 +31,23 @@ namespace corn {
         auto [r, g, b, a] = color.getRGBA();
         sf::Image image = sf::Image();
         image.create(width, height, sf::Color(r, g, b, a));
-        this->imageImpl = new ImageImpl(image, msg);
+        this->impl = new ImageImpl(image, msg);
     }
 
     Image::~Image() {
-        delete this->imageImpl;
+        delete this->impl;
     }
 
     Image::Image(const Image& other): width(other.width), height(other.height) {
-        this->imageImpl = new ImageImpl(other.imageImpl->image, "Failed to copy image.");
+        this->impl = new ImageImpl(other.impl->image, "Failed to copy image.");
     }
 
     Image& Image::operator=(const Image& other) {
         if (&other == this) return *this;
-        delete this->imageImpl;
+        delete this->impl;
         this->width = other.width;
         this->height = other.height;
-        this->imageImpl = new ImageImpl(other.imageImpl->image, "Failed to copy image.");
+        this->impl = new ImageImpl(other.impl->image, "Failed to copy image.");
         return *this;
     }
 
@@ -59,9 +59,5 @@ namespace corn {
         this->width = newWidth;
         this->height = newHeight;
         return *this;
-    }
-
-    const ImageImpl& Image::impl() const {
-        return *this->imageImpl;
     }
 }

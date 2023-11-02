@@ -5,6 +5,10 @@ option(BUILD_EXAMPLES "Build the example programs in the `examples/` folder." ON
 option(BUILD_TESTS "Build the test cases in the `test/` folder." OFF)
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build (Debug or Release)")
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+
 set(CORN_OUTPUT_DIR "${CMAKE_BINARY_DIR}/lib")
 set(EXAMPLES_OUTPUT_DIR "${CMAKE_BINARY_DIR}/examples")
 set(TEST_OUTPUT_DIR "${CMAKE_BINARY_DIR}/tests")

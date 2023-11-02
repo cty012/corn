@@ -15,8 +15,6 @@ namespace corn {
         Interface(const Interface& other) = delete;
         Interface& operator=(const Interface& other) = delete;
 
-        [[nodiscard]] const InterfaceImpl& impl() const;
-
         void init();
 
         [[nodiscard]] Vec2 windowSize() const;
@@ -30,7 +28,7 @@ namespace corn {
 
     private:
         const Config* config;
-        InterfaceImpl* interfaceImpl;
+        InterfaceImpl* impl;
         static std::unordered_map<Key, bool> keyPressed;
     };
 }

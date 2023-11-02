@@ -1,12 +1,11 @@
 #pragma once
 
 #include <string>
-#include <utility>
 #include <corn/util/color.h>
 
 namespace corn {
     /**
-     * @class
+     * @class ImageImpl
      * @brief Implementation of the Image class.
      */
     class ImageImpl;
@@ -17,19 +16,19 @@ namespace corn {
      */
     class Image {
     public:
-        explicit Image(const std::string& path);  // TODO: allow resizing image
+        friend class InterfaceImpl;
+
+        explicit Image(const std::string& path);
         Image(unsigned int width, unsigned int height, Color color);
         ~Image();
         Image(const Image& other);
         Image& operator=(const Image& other);
 
         [[nodiscard]] std::pair<unsigned int, unsigned int> getSize() const;
-        Image& resize(unsigned int width, unsigned int height);
-
-        [[nodiscard]] const ImageImpl& impl() const;
+        Image& resize(unsigned int width, unsigned int height);  // TODO: allow resizing image
 
     private:
-        ImageImpl* imageImpl;
+        ImageImpl* impl;
         unsigned int width, height;
     };
 }

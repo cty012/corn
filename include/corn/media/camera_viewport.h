@@ -7,6 +7,8 @@ namespace corn {
 
     class CameraViewport {
     public:
+        friend class InterfaceImpl;
+
         CameraViewport();
         ~CameraViewport();
         CameraViewport(const CameraViewport& other) = delete;
@@ -21,6 +23,8 @@ namespace corn {
          * For detailed usage, see the documentation of @Expression.
          */
         Expression<3> x, y, w, h;
+
+    private:
         CameraViewportImpl* impl;
     };
 }

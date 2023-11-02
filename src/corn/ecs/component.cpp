@@ -7,7 +7,7 @@
 #include "../event/event_args_extend.h"
 
 namespace corn {
-    Component::Component(Entity& entity): active(true), entity(entity), entityManager(entity.entityManager) {}
+    Component::Component(Entity& entity): active(true), entity(entity) {}
 
     CTransform2D::CTransform2D(Entity &entity, Vec2 location, Deg rotation)
         : Component(entity), location(location), rotation(rotation), zorder(0) {}
@@ -132,11 +132,13 @@ namespace corn {
 
     CCollisionResolve::CCollisionResolve(Entity &entity): Component(entity) {}
 
-    void CCollisionResolve::resolve(CAABB& self, CAABB& other) {}
+    void CCollisionResolve::resolve(CAABB& self, CAABB& other) {
+        (void)self;
+        (void)other;
+    }
 
     CCamera::CCamera(Entity& entity, Vec2 anchor, Color background)
-        : Component(entity), cameraType(CameraType::_2D), background(background),
-        anchor(anchor.vec3(0)), active(true), opacity(255) {
+        : Component(entity), cameraType(CameraType::_2D), background(background), opacity(255), anchor(anchor.vec3(0)) {
 
         this->setViewport("0px", "0px", "100%ww", "100%wh");
         this->setFov("100%vw", "100%vh");
@@ -144,8 +146,7 @@ namespace corn {
     }
 
     CCamera::CCamera(Entity& entity, Vec3 anchor, Color background)
-        : Component(entity), cameraType(CameraType::_3D), background(background),
-        anchor(anchor), active(true), opacity(255) {
+        : Component(entity), cameraType(CameraType::_3D), background(background), opacity(255), anchor(anchor) {
 
         EventManager::instance().emit(EventArgsCamera(CameraEventType::ADD, this));
     }
@@ -156,15 +157,15 @@ namespace corn {
 
     void CCamera::setViewport(const std::string& x, const std::string& y, const std::string& w, const std::string& h) {
         static const std::array<std::string, 3> units = {"px", "%ww", "%wh"};
-        this->viewport.x = Expression<3>::fromString(x, units);
-        this->viewport.y = Expression<3>::fromString(y, units);
-        this->viewport.w = Expression<3>::fromString(w, units);
-        this->viewport.h = Expression<3>::fromString(h, units);
+        this->viewport.x = Expression(x, units);
+        this->viewport.y = Expression(y, units);
+        this->viewport.w = Expression(w, units);
+        this->viewport.h = Expression(h, units);
     }
 
     void CCamera::setFov(const std::string& w, const std::string& h) {
         static const std::array<std::string, 3> units = {"px", "%vw", "%vh"};
-        this->fovW = Expression<3>::fromString(w, units);
-        this->fovH = Expression<3>::fromString(h, units);
+        this->fovW = Expression(w, units);
+        this->fovH = Expression(h, units);
     }
 }

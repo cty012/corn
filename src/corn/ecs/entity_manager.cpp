@@ -19,7 +19,7 @@ namespace corn {
         this->eventIDs.push_back(EventManager::instance().addListener(
                 "corn::game::ecs::camera", [this](const EventArgs& args) {
                     const auto& _args = dynamic_cast<const EventArgsCamera&>(args);
-                    if (!_args.camera || &_args.camera->entityManager != this) return;
+                    if (!_args.camera || &_args.camera->entity.entityManager != this) return;
                     switch (_args.eventType) {
                         case CameraEventType::ADD:
                             this->cameras.push_back(_args.camera);

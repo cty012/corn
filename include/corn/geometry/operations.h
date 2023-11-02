@@ -5,10 +5,27 @@
 #include <corn/geometry/deg.h>
 #include <corn/geometry/vec2.h>
 #include <corn/geometry/vec3.h>
+#include <corn/geometry/vec4.h>
 
 namespace corn {
     template <typename Vec>
-    concept VectorType = std::is_same_v<Vec, Vec2> || std::is_same_v<Vec, Vec3>;
+    concept VectorType = std::is_same_v<Vec, Vec2> || std::is_same_v<Vec, Vec3> || std::is_same_v<Vec, Vec4>;
+
+    /// @return Dot product of lhs and rhs of type Vec2.
+    float dot(const Vec2& lhs, const Vec2& rhs);
+
+    /// @return Dot product of lhs and rhs of type Vec3.
+    float dot(const Vec3& lhs, const Vec3& rhs);
+
+    /// @return Dot product of lhs and rhs of type Vec4.
+    float dot(const Vec4& lhs, const Vec4& rhs);
+
+    /**
+     * @param v1 First 3D vector.
+     * @param v2 Second 3D vector.
+     * @return Cross product of the two vectors.
+     */
+    Vec3 cross(const Vec3& v1, const Vec3& v2);
 
     /**
      * @param v1 First vector.

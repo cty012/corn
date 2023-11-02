@@ -41,64 +41,64 @@ namespace corn {
         return unitZ;
     }
 
-    Vec4 Vec4::operator+() const {
-        return *this;
-    }
-
-    Vec4 Vec4::operator-() const {
-        return {-this->x, -this->y, -this->z, -this->w};
-    }
-
-    Vec4 Vec4::operator+(const Vec4& other) const {
-        return {this->x + other.x, this->y + other.y, this->z + other.z, this->w + other.w};
-    }
-
-    Vec4 Vec4::operator-(const Vec4& other) const {
-        return {this->x - other.x, this->y - other.y, this->z - other.z, this->w - other.w};
-    }
-
-    Vec4& Vec4::operator+=(const Vec4& other) {
-        this->x += other.x;
-        this->y += other.y;
-        this->z += other.z;
-        this->w += other.w;
-        return *this;
-    }
-
-    Vec4& Vec4::operator-=(const Vec4& other) {
-        this->x -= other.x;
-        this->y -= other.y;
-        this->z -= other.z;
-        this->w -= other.w;
-        return *this;
-    }
-
-    float Vec4::dot(const Vec4& other) const {
-        return this->x * other.x + this->y * other.y + this->z * other.z + this->w * other.w;
-    }
-
-    Vec4 Vec4::operator*(const Vec4& other) const {
-        return {this->x * other.x, this->y * other.y, this->z * other.z, this->w * other.w};
-    }
-
-    Vec4 Vec4::operator*=(const Vec4& other) {
-        this->x *= other.x;
-        this->y *= other.y;
-        this->z *= other.z;
-        this->w *= other.w;
-        return *this;
-    }
-
-    Vec4 Vec4::mult(float factor) const {
-        return {this->x * factor, this->y * factor, this->z * factor, this->w * factor};
-    }
-
     float Vec4::norm() const {
-        return std::sqrt(this->dot(*this));
+        return std::sqrt(this->x * this->x + this->y * this->y + this->z * this->z + this->w * this->w);
     }
 
     Vec4 Vec4::normalize() const {
         float n = this->norm();
-        return n == 0 ? *this : this->mult(1 / n);
+        return n == 0 ? *this : *this * (1 / n);
+    }
+
+    Vec4 operator+(const Vec4& rhs) {
+        return rhs;
+    }
+
+    Vec4 operator-(const Vec4& rhs) {
+        return {-rhs.x, -rhs.y, -rhs.z, -rhs.w};
+    }
+
+    Vec4 operator+(const Vec4& lhs, const Vec4& rhs) {
+        return {lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w};
+    }
+
+    Vec4 operator-(const Vec4& lhs, const Vec4& rhs) {
+        return {lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w};
+    }
+
+    Vec4 operator*(const Vec4& lhs, const Vec4& rhs) {
+        return {lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z, lhs.w * rhs.w};
+    }
+
+    Vec4 operator*(const Vec4& vec, float scalar) {
+        return {vec.x * scalar, vec.y * scalar, vec.z * scalar, vec.w * scalar};
+    }
+
+    Vec4 operator*(float scalar, const Vec4& vec) {
+        return {scalar * vec.x, scalar * vec.y, scalar * vec.z, scalar * vec.w};
+    }
+
+    Vec4& operator+=(Vec4& lhs, const Vec4& rhs) {
+        lhs.x += rhs.x;
+        lhs.y += rhs.y;
+        lhs.z += rhs.z;
+        lhs.w += rhs.w;
+        return lhs;
+    }
+
+    Vec4& operator-=(Vec4& lhs, const Vec4& rhs) {
+        lhs.x -= rhs.x;
+        lhs.y -= rhs.y;
+        lhs.z -= rhs.z;
+        lhs.w -= rhs.w;
+        return lhs;
+    }
+
+    Vec4& operator*=(Vec4& lhs, const Vec4& rhs) {
+        lhs.x *= rhs.x;
+        lhs.y *= rhs.y;
+        lhs.z *= rhs.z;
+        lhs.w *= rhs.w;
+        return lhs;
     }
 }

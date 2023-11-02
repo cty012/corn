@@ -25,43 +25,50 @@ namespace corn {
         [[nodiscard]] Vec2 vec2() const;
         [[nodiscard]] Vec4 vec4(float w) const;
 
-        // Operations
-        /// @return A copy of the vector itself.
-        Vec3 operator+() const;
-        /// @return The reversed vector.
-        Vec3 operator-() const;
-        /// @return Result of adding this and other.
-        Vec3 operator+(const Vec3& other) const;
-        /// @return Result of subtracting other from this.
-        Vec3 operator-(const Vec3& other) const;
-        /**
-         * @brief Add other to this vector in-place.
-         * @return Reference to itself.
-         */
-        Vec3& operator+=(const Vec3& other);
-        /**
-         * @brief Subtract other from this vector in-place.
-         * @return Reference to itself.
-         */
-        Vec3& operator-=(const Vec3& other);
-
-        /// @return Dot product of this and other.
-        [[nodiscard]] float dot(const Vec3& other) const;
-        /// @return Cross product of this and other.
-        [[nodiscard]] Vec3 cross(const Vec3& other) const;
-        /// @return Element-wise multiplication of this and other.
-        Vec3 operator*(const Vec3& other) const;
-        /**
-         * @brief Element-wise in-place multiplication of this and other.
-         * @return Reference to itself.
-         */
-        Vec3 operator*=(const Vec3& other);
-        /// @return Results of multiplying by a scalar.
-        [[nodiscard]] Vec3 mult(float factor) const;
-
         /// @return 2-norm of the vector.
         [[nodiscard]] float norm() const;
+
         /// @return Normalized vector. Zero if this is a zero vector.
         [[nodiscard]] Vec3 normalize() const;
     };
+
+    // Operations
+    /// @return A copy of the vector itself.
+    Vec3 operator+(const Vec3& rhs);
+
+    /// @return The additive inverse of the vector.
+    Vec3 operator-(const Vec3& rhs);
+
+    /// @return Result of adding lhs and rhs.
+    Vec3 operator+(const Vec3& lhs, const Vec3& rhs);
+
+    /// @return Result of subtracting rhs from lhs.
+    Vec3 operator-(const Vec3& lhs, const Vec3& rhs);
+
+    /// @return Element-wise multiplication of lhs and rhs.
+    Vec3 operator*(const Vec3& lhs, const Vec3& rhs);
+
+    /// @return Result of multiplying by a scalar.
+    Vec3 operator*(const Vec3& vec, float scalar);
+
+    /// @return Result of multiplying by a scalar.
+    Vec3 operator*(float scalar, const Vec3& vec);
+
+    /**
+     * @brief Add rhs to lhs vector in-place.
+     * @return Reference to itself.
+     */
+    Vec3& operator+=(Vec3& lhs, const Vec3& rhs);
+
+    /**
+     * @brief Subtract rhs from lhs vector in-place.
+     * @return Reference to itself.
+     */
+    Vec3& operator-=(Vec3& lhs, const Vec3& rhs);
+
+    /**
+     * @brief Element-wise in-place multiplication of lhs and rhs.
+     * @return Reference to itself.
+     */
+    Vec3& operator*=(Vec3& lhs, const Vec3& rhs);
 }
