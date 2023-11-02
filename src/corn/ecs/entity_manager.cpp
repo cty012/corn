@@ -5,8 +5,8 @@
 #include "../event/event_args_extend.h"
 
 namespace corn {
-    EntityManager::EntityManager()
-        : root(Node(nullptr, nullptr)), nodes(std::unordered_map<Entity::EntityID, Node>()) {
+    EntityManager::EntityManager(Scene& scene)
+        : scene(scene), root(Node(nullptr, nullptr)), nodes(std::unordered_map<Entity::EntityID, Node>()) {
 
         // Listen to zorder change events
         this->eventIDs.push_back(EventManager::instance().addListener(
@@ -70,7 +70,7 @@ namespace corn {
         if (node == nullptr) return;
         // Destroy all children
         for (Node* child : node->children) {
-            EntityManager::destroyNode(child);
+            this->destroyNode(child);
         }
         // Destroy self
         Entity::EntityID entID = node->ent->id;
@@ -81,7 +81,7 @@ namespace corn {
     void EntityManager::destroyEntity(Entity& entity) {
         Node* node = &this->nodes.at(entity.id);
         Node* parent = node->parent;
-        destroyNode(node);
+        this->destroyNode(node);
         // Removes relation (parent --> node)
         parent->children.erase(
                 std::remove(parent->children.begin(), parent->children.end(), node),

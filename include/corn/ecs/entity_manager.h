@@ -24,6 +24,9 @@ namespace corn {
         friend class Entity;
         friend class Interface;
 
+        /// @brief The scene that owns the manager.
+        Scene& scene;
+
         /**
          * @struct Node
          * @brief Tree node containing each Entity.
@@ -41,7 +44,7 @@ namespace corn {
             Node(Entity* ent, Node* parent);
         };
 
-        EntityManager();
+        explicit EntityManager(Scene& scene);
         ~EntityManager();
         EntityManager(const EntityManager& other) = delete;
         EntityManager& operator=(const EntityManager& other) = delete;
@@ -50,7 +53,7 @@ namespace corn {
          * @brief Creates a new Entity with no Components attached.
          * @param name Name of the Entity. Entities can have the same name.
          * @param parent Parent Entity to attach the new Entity. If value is null, will attach to the root.
-         * @return Reference to the Entity created.
+         * @return Pointer to the Entity created.
          * @throw std::invalid_argument if parent is not a valid Entity created by the Entity Manager.
          *
          * If reaches the maximum Entity existing simultaneously, will result in undefined behavior.
@@ -140,8 +143,11 @@ namespace corn {
         void tidy();
 
     private:
-        /// Helper to EntityManager::destroyEntity
-        /// Destroys a node and the entity inside, as well as all descendant nodes, but does not modify parent node
+        /**
+         * @brief Helper to EntityManager::destroyEntity
+         *
+         * Destroys a node and the Entity inside, as well as all descendant nodes, but does not modify parent node
+         */
         void destroyNode(Node* node);
 
         /**
@@ -176,7 +182,7 @@ namespace corn {
                 const std::function<bool(Entity*)>& pred, bool onlyActive, size_t limit,
                 const Entity* parent, bool recurse) const;
 
-        /// @brief The root node (does not contain a entity)
+        /// @brief The root node (does not contain an entity)
         Node root;
         /// @brief Quick access for finding nodes by entity ID (does not contain root)
         std::unordered_map<Entity::EntityID, Node> nodes;

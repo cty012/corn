@@ -26,7 +26,7 @@ namespace corn {
      */
     class Entity final {
     public:
-        using EntityID = unsigned long long int;
+        using EntityID = size_t;
         // EntityManager need access to ctor/dtor
         friend class EntityManager;
 

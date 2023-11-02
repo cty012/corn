@@ -2,7 +2,7 @@
 
 namespace corn {
     Scene::Scene()
-        : entityManager(EntityManager()), uiManager(UIManager(&entityManager)), systems(std::vector<System*>()) {}
+        : entityManager(EntityManager(*this)), uiManager(UIManager(*this)), systems(std::vector<System*>()) {}
 
     Scene::~Scene() = default;
 
