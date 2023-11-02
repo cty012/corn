@@ -132,11 +132,13 @@ namespace corn {
 
     CCollisionResolve::CCollisionResolve(Entity &entity): Component(entity) {}
 
-    void CCollisionResolve::resolve(CAABB& self, CAABB& other) {}
+    void CCollisionResolve::resolve(CAABB& self, CAABB& other) {
+        (void)self;
+        (void)other;
+    }
 
     CCamera::CCamera(Entity& entity, Vec2 anchor, Color background)
-        : Component(entity), cameraType(CameraType::_2D), background(background),
-        anchor(anchor.vec3(0)), active(true), opacity(255) {
+        : Component(entity), cameraType(CameraType::_2D), background(background), opacity(255), anchor(anchor.vec3(0)) {
 
         this->setViewport("0px", "0px", "100%ww", "100%wh");
         this->setFov("100%vw", "100%vh");
@@ -144,8 +146,7 @@ namespace corn {
     }
 
     CCamera::CCamera(Entity& entity, Vec3 anchor, Color background)
-        : Component(entity), cameraType(CameraType::_3D), background(background),
-        anchor(anchor), active(true), opacity(255) {
+        : Component(entity), cameraType(CameraType::_3D), background(background), opacity(255), anchor(anchor) {
 
         EventManager::instance().emit(EventArgsCamera(CameraEventType::ADD, this));
     }

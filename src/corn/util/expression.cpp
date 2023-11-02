@@ -22,8 +22,7 @@ namespace corn::impl::expression {
                     Token token(temp);
                     // Detect unrecognizable tokens
                     if (token.type == TokenType::INVALID ||
-                        token.type == TokenType::VALUE && !(token.name.empty() || unitIdx.contains(token.name))
-                            )
+                            (token.type == TokenType::VALUE && !(token.name.empty() || unitIdx.contains(token.name))))
                         throw ExpressionParseFailed("Token `" + temp + "` cannot be recognized.");
                     result.push_back(token);
                 }

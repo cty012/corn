@@ -29,6 +29,7 @@ namespace corn {
     }
 
     void SCollisionDetection::update(EntityManager& entityManager, float millis) {
+        (void)millis;
         std::vector<Entity*> entities = entityManager.getEntitiesWith<CTransform2D, CAABB>();
         for (size_t i = 0; i < entities.size(); i++) {
             for (size_t j = i + 1; j < entities.size(); j++) {

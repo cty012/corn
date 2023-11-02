@@ -24,8 +24,8 @@ namespace corn {
      * @see System
      */
     struct Component {
-        Entity& entity;
         bool active;
+        Entity& entity;
         explicit Component(Entity& entity);
         virtual ~Component() = default;
     };
@@ -148,8 +148,8 @@ namespace corn {
         /// @brief 2D camera renders entities with 2D transforms, and the same for 3D cameras.
         CameraType cameraType;
 
-        /// @brief Whether the camera will be actively rendering.
-        bool active;
+        /// @brief The background color of the camera's field of view.
+        Color background;
 
         /// @brief The opacity of the camera, on a scale of [0, 255].
         unsigned char opacity;
@@ -161,9 +161,6 @@ namespace corn {
          * location stored in the transform component. The result will be the center of the Camera.
          */
         Vec3 anchor;
-
-        /// @brief The background color of the camera's field of view.
-        Color background;
 
         /// @brief Viewport of the camera.
         CameraViewport viewport;
