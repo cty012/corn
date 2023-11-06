@@ -61,19 +61,6 @@ namespace corn {
         bool isActive() const;
 
         /**
-         * @brief Attach a Component to the Entity.
-         * @tparam T Type of the Component, must derive from Component class.
-         * @param args Arguments for constructing the Component (excluding the first argument Entity& entity).
-         * @return Pointer to the Component if successfully added, else null pointer.
-         * @throw std::invalid_argument if the entity stored in the component does not match the Entity being attached
-         * to.
-         *
-         * If a component of the same type already exist, it will be replaced by the new component.
-         */
-        template <ComponentType T>
-        void addComponent(T* component);
-
-        /**
          * @brief Create a Component and attach it to the Entity.
          * @tparam T Type of the Component, must derive from Component class.
          * @param args Arguments for constructing the Component (excluding the first argument Entity& entity).
