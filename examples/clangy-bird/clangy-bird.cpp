@@ -113,8 +113,7 @@ void createCeilAndFloor(corn::EntityManager& entityManager) {
 /// A system for managing wall creation and deletion
 class WallManager : public corn::System {
 public:
-    void update(corn::EntityManager& entityManager, float millis) override {
-        (void)millis;
+    void update(corn::EntityManager& entityManager, [[maybe_unused]] float millis) override {
         bool needNewWall = true;
         // Iterate over existing walls
         for (corn::Entity* entity : entityManager.getEntitiesWith<Wall>()) {
@@ -151,10 +150,8 @@ public:
 
     void resolve(const corn::EventArgsCollision& args);
 
-    void update(corn::EntityManager& entityManager, float millis) override {
-        (void)entityManager;
-        (void)millis;
-    }
+    void update([[maybe_unused]] corn::EntityManager& entityManager, [[maybe_unused]] float millis) override {}
+
 private:
     bool hasCollided;
     corn::EventManager::ListenerID collisionEventID;

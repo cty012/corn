@@ -92,8 +92,7 @@ namespace corn {
         }
     }
 
-    void Game::onExitEvent(const EventArgsExit& args) {
-        (void)args;
+    void Game::onExitEvent([[maybe_unused]] const EventArgsExit& args) {
         this->active = false;
     }
 
