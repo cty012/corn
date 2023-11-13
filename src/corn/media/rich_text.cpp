@@ -28,10 +28,11 @@ namespace corn {
 
     RichText::Segment::Segment(const std::wstring& text, TextStyle style): text(), style(style) {
         this->text.setFont(style.font->sffont);
+        this->text.setString(text);
         this->text.setCharacterSize(style.size);
         auto [r, g, b, a] = style.color.getRGBA();
         this->text.setFillColor(sf::Color(r, g, b, a));
-        this->text.setString(text);
+        this->text.setStyle(sf::Text::Regular);  // TODO: convert to SFML style
     }
 
     RichText::RichText(): segments() {}

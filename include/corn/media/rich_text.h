@@ -19,6 +19,8 @@ namespace corn {
 
     class RichText {
     public:
+        friend class Interface;
+
         RichText();
         ~RichText();
         RichText(const RichText& other);
@@ -36,7 +38,7 @@ namespace corn {
 
     private:
         /// @brief Stores a pair of text string and text style.
-        class Segment;
+        struct Segment;
 
         /// @brief Each segment represent a piece of text with uniform style.
         std::vector<Segment*> segments;

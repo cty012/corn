@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <unordered_map>
 #include <vector>
 #include <corn/ui/ui_widget.h>
@@ -53,6 +54,23 @@ namespace corn {
         template <WidgetType T, typename... Args>
         T* createWidget(const std::string& name, const UIWidget* parent, Args&&... args);
 
+        /**
+         * @param parent Parent to start searching from.
+         * @param recurse Also searches indirect descendants of parent if set to true.
+         * @return All UI widgets.
+         */
+        std::vector<UIWidget*> getAllWidgets(const UIWidget* parent = nullptr, bool recurse = true) const;
+
+        /**
+         * @param parent Parent to start searching from.
+         * @param recurse Also searches indirect descendants of parent if set to true.
+         * @return All active UI widgets. See `UIWidget::isActive()` for definition of active.
+         */
+        std::vector<UIWidget*> getAllActiveWidgets(const UIWidget* parent = nullptr, bool recurse = true) const;
+
+        /// @brief Cleans up all dirty nodes. Auto-called before rendering.
+        void tidy();
+
     private:
         /**
          * @brief Helper to UIManager::destroyWidget
@@ -78,6 +96,21 @@ namespace corn {
         const Node* getNodeFromWidget(const UIWidget* widget) const;
         Node* getNodeFromWidget(const UIWidget* widget);
 
+        /**
+         * @brief Helper to all getEntity/getEntities functions.
+         * @param pred A predicate function that takes an Entity pointer and returns whether it satisfy the conditions.
+         *             Set it to null pointer to disable it.
+         * @param onlyActive Whether to only consider active entities. See `Entity::isActive()` for definition of
+         *                   active.
+         * @param limit Maximum number of entities to match. If set to 0, will match as much as possible.
+         * @param parent Parent to start searching from.
+         * @param recurse Also searches indirect descendants of parent if set to true.
+         * @return All entities satisfying the given conditions.
+         */
+        std::vector<UIWidget*> getWidgetsHelper(
+                const std::function<bool(UIWidget*)>& pred, bool onlyActive, size_t limit,
+                const UIWidget* parent, bool recurse) const;
+
         /// @brief The root node (does not contain a widget)
         Node root;
         /// @brief Quick access for finding nodes by widget ID (does not contain root)
@@ -85,7 +118,7 @@ namespace corn {
     };
 
     template<WidgetType T, typename... Args>
-    T* UIManager::createWidget(const std::string& name, const UIWidget* parent, Args &&... args) {\
+    T* UIManager::createWidget(const std::string& name, const UIWidget* parent, Args &&... args) {
         // Verify parent
         Node* parentNode = this->getNodeFromWidget(parent);
 

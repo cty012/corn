@@ -48,6 +48,9 @@ namespace corn {
         /// @brief The opacity of the widget and all children, on a scale of [0, 255].
         unsigned char opacity;
 
+        /// @todo
+        // bool isActive() const;
+
         /// @brief Destroys the widget itself.
         void destroy();
 

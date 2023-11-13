@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <stack>
 #include <corn/ui/ui_manager.h>
 #include <corn/util/exceptions.h>
 
@@ -12,6 +13,18 @@ namespace corn {
         for (auto& [id, node] : this->nodes) {
             delete node.widget;
         }
+    }
+
+    std::vector<UIWidget*> UIManager::getAllWidgets(const UIWidget* parent, bool recurse) const {
+        return this->getWidgetsHelper(nullptr, false, 0, parent, recurse);
+    }
+
+    std::vector<UIWidget*> UIManager::getAllActiveWidgets(const UIWidget* parent, bool recurse) const {
+        return this->getWidgetsHelper(nullptr, true, 0, parent, recurse);
+    }
+
+    void UIManager::tidy() {
+        // TODO: implement this and UI z-order
     }
 
     void UIManager::destroyNode(Node* node) {
@@ -54,5 +67,39 @@ namespace corn {
         } else {
             throw std::invalid_argument("Parent widget must be created by the same UI Manager.");
         }
+    }
+
+    std::vector<UIWidget*> UIManager::getWidgetsHelper(
+            const std::function<bool(UIWidget*)>& pred, bool onlyActive, size_t limit,
+            const UIWidget* parent, bool recurse) const {
+
+        auto widgets = std::vector<UIWidget*>();
+        auto nodeStack = std::stack<const Node*>();
+        const Node* parentNode = this->getNodeFromWidget(parent);
+        std::for_each(parentNode->children.rbegin(), parentNode->children.rend(), [&nodeStack](Node *child) {
+            nodeStack.push(child);
+        });
+        while (!nodeStack.empty()) {
+            // Retrieve the next node
+            const Node* next = nodeStack.top();
+            nodeStack.pop();
+
+            // Skip if not active
+            if (onlyActive && (next != &root) && !next->widget->active) continue;
+
+            // Add widget pointer to vector if current widget satisfy conditions
+            if (!pred || pred(next->widget)) {
+                widgets.push_back(next->widget);
+                if ((--limit) == 0) break;
+            }
+
+            // Add children to stack
+            if (recurse) {
+                std::for_each(next->children.rbegin(), next->children.rend(), [&nodeStack](Node *child) {
+                    nodeStack.push(child);
+                });
+            }
+        }
+        return widgets;
     }
 }

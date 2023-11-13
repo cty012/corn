@@ -2,10 +2,13 @@
 #include <corn/event/event_manager.h>
 #include <corn/geometry/vec2.h>
 #include <corn/media/interface.h>
+#include <corn/ui/ui_label.h>
 #include "camera_viewport_impl.h"
+#include "font_impl.h"
 #include "image_impl.h"
 #include "interface_impl.h"
 #include "interface_helper.h"
+#include "rich_text_impl.h"
 
 namespace corn {
     std::unordered_map<Key, bool> Interface::keyPressed = std::unordered_map<Key, bool>();
@@ -166,11 +169,33 @@ namespace corn {
         return true;
     }
 
+    void Interface::renderWidget([[maybe_unused]] const UIWidget* widget) {
+        switch (widget->type) {
+            case UIType::PANEL:
+                break;
+            case UIType::LABEL: {
+                const auto* label = dynamic_cast<const UILabel*>(widget);
+                for (RichText::Segment* segment: label->getText().segments) {
+                    if (segment->style.font->state != FontState::LOADED) continue;
+                    segment->text.setPosition(100, 100);
+                    this->impl->window->draw(segment->text, sf::RenderStates::Default);
+                }
+                break;
+            }
+            case UIType::IMAGE:
+                break;
+            case UIType::INPUT:
+                break;
+        }
+    }
+
     void Interface::render(Scene* scene) {
         Vec2 windowSize = this->windowSize();
         Vec2 percentWindowSize = windowSize * 0.01;
 
         this->clear();
+
+        // Render Entities
         scene->entityManager.tidy();
         for (const CCamera* camera : scene->entityManager.cameras) {
             if (renderCamera(scene, camera, percentWindowSize)) {
@@ -182,6 +207,12 @@ namespace corn {
                 this->impl->window->setView(view);
                 this->impl->window->draw(cameraSprite);
             }
+        }
+
+        // Render UI widgets
+        scene->uiManager.tidy();
+        for (const UIWidget* widget : scene->uiManager.getAllWidgets()) {
+            this->renderWidget(widget);
         }
 
         this->impl->window->setView(this->impl->window->getDefaultView());

@@ -4,12 +4,9 @@
 #include <corn/media/rich_text.h>
 
 namespace corn {
-    class RichText::Segment {
-    public:
-        Segment(const std::wstring& text, TextStyle style);
-
-    private:
+    struct RichText::Segment {
         sf::Text text;
         TextStyle style;
+        Segment(const std::wstring& text, TextStyle style);
     };
 }

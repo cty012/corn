@@ -59,7 +59,10 @@ namespace corn {
     bool FontManager::unload(const std::string& name) {
         std::lock_guard<std::mutex> lock(this->mutex);
         std::lock_guard<std::mutex> lockFonts(this->mutexFonts);
-        return this->fonts.erase(name);
+        if (!this->fonts.contains(name)) return false;
+        delete this->fonts[name];
+        this->fonts.erase(name);
+        return true;
     }
 
     const Font* FontManager::get(const std::string& name) const {
@@ -72,6 +75,9 @@ namespace corn {
     FontManager::FontManager(): fonts(), futures() {}
 
     FontManager::~FontManager() {
+        // Do not free anything
+        // Otherwise will have error (exit code 0xC0000409)
+        /*
         for (auto& [name, result] : this->futures) {
             result.wait();
         }
@@ -79,5 +85,6 @@ namespace corn {
         for (auto& [name, font] : this->fonts) {
             delete font;
         }
+         */
     }
 }

@@ -11,5 +11,6 @@ int main() {
     corn::FontManager::instance().load("consolas", "fonts/consolas.ttf");
     corn::Game game(new GameScene(), config);
     game.run();
+    corn::FontManager::instance().unload("consolas");
     return 0;
 }

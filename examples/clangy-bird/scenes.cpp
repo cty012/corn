@@ -22,8 +22,8 @@ GameScene::GameScene(): paused(false) {
 
     // UI
     corn::TextStyle style = corn::TextStyle(corn::FontManager::instance().get("consolas"), 24);
-    this->uiManager.createWidget<corn::UILabel>("name", nullptr, corn::RichText()
-        .addText(L"", style));
+    this->uiManager.createWidget<corn::UILabel>("test", nullptr, corn::RichText()
+        .addText(L"test", style));
 
     // Event listeners
     this->keyboardEventID = corn::EventManager::instance().addListener(

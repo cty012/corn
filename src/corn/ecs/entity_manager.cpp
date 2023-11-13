@@ -115,22 +115,22 @@ namespace corn {
     Entity* EntityManager::getEntityThat(
             const std::function<bool(Entity*)>& pred, const Entity* parent, bool recurse) const {
 
-        std::vector<Entity*> result = getEntitiesHelper(pred, false, 0, parent, recurse);
+        std::vector<Entity*> result = this->getEntitiesHelper(pred, false, 0, parent, recurse);
         return result.empty() ? nullptr : result[0];
     }
 
     std::vector<Entity*> EntityManager::getEntitiesThat(
             const std::function<bool(Entity*)>& pred, const Entity* parent, bool recurse) const {
 
-        return getEntitiesHelper(pred, false, 0, parent, recurse);
+        return this->getEntitiesHelper(pred, false, 0, parent, recurse);
     }
 
     std::vector<Entity*> EntityManager::getAllEntities(const Entity* parent, bool recurse) const {
-        return getEntitiesHelper(nullptr, false, 0, parent, recurse);
+        return this->getEntitiesHelper(nullptr, false, 0, parent, recurse);
     }
 
     std::vector<Entity*> EntityManager::getAllActiveEntities(const Entity* parent, bool recurse) const {
-        return getEntitiesHelper(nullptr, true, 0, parent, recurse);
+        return this->getEntitiesHelper(nullptr, true, 0, parent, recurse);
     }
 
     void EntityManager::tidy() {
@@ -198,13 +198,13 @@ namespace corn {
             // Skip if not active
             if (onlyActive && (next != &root) && !next->ent->active) continue;
 
-            // Check if current Entity satisfy conditions
-            if (pred && pred(next->ent)) {
+            // Add Entity pointer to vector if current Entity satisfy conditions
+            if (!pred || pred(next->ent)) {
                 entities.push_back(next->ent);
                 if ((--limit) == 0) break;
             }
 
-            // Add Entity pointer to vector and children to stack
+            // Add children to stack
             if (recurse) {
                 std::for_each(next->children.rbegin(), next->children.rend(), [&nodeStack](Node *child) {
                     nodeStack.push(child);
