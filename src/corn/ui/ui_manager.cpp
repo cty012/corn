@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <corn/ui/ui_manager.h>
+#include <corn/util/exceptions.h>
 
 namespace corn {
     UIManager::Node::Node(UIWidget* widget, UIManager::Node* parent): widget(widget), parent(parent), dirty(false) {}

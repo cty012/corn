@@ -1,7 +1,13 @@
 #pragma once
 
+#include <string>
+
 namespace corn {
     class UIManager;
+
+    enum class UIType {
+        PANEL, LABEL, IMAGE, INPUT
+    };
 
     /**
      * @class UIWidget
@@ -19,6 +25,9 @@ namespace corn {
         bool active;
         /// @brief Reference to the UI Manager that created this widget.
         UIManager& uiManager;
+
+        /// @brief The type of the widget. Default value is UIType::PANEL.
+        const UIType type;
 
         /**
          * @brief The unique ID of the widget.
@@ -45,7 +54,10 @@ namespace corn {
         virtual void render() const = 0;
 
     protected:
-        explicit UIWidget(WidgetID id, std::string name, UIManager& uiManager);
+        UIWidget(UIType type, WidgetID id, std::string name, UIManager& uiManager);
         virtual ~UIWidget() = default;
+
+    private:
+        UIWidget(WidgetID id, std::string name, UIManager& uiManager);
     };
 }
