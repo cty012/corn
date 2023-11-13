@@ -47,6 +47,12 @@ namespace corn {
     }
 
     UIManager::Node* UIManager::getNodeFromWidget(const UIWidget* widget) {
-        return const_cast<UIManager::Node*>(static_cast<const UIManager*>(this)->getNodeFromWidget(widget));
+        if (!widget) {
+            return &this->root;
+        } else if (&widget->uiManager == this) {
+            return &this->nodes.at(widget->id);
+        } else {
+            throw std::invalid_argument("Parent widget must be created by the same UI Manager.");
+        }
     }
 }

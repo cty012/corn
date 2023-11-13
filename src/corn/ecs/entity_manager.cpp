@@ -171,7 +171,13 @@ namespace corn {
     }
 
     EntityManager::Node* EntityManager::getNodeFromEntity(const Entity* entity) {
-        return const_cast<EntityManager::Node*>(static_cast<const EntityManager*>(this)->getNodeFromEntity(entity));
+        if (!entity) {
+            return &this->root;
+        } else if (&entity->entityManager == this) {
+            return &this->nodes.at(entity->id);
+        } else {
+            throw std::invalid_argument("Parent Entity must be created by the same Entity Manager.");
+        }
     }
 
     std::vector<Entity*> EntityManager::getEntitiesHelper(
