@@ -19,4 +19,7 @@ namespace corn {
 
     EventArgsCamera::EventArgsCamera(CameraEventType eventType, const CCamera* camera)
         : eventType(eventType), camera(camera) {}
+
+    EventArgsCollision::EventArgsCollision(CAABB* collider1, CAABB* collider2)
+        : collider1(collider1), collider2(collider2) {}
 }

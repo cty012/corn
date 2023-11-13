@@ -130,13 +130,6 @@ namespace corn {
         return xDirection && yDirection;
     }
 
-    CCollisionResolve::CCollisionResolve(Entity &entity): Component(entity) {}
-
-    void CCollisionResolve::resolve(CAABB& self, CAABB& other) {
-        (void)self;
-        (void)other;
-    }
-
     CCamera::CCamera(Entity& entity, Vec2 anchor, Color background)
         : Component(entity), cameraType(CameraType::_2D), background(background), opacity(255), anchor(anchor.vec3(0)) {
 

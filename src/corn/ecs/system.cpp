@@ -36,10 +36,7 @@ namespace corn {
                 auto* aabb1 = entities[i]->getComponent<CAABB>();
                 auto* aabb2 = entities[j]->getComponent<CAABB>();
                 if (!aabb1 || !aabb2 || !aabb1->overlapWith(*aabb2)) continue;
-                auto* collisionResolve1 = entities[i]->getComponent<CCollisionResolve>();
-                auto* collisionResolve2 = entities[j]->getComponent<CCollisionResolve>();
-                if (collisionResolve1) collisionResolve1->resolve(*aabb1, *aabb2);
-                if (collisionResolve2) collisionResolve2->resolve(*aabb1, *aabb2);
+                EventManager::instance().emit(EventArgsCollision(aabb1, aabb2));
             }
         }
     }

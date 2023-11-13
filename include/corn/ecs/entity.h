@@ -8,7 +8,6 @@
 #include <vector>
 #include <corn/ecs/component.h>
 
-
 namespace corn {
     template <typename T>
     concept ComponentType = std::derived_from<T, corn::Component>;
@@ -61,19 +60,6 @@ namespace corn {
         bool isActive() const;
 
         /**
-         * @brief Attach a Component to the Entity.
-         * @tparam T Type of the Component, must derive from Component class.
-         * @param args Arguments for constructing the Component (excluding the first argument Entity& entity).
-         * @return Pointer to the Component if successfully added, else null pointer.
-         * @throw std::invalid_argument if the entity stored in the component does not match the Entity being attached
-         * to.
-         *
-         * If a component of the same type already exist, it will be replaced by the new component.
-         */
-        template <ComponentType T>
-        void addComponent(T* component);
-
-        /**
          * @brief Create a Component and attach it to the Entity.
          * @tparam T Type of the Component, must derive from Component class.
          * @param args Arguments for constructing the Component (excluding the first argument Entity& entity).
@@ -115,6 +101,28 @@ namespace corn {
         ~Entity();
         Entity(const Entity& other) = delete;
     };
-}
 
-#include <corn/ecs/entity_template.h>
+    template<ComponentType T, typename... Args>
+    T* Entity::createComponent(Args&&... args) {
+        auto key = std::type_index(typeid(T));
+        if (this->components.find(key) != this->components.end()) return nullptr;
+        T* component = new T(*this, std::forward<Args>(args)...);
+        this->components[key] = component;
+        return component;
+    }
+
+    template<ComponentType T>
+    T* Entity::getComponent() const {
+        auto key = std::type_index(typeid(T));
+        if (this->components.find(key) == this->components.end()) return nullptr;
+        return dynamic_cast<T*>(this->components.at(key));
+    }
+
+    template<ComponentType T>
+    bool Entity::removeComponent() {
+        auto key = std::type_index(typeid(T));
+        if (this->components.find(key) == this->components.end()) return false;
+        this->components.erase(key);
+        return true;
+    }
+}

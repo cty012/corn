@@ -121,22 +121,6 @@ namespace corn {
         [[nodiscard]] bool overlapWith(const CAABB& other) const;
     };
 
-    /**
-     * @class CCollisionResolve
-     * @brief A simple collision resolve base class for collision between AABB colliding boxes.
-     *
-     * @todo Add support for all colliding boxes.
-     *
-     * @see Component
-     * @see SCollisionDetection
-     * @see CAABB
-     */
-    struct CCollisionResolve : public Component {
-        explicit CCollisionResolve(Entity& entity);
-        /// @brief Override this function to define custom collision resolves.
-        virtual void resolve(CAABB& self, CAABB& other);
-    };
-
     enum class CameraType{ _2D, _3D };
 
     /**
