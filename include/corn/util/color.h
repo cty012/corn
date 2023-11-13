@@ -17,6 +17,12 @@ namespace corn {
         [[nodiscard]] RGBA getRGBA() const;
         [[nodiscard]] std::string hexString() const;
 
+        static const Color& RED();
+        static const Color& GREEN();
+        static const Color& BLUE();
+        static const Color& WHITE();
+        static const Color& BLACK();
+
     private:
         Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
         unsigned char red;

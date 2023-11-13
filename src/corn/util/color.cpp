@@ -34,4 +34,29 @@ namespace corn {
         std::snprintf(hexStr, sizeof(hexStr), "#%02X%02X%02X", this->red, this->green, this->blue);
         return {hexStr};
     }
+
+    const Color& Color::RED() {
+        static Color color = Color::rgb(255, 0, 0);
+        return color;
+    }
+
+    const Color& Color::GREEN() {
+        static Color color = Color::rgb(0, 255, 0);
+        return color;
+    }
+
+    const Color& Color::BLUE() {
+        static Color color = Color::rgb(0, 0, 255);
+        return color;
+    }
+
+    const Color& Color::WHITE() {
+        static Color color = Color::rgb(255, 255, 255);
+        return color;
+    }
+
+    const Color& Color::BLACK() {
+        static Color color = Color::rgb(0, 0, 0);
+        return color;
+    }
 }

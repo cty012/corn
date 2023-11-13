@@ -4,6 +4,10 @@
 namespace corn {
     class Font;
 
+    enum class FontVariant {
+        REGULAR, BOLD, ITALIC, UNDERLINE,
+    };
+
     /**
      * @class FontManager
      * @brief Manages font loading.
