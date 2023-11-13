@@ -59,4 +59,12 @@ namespace corn {
         SceneOperation op;
         Scene* scene;
     };
+
+    struct CAABB;
+    struct EventArgsCollision : public EventArgs {
+        [[nodiscard]] constexpr const char* type() const override { return "corn::game::collision"; }
+        EventArgsCollision(CAABB* collider1, CAABB* collider2);
+        CAABB* collider1;
+        CAABB* collider2;
+    };
 }

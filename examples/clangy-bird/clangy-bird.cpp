@@ -32,16 +32,6 @@ struct Wall : public corn::Component {
     explicit Wall(corn::Entity& entity): corn::Component(entity) {}
 };
 
-/// Custom collision resolve class for bird
-struct BirdCollisionResolve : public corn::CCollisionResolve {
-    bool hasCollided;
-
-    explicit BirdCollisionResolve(corn::Entity& entity)
-        : corn::CCollisionResolve(entity), hasCollided(false) {}
-
-    void resolve(corn::CAABB& self, corn::CAABB& other) override;  // Implemented later
-};
-
 corn::Entity* createCamera(corn::EntityManager& entityManager) {
     corn::Entity* camera = &entityManager.createEntity("camera");
     camera->createComponent<corn::CTransform2D>(corn::Vec2((float)WIDTH / 2, (float)HEIGHT / 2));
@@ -67,7 +57,6 @@ corn::Entity* createBird(corn::EntityManager& entityManager) {
     bird->createComponent<corn::CAABB>(topLeft, bottomRight);
     bird->createComponent<corn::CSprite>(
             new corn::Image(BIRD_WIDTH, BIRD_HEIGHT, BIRD_COLOR), topLeft);
-    bird->addComponent<corn::CCollisionResolve>(new BirdCollisionResolve(*bird));
     return bird;
 }
 
@@ -125,6 +114,7 @@ void createCeilAndFloor(corn::EntityManager& entityManager) {
 class WallManager : public corn::System {
 public:
     void update(corn::EntityManager& entityManager, float millis) override {
+        (void)millis;
         bool needNewWall = true;
         // Iterate over existing walls
         for (corn::Entity* entity : entityManager.getEntitiesWith<Wall>()) {
@@ -144,6 +134,32 @@ public:
     }
 };
 
+/// A custom collision resolve system for bird
+class BirdCollisionResolve : public corn::System {
+public:
+    BirdCollisionResolve(): hasCollided(false) {
+        this->collisionEventID = corn::EventManager::instance().addListener(
+                "corn::game::collision", [this](const corn::EventArgs& args) {
+                    const auto& _args = dynamic_cast<const corn::EventArgsCollision&>(args);
+                    this->resolve(_args);
+                });
+    }
+
+    ~BirdCollisionResolve() override {
+        corn::EventManager::instance().removeListener(this->collisionEventID);
+    }
+
+    void resolve(const corn::EventArgsCollision& args);
+
+    void update(corn::EntityManager& entityManager, float millis) override {
+        (void)entityManager;
+        (void)millis;
+    }
+private:
+    bool hasCollided;
+    corn::EventManager::ListenerID collisionEventID;
+};
+
 /// The main game scene
 class GameScene : public corn::Scene {
 public:
@@ -161,6 +177,7 @@ public:
         this->systems.push_back(new corn::SGravity());
         this->systems.push_back(new corn::SCollisionDetection());
         this->systems.push_back(new WallManager());
+        this->systems.push_back(new BirdCollisionResolve());
 
         // Event listeners
         this->keyboardEventID = corn::EventManager::instance().addListener(
@@ -223,8 +240,9 @@ private:
     }
 };
 
-void BirdCollisionResolve::resolve(corn::CAABB& self, corn::CAABB& other) {
+void BirdCollisionResolve::resolve(const corn::EventArgsCollision& args) {
     if (this->hasCollided) return;
+    if (args.collider1->entity.name != "bird" && args.collider2->entity.name != "bird") return;
     this->hasCollided = true;
     corn::EventManager::instance().emit(corn::EventArgsScene(corn::SceneOperation::REPLACE, new GameScene()));
 }
