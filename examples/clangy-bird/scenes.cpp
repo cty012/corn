@@ -1,5 +1,6 @@
 #include <corn/media.h>
 #include <corn/ui.h>
+#include <corn/util.h>
 #include "etities.h"
 #include "scenes.h"
 #include "systems.h"
@@ -21,9 +22,19 @@ GameScene::GameScene(): paused(false) {
     this->systems.push_back(new BirdCollisionResolve());
 
     // UI
+    auto* body = this->uiManager.createWidget<corn::UIWidget>("body", nullptr);
+    body->setX("(100%w - min(100%w * 9, 100%h * 16) / 9) / 2");
+    body->setY("(100%h - min(100%w * 9, 100%h * 16) / 16) / 2");
+    body->setW("min(100%w * 9, 100%h * 16) / 9");
+    body->setH("min(100%w * 9, 100%h * 16) / 16");
+
     corn::TextStyle style = corn::TextStyle(corn::FontManager::instance().get("consolas"), 24);
-    this->uiManager.createWidget<corn::UILabel>("test", nullptr, corn::RichText()
+    auto* label = this->uiManager.createWidget<corn::UILabel>("test", body, corn::RichText()
         .addText(L"test", style));
+    label->setX("100%w - 120px");
+    label->setY("100%h - 80px");
+    label->setW("0px");
+    label->setH("0px");
 
     // Event listeners
     this->keyboardEventID = corn::EventManager::instance().addListener(

@@ -24,7 +24,7 @@ namespace corn {
         static const std::unordered_map<Key, bool>& getKeyPressed();
 
         void clear();
-        void renderWidget(const UIWidget* widget);
+        void renderUI(UIManager& uiManager);
         void render(Scene* scene);
         void update();
 

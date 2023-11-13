@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <corn/util/expression.h>
 
 namespace corn {
     class UIManager;
@@ -48,15 +49,36 @@ namespace corn {
         /// @brief The opacity of the widget and all children, on a scale of [0, 255].
         unsigned char opacity;
 
-        /// @todo
-        // bool isActive() const;
-
         /// @brief Destroys the widget itself.
         void destroy();
 
+        /**
+         * @return Whether the widget is active. An UI widget is active iff itself and all its ancestors have
+         * UIWidget::active set to true.
+         */
+        [[nodiscard]] bool isActive() const;
+
+        /// @return Get the parent Entity.
+        [[nodiscard]] UIWidget* getParent() const;
+
+        // Getters & setters
+        const Expression<3>& getX() const;
+        const Expression<3>& getY() const;
+        const Expression<3>& getW() const;
+        const Expression<3>& getH() const;
+        void setX(const std::string& expression);
+        void setY(const std::string& expression);
+        void setW(const std::string& expression);
+        void setH(const std::string& expression);
+
     protected:
+        /// @brief The UI widget
+        Expression<3> x, y, w, h;
+
         UIWidget(UIType type, WidgetID id, std::string name, UIManager& uiManager);
-        virtual ~UIWidget() = default;
+        virtual ~UIWidget();
+        UIWidget(const UIWidget& other) = delete;
+        UIWidget& operator=(const UIWidget& other) = delete;
 
     private:
         UIWidget(WidgetID id, std::string name, UIManager& uiManager);

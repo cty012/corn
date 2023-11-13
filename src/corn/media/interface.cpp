@@ -1,6 +1,7 @@
 #include <corn/ecs/component.h>
 #include <corn/event/event_manager.h>
 #include <corn/geometry/vec2.h>
+#include <corn/geometry/vec4.h>
 #include <corn/media/interface.h>
 #include <corn/ui/ui_label.h>
 #include "camera_viewport_impl.h"
@@ -169,23 +170,40 @@ namespace corn {
         return true;
     }
 
-    void Interface::renderWidget([[maybe_unused]] const UIWidget* widget) {
-        switch (widget->type) {
-            case UIType::PANEL:
-                break;
-            case UIType::LABEL: {
-                const auto* label = dynamic_cast<const UILabel*>(widget);
-                for (RichText::Segment* segment: label->getText().segments) {
-                    if (segment->style.font->state != FontState::LOADED) continue;
-                    segment->text.setPosition(100, 100);
-                    this->impl->window->draw(segment->text, sf::RenderStates::Default);
+    void Interface::renderUI(UIManager& uiManager) {
+        Vec2 windowSize = this->windowSize();
+        uiManager.tidy();
+        std::unordered_map<const UIWidget*, Vec4> widgetRect;
+        widgetRect[nullptr] = Vec4(0.0f, 0.0f, windowSize.x, windowSize.y);
+        for (const UIWidget* widget : uiManager.getAllWidgets()) {
+            // Calculate widget dimensions
+            Vec4 parentDim = widgetRect[widget->getParent()];
+            float percW = parentDim.z * 0.01f;
+            float percH = parentDim.w * 0.01f;
+            float x = parentDim.x + widget->getX().calc(1.0f, percW, percH);
+            float y = parentDim.y + widget->getY().calc(1.0f, percW, percH);
+            float w = widget->getW().calc(1.0f, percW, percH);
+            float h = widget->getH().calc(1.0f, percW, percH);
+            widgetRect[widget] = Vec4(x, y, w, h);
+
+            // Render the widget
+            switch (widget->type) {
+                case UIType::PANEL:
+                    break;
+                case UIType::LABEL: {
+                    const auto* label = dynamic_cast<const UILabel*>(widget);
+                    for (RichText::Segment* segment: label->getText().segments) {
+                        if (segment->style.font->state != FontState::LOADED) continue;
+                        segment->text.setPosition(x, y);
+                        this->impl->window->draw(segment->text);
+                    }
+                    break;
                 }
-                break;
+                case UIType::IMAGE:
+                    break;
+                case UIType::INPUT:
+                    break;
             }
-            case UIType::IMAGE:
-                break;
-            case UIType::INPUT:
-                break;
         }
     }
 
@@ -193,6 +211,7 @@ namespace corn {
         Vec2 windowSize = this->windowSize();
         Vec2 percentWindowSize = windowSize * 0.01;
 
+        // Clear the screen
         this->clear();
 
         // Render Entities
@@ -210,10 +229,9 @@ namespace corn {
         }
 
         // Render UI widgets
-        scene->uiManager.tidy();
-        for (const UIWidget* widget : scene->uiManager.getAllWidgets()) {
-            this->renderWidget(widget);
-        }
+        sf::View view(sf::FloatRect(0, 0, windowSize.x, windowSize.y));
+        this->impl->window->setView(view);
+        this->renderUI(scene->uiManager);
 
         this->impl->window->setView(this->impl->window->getDefaultView());
         this->impl->window->display();

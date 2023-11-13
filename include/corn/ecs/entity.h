@@ -57,7 +57,7 @@ namespace corn {
          * @return Whether the Entity is active. An Entity is active iff itself and all its ancestors have
          * Entity::active set to true.
          */
-        bool isActive() const;
+        [[nodiscard]] bool isActive() const;
 
         /**
          * @brief Create a Component and attach it to the Entity.
@@ -100,6 +100,7 @@ namespace corn {
         explicit Entity(EntityID id, std::string name, EntityManager& entityManager);
         ~Entity();
         Entity(const Entity& other) = delete;
+        Entity& operator=(const Entity& other) = delete;
     };
 
     template<ComponentType T, typename... Args>
