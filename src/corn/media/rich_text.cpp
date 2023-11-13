@@ -3,10 +3,10 @@
 #include "rich_text_impl.h"
 
 namespace corn {
-    TextStyle::TextStyle(Font* font, size_t size)
+    TextStyle::TextStyle(const Font* font, size_t size)
         : font(font), size(size), color(Color::WHITE()), variant(FontVariant::REGULAR) {}
 
-    TextStyle& TextStyle::setFont(Font* newFont) {
+    TextStyle& TextStyle::setFont(const Font* newFont) {
         this->font = newFont;
         return *this;
     }

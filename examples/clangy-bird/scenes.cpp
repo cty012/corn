@@ -1,3 +1,5 @@
+#include <corn/media.h>
+#include <corn/ui.h>
 #include "etities.h"
 #include "scenes.h"
 #include "systems.h"
@@ -17,6 +19,11 @@ GameScene::GameScene(): paused(false) {
     this->systems.push_back(new corn::SCollisionDetection());
     this->systems.push_back(new WallManager());
     this->systems.push_back(new BirdCollisionResolve());
+
+    // UI
+    corn::TextStyle style = corn::TextStyle(corn::FontManager::instance().get("consolas"), 24);
+    this->uiManager.createWidget<corn::UILabel>("name", nullptr, corn::RichText()
+        .addText(L"", style));
 
     // Event listeners
     this->keyboardEventID = corn::EventManager::instance().addListener(

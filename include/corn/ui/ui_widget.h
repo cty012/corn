@@ -50,8 +50,6 @@ namespace corn {
 
         /// @brief Destroys the widget itself.
         void destroy();
-        /// @brief Visitor pattern. Calls the corresponding render method of Interface class.
-        virtual void render() const = 0;
 
     protected:
         UIWidget(UIType type, WidgetID id, std::string name, UIManager& uiManager);

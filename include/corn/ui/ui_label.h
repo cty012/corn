@@ -6,6 +6,9 @@
 namespace corn {
     class UILabel : public UIWidget {
     public:
+        // UIManager need access to ctor/dtor
+        friend class UIManager;
+
         [[nodiscard]] const RichText& getText() const;
         void setText(const RichText& newText);
 

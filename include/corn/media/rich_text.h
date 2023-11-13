@@ -6,12 +6,12 @@
 
 namespace corn {
     struct TextStyle {
-        Font* font;
+        const Font* font;
         size_t size;
         Color color;
         FontVariant variant;
-        TextStyle(Font* font, size_t size);
-        TextStyle& setFont(Font* newFont);
+        TextStyle(const Font* font, size_t size);
+        TextStyle& setFont(const Font* newFont);
         TextStyle& setSize(size_t newSize);
         TextStyle& setColor(const Color& newColor);
         TextStyle& setVariant(FontVariant newVariant);
