@@ -1,13 +1,24 @@
 cmake_minimum_required(VERSION 3.22)
 project(corn)
 
+set(CMAKE_CXX_STANDARD 20)
+list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/deps")
+
 option(BUILD_EXAMPLES "Build the example programs in the `examples/` folder." ON)
 option(BUILD_TESTS "Build the test cases in the `test/` folder." OFF)
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build (Debug or Release)")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
+if (MSVC)
+    add_compile_options(/utf-8 /W4 /WX)
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Zi")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+else ()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+endif ()
 
 set(CORN_OUTPUT_DIR "${CMAKE_BINARY_DIR}/lib")
 set(EXAMPLES_OUTPUT_DIR "${CMAKE_BINARY_DIR}/examples")
@@ -15,15 +26,6 @@ set(TEST_OUTPUT_DIR "${CMAKE_BINARY_DIR}/tests")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(SFML_PACKAGE_NAME "SFML-2.6" CACHE STRING "Name of the SFML folder inside `deps/`. Only used on MacOS.")
-
-set(CMAKE_CXX_STANDARD 20)
-list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/deps")
-
-# Build the DLL for the library
-if (MSVC)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-endif ()
 
 file(GLOB_RECURSE HEADERS
         "${CMAKE_SOURCE_DIR}/include/*.h"

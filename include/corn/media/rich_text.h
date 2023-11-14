@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <vector>
 #include <corn/media/font.h>
 #include <corn/util/color.h>

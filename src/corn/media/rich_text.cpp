@@ -33,7 +33,7 @@ namespace corn {
     RichText::Segment::Segment(const std::wstring& text, TextStyle style): text(), style(style) {
         this->text.setFont(style.font->sffont);
         this->text.setString(text);
-        this->text.setCharacterSize(style.size);
+        this->text.setCharacterSize((unsigned int)style.size);
         auto [r, g, b, a] = style.color.getRGBA();
         this->text.setFillColor(sf::Color(r, g, b, a));
         switch (style.variant) {

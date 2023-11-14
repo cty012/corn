@@ -1,3 +1,5 @@
+#include <array>
+#include <string>
 #include <corn/ui/ui_manager.h>
 #include <corn/ui/ui_widget.h>
 

@@ -39,7 +39,7 @@ namespace corn {
         sf::ContextSettings contextSettings;
         contextSettings.antialiasingLevel = 16;
         this->impl->window->create(
-                sf::VideoMode(this->config->width, this->config->height),
+                sf::VideoMode((int)this->config->width, (int)this->config->height),
                 this->config->title,
                 cornMode2SfStyle(this->config->mode),
                 contextSettings);
@@ -225,7 +225,7 @@ namespace corn {
 
     void Interface::render(Scene* scene) {
         Vec2 windowSize = this->windowSize();
-        Vec2 percentWindowSize = windowSize * 0.01;
+        Vec2 percentWindowSize = windowSize * 0.01f;
 
         // Clear the screen
         this->clear();
