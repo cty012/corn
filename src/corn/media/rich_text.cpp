@@ -6,24 +6,28 @@ namespace corn {
     TextStyle::TextStyle(const Font* font, size_t size)
         : font(font), size(size), color(Color::WHITE()), variant(FontVariant::REGULAR) {}
 
-    TextStyle& TextStyle::setFont(const Font* newFont) {
-        this->font = newFont;
-        return *this;
+    TextStyle TextStyle::setFont(const Font* newFont) {
+        TextStyle style = *this;
+        style.font = newFont;
+        return style;
     }
 
-    TextStyle& TextStyle::setSize(size_t newSize) {
-        this->size = newSize;
-        return *this;
+    TextStyle TextStyle::setSize(size_t newSize) {
+        TextStyle style = *this;
+        style.size = newSize;
+        return style;
     }
 
-    TextStyle& TextStyle::setColor(const Color& newColor) {
-        this->color = newColor;
-        return *this;
+    TextStyle TextStyle::setColor(const Color& newColor) {
+        TextStyle style = *this;
+        style.color = newColor;
+        return style;
     }
 
-    TextStyle& TextStyle::setVariant(FontVariant newVariant) {
-        this->variant = newVariant;
-        return *this;
+    TextStyle TextStyle::setVariant(FontVariant newVariant) {
+        TextStyle style = *this;
+        style.variant = newVariant;
+        return style;
     }
 
     RichText::Segment::Segment(const std::wstring& text, TextStyle style): text(), style(style) {
@@ -32,7 +36,20 @@ namespace corn {
         this->text.setCharacterSize(style.size);
         auto [r, g, b, a] = style.color.getRGBA();
         this->text.setFillColor(sf::Color(r, g, b, a));
-        this->text.setStyle(sf::Text::Regular);  // TODO: convert to SFML style
+        switch (style.variant) {
+            case FontVariant::REGULAR:
+                this->text.setStyle(sf::Text::Regular);
+                break;
+            case FontVariant::BOLD:
+                this->text.setStyle(sf::Text::Bold);
+                break;
+            case FontVariant::ITALIC:
+                this->text.setStyle(sf::Text::Italic);
+                break;
+            case FontVariant::UNDERLINE:
+                this->text.setStyle(sf::Text::Underlined);
+                break;
+        }
     }
 
     RichText::RichText(): segments() {}

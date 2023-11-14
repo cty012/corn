@@ -12,6 +12,10 @@ namespace corn {
         [[nodiscard]] const RichText& getText() const;
         void setText(const RichText& newText);
 
+        /// @return Width and height of contents. Does not consider children.
+        float getNaturalWidth() const override;
+        float getNaturalHeight() const override;
+
     private:
         UILabel(WidgetID id, std::string name, UIManager& uiManager, RichText text);
 

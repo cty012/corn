@@ -173,18 +173,30 @@ namespace corn {
     void Interface::renderUI(UIManager& uiManager) {
         Vec2 windowSize = this->windowSize();
         uiManager.tidy();
-        std::unordered_map<const UIWidget*, Vec4> widgetRect;
-        widgetRect[nullptr] = Vec4(0.0f, 0.0f, windowSize.x, windowSize.y);
-        for (const UIWidget* widget : uiManager.getAllWidgets()) {
-            // Calculate widget dimensions
-            Vec4 parentDim = widgetRect[widget->getParent()];
+        std::unordered_map<const UIWidget*, std::pair<Vec4, float>> widgetRect;
+        widgetRect[nullptr] = {Vec4(0.0f, 0.0f, windowSize.x, windowSize.y), 1.0f};
+        for (const UIWidget* widget : uiManager.getAllActiveWidgets()) {
+            // Calculate parent and natural width and height
+            auto [parentDim, parentOpacity] = widgetRect[widget->getParent()];
             float percW = parentDim.z * 0.01f;
             float percH = parentDim.w * 0.01f;
-            float x = parentDim.x + widget->getX().calc(1.0f, percW, percH);
-            float y = parentDim.y + widget->getY().calc(1.0f, percW, percH);
-            float w = widget->getW().calc(1.0f, percW, percH);
-            float h = widget->getH().calc(1.0f, percW, percH);
-            widgetRect[widget] = Vec4(x, y, w, h);
+            float naturalW = widget->getNaturalWidth() * 0.01f;
+            float naturalH = widget->getNaturalHeight() * 0.01f;
+
+            // Calculate widget dimensions and opacity
+            float x = widget->getX().calc(1.0f, percW, percH, naturalW, naturalH) + parentDim.x;
+            float y = widget->getY().calc(1.0f, percW, percH, naturalW, naturalH) + parentDim.y;
+            float w = widget->getW().calc(1.0f, percW, percH, naturalW, naturalH);
+            float h = widget->getH().calc(1.0f, percW, percH, naturalW, naturalH);
+            float opacity = parentOpacity * (float)widget->opacity / 255.0f;
+            widgetRect[widget] = {Vec4(x, y, w, h), opacity};
+
+            // Render the background
+            sf::RectangleShape boundingRect(sf::Vector2f(w, h));
+            boundingRect.setPosition(x, y);
+            auto [r, g, b, a] = widget->background.getRGBA();
+            boundingRect.setFillColor(sf::Color(r, g, b, (unsigned char)((float)a * opacity)));
+            this->impl->window->draw(boundingRect);
 
             // Render the widget
             switch (widget->type) {
@@ -192,10 +204,14 @@ namespace corn {
                     break;
                 case UIType::LABEL: {
                     const auto* label = dynamic_cast<const UILabel*>(widget);
+                    float x_ = x, y_ = y;
                     for (RichText::Segment* segment: label->getText().segments) {
                         if (segment->style.font->state != FontState::LOADED) continue;
-                        segment->text.setPosition(x, y);
+                        segment->text.setPosition(x_, y_);
+                        auto [r_, g_, b_, a_] = segment->style.color.getRGBA();
+                        segment->text.setFillColor(sf::Color(r_, g_, b_, (unsigned char)((float)a_ * opacity)));
                         this->impl->window->draw(segment->text);
+                        x_ += segment->text.getLocalBounds().width;  // TODO: Text wrap
                     }
                     break;
                 }

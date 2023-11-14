@@ -6,6 +6,12 @@
 namespace corn {
     class Font;
 
+    /**
+     * @todo More styles
+     * 1. Light, Regular, Semi-bold, Bold, Heavy
+     * 2. Regular, Italic
+     * 3. Regular, Underline
+     */
     enum class FontVariant {
         REGULAR, BOLD, ITALIC, UNDERLINE,
     };

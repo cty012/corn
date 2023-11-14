@@ -23,18 +23,25 @@ GameScene::GameScene(): paused(false) {
 
     // UI
     auto* body = this->uiManager.createWidget<corn::UIWidget>("body", nullptr);
-    body->setX("(100%w - min(100%w * 9, 100%h * 16) / 9) / 2");
-    body->setY("(100%h - min(100%w * 9, 100%h * 16) / 16) / 2");
-    body->setW("min(100%w * 9, 100%h * 16) / 9");
-    body->setH("min(100%w * 9, 100%h * 16) / 16");
+    body->setX("(100%pw - min(100%pw * 9, 100%ph * 16) / 9) / 2");
+    body->setY("(100%ph - min(100%pw * 9, 100%ph * 16) / 16) / 2");
+    body->setW("min(100%pw * 9, 100%ph * 16) / 9");
+    body->setH("min(100%pw * 9, 100%ph * 16) / 16");
 
-    corn::TextStyle style = corn::TextStyle(corn::FontManager::instance().get("consolas"), 24);
-    auto* label = this->uiManager.createWidget<corn::UILabel>("test", body, corn::RichText()
-        .addText(L"test", style));
-    label->setX("100%w - 120px");
-    label->setY("100%h - 80px");
-    label->setW("0px");
-    label->setH("0px");
+    this->pauseMenu = this->uiManager.createWidget<corn::UIWidget>("pause", body);
+    this->pauseMenu->active = false;
+    this->pauseMenu->setW("100%pw");
+    this->pauseMenu->setH("100%ph");
+    this->pauseMenu->background = corn::Color::rgb(0, 0, 0, 128);
+
+    corn::TextStyle style = corn::TextStyle(corn::FontManager::instance().get("noto-sans-zh"), 36);
+    auto* label = this->uiManager.createWidget<corn::UILabel>("test", this->pauseMenu, corn::RichText()
+            .addText(L"暂停中 ", style)
+            .addText(L"(PAUSED)", style.setColor(corn::Color::RED())));
+    label->setX("50%pw - 50%w");
+    label->setY("50%ph - 50%h");
+    label->setW("100%w");
+    label->setH("100%h");
 
     // Event listeners
     this->keyboardEventID = corn::EventManager::instance().addListener(
@@ -61,6 +68,7 @@ bool GameScene::isPaused() const {
 
 void GameScene::togglePause() {
     this->paused = !this->paused;
+    this->pauseMenu->active = this->paused;
     for (corn::System* system : this->systems) {
         system->active = !this->paused;
     }

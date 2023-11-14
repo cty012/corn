@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <corn/util/color.h>
 #include <corn/util/expression.h>
 
 namespace corn {
@@ -46,6 +47,9 @@ namespace corn {
          */
         std::string name;
 
+        /// @brief The background color of the widget.
+        Color background;
+
         /// @brief The opacity of the widget and all children, on a scale of [0, 255].
         unsigned char opacity;
 
@@ -61,11 +65,15 @@ namespace corn {
         /// @return Get the parent Entity.
         [[nodiscard]] UIWidget* getParent() const;
 
+        /// @return Width and height of contents. Does not consider children.
+        virtual float getNaturalWidth() const;
+        virtual float getNaturalHeight() const;
+
         // Getters & setters
-        const Expression<3>& getX() const;
-        const Expression<3>& getY() const;
-        const Expression<3>& getW() const;
-        const Expression<3>& getH() const;
+        const Expression<5>& getX() const;
+        const Expression<5>& getY() const;
+        const Expression<5>& getW() const;
+        const Expression<5>& getH() const;
         void setX(const std::string& expression);
         void setY(const std::string& expression);
         void setW(const std::string& expression);
@@ -73,7 +81,7 @@ namespace corn {
 
     protected:
         /// @brief The UI widget
-        Expression<3> x, y, w, h;
+        Expression<5> x, y, w, h;
 
         UIWidget(UIType type, WidgetID id, std::string name, UIManager& uiManager);
         virtual ~UIWidget();

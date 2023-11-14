@@ -11,15 +11,16 @@ namespace corn {
         Color color;
         FontVariant variant;
         TextStyle(const Font* font, size_t size);
-        TextStyle& setFont(const Font* newFont);
-        TextStyle& setSize(size_t newSize);
-        TextStyle& setColor(const Color& newColor);
-        TextStyle& setVariant(FontVariant newVariant);
+        TextStyle setFont(const Font* newFont);
+        TextStyle setSize(size_t newSize);
+        TextStyle setColor(const Color& newColor);
+        TextStyle setVariant(FontVariant newVariant);
     };
 
     class RichText {
     public:
-        friend class Interface;
+        /// @brief Stores a pair of text string and text style.
+        struct Segment;
 
         RichText();
         ~RichText();
@@ -35,10 +36,6 @@ namespace corn {
          * @return A reference to itself.
          */
         RichText& addText(const std::wstring& text, TextStyle style);
-
-    private:
-        /// @brief Stores a pair of text string and text style.
-        struct Segment;
 
         /// @brief Each segment represent a piece of text with uniform style.
         std::vector<Segment*> segments;

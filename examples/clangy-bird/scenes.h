@@ -16,6 +16,7 @@ public:
 
 private:
     bool paused;
+    corn::UIWidget* pauseMenu;
     corn::Entity* bird;
     corn::CMovement2D* birdMovement;
     corn::EventManager::ListenerID keyboardEventID;

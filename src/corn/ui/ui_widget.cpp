@@ -1,11 +1,10 @@
 #include <corn/ui/ui_manager.h>
 #include <corn/ui/ui_widget.h>
 
-#include <utility>
-
 namespace corn {
     UIWidget::UIWidget(UIType type, WidgetID id, std::string name, UIManager& uiManager)
-        : active(true), uiManager(uiManager), type(type), id(id), name(std::move(name)), opacity(255) {
+        : active(true), uiManager(uiManager), type(type), id(id), name(std::move(name)),
+          background(Color::rgb(255, 255, 255, 0)), opacity(255) {
 
         this->setX("0px");
         this->setY("0px");
@@ -36,39 +35,47 @@ namespace corn {
         return parent ? parent->widget : nullptr;
     }
 
-    const Expression<3>& UIWidget::getX() const {
+    const Expression<5>& UIWidget::getX() const {
         return this->x;
     }
 
-    const Expression<3>& UIWidget::getY() const {
+    const Expression<5>& UIWidget::getY() const {
         return this->y;
     }
 
-    const Expression<3>& UIWidget::getW() const {
+    const Expression<5>& UIWidget::getW() const {
         return this->w;
     }
 
-    const Expression<3>& UIWidget::getH() const {
+    const Expression<5>& UIWidget::getH() const {
         return this->h;
     }
 
     void UIWidget::setX(const std::string& expression) {
-        static const std::array<std::string, 3> units = {"px", "%w", "%h"};
+        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%w", "%h"};
         this->x = Expression(expression, units);
     }
 
     void UIWidget::setY(const std::string& expression) {
-        static const std::array<std::string, 3> units = {"px", "%w", "%h"};
+        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%w", "%h"};
         this->y = Expression(expression, units);
     }
 
     void UIWidget::setW(const std::string& expression) {
-        static const std::array<std::string, 3> units = {"px", "%w", "%h"};
+        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%w", "%h"};
         this->w = Expression(expression, units);
     }
 
     void UIWidget::setH(const std::string& expression) {
-        static const std::array<std::string, 3> units = {"px", "%w", "%h"};
+        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%w", "%h"};
         this->h = Expression(expression, units);
+    }
+
+    float UIWidget::getNaturalWidth() const {
+        return 0.0f;
+    }
+
+    float UIWidget::getNaturalHeight() const {
+        return 0.0f;
     }
 }
