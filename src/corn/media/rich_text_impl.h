@@ -7,6 +7,6 @@ namespace corn {
     struct RichText::Segment {
         sf::Text text;
         TextStyle style;
-        Segment(const std::wstring& text, TextStyle style);
+        Segment(const std::u8string& text, TextStyle style);
     };
 }

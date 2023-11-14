@@ -36,7 +36,7 @@ namespace corn {
          * @param style The text style.
          * @return A reference to itself.
          */
-        RichText& addText(const std::wstring& text, TextStyle style);
+        RichText& addText(const std::u8string& text, TextStyle style);
 
         /// @brief Each segment represent a piece of text with uniform style.
         std::vector<Segment*> segments;

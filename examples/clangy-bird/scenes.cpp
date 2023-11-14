@@ -36,8 +36,8 @@ GameScene::GameScene(): paused(false) {
 
     corn::TextStyle style = corn::TextStyle(corn::FontManager::instance().get("noto-sans-zh"), 36);
     auto* label = this->uiManager.createWidget<corn::UILabel>("test", this->pauseMenu, corn::RichText()
-            .addText(L"暂停中 ", style)
-            .addText(L"(PAUSED)", style.setColor(corn::Color::RED())));
+            .addText(u8"暂停中 ", style)
+            .addText(u8"(PAUSED)", style.setColor(corn::Color::RED())));
     label->setX("50%pw - 50%w");
     label->setY("50%ph - 50%h");
     label->setW("100%w");

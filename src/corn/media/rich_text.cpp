@@ -30,9 +30,9 @@ namespace corn {
         return style;
     }
 
-    RichText::Segment::Segment(const std::wstring& text, TextStyle style): text(), style(style) {
+    RichText::Segment::Segment(const std::u8string& text, TextStyle style): text(), style(style) {
         this->text.setFont(style.font->sffont);
-        this->text.setString(text);
+        this->text.setString(sf::String::fromUtf8(text.begin(), text.end()));
         this->text.setCharacterSize((unsigned int)style.size);
         auto [r, g, b, a] = style.color.getRGBA();
         this->text.setFillColor(sf::Color(r, g, b, a));
@@ -95,7 +95,7 @@ namespace corn {
         return *this;
     }
 
-    RichText& RichText::addText(const std::wstring& text, TextStyle style) {
+    RichText& RichText::addText(const std::u8string& text, TextStyle style) {
         this->segments.push_back(new Segment(text, style));
         return *this;
     }
