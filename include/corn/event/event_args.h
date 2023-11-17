@@ -8,6 +8,7 @@ namespace corn {
     struct EventArgs {
         /// @return Type of the event
         [[nodiscard]] virtual constexpr const char* type() const = 0;
+        virtual ~EventArgs();
     };
 
     struct EventArgsExit : public EventArgs {
