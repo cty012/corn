@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <string>
 #include <corn/util/color.h>
 #include <corn/util/expression.h>
@@ -8,7 +9,20 @@ namespace corn {
     class UIManager;
 
     enum class UIType {
-        PANEL, LABEL, IMAGE, INPUT
+        PANEL, LABEL, IMAGE, INPUT,
+    };
+
+    /**
+     * @class UIGeometry
+     * @brief Defines how the widget's geometric properties are calculated.
+     *
+     * DEPENDENT: Depends on its own natural size and parent's actual size.
+     * INDEPENDENT: Only depend on its own natural size.
+     * DEFAULT: Auto-detect geometry type. If expressions for location and size uses parent size, then DEPENDENT.
+     *          Otherwise INDEPENDENT.
+     */
+    enum class UIGeometry {
+        DEFAULT, DEPENDENT, INDEPENDENT,
     };
 
     /**
@@ -47,6 +61,9 @@ namespace corn {
          */
         std::string name;
 
+        /// @brief The geometric type of the widget. See @UIGeometry for details.
+        UIGeometry geometry;
+
         /// @brief The background color of the widget.
         Color background;
 
@@ -65,6 +82,9 @@ namespace corn {
         /// @return Get the parent Entity.
         [[nodiscard]] UIWidget* getParent() const;
 
+        /// @return Actual geometric type of the widget. DEFAULT will resolve to either DEPENDENT or INDEPENDENT.
+        UIGeometry getGeometry() const;
+
         /// @return Width and height of contents. Does not consider children.
         virtual float getNaturalWidth() const;
         virtual float getNaturalHeight() const;
@@ -82,6 +102,7 @@ namespace corn {
     protected:
         /// @brief The UI widget
         Expression<5> x, y, w, h;
+        std::array<bool, 4> independent;
 
         UIWidget(UIType type, WidgetID id, std::string name, UIManager& uiManager);
         virtual ~UIWidget();
