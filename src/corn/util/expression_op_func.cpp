@@ -37,22 +37,22 @@ namespace corn::impl::expression {
     const std::unordered_map<char, const std::function<Value(Value, Value)>> operators = {
             {
                 '+', [](Value a, Value b) -> Value {
-                    return Value(a.val + b.val, a.hasUnit);
+                    return Value{a.val + b.val, a.hasUnit};
                 }
             },
             {
                 '-', [](Value a, Value b) -> Value {
-                    return Value(a.val - b.val, a.hasUnit);
+                    return Value{a.val - b.val, a.hasUnit};
                 }
             },
             {
                 '*', [](Value a, Value b) -> Value {
-                    return Value(a.val * b.val, a.hasUnit || b.hasUnit);
+                    return Value{a.val * b.val, a.hasUnit || b.hasUnit};
                 }
             },
             {
                 '/', [](Value a, Value b) -> Value {
-                    return Value(a.val / b.val, a.hasUnit && !b.hasUnit);
+                    return Value{a.val / b.val, a.hasUnit && !b.hasUnit};
                 }
             },
     };

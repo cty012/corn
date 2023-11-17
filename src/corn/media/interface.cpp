@@ -37,7 +37,7 @@ namespace corn {
 
     void Interface::init() {
         sf::ContextSettings contextSettings;
-        contextSettings.antialiasingLevel = 16;
+        contextSettings.antialiasingLevel = this->config->antialiasing;
         this->impl->window->create(
                 sf::VideoMode((int)this->config->width, (int)this->config->height),
                 this->config->title,
@@ -121,7 +121,7 @@ namespace corn {
         this->impl->window->clear(sf::Color(r, g, b));
     }
 
-    bool renderCamera(Scene* scene, const CCamera* camera, const Vec2& percentWindowSize) {
+    bool renderCamera(Scene* scene, const CCamera* camera, const Config& config, const Vec2& percentWindowSize) {
         // Check if camera is active
         if (!camera->active) return false;
 
@@ -142,7 +142,7 @@ namespace corn {
 
         // Reset the camera viewport
         CameraViewportImpl* viewportImpl = InterfaceImpl::getCameraViewportImpl(camera->viewport);
-        viewportImpl->setSize(viewportSize);
+        viewportImpl->setSize(viewportSize, config.antialiasing);
         auto [r, g, b, a] = camera->background.getRGBA();
         viewportImpl->texture.clear(sf::Color(r, g, b, a));
 
@@ -233,7 +233,7 @@ namespace corn {
         // Render Entities
         scene->entityManager.tidy();
         for (const CCamera* camera : scene->entityManager.cameras) {
-            if (renderCamera(scene, camera, percentWindowSize)) {
+            if (renderCamera(scene, camera, *this->config, percentWindowSize)) {
                 float x = camera->viewport.x.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
                 float y = camera->viewport.y.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
                 sf::View view(sf::FloatRect(-x, -y, windowSize.x, windowSize.y));
@@ -250,7 +250,6 @@ namespace corn {
         this->renderUI(scene->uiManager);
 
         this->impl->window->setView(this->impl->window->getDefaultView());
-        this->impl->window->display();
     }
 
     void Interface::update() {

@@ -2,6 +2,8 @@
 #include "event_args_extend.h"
 
 namespace corn {
+    EventArgs::~EventArgs() = default;
+
     EventArgsKeyboard::EventArgsKeyboard(Key key, ButtonEvent status, unsigned char modifiers, const Vec2& mousePos)
         : key(key), status(status), modifiers(modifiers), mousePos(mousePos) {}
 

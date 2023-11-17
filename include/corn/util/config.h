@@ -28,5 +28,6 @@ namespace corn {
         std::string title = "My Corn Game";                    // Game title displayed at the top of the window
         Color background = Color::rgb(0, 0, 0);       // Background color of the game window
         DisplayMode mode = DisplayMode::WINDOWED;              // Display mode
+        int antialiasing = 1;                                  // Antialiasing level (power of 2, depends on hardware)
     };
 }

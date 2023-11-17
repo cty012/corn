@@ -2,7 +2,7 @@
 
 namespace corn {
     Token::Token(impl::expression::TokenType type, std::string name, float val, bool hasUnit)
-            : type(type), name(std::move(name)), value(val, hasUnit) {}
+            : type(type), name(std::move(name)), value{val, hasUnit} {}
 
     Token::Token(const std::string& tokenStr) : value() {
         if (tokenStr == "(") {
