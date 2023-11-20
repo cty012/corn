@@ -5,14 +5,14 @@
 
 MainMenuScene::MainMenuScene() {
     // UI
-    auto* body = this->uiManager.createWidget<corn::UIWidget>("body", nullptr);
+    auto* body = this->getUIManager().createWidget<corn::UIWidget>("body", nullptr);
     body->setX("(100%pw - min(100%pw * 9, 100%ph * 16) / 9) / 2");
     body->setY("(100%ph - min(100%pw * 9, 100%ph * 16) / 16) / 2");
     body->setW("min(100%pw * 9, 100%ph * 16) / 9");
     body->setH("min(100%pw * 9, 100%ph * 16) / 16");
 
     corn::TextStyle style = corn::TextStyle(corn::FontManager::instance().get("noto-sans-zh"), 36);
-    auto* title = this->uiManager.createWidget<corn::UILabel>("title", body, corn::RichText()
+    auto* title = this->getUIManager().createWidget<corn::UILabel>("title", body, corn::RichText()
             .addText(u8"Clangy bird", style));
     title->setX("100%w");
     title->setY("100%h");
@@ -23,39 +23,39 @@ MainMenuScene::~MainMenuScene() = default;
 
 GameScene::GameScene(): paused(false) {
     // Camera
-    createCamera(this->entityManager);
+    createCamera(this->getEntityManager());
 
     // Entities
-    this->bird = createBird(this->entityManager);
+    this->bird = createBird(this->getEntityManager());
     this->birdMovement = this->bird->getComponent<corn::CMovement2D>();
-    createCeilAndFloor(this->entityManager);
+    createCeilAndFloor(this->getEntityManager());
 
     // Systems
-    this->systems.push_back(new corn::SMovement2D());
-    this->systems.push_back(new corn::SGravity());
-    this->systems.push_back(new corn::SCollisionDetection());
-    this->systems.push_back(new WallManager());
-    this->systems.push_back(new BirdCollisionResolve());
+    this->systems.push_back(new corn::SMovement2D(*this));
+    this->systems.push_back(new corn::SGravity(*this));
+    this->systems.push_back(new corn::SCollisionDetection(*this));
+    this->systems.push_back(new WallManager(*this));
+    this->systems.push_back(new BirdCollisionResolve(*this));
 
     // UI
-    auto* body = this->uiManager.createWidget<corn::UIWidget>("body", nullptr);
+    auto* body = this->getUIManager().createWidget<corn::UIWidget>("body", nullptr);
     body->setX("(100%pw - min(100%pw * 9, 100%ph * 16) / 9) / 2");
     body->setY("(100%ph - min(100%pw * 9, 100%ph * 16) / 16) / 2");
     body->setW("min(100%pw * 9, 100%ph * 16) / 9");
     body->setH("min(100%pw * 9, 100%ph * 16) / 16");
 
-    this->pauseMenu = this->uiManager.createWidget<corn::UIWidget>("pause", body);
+    this->pauseMenu = this->getUIManager().createWidget<corn::UIWidget>("pause", body);
     this->pauseMenu->active = false;
     this->pauseMenu->setW("100%pw");
     this->pauseMenu->setH("100%ph");
     this->pauseMenu->background = corn::Color::rgb(0, 0, 0, 128);
 
-    auto* menu = this->uiManager.createWidget<corn::UIWidget>("menu", this->pauseMenu);
+    auto* menu = this->getUIManager().createWidget<corn::UIWidget>("menu", this->pauseMenu);
     menu->setX("50%pw - 50%nw");
     menu->setY("50%ph - 50%nh");
 
     corn::TextStyle style = corn::TextStyle(corn::FontManager::instance().get("noto-sans-zh"), 36);
-    this->uiManager.createWidget<corn::UILabel>("title", menu, corn::RichText()
+    this->getUIManager().createWidget<corn::UILabel>("title", menu, corn::RichText()
             .addText(u8"暂停中 ", style)
             .addText(u8"(PAUSED)", style.setColor(corn::Color::RED())));
 
