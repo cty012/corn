@@ -4,7 +4,7 @@
 
 namespace corn {
     Entity::Entity(EntityID id, std::string name, EntityManager& entityManager)
-        : active(true), entityManager(entityManager), id(id), name(std::move(name)),
+        : active(true), id(id), name(std::move(name)), entityManager(entityManager),
           components(std::unordered_map<std::type_index, Component*>()) {}
 
     Entity::~Entity() {
@@ -19,13 +19,25 @@ namespace corn {
         this->entityManager.destroyEntity(*this);
     }
 
-    bool Entity::isActive() const {
+    [[maybe_unused]] bool Entity::isActive() const {
         const Entity* current = this;
         while (current) {
             if (!this->active) return false;
             current = current->getParent();
         }
         return true;
+    }
+
+    EntityManager& Entity::getEntityManager() const {
+        return this->entityManager;
+    }
+
+    Scene& Entity::getScene() const {
+        return this->entityManager.getScene();
+    }
+
+    const Game* Entity::getGame() const {
+        return this->entityManager.getGame();
     }
 
     Entity* Entity::getParent() const {

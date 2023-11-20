@@ -17,7 +17,7 @@ namespace corn {
                     this->onExitEvent(dynamic_cast<const EventArgsExit&>(args));
                 });
 
-        this->interface = new Interface(&this->config);
+        this->interface = new Interface(*this);
         this->interface->init();
     }
 
@@ -42,6 +42,10 @@ namespace corn {
     void Game::setConfig(Config newConfig) {
         this->config = std::move(newConfig);
         // TODO: reload settings
+    }
+
+    Scene* Game::getTopScene() const {
+        return this->scenes.empty() ? nullptr : this->scenes.top();
     }
 
     void Game::changeScene(corn::SceneOperation op, corn::Scene* scene) {
@@ -81,6 +85,7 @@ namespace corn {
     }
 
     void Game::onSceneEvent(const EventArgsScene& args) {
+        args.scene->game = this;
         this->sceneEvents.push(args);
     }
 

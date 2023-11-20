@@ -1,3 +1,4 @@
+#include <corn/core/game.h>
 #include <corn/ecs/component.h>
 #include <corn/event/event_manager.h>
 #include <corn/geometry/vec2.h>
@@ -25,7 +26,7 @@ namespace corn {
         return image.impl;
     }
 
-    Interface::Interface(const Config* config): config(config), impl(new InterfaceImpl()) {}
+    Interface::Interface(const Game& game): game(game), config(game.getConfig()), impl(new InterfaceImpl()) {}
 
     Interface::~Interface() {
         delete this->impl;
@@ -35,9 +36,9 @@ namespace corn {
         sf::ContextSettings contextSettings;
         contextSettings.antialiasingLevel = 16;
         this->impl->window->create(
-                sf::VideoMode(this->config->width, this->config->height),
-                this->config->title,
-                cornMode2SfStyle(this->config->mode),
+                sf::VideoMode(this->config.width, this->config.height),
+                this->config.title,
+                cornMode2SfStyle(this->config.mode),
                 contextSettings);
     }
 
@@ -51,30 +52,40 @@ namespace corn {
         while (this->impl->window->pollEvent(event)) {
             switch (event.type) {
                 case (sf::Event::Closed): {
-                    EventManager::instance().emit(EventArgsExit());
+                    EventArgsExit eventArgs;
+                    EventManager::instance().emit(eventArgs);
+                    this->game.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
                 case (sf::Event::MouseButtonPressed): {
-                    EventManager::instance().emit(EventArgsMouseButton(
+                    EventArgsMouseButton eventArgs(
                             sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
-                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y)));
+                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                    EventManager::instance().emit(eventArgs);
+                    this->game.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
                 case (sf::Event::MouseButtonReleased): {
-                    EventManager::instance().emit(EventArgsMouseButton(
+                    EventArgsMouseButton eventArgs(
                             sfInput2CornInput(event.mouseButton.button), ButtonEvent::UP,
-                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y)));
+                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                    EventManager::instance().emit(eventArgs);
+                    this->game.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
                 case (sf::Event::MouseWheelScrolled): {
-                    EventManager::instance().emit(EventArgsMouseScroll(
+                    EventArgsMouseScroll eventArgs(
                             event.mouseWheelScroll.delta,
-                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y)));
+                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                    EventManager::instance().emit(eventArgs);
+                    this->game.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
                 case sf::Event::MouseMoved: {
-                    EventManager::instance().emit(EventArgsMouseMove(
-                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y)));
+                    EventArgsMouseMove eventArgs(
+                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                    EventManager::instance().emit(eventArgs);
+                    this->game.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
                 case (sf::Event::KeyPressed): {
@@ -82,10 +93,12 @@ namespace corn {
                     Key key = sfInput2CornInput(keyEvent.code, keyEvent.scancode);
                     if (Interface::keyPressed[key]) break;
                     Interface::keyPressed[key] = true;
-                    EventManager::instance().emit(EventArgsKeyboard(key, ButtonEvent::DOWN,
-                            (keyEvent.system << 3) + (keyEvent.control << 2)
-                            + (keyEvent.system << 1) + (keyEvent.system << 3),
-                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y)));
+                    EventArgsKeyboard eventArgs(
+                            key, ButtonEvent::DOWN,
+                            (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
+                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                    EventManager::instance().emit(eventArgs);
+                    this->game.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
                 case (sf::Event::KeyReleased): {
@@ -93,10 +106,12 @@ namespace corn {
                     Key key = sfInput2CornInput(keyEvent.code, keyEvent.scancode);
                     if (!Interface::keyPressed[key]) break;
                     Interface::keyPressed[key] = false;
-                    EventManager::instance().emit(EventArgsKeyboard(key, ButtonEvent::UP ,
-                            (keyEvent.system << 3) + (keyEvent.control << 2)
-                                + (keyEvent.system << 1) + (keyEvent.system << 3),
-                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y)));
+                    EventArgsKeyboard eventArgs(
+                            key, ButtonEvent::UP,
+                            (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
+                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                    EventManager::instance().emit(eventArgs);
+                    this->game.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
                 case (sf::Event::TextEntered):
@@ -113,7 +128,7 @@ namespace corn {
     }
 
     void Interface::clear() {
-        auto [r, g, b] = this->config->background.getRGB();
+        auto [r, g, b] = this->config.background.getRGB();
         this->impl->window->clear(sf::Color(r, g, b));
     }
 
@@ -125,7 +140,7 @@ namespace corn {
         if (camera->cameraType == CameraType::_3D) return false;
 
         // Check if camera has CTransform2D component
-        auto cameraTransform = camera->entity.getComponent<CTransform2D>();
+        auto cameraTransform = camera->getEntity().getComponent<CTransform2D>();
         if (!cameraTransform) return false;
 
         // Calculate camera viewport and FOV
@@ -147,7 +162,7 @@ namespace corn {
         Vec2 cameraTL = cameraCenter - fovSize * 0.5;
 
         // Render entities
-        for (Entity* entity: scene->entityManager.getActiveEntitiesWith<CTransform2D, CSprite>()) {
+        for (Entity* entity: scene->getEntityManager().getActiveEntitiesWith<CTransform2D, CSprite>()) {
             auto transform = entity->getComponent<CTransform2D>();
             auto sprite = entity->getComponent<CSprite>();
             if (!sprite->visible) continue;
@@ -171,8 +186,8 @@ namespace corn {
         Vec2 percentWindowSize = windowSize * 0.01;
 
         this->clear();
-        scene->entityManager.tidy();
-        for (const CCamera* camera : scene->entityManager.cameras) {
+        scene->getEntityManager().tidy();
+        for (const CCamera* camera : scene->getEntityManager().cameras) {
             if (renderCamera(scene, camera, percentWindowSize)) {
                 float x = camera->viewport.x.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
                 float y = camera->viewport.y.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
