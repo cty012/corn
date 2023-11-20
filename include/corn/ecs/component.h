@@ -11,6 +11,8 @@
 namespace corn {
     class Entity;
     class EntityManager;
+    class Scene;
+    class Game;
 
     /**
      * @class Component
@@ -25,9 +27,24 @@ namespace corn {
      */
     struct Component {
         bool active;
-        Entity& entity;
         explicit Component(Entity& entity);
         virtual ~Component() = default;
+
+        /// @return The Entity that owns this component.
+        [[nodiscard]] Entity& getEntity() const;
+
+        /// @return The Entity manager that contains this component.
+        [[nodiscard]] EntityManager& getEntityManager() const;
+
+        /// @return The scene that contains this component.
+        [[nodiscard]] Scene& getScene() const;
+
+        /// @return The game that contains this component.
+        [[nodiscard]] const Game* getGame() const;
+
+    private:
+        /// @brief The Entity that owns this component.
+        Entity& entity;
     };
 
     /**

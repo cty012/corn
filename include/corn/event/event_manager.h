@@ -26,8 +26,33 @@ namespace corn {
         using ListenerID = unsigned long long int;
         using Action = std::function<void(const EventArgs&)>;
 
-        /// @return The singleton instance.
+        /**
+         * @return The singleton instance.
+         *
+         * Events emitted from this instance will propagate to all rooms.
+         */
         static EventManager& instance();
+
+        /**
+         * @param room Identifier of the room.
+         * @return An instance for the specified room.
+         * @throw std::invalid_argument If the room doesn't exist.
+         */
+        static EventManager& instance(const std::string& room);
+
+        /**
+         * @brief Creates a new room.
+         * @param room Identifier of the room.
+         * @return Whether the room is created successfully.
+         */
+        static bool addRoom(const std::string& room) noexcept;
+
+        /**
+         * @brief Removes a room.
+         * @param room Identifier of the room.
+         * @return Whether the room is removed successfully.
+         */
+        static bool removeRoom(const std::string& room) noexcept;
 
         /**
          * @brief Adds an event listener and return an unique id of the event.
@@ -47,14 +72,16 @@ namespace corn {
         /**
          * @brief Emits an event with the given argument. Calls all listeners with the same event type.
          * @param args Contains all information about the event.
+         * @param propagate Whether the event will propagate to sub-rooms.
          * @return The number of listeners being called.
          */
-        int emit(const EventArgs& args);
+        int emit(const EventArgs& args, bool propagate = false) noexcept;
 
     private:
         std::unordered_map<std::string, std::vector<std::pair<ListenerID, Action>>> listeners;
+        std::unordered_map<std::string, EventManager*> rooms;
 
-        // Constructors and destructors are hidden to maintain a singleton pattern.
+        // Ctor and dtor
         EventManager();
         ~EventManager();
         EventManager(const EventManager& other) = delete;

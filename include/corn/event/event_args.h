@@ -22,8 +22,8 @@ namespace corn {
         /**
          * modifiers & (1 << 3): SYS key
          * modifiers & (1 << 2): CTRL key
-         * modifiers & (1 << 1): SHIFT key
-         * modifiers & (1 << 0): ALT key
+         * modifiers & (1 << 1): ALT key
+         * modifiers & (1 << 0): SHIFT key
          */
         unsigned char modifiers;
         Vec2 mousePos;
