@@ -24,9 +24,6 @@ namespace corn {
         friend class Entity;
         friend class Interface;
 
-        /// @brief The scene that owns the manager.
-        Scene& scene;
-
         /**
          * @struct Node
          * @brief Tree node containing each Entity.
@@ -49,6 +46,15 @@ namespace corn {
         EntityManager(const EntityManager& other) = delete;
         EntityManager& operator=(const EntityManager& other) = delete;
 
+        /// @return The scene that owns this Entity manager.
+        [[nodiscard]] Scene& getScene() const;
+
+        /// @return The game that contains this Entity manager.
+        [[nodiscard]] const Game* getGame() const;
+
+        /// @return The root node of the Entity tree.
+        const Node* getRoot() const;
+
         /**
          * @brief Creates a new Entity with no Components attached.
          * @param name Name of the Entity. Entities can have the same name.
@@ -59,9 +65,6 @@ namespace corn {
          * If reaches the maximum Entity existing simultaneously, will result in undefined behavior.
          */
         Entity& createEntity(const std::string& name, const Entity* parent = nullptr);
-
-        /// @return The root node of the Entity tree.
-        const Node* getRoot() const;
 
         /**
          * @param id ID of the Entity.
@@ -182,14 +185,16 @@ namespace corn {
                 const std::function<bool(Entity*)>& pred, bool onlyActive, size_t limit,
                 const Entity* parent, bool recurse) const;
 
-        /// @brief The root node (does not contain an entity)
+        /// @brief The scene that owns this entity manager.
+        Scene& scene;
+        /// @brief The root node (does not contain a entity).
         Node root;
-        /// @brief Quick access for finding nodes by entity ID (does not contain root)
+        /// @brief Quick access for finding nodes by entity ID (does not contain root).
         std::unordered_map<Entity::EntityID, Node> nodes;
-        /// @brief List of camera entities for quick access
+        /// @brief List of camera entities for quick access.
         std::vector<const CCamera*> cameras;
 
-        /// @brief Event listeners
+        /// @brief Event listeners.
         std::vector<EventManager::ListenerID> eventIDs;
     };
 

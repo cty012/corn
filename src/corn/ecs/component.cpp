@@ -1,5 +1,6 @@
 #include <cmath>
 #include <array>
+#include <corn/core/scene.h>
 #include <corn/ecs/component.h>
 #include <corn/ecs/entity.h>
 #include <corn/ecs/entity_manager.h>
@@ -9,12 +10,28 @@
 namespace corn {
     Component::Component(Entity& entity): active(true), entity(entity) {}
 
+    Entity& Component::getEntity() const {
+        return this->entity;
+    }
+
+    EntityManager& Component::getEntityManager() const {
+        return this->entity.getEntityManager();
+    }
+
+    Scene& Component::getScene() const {
+        return this->entity.getScene();
+    }
+
+    const Game* Component::getGame() const {
+        return this->entity.getGame();
+    }
+
     CTransform2D::CTransform2D(Entity &entity, Vec2 location, Deg rotation)
         : Component(entity), location(location), rotation(rotation), zorder(0) {}
 
     std::pair<Vec2, Deg> CTransform2D::worldTransform() const {
         std::pair<Vec2, Deg> transform = {this->location, this->rotation};
-        Entity* ancestor = this->entity.getParent();
+        Entity* ancestor = this->getEntity().getParent();
         while (ancestor) {
             auto* ancestorTransform = ancestor->getComponent<CTransform2D>();
             if (ancestorTransform) {
@@ -45,8 +62,9 @@ namespace corn {
     }
 
     void CTransform2D::setZOrder(int _zorder) {
+        (void)_zorder;
         this->zorder = _zorder;
-        EventManager::instance().emit(EventArgsZOrderChange(&this->entity));
+        this->getScene().getEventManager().emit(EventArgsZOrderChange(&this->getEntity()));
     }
 
     CSprite::CSprite(Entity& entity, Image *image, Vec2 topLeft)
@@ -61,7 +79,7 @@ namespace corn {
 
     std::pair<Vec2, float> CMovement2D::worldMovement() const {
         std::pair<Vec2, float> movement = {this->velocity, this->angularVelocity};
-        Entity* ancestor = this->entity.getParent();
+        Entity* ancestor = this->getEntity().getParent();
         while (ancestor) {
             auto* ancestorMovement = ancestor->getComponent<CMovement2D>();
             if (ancestorMovement) {
@@ -80,7 +98,7 @@ namespace corn {
     void CMovement2D::setWorldVelocity(Vec2 newVelocity) {
         // Calculate parent rotation
         Deg parentWorldRotation = 0.0f;
-        Entity* current = this->entity.getParent();
+        Entity* current = this->getEntity().getParent();
         while (current) {
             auto currentTransform = current->getComponent<CTransform2D>();
             if (currentTransform) {
@@ -99,7 +117,7 @@ namespace corn {
     void CMovement2D::addWorldVelocityOffset(Vec2 offset) {
         // Calculate parent rotation
         Deg parentWorldRotation = 0.0f;
-        Entity* current = this->entity.getParent();
+        Entity* current = this->getEntity().getParent();
         while (current) {
             auto currentTransform = current->getComponent<CTransform2D>();
             if (currentTransform) {
@@ -116,8 +134,8 @@ namespace corn {
     CAABB::CAABB(Entity& entity, Vec2 ul, Vec2 lr): Component(entity), ul(ul), lr(lr) {}
 
     bool CAABB::overlapWith(const CAABB& other) const {
-        auto* transform1 = this->entity.getComponent<CTransform2D>();
-        auto* transform2 = other.entity.getComponent<CTransform2D>();
+        auto* transform1 = this->getEntity().getComponent<CTransform2D>();
+        auto* transform2 = other.getEntity().getComponent<CTransform2D>();
         if (!transform1 || !transform2) return false;
         Vec2 worldLocation1 = transform1->worldTransform().first;
         Vec2 worldLocation2 = transform2->worldTransform().first;
@@ -135,17 +153,17 @@ namespace corn {
 
         this->setViewport("0px", "0px", "100%ww", "100%wh");
         this->setFov("100%vw", "100%vh");
-        EventManager::instance().emit(EventArgsCamera(CameraEventType::ADD, this));
+        this->getScene().getEventManager().emit(EventArgsCamera(CameraEventType::ADD, this));
     }
 
     CCamera::CCamera(Entity& entity, Vec3 anchor, Color background)
         : Component(entity), cameraType(CameraType::_3D), background(background), opacity(255), anchor(anchor) {
 
-        EventManager::instance().emit(EventArgsCamera(CameraEventType::ADD, this));
+        this->getScene().getEventManager().emit(EventArgsCamera(CameraEventType::ADD, this));
     }
 
     CCamera::~CCamera() {
-        EventManager::instance().emit(EventArgsCamera(CameraEventType::REMOVE, this));
+        this->getScene().getEventManager().emit(EventArgsCamera(CameraEventType::REMOVE, this));
     }
 
     void CCamera::setViewport(const std::string& x, const std::string& y, const std::string& w, const std::string& h) {

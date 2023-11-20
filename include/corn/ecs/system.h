@@ -19,11 +19,23 @@ namespace corn {
         /// @brief The update function will only be called if the system is active.
         bool active;
 
-        System();
+        explicit System(Scene& scene);
         virtual ~System();
+        System(const System&) = delete;
+        System& operator=(const System&) = delete;
+
+        /// @return The Scene that owns this system.
+        [[nodiscard]] Scene& getScene() const;
+
+        /// @return The Game that contains this system.
+        [[nodiscard]] const Game* getGame() const;
 
         /// @brief If active, will be called repeatedly during game loop.
-        virtual void update(EntityManager& entityManager, float millis) = 0;
+        virtual void update(float millis) = 0;
+
+    private:
+        /// @brief The Scene that owns this system.
+        Scene& scene;
     };
 
     /**
@@ -36,7 +48,8 @@ namespace corn {
      */
     class SMovement2D : public System {
     public:
-        void update(EntityManager& entityManager, float millis) override;
+        explicit SMovement2D(Scene& scene);
+        void update(float millis) override;
     };
 
     /**
@@ -53,8 +66,8 @@ namespace corn {
     public:
         static constexpr float g = 2000.0;
         float scale;
-        explicit SGravity(float scale = 1.0);
-        void update(EntityManager& entityManager, float millis) override;
+        explicit SGravity(Scene& scene, float scale = 1.0);
+        void update(float millis) override;
     };
 
     /**
@@ -70,6 +83,7 @@ namespace corn {
      */
     class SCollisionDetection : public System {
     public:
-        void update(EntityManager& entityManager, float millis) override;
+        explicit SCollisionDetection(Scene& scene);
+        void update(float millis) override;
     };
 }

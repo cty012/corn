@@ -31,8 +31,6 @@ namespace corn {
 
         /// @brief Indicates whether the Entity is active.
         bool active;
-        /// @brief Reference to the Entity Manager that created this Entity.
-        EntityManager& entityManager;
 
         /**
          * @brief The unique ID of the Entity.
@@ -58,6 +56,15 @@ namespace corn {
          * Entity::active set to true.
          */
         [[nodiscard]] bool isActive() const;
+
+        /// @return The Entity manager that owns this Entity.
+        [[nodiscard]] EntityManager& getEntityManager() const;
+
+        /// @return The scene that contains this Entity.
+        [[nodiscard]] Scene& getScene() const;
+
+        /// @return The game that contains this Entity.
+        [[nodiscard]] const Game* getGame() const;
 
         /**
          * @brief Create a Component and attach it to the Entity.
@@ -93,6 +100,9 @@ namespace corn {
         std::vector<Entity*> getChildren() const;
 
     private:
+        /// @brief The Entity manager that owns this Entity.
+        EntityManager& entityManager;
+
         /// List of all attached Components
         std::unordered_map<std::type_index, Component*> components;
 

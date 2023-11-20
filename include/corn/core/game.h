@@ -45,6 +45,12 @@ namespace corn {
         void setConfig(Config newConfig);
 
         /**
+         * @brief Get the currently active scene (the scene on the top of the scene stack).
+         * @return The currently active scene if not empty, otherwise nullptr.
+         */
+        Scene* getTopScene() const;
+
+        /**
          * @brief Launch the game.
          * @return Status code. 0 for success, non-zero for failure.
          *
@@ -62,7 +68,7 @@ namespace corn {
          * @param op Operation on the scene.
          * @param scene New scene to add.
          *
-         * You should not call this method directly!!! Emit an event for safer scene stack manipulation.
+         * You should not call this method directly! Emit an event for safer scene stack manipulation.
          *
          * Only the top scene on the scene stack will be active. Note that the scene pointer's deallocation will be
          * handled by the Game class (scene must be on the heap).
