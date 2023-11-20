@@ -60,11 +60,11 @@ GameScene::GameScene(): paused(false) {
             .addText(u8"(PAUSED)", style.setColor(corn::Color::RED())));
 
     // Event listeners
-    this->keyboardEventID = corn::EventManager::instance().addListener(
+    this->keyboardEventID = this->getEventManager().addListener(
             "corn::input::keyboard", [this](const corn::EventArgs &args) {
                 this->onKeyboardEvent(dynamic_cast<const corn::EventArgsKeyboard&>(args));
             });
-    this->mouseEventID = corn::EventManager::instance().addListener(
+    this->mouseEventID = this->getEventManager().addListener(
             "corn::input::mousebtn", [this](const corn::EventArgs &args) {
                 this->onMouseEvent(dynamic_cast<const corn::EventArgsMouseButton&>(args));
             });

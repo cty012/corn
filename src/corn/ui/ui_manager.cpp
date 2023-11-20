@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <stack>
+#include <corn/core/scene.h>
 #include <corn/ui/ui_manager.h>
 #include <corn/util/exceptions.h>
 
@@ -13,6 +14,14 @@ namespace corn {
         for (auto& [id, node] : this->nodes) {
             delete node.widget;
         }
+    }
+
+    Scene& UIManager::getScene() const {
+        return this->scene;
+    }
+
+    const Game* UIManager::getGame() const {
+        return this->scene.getGame();
     }
 
     UIWidget* UIManager::getWidgetThat(

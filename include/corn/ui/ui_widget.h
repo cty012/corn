@@ -7,6 +7,8 @@
 
 namespace corn {
     class UIManager;
+    class Scene;
+    class Game;
 
     enum class UIType {
         PANEL, LABEL, IMAGE, INPUT,
@@ -39,8 +41,6 @@ namespace corn {
 
         /// @brief Indicates whether the widget is active.
         bool active;
-        /// @brief Reference to the UI Manager that created this widget.
-        UIManager& uiManager;
 
         /// @brief The type of the widget. Default value is UIType::PANEL.
         const UIType type;
@@ -79,6 +79,15 @@ namespace corn {
          */
         [[nodiscard]] bool isActive() const;
 
+        /// @return The UI manager that owns this widget.
+        [[nodiscard]] UIManager& getUIManager() const;
+
+        /// @return The scene that contains this widget.
+        [[nodiscard]] Scene& getScene() const;
+
+        /// @return The game that contains this widget.
+        [[nodiscard]] const Game* getGame() const;
+
         /// @return Get the parent Entity.
         [[nodiscard]] UIWidget* getParent() const;
 
@@ -107,5 +116,8 @@ namespace corn {
 
     private:
         UIWidget(WidgetID id, std::string name, UIManager& uiManager);
+
+        /// @brief The UI manager that owns this widget.
+        UIManager& uiManager;
     };
 }

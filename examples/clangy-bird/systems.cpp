@@ -26,7 +26,7 @@ void WallManager::update([[maybe_unused]] float millis) {
 
 BirdCollisionResolve::BirdCollisionResolve(corn::Scene& scene) : corn::System(scene), hasCollided(false) {
     this->active = false;
-    this->collisionEventID = corn::EventManager::instance().addListener(
+    this->collisionEventID = this->getScene().getEventManager().addListener(
             "corn::game::collision", [this](const corn::EventArgs& args) {
                 const auto& _args = dynamic_cast<const corn::EventArgsCollision&>(args);
                 this->resolve(_args);
@@ -34,7 +34,7 @@ BirdCollisionResolve::BirdCollisionResolve(corn::Scene& scene) : corn::System(sc
 }
 
 BirdCollisionResolve::~BirdCollisionResolve() {
-    corn::EventManager::instance().removeListener(this->collisionEventID);
+    this->getScene().getEventManager().removeListener(this->collisionEventID);
 }
 
 void BirdCollisionResolve::resolve(const corn::EventArgsCollision& args) {

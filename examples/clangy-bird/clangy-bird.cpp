@@ -13,6 +13,6 @@ int main() {
     corn::FontManager::instance().load("noto-sans-zh", "fonts/noto-sans-zh/NotoSansSC-VariableFont_wght.ttf");
     corn::Game game(new GameScene(), config);
     game.run();
-    corn::FontManager::instance().unload("consolas");
+    corn::FontManager::instance().unload("noto-sans-zh");
     return 0;
 }

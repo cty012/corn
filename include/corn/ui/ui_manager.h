@@ -10,8 +10,6 @@ namespace corn {
     template <typename T>
     concept WidgetType = std::derived_from<T, UIWidget>;
 
-    class Scene;
-
     /**
      * @class UIManager
      * @brief Manages all UI widgets.
@@ -19,9 +17,6 @@ namespace corn {
     class UIManager {
     public:
         friend class UIWidget;
-
-        /// @brief The scene that owns the manager.
-        Scene& scene;
 
         /**
          * @struct Node
@@ -42,6 +37,12 @@ namespace corn {
 
         explicit UIManager(Scene& scene);
         ~UIManager();
+
+        /// @return The scene that owns this UI manager.
+        [[nodiscard]] Scene& getScene() const;
+
+        /// @return The game that contains this UI manager.
+        [[nodiscard]] const Game* getGame() const;
 
         /**
          * @brief Create a UI widget and attach it to the UI manager.
@@ -129,8 +130,12 @@ namespace corn {
                 const std::function<bool(UIWidget*)>& pred, bool onlyActive, size_t limit,
                 const UIWidget* parent, bool recurse) const;
 
+        /// @brief The scene that owns this UI manager.
+        Scene& scene;
+
         /// @brief The root node (does not contain a widget)
         Node root;
+
         /// @brief Quick access for finding nodes by widget ID (does not contain root)
         std::unordered_map<UIWidget::WidgetID, Node> nodes;
     };

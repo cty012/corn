@@ -5,8 +5,8 @@
 
 namespace corn {
     UIWidget::UIWidget(UIType type, WidgetID id, std::string name, UIManager& uiManager)
-        : active(true), uiManager(uiManager), type(type), id(id), name(std::move(name)), geometry(UIGeometry::DEFAULT),
-          background(Color::rgb(255, 255, 255, 0)), opacity(255), independent() {
+        : active(true), type(type), id(id), name(std::move(name)), geometry(UIGeometry::DEFAULT),
+          background(Color::rgb(255, 255, 255, 0)), opacity(255), independent(), uiManager(uiManager) {
 
         this->setX("0px");
         this->setY("0px");
@@ -30,6 +30,18 @@ namespace corn {
             current = current->getParent();
         }
         return true;
+    }
+
+    UIManager& UIWidget::getUIManager() const {
+        return this->uiManager;
+    }
+
+    Scene& UIWidget::getScene() const {
+        return this->uiManager.getScene();
+    }
+
+    const Game* UIWidget::getGame() const {
+        return this->uiManager.getGame();
     }
 
     UIWidget* UIWidget::getParent() const {
