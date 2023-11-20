@@ -219,8 +219,8 @@ namespace corn {
                         widget, false);
                     // TODO: find max of children size
                     for (UIWidget* child : independentChildren) {
-                        nw = std::max(nw, widgetProps[child].nw);
-                        nh = std::max(nh, widgetProps[child].nh);
+                        nw = std::max(nw, widgetProps[child].nw + widgetProps[child].x);
+                        nh = std::max(nh, widgetProps[child].nh + widgetProps[child].y);
                     }
                     break;
                 }

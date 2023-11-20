@@ -10,13 +10,31 @@ MainMenuScene::MainMenuScene() {
     body->setY("(100%ph - min(100%pw * 9, 100%ph * 16) / 16) / 2");
     body->setW("min(100%pw * 9, 100%ph * 16) / 9");
     body->setH("min(100%pw * 9, 100%ph * 16) / 16");
+    body->background = corn::Color::rgb(60, 179, 113);
 
-    corn::TextStyle style = corn::TextStyle(corn::FontManager::instance().get("noto-sans-zh"), 36);
-    auto* title = this->getUIManager().createWidget<corn::UILabel>("title", body, corn::RichText()
-            .addText(u8"Clangy bird", style));
-    title->setX("100%w");
-    title->setY("100%h");
-    title->background = corn::Color::rgb(0, 0, 0, 128);
+    auto* contents = this->getUIManager().createWidget<corn::UIWidget>("contents", body);
+    contents->setX("200px");
+    contents->setY("120px");
+
+    corn::TextStyle style = corn::TextStyle(corn::FontManager::instance().get("noto-sans-zh"), 24)
+            .setColor(corn::Color::rgb(0, 0, 0));
+    this->getUIManager().createWidget<corn::UILabel>("title", contents, corn::RichText()
+            .addText(u8"Clangy bird", style
+                    .setSize(48)
+                    .setColor(corn::Color::rgb(255, 0, 0))
+                    .setVariant(corn::FontVariant::BOLD)));
+
+    auto* newGame = this->getUIManager().createWidget<corn::UILabel>("new-game", contents, corn::RichText()
+            .addText(u8"New Game", style.setVariant(corn::FontVariant::ITALIC)));
+    newGame->setY("90px");
+
+    auto* settings = this->getUIManager().createWidget<corn::UILabel>("settings", contents, corn::RichText()
+            .addText(u8"Settings", style.setVariant(corn::FontVariant::ITALIC)));
+    settings->setY("135px");
+
+    auto* exit = this->getUIManager().createWidget<corn::UILabel>("exit", contents, corn::RichText()
+            .addText(u8"Exit", style.setVariant(corn::FontVariant::ITALIC)));
+    exit->setY("180px");
 }
 
 MainMenuScene::~MainMenuScene() = default;
