@@ -15,6 +15,19 @@ namespace corn {
         }
     }
 
+    UIWidget* UIManager::getWidgetThat(
+            const std::function<bool(const UIWidget*)>& pred, const UIWidget* parent, bool recurse) const {
+
+        std::vector<UIWidget*> result = this->getWidgetsHelper(pred, false, 1, parent, recurse);
+        return result.empty() ? nullptr : result[0];
+    }
+
+    std::vector<UIWidget*> UIManager::getWidgetsThat(
+            const std::function<bool(const UIWidget*)>& pred, const UIWidget* parent, bool recurse) const {
+
+        return this->getWidgetsHelper(pred, false, 0, parent, recurse);
+    }
+
     std::vector<UIWidget*> UIManager::getAllWidgets(const UIWidget* parent, bool recurse) const {
         return this->getWidgetsHelper(nullptr, false, 0, parent, recurse);
     }

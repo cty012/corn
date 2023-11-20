@@ -12,20 +12,4 @@ namespace corn {
     void UILabel::setText(const RichText& newText) {
         this->text = newText;
     }
-
-    float UILabel::getNaturalWidth() const {
-        float width = 0.0f;
-        for (RichText::Segment* segment : this->text.segments) {
-            width += segment->text.getLocalBounds().width;
-        }
-        return width;
-    }
-
-    float UILabel::getNaturalHeight() const {
-        float height = 0.0f;
-        for (RichText::Segment* segment : this->text.segments) {
-            height = std::max(height, segment->text.getLocalBounds().height);
-        }
-        return height;
-    }
 }

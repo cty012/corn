@@ -1,9 +1,25 @@
-#include <corn/media.h>
 #include <corn/ui.h>
-#include <corn/util.h>
 #include "etities.h"
 #include "scenes.h"
 #include "systems.h"
+
+MainMenuScene::MainMenuScene() {
+    // UI
+    auto* body = this->uiManager.createWidget<corn::UIWidget>("body", nullptr);
+    body->setX("(100%pw - min(100%pw * 9, 100%ph * 16) / 9) / 2");
+    body->setY("(100%ph - min(100%pw * 9, 100%ph * 16) / 16) / 2");
+    body->setW("min(100%pw * 9, 100%ph * 16) / 9");
+    body->setH("min(100%pw * 9, 100%ph * 16) / 16");
+
+    corn::TextStyle style = corn::TextStyle(corn::FontManager::instance().get("noto-sans-zh"), 36);
+    auto* title = this->uiManager.createWidget<corn::UILabel>("title", body, corn::RichText()
+            .addText(u8"Clangy bird", style));
+    title->setX("100%w");
+    title->setY("100%h");
+    title->background = corn::Color::rgb(0, 0, 0, 128);
+}
+
+MainMenuScene::~MainMenuScene() = default;
 
 GameScene::GameScene(): paused(false) {
     // Camera
@@ -34,14 +50,14 @@ GameScene::GameScene(): paused(false) {
     this->pauseMenu->setH("100%ph");
     this->pauseMenu->background = corn::Color::rgb(0, 0, 0, 128);
 
+    auto* menu = this->uiManager.createWidget<corn::UIWidget>("menu", this->pauseMenu);
+    menu->setX("50%pw - 50%nw");
+    menu->setY("50%ph - 50%nh");
+
     corn::TextStyle style = corn::TextStyle(corn::FontManager::instance().get("noto-sans-zh"), 36);
-    auto* label = this->uiManager.createWidget<corn::UILabel>("test", this->pauseMenu, corn::RichText()
+    this->uiManager.createWidget<corn::UILabel>("title", menu, corn::RichText()
             .addText(u8"暂停中 ", style)
             .addText(u8"(PAUSED)", style.setColor(corn::Color::RED())));
-    label->setX("50%pw - 50%w");
-    label->setY("50%ph - 50%h");
-    label->setW("100%w");
-    label->setH("100%h");
 
     // Event listeners
     this->keyboardEventID = corn::EventManager::instance().addListener(

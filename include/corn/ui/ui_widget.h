@@ -85,10 +85,6 @@ namespace corn {
         /// @return Actual geometric type of the widget. DEFAULT will resolve to either DEPENDENT or INDEPENDENT.
         UIGeometry getGeometry() const;
 
-        /// @return Width and height of contents. Does not consider children.
-        virtual float getNaturalWidth() const;
-        virtual float getNaturalHeight() const;
-
         // Getters & setters
         const Expression<5>& getX() const;
         const Expression<5>& getY() const;

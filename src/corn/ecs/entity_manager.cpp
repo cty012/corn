@@ -98,29 +98,29 @@ namespace corn {
     }
 
     Entity* EntityManager::getEntityByName(const std::string& name, const Entity* parent, bool recurse) const {
-        std::vector<Entity*> result = getEntitiesHelper([&name](Entity* entity) {
+        std::vector<Entity*> result = getEntitiesHelper([&name](const Entity* entity) {
                 return entity->name == name;
-            }, false, 0, parent, recurse);
+            }, false, 1, parent, recurse);
         return result.empty() ? nullptr : result[0];
     }
 
     std::vector<Entity*> EntityManager::getEntitiesByName(
             const std::string& name, const Entity* parent, bool recurse) const {
 
-        return getEntitiesHelper([&name](Entity* entity) {
+        return getEntitiesHelper([&name](const Entity* entity) {
                 return entity->name == name;
             }, false, 0, parent, recurse);
     }
 
     Entity* EntityManager::getEntityThat(
-            const std::function<bool(Entity*)>& pred, const Entity* parent, bool recurse) const {
+            const std::function<bool(const Entity*)>& pred, const Entity* parent, bool recurse) const {
 
-        std::vector<Entity*> result = this->getEntitiesHelper(pred, false, 0, parent, recurse);
+        std::vector<Entity*> result = this->getEntitiesHelper(pred, false, 1, parent, recurse);
         return result.empty() ? nullptr : result[0];
     }
 
     std::vector<Entity*> EntityManager::getEntitiesThat(
-            const std::function<bool(Entity*)>& pred, const Entity* parent, bool recurse) const {
+            const std::function<bool(const Entity*)>& pred, const Entity* parent, bool recurse) const {
 
         return this->getEntitiesHelper(pred, false, 0, parent, recurse);
     }

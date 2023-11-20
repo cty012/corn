@@ -96,7 +96,7 @@ namespace corn {
          * @return The first Entity that satisfy the conditions given by filter. Null pointer if it doesn't exist.
          */
         Entity* getEntityThat(
-                const std::function<bool(Entity*)>& pred, const Entity* parent = nullptr, bool recurse = true) const;
+                const std::function<bool(const Entity*)>& pred, const Entity* parent = nullptr, bool recurse = true) const;
 
         /**
          * @param pred A predicate function that takes an Entity pointer and returns whether it satisfy the conditions.
@@ -105,7 +105,7 @@ namespace corn {
          * @return All Entities that satisfy the conditions given by filter.
          */
         std::vector<Entity*> getEntitiesThat(
-                const std::function<bool(Entity*)>& pred, const Entity* parent = nullptr, bool recurse = true) const;
+                const std::function<bool(const Entity*)>& pred, const Entity* parent = nullptr, bool recurse = true) const;
 
         /**
          * @param parent Parent to start searching from.

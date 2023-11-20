@@ -5,6 +5,13 @@
 #include <corn/event.h>
 #include "constants.h"
 
+/// The menu scene
+class MainMenuScene : public corn::Scene {
+public:
+    MainMenuScene();
+    ~MainMenuScene() override;
+};
+
 /// The main game scene
 class GameScene : public corn::Scene {
 public:

@@ -5,13 +5,13 @@
 
 namespace corn {
     UIWidget::UIWidget(UIType type, WidgetID id, std::string name, UIManager& uiManager)
-        : active(true), uiManager(uiManager), type(type), id(id), name(std::move(name)),
+        : active(true), uiManager(uiManager), type(type), id(id), name(std::move(name)), geometry(UIGeometry::DEFAULT),
           background(Color::rgb(255, 255, 255, 0)), opacity(255), independent() {
 
         this->setX("0px");
         this->setY("0px");
-        this->setW("100%w");
-        this->setH("100%h");
+        this->setW("100%nw");
+        this->setH("100%nh");
     }
 
     UIWidget::UIWidget(UIWidget::WidgetID id, std::string name, UIManager& uiManager)
@@ -47,14 +47,6 @@ namespace corn {
         }
     }
 
-    float UIWidget::getNaturalWidth() const {
-        return 0.0f;
-    }
-
-    float UIWidget::getNaturalHeight() const {
-        return 0.0f;
-    }
-
     const Expression<5>& UIWidget::getX() const {
         return this->x;
     }
@@ -72,25 +64,25 @@ namespace corn {
     }
 
     void UIWidget::setX(const std::string& expression) {
-        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%w", "%h"};
+        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%nw", "%nh"};
         this->x = Expression(expression, units);
         this->independent[0] = expression.find("%p") == std::string::npos;
     }
 
     void UIWidget::setY(const std::string& expression) {
-        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%w", "%h"};
+        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%nw", "%nh"};
         this->y = Expression(expression, units);
         this->independent[1] = expression.find("%p") == std::string::npos;
     }
 
     void UIWidget::setW(const std::string& expression) {
-        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%w", "%h"};
+        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%nw", "%nh"};
         this->w = Expression(expression, units);
         this->independent[2] = expression.find("%p") == std::string::npos;
     }
 
     void UIWidget::setH(const std::string& expression) {
-        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%w", "%h"};
+        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%nw", "%nh"};
         this->h = Expression(expression, units);
         this->independent[3] = expression.find("%p") == std::string::npos;
     }

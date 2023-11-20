@@ -55,6 +55,24 @@ namespace corn {
         T* createWidget(const std::string& name, const UIWidget* parent, Args&&... args);
 
         /**
+         * @param pred A predicate function that takes an Entity pointer and returns whether it satisfy the conditions.
+         * @param parent Parent to start searching from.
+         * @param recurse Also searches indirect descendants of parent if set to true.
+         * @return The first Entity that satisfy the conditions given by filter. Null pointer if it doesn't exist.
+         */
+        UIWidget* getWidgetThat(
+                const std::function<bool(const UIWidget*)>& pred, const UIWidget* parent = nullptr, bool recurse = true) const;
+
+        /**
+         * @param pred A predicate function that takes an Entity pointer and returns whether it satisfy the conditions.
+         * @param parent Parent to start searching from.
+         * @param recurse Also searches indirect descendants of parent if set to true.
+         * @return All Entities that satisfy the conditions given by filter.
+         */
+        std::vector<UIWidget*> getWidgetsThat(
+                const std::function<bool(const UIWidget*)>& pred, const UIWidget* parent = nullptr, bool recurse = true) const;
+
+        /**
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
          * @return All UI widgets.
