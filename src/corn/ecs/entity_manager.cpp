@@ -39,7 +39,7 @@ namespace corn {
     EntityManager::~EntityManager() {
         // Unregister event listeners
         for (EventManager::ListenerID id : this->eventIDs) {
-            EventManager::instance().removeListener(id);
+            this->scene.getEventManager().removeListener(id);
         }
 
         // Delete entities

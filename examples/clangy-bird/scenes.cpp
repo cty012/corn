@@ -85,8 +85,8 @@ GameScene::GameScene() : paused(false) {
 }
 
 GameScene::~GameScene() {
-    corn::EventManager::instance().removeListener(this->keyboardEventID);
-    corn::EventManager::instance().removeListener(this->mouseEventID);
+    this->getEventManager().removeListener(this->keyboardEventID);
+    this->getEventManager().removeListener(this->mouseEventID);
     for (corn::System* system : this->systems) {
         delete system;
     }
