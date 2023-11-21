@@ -68,4 +68,19 @@ namespace corn {
         CAABB* collider1;
         CAABB* collider2;
     };
+
+    class UIWidget;
+    struct EventArgsUIOnClick : public EventArgs {
+        [[nodiscard]] constexpr const char* type() const override { return "corn::ui::onclick"; }
+        EventArgsUIOnClick(EventArgsMouseButton mousebtnEvent, UIWidget* target);
+        EventArgsMouseButton mousebtnEvent;
+        UIWidget* target;
+    };
+
+    struct EventArgsUIOnHover : public EventArgs {
+        [[nodiscard]] constexpr const char* type() const override { return "corn::ui::onhover"; }
+        EventArgsUIOnHover(EventArgsMouseMove mousemvEvent, UIWidget* target);
+        EventArgsMouseMove mousemvEvent;
+        UIWidget* target;
+    };
 }

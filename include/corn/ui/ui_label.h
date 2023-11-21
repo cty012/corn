@@ -12,6 +12,8 @@ namespace corn {
         [[nodiscard]] const RichText& getText() const;
         void setText(const RichText& newText);
 
+        [[nodiscard]] Vec2 getNaturalSize() const;
+
     private:
         UILabel(WidgetID id, std::string name, UIManager& uiManager, RichText text);
 

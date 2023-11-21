@@ -3,6 +3,7 @@
 #include <functional>
 #include <unordered_map>
 #include <vector>
+#include <corn/geometry/vec4.h>
 #include <corn/ui/ui_widget.h>
 #include <corn/util/config.h>
 
@@ -23,9 +24,11 @@ namespace corn {
          * @brief Tree node containing each widget.
          */
         struct Node {
-            UIWidget* widget;                           ///< Widget stored in the node
+            UIWidget* widget;                      ///< Widget stored in the node
             Node* parent;                          ///< Parent node
             std::vector<Node*> children;           ///< Child nodes
+            Vec2 location;                         ///< Cached location of the widget
+            Vec2 size;                             ///< Cached size of the widget
             /**
              * @brief Whether the node's children are sorted by their z-order (small to large)
              *
@@ -90,7 +93,17 @@ namespace corn {
         /// @brief Cleans up all dirty nodes. Auto-called before rendering.
         void tidy();
 
+        /// @brief Calculate and cache the locations and sizes of all widgets.
+        void calcGeometry(Vec2 rootSize);
+
+        Vec4 getCachedGeometry(const UIWidget* target) const;
+
     private:
+        bool widgetContains(UIWidget* widget, Vec2 pos) const;
+        UIWidget* getTargetWidget(Vec2 pos);
+        void onClick(const EventArgsMouseButton& args);
+        void onHover(const EventArgsMouseMove& args);
+
         /**
          * @brief Helper to UIManager::destroyWidget
          *
@@ -138,6 +151,9 @@ namespace corn {
 
         /// @brief Quick access for finding nodes by widget ID (does not contain root)
         std::unordered_map<UIWidget::WidgetID, Node> nodes;
+
+        EventManager::ListenerID mousebtnEventID;
+        EventManager::ListenerID mousemvEventID;
     };
 
     template<WidgetType T, typename... Args>

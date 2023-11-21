@@ -1,12 +1,10 @@
+#include <ranges>
 #include <corn/core/game.h>
 #include <corn/ecs/component.h>
 #include <corn/event/event_manager.h>
 #include <corn/geometry/vec2.h>
-#include <corn/geometry/vec4.h>
 #include <corn/media/interface.h>
 #include <corn/ui/ui_label.h>
-
-#include <ranges>
 #include "camera_viewport_impl.h"
 #include "font_impl.h"
 #include "image_impl.h"
@@ -190,103 +188,27 @@ namespace corn {
     void Interface::renderUI(UIManager& uiManager) {
         Vec2 windowSize = this->windowSize();
         uiManager.tidy();
+        uiManager.calcGeometry(windowSize);
         std::vector<UIWidget*> widgets = uiManager.getAllActiveWidgets();
 
-        struct Property {
-            UIGeometry geometry;
-            float x, y, nw, nh, w, h;
-            float opacity;
-        };
-        std::unordered_map<const UIWidget*, Property> widgetProps;
-        widgetProps[nullptr] = {
-                UIGeometry::INDEPENDENT,
-                0.0f, 0.0f, windowSize.x, windowSize.y, windowSize.x, windowSize.y,
-                1.0f,
-        };
+        // Find opacity
+        std::unordered_map<const UIWidget*, float> opacities;
+        opacities[nullptr] = 1.0f;
 
-        // First pass (natural size)
-        for (const UIWidget* widget : std::ranges::reverse_view(widgets)) {
-            UIGeometry geometry = widget->getGeometry();
-
-            // Calculate natural size
-            float nw = 0.0f, nh = 0.0f;
-            switch (widget->type) {
-                case UIType::PANEL: {
-                    std::vector<UIWidget*> independentChildren = uiManager.getWidgetsThat(
-                            [&widgetProps](const UIWidget* widget) {
-                                return widget->active && widgetProps.at(widget).geometry == UIGeometry::INDEPENDENT;
-                            },
-                        widget, false);
-                    // TODO: find max of children size
-                    for (UIWidget* child : independentChildren) {
-                        nw = std::max(nw, widgetProps[child].nw + widgetProps[child].x);
-                        nh = std::max(nh, widgetProps[child].nh + widgetProps[child].y);
-                    }
-                    break;
-                }
-                case UIType::LABEL: {
-                    for (RichText::Segment* segment: dynamic_cast<const UILabel*>(widget)->getText().segments) {
-                        nw += segment->text.getLocalBounds().width;
-                        nh = std::max(nh, segment->text.getLocalBounds().height);
-                    }
-                    break;
-                }
-                case UIType::IMAGE:
-                    // TODO
-                    break;
-                case UIType::INPUT:
-                    // TODO
-                    break;
-            }
-            if (geometry == UIGeometry::INDEPENDENT) {
-                float percNW = nw * 0.01f;
-                float percNH = nh * 0.01f;
-                float x = widget->getX().calc(1.0f, 0.0f, 0.0f, percNW, percNH);
-                float y = widget->getY().calc(1.0f, 0.0f, 0.0f, percNW, percNH);
-                widgetProps[widget] = {
-                        geometry,
-                        x, y, nw, nh, nw, nh,
-                        1.0f,
-                };
-            } else {
-                widgetProps[widget] = {
-                        geometry,
-                        0.0f, 0.0f, nw, nh, 0.0f, 0.0f,
-                        1.0f,
-                };
-            }
-        }
-
-        // Second pass (location and size)
+        // Render
         for (const UIWidget* widget : widgets) {
-            Property& props = widgetProps[widget];
-            Property& parentProps = widgetProps[widget->getParent()];
-            if (props.geometry == UIGeometry::INDEPENDENT) {
-                props.x += parentProps.x;
-                props.y += parentProps.y;
-                props.opacity = parentProps.opacity * (float)widget->opacity / 255.0f;
-            } else {
-                float percW = parentProps.w * 0.01f;
-                float percH = parentProps.h * 0.01f;
-                float percNW = props.nw * 0.01f;
-                float percNH = props.nh * 0.01f;
-                props.x = widget->getX().calc(1.0f, percW, percH, percNW, percNH) + parentProps.x;
-                props.y = widget->getY().calc(1.0f, percW, percH, percNW, percNH) + parentProps.y;
-                props.w = widget->getW().calc(1.0f, percW, percH, percNW, percNH);
-                props.h = widget->getH().calc(1.0f, percW, percH, percNW, percNH);
-                props.opacity = parentProps.opacity * (float)widget->opacity / 255.0f;
-            }
-        }
+            // Find opacity
+            UIWidget* parent = widget->getParent();
+            opacities[widget] = opacities[parent] * (float)widget->opacity / 255.0f;
 
-        // Final pass (render)
-        for (const UIWidget* widget : widgets) {
-            Property& props = widgetProps[widget];
+            // Find geometry
+            auto [x, y, w, h] = uiManager.getCachedGeometry(widget);
 
             // Render the background
-            sf::RectangleShape boundingRect(sf::Vector2f(props.w, props.h));
-            boundingRect.setPosition(props.x, props.y);
+            sf::RectangleShape boundingRect(sf::Vector2f(w, h));
+            boundingRect.setPosition(x, y);
             auto [r, g, b, a] = widget->background.getRGBA();
-            boundingRect.setFillColor(sf::Color(r, g, b, (unsigned char)((float)a * props.opacity)));
+            boundingRect.setFillColor(sf::Color(r, g, b, (unsigned char)((float)a * opacities[widget])));
             this->impl->window->draw(boundingRect);
 
             // Render the widget
@@ -295,12 +217,12 @@ namespace corn {
                     break;
                 case UIType::LABEL: {
                     const auto* label = dynamic_cast<const UILabel*>(widget);
-                    float _x = props.x, _y = props.y;
+                    float _x = x, _y = y;
                     for (RichText::Segment* segment: label->getText().segments) {
                         if (segment->style.font->state != FontState::LOADED) continue;
                         segment->text.setPosition(_x, _y);
                         auto [_r, _g, _b, _a] = segment->style.color.getRGBA();
-                        segment->text.setFillColor(sf::Color(_r, _g, _b, (unsigned char)((float)_a * props.opacity)));
+                        segment->text.setFillColor(sf::Color(_r, _g, _b, (unsigned char)((float)_a * opacities[widget])));
                         this->impl->window->draw(segment->text);
                         _x += segment->text.getLocalBounds().width;  // TODO: Text wrap
                     }

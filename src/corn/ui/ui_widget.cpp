@@ -12,12 +12,15 @@ namespace corn {
         this->setY("0px");
         this->setW("100%nw");
         this->setH("100%nh");
+        this->eventManager = EventManager::addPrivateRoom();
     }
 
     UIWidget::UIWidget(UIWidget::WidgetID id, std::string name, UIManager& uiManager)
         : UIWidget(UIType::PANEL, id, std::move(name), uiManager) {}
 
-    UIWidget::~UIWidget() = default;
+    UIWidget::~UIWidget() {
+        EventManager::removePrivateRoom(this->eventManager);
+    }
 
     void UIWidget::destroy() {
         uiManager.destroyWidget(*this);
@@ -34,6 +37,10 @@ namespace corn {
 
     UIManager& UIWidget::getUIManager() const {
         return this->uiManager;
+    }
+
+    EventManager& UIWidget::getEventManager() const {
+        return *this->eventManager;
     }
 
     Scene& UIWidget::getScene() const {

@@ -2,6 +2,7 @@
 
 #include <array>
 #include <string>
+#include <corn/event/event_manager.h>
 #include <corn/util/color.h>
 #include <corn/util/expression.h>
 
@@ -82,6 +83,9 @@ namespace corn {
         /// @return The UI manager that owns this widget.
         [[nodiscard]] UIManager& getUIManager() const;
 
+        /// @return The private event manager owned by this widget.
+        [[nodiscard]] EventManager& getEventManager() const;
+
         /// @return The scene that contains this widget.
         [[nodiscard]] Scene& getScene() const;
 
@@ -119,5 +123,8 @@ namespace corn {
 
         /// @brief The UI manager that owns this widget.
         UIManager& uiManager;
+
+        /// @brief The private event manager owned by this widget.
+        EventManager* eventManager;
     };
 }

@@ -1,15 +1,30 @@
 #include <algorithm>
+#include <ranges>
 #include <stack>
 #include <corn/core/scene.h>
+#include <corn/media/rich_text.h>
+#include <corn/ui/ui_label.h>
+#include "../media/rich_text_impl.h"
 #include <corn/ui/ui_manager.h>
 #include <corn/util/exceptions.h>
 
 namespace corn {
     UIManager::Node::Node(UIWidget* widget, UIManager::Node* parent): widget(widget), parent(parent), dirty(false) {}
 
-    UIManager::UIManager(Scene& scene): scene(scene), root(nullptr, nullptr) {}
+    UIManager::UIManager(Scene& scene): scene(scene), root(nullptr, nullptr) {
+        this->mousebtnEventID = this->scene.getEventManager().addListener(
+                "corn::input::mousebtn", [this](const EventArgs& args) {
+                    this->onClick(dynamic_cast<const EventArgsMouseButton&>(args));
+                });
+        this->mousemvEventID = this->scene.getEventManager().addListener(
+                "corn::input::mousebtn", [this](const EventArgs& args) {
+                    this->onHover(dynamic_cast<const EventArgsMouseMove&>(args));
+                });
+    }
 
     UIManager::~UIManager() {
+        this->scene.getEventManager().removeListener(this->mousebtnEventID);
+        this->scene.getEventManager().removeListener(this->mousemvEventID);
         // Delete UI widgets
         for (auto& [id, node] : this->nodes) {
             delete node.widget;
@@ -47,6 +62,138 @@ namespace corn {
 
     void UIManager::tidy() {
         // TODO: implement this and UI z-order
+    }
+
+    void UIManager::calcGeometry(Vec2 rootSize) {
+        std::vector<UIWidget*> widgets = this->getAllActiveWidgets();
+        struct Property {
+            UIGeometry geometry;
+            float x, y, nw, nh, w, h;
+        };
+        std::unordered_map<const UIWidget*, Property> widgetProps;
+        widgetProps[nullptr] = {
+                UIGeometry::INDEPENDENT,
+                0.0f, 0.0f, rootSize.x, rootSize.y, rootSize.x, rootSize.y,
+        };
+
+        // First pass (natural size)
+        for (const UIWidget* widget : std::ranges::reverse_view(widgets)) {
+            UIGeometry geometry = widget->getGeometry();
+
+            // Calculate natural size
+            float nw = 0.0f, nh = 0.0f;
+            switch (widget->type) {
+                case UIType::PANEL: {
+                    std::vector<UIWidget*> independentChildren = this->getWidgetsThat(
+                            [&widgetProps](const UIWidget* widget) {
+                                return widget->active && widgetProps.at(widget).geometry == UIGeometry::INDEPENDENT;
+                            },
+                            widget, false);
+                    // TODO: find max of children size
+                    for (UIWidget* child : independentChildren) {
+                        nw = std::max(nw, widgetProps[child].nw + widgetProps[child].x);
+                        nh = std::max(nh, widgetProps[child].nh + widgetProps[child].y);
+                    }
+                    break;
+                }
+                case UIType::LABEL: {
+                    auto nsize = dynamic_cast<const UILabel*>(widget)->getNaturalSize();
+                    nw = nsize.x;
+                    nh = nsize.y;
+                    break;
+                }
+                case UIType::IMAGE:
+                    // TODO
+                    break;
+                case UIType::INPUT:
+                    // TODO
+                    break;
+            }
+            if (geometry == UIGeometry::INDEPENDENT) {
+                float percNW = nw * 0.01f;
+                float percNH = nh * 0.01f;
+                float x = widget->getX().calc(1.0f, 0.0f, 0.0f, percNW, percNH);
+                float y = widget->getY().calc(1.0f, 0.0f, 0.0f, percNW, percNH);
+                widgetProps[widget] = {
+                        geometry,
+                        x, y, nw, nh, nw, nh,
+                };
+            } else {
+                widgetProps[widget] = {
+                        geometry,
+                        0.0f, 0.0f, nw, nh, 0.0f, 0.0f,
+                };
+            }
+        }
+
+        // Second pass (location and size)
+        for (const UIWidget* widget : widgets) {
+            Property& props = widgetProps[widget];
+            Property& parentProps = widgetProps[widget->getParent()];
+            if (props.geometry == UIGeometry::INDEPENDENT) {
+                props.x += parentProps.x;
+                props.y += parentProps.y;
+            } else {
+                float percW = parentProps.w * 0.01f;
+                float percH = parentProps.h * 0.01f;
+                float percNW = props.nw * 0.01f;
+                float percNH = props.nh * 0.01f;
+                props.x = widget->getX().calc(1.0f, percW, percH, percNW, percNH) + parentProps.x;
+                props.y = widget->getY().calc(1.0f, percW, percH, percNW, percNH) + parentProps.y;
+                props.w = widget->getW().calc(1.0f, percW, percH, percNW, percNH);
+                props.h = widget->getH().calc(1.0f, percW, percH, percNW, percNH);
+            }
+        }
+
+        // Final pass (assign to node)
+        for (const UIWidget* widget : widgets) {
+            Property& props = widgetProps[widget];
+            Node& node = this->nodes.at(widget->id);
+            node.location = { props.x, props.y };
+            node.size = { props.w, props.h };
+        }
+    }
+
+    Vec4 UIManager::getCachedGeometry(const UIWidget* target) const {
+        const Node* node = this->getNodeFromWidget(target);
+        return { node->location.x, node->location.y, node->size.x, node->size.y };
+    }
+
+    bool UIManager::widgetContains(UIWidget* widget, Vec2 pos) const {
+        auto [x, y, w, h] = this->getCachedGeometry(widget);
+        return x < pos.x && y < pos.y && x + w > pos.x && y + h > pos.y;
+    }
+
+    UIWidget* UIManager::getTargetWidget(Vec2 pos) {
+        this->tidy();
+        for (UIWidget* widget : std::ranges::reverse_view(this->getAllActiveWidgets())) {
+            if (this->widgetContains(widget, pos)) return widget;
+        }
+        return nullptr;
+    }
+
+    void UIManager::onClick(const EventArgsMouseButton& args) {
+        UIWidget* widget = this->getTargetWidget(args.mousePos);
+        UIWidget* current = widget;
+        // Bubble up
+        while (current) {
+            if (this->widgetContains(current, args.mousePos)) {
+                current->getEventManager().emit(EventArgsUIOnClick(args, widget));
+            }
+            current = current->getParent();
+        }
+    }
+
+    void UIManager::onHover(const EventArgsMouseMove& args) {
+        UIWidget* widget = this->getTargetWidget(args.mousePos);
+        UIWidget* current = widget;
+        // Bubble up
+        while (current) {
+            if (this->widgetContains(current, args.mousePos)) {
+                current->getEventManager().emit(EventArgsUIOnHover(args, widget));
+            }
+            current = current->getParent();
+        }
     }
 
     void UIManager::destroyNode(Node* node) {

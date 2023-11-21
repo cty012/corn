@@ -12,4 +12,13 @@ namespace corn {
     void UILabel::setText(const RichText& newText) {
         this->text = newText;
     }
+
+    Vec2 UILabel::getNaturalSize() const {
+        float nw = 0.0f, nh = 0.0f;
+        for (RichText::Segment* segment: this->text.segments) {
+            nw += segment->text.getLocalBounds().width;
+            nh = std::max(nh, segment->text.getLocalBounds().height);
+        }
+        return { nw, nh };
+    }
 }
