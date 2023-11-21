@@ -9,7 +9,7 @@
 namespace corn {
     /**
      * @class EventManager
-     * @brief Singleton class that handles all events.
+     * @brief Multiton class that handles all events.
      *
      * Events are defined by extending the EventArgs class. To listen to an event, use the addListener method. The
      * listener ID returned can be used for unregistering the event listener. To emit an event, use the emit method
@@ -27,7 +27,7 @@ namespace corn {
         using Action = std::function<void(const EventArgs&)>;
 
         /**
-         * @return The singleton instance.
+         * @return The multiton root instance.
          *
          * Events emitted from this instance will propagate to all rooms.
          */
@@ -55,6 +55,21 @@ namespace corn {
         static bool removeRoom(const std::string& room) noexcept;
 
         /**
+         * @brief Creates a new private room.
+         * @return Whether the room is created successfully.
+         *
+         * A private room is isolated from the rest of the rooms, so events from the root will not propagate here.
+         */
+        static EventManager* addPrivateRoom() noexcept;
+
+        /**
+         * @brief Removes a room.
+         * @param room Identifier of the room.
+         * @return Whether the room is removed successfully.
+         */
+        static bool removePrivateRoom(EventManager* room) noexcept;
+
+        /**
          * @brief Adds an event listener and return an unique id of the event.
          * @param eventType Tag of the event.
          * @param listener Call back function which activates when an event with the same event type is emitted.
@@ -78,13 +93,16 @@ namespace corn {
         int emit(const EventArgs& args, bool propagate = false) noexcept;
 
     private:
-        std::unordered_map<std::string, std::vector<std::pair<ListenerID, Action>>> listeners;
-        std::unordered_map<std::string, EventManager*> rooms;
-
         // Ctor and dtor
         EventManager();
         ~EventManager();
         EventManager(const EventManager& other) = delete;
         EventManager& operator=(const EventManager& other) = delete;
+
+        static EventManager& privateInstance();
+
+        std::unordered_map<std::string, std::vector<std::pair<ListenerID, Action>>> listeners;
+        std::unordered_map<std::string, EventManager*> rooms;
+        std::vector<EventManager*> privateRooms;
     };
 }

@@ -18,7 +18,7 @@ public:
     GameScene();
     ~GameScene() override;
 
-    bool isPaused() const;
+    [[nodiscard]] bool isPaused() const;
     void togglePause();
 
 private:
