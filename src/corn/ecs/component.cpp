@@ -167,7 +167,7 @@ namespace corn {
     }
 
     void CCamera::setViewport(const std::string& x, const std::string& y, const std::string& w, const std::string& h) {
-        static const std::array<std::string, 3> units = {"px", "%ww", "%wh"};
+        static constexpr std::array<std::string, 3> units = {"px", "%ww", "%wh"};
         this->viewport.x = Expression(x, units);
         this->viewport.y = Expression(y, units);
         this->viewport.w = Expression(w, units);
@@ -175,7 +175,7 @@ namespace corn {
     }
 
     void CCamera::setFov(const std::string& w, const std::string& h) {
-        static const std::array<std::string, 3> units = {"px", "%vw", "%vh"};
+        static constexpr std::array<std::string, 3> units = {"px", "%vw", "%vh"};
         this->fovW = Expression(w, units);
         this->fovH = Expression(h, units);
     }

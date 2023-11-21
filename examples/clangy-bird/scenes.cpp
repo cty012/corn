@@ -2,6 +2,7 @@
 #include "etities.h"
 #include "scenes.h"
 #include "systems.h"
+#include "text_manager.h"
 
 MainMenuScene::MainMenuScene() {
     // UI
@@ -16,30 +17,25 @@ MainMenuScene::MainMenuScene() {
     contents->setX("200px");
     contents->setY("120px");
 
-    corn::TextStyle style = corn::TextStyle(corn::FontManager::instance().get("noto-sans-zh"), 24)
-            .setColor(corn::Color::rgb(0, 0, 0));
-    this->getUIManager().createWidget<corn::UILabel>("title", contents, corn::RichText()
-            .addText(u8"Clangy bird", style
-                    .setSize(48)
-                    .setColor(corn::Color::rgb(255, 0, 0))
-                    .setVariant(corn::FontVariant::BOLD)));
+    this->getUIManager().createWidget<corn::UILabel>(
+            "title", contents, TextManager::instance().getRichText("main-menu-title"));
 
-    auto* newGame = this->getUIManager().createWidget<corn::UILabel>("new-game", contents, corn::RichText()
-            .addText(u8"New Game", style.setVariant(corn::FontVariant::ITALIC)));
+    auto* newGame = this->getUIManager().createWidget<corn::UILabel>(
+            "new-game", contents, TextManager::instance().getRichText("main-menu-new-game"));
     newGame->setY("90px");
 
-    auto* settings = this->getUIManager().createWidget<corn::UILabel>("settings", contents, corn::RichText()
-            .addText(u8"Settings", style.setVariant(corn::FontVariant::ITALIC)));
+    auto* settings = this->getUIManager().createWidget<corn::UILabel>(
+            "settings", contents, TextManager::instance().getRichText("main-menu-settings"));
     settings->setY("135px");
 
-    auto* exit = this->getUIManager().createWidget<corn::UILabel>("exit", contents, corn::RichText()
-            .addText(u8"Exit", style.setVariant(corn::FontVariant::ITALIC)));
+    auto* exit = this->getUIManager().createWidget<corn::UILabel>(
+            "exit", contents, TextManager::instance().getRichText("main-menu-exit"));
     exit->setY("180px");
 }
 
 MainMenuScene::~MainMenuScene() = default;
 
-GameScene::GameScene(): paused(false) {
+GameScene::GameScene() : paused(false) {
     // Camera
     createCamera(this->getEntityManager());
 

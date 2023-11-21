@@ -6,6 +6,9 @@ namespace corn {
     TextStyle::TextStyle(const Font* font, size_t size)
         : font(font), size(size), color(Color::WHITE()), variant(FontVariant::REGULAR) {}
 
+    TextStyle::TextStyle(const Font* font, size_t size, const Color& color, FontVariant variant)
+            : font(font), size(size), color(color), variant(variant) {}
+
     TextStyle TextStyle::setFont(const Font* newFont) {
         TextStyle style = *this;
         style.font = newFont;

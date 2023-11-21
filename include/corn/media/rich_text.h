@@ -12,6 +12,7 @@ namespace corn {
         Color color;
         FontVariant variant;
         TextStyle(const Font* font, size_t size);
+        TextStyle(const Font* font, size_t size, const Color& color, FontVariant variant);
         TextStyle setFont(const Font* newFont);
         TextStyle setSize(size_t newSize);
         TextStyle setColor(const Color& newColor);

@@ -10,7 +10,8 @@ int main() {
     config.width = WIDTH;
     config.height = HEIGHT;
     config.antialiasing = 4;
-    corn::FontManager::instance().load("noto-sans-zh", "fonts/noto-sans-zh/NotoSansSC-VariableFont_wght.ttf");
+    corn::FontManager::instance().load(
+            "noto-sans-zh", "resources/fonts/noto-sans-zh/static/NotoSansSC-Regular.ttf");
     corn::Game game(new MainMenuScene(), config);
     game.run();
     corn::FontManager::instance().unload("noto-sans-zh");

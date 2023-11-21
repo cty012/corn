@@ -1,0 +1,72 @@
+{
+    "main-menu-title": {
+        "eng": [
+            {
+                "text": "Clangy bird",
+                "font": ["noto-sans-zh", 48],
+                "color": "#ff0000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "编译器鸟",
+                "font": ["noto-sans-zh", 48],
+                "color": "#ff0000"
+            }
+        ]
+    },
+    "main-menu-new-game": {
+        "eng": [
+            {
+                "text": "Start Game",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000",
+                "variant": "underline"
+            }
+        ],
+        "chn": [
+            {
+                "text": "开始游戏",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000",
+                "variant": "underline"
+            }
+        ]
+    },
+    "main-menu-settings": {
+        "eng": [
+            {
+                "text": "Settings",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000",
+                "variant": "underline"
+            }
+        ],
+        "chn": [
+            {
+                "text": "设置",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000",
+                "variant": "underline"
+            }
+        ]
+    },
+    "main-menu-exit": {
+        "eng": [
+            {
+                "text": "Exit",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000",
+                "variant": "underline"
+            }
+        ],
+        "chn": [
+            {
+                "text": "退出",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000",
+                "variant": "underline"
+            }
+        ]
+    }
+}

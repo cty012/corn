@@ -41,7 +41,8 @@ void BirdCollisionResolve::resolve(const corn::EventArgsCollision& args) {
     if (this->hasCollided) return;
     if (args.collider1->getEntity().name != "bird" && args.collider2->getEntity().name != "bird") return;
     this->hasCollided = true;
-    corn::EventManager::instance().emit(corn::EventArgsScene(corn::SceneOperation::REPLACE, new GameScene()));
+    corn::EventManager::instance().emit(corn::EventArgsScene(
+            corn::SceneOperation::REPLACE, new GameScene()));
 }
 
 void BirdCollisionResolve::update([[maybe_unused]] float millis) {}

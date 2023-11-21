@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <regex>
 #include <corn/util/color.h>
 
 namespace corn {
@@ -29,34 +30,57 @@ namespace corn {
         return std::make_tuple(this->red, this->green, this->blue, this->alpha);
     }
 
+    Color Color::parse(const std::string& hexString) {
+        static const std::regex color_regex(R"(#?([a-fA-F0-9]{6})([a-fA-F0-9]{2})?)");
+        std::smatch color_match;
+
+        if (!std::regex_match(hexString, color_match, color_regex)) {
+            throw std::invalid_argument("Invalid hex color format");
+        }
+
+        const std::string& rgbString = color_match[1].str();
+        int hasAlpha = color_match[2].matched;
+        unsigned char r = static_cast<unsigned char>(std::stoi(rgbString.substr(0, 2), nullptr, 16));
+        unsigned char g = static_cast<unsigned char>(std::stoi(rgbString.substr(2, 2), nullptr, 16));
+        unsigned char b = static_cast<unsigned char>(std::stoi(rgbString.substr(4, 2), nullptr, 16));
+        unsigned char a = hasAlpha ? static_cast<unsigned char>(std::stoi(color_match[2], nullptr, 16)) : 0xff;
+        return Color::rgb(r, g, b, a);
+    }
+
     std::string Color::hexString() const {
         char hexStr[8];
         std::snprintf(hexStr, sizeof(hexStr), "#%02X%02X%02X", this->red, this->green, this->blue);
         return {hexStr};
     }
 
+    std::string Color::hexStringAlpha() const {
+        char hexStr[10];
+        std::snprintf(hexStr, sizeof(hexStr), "#%02X%02X%02X%02X", this->red, this->green, this->blue, this->alpha);
+        return {hexStr};
+    }
+
     const Color& Color::RED() {
-        static Color color = Color::rgb(255, 0, 0);
+        static const Color color = Color::rgb(255, 0, 0);
         return color;
     }
 
     const Color& Color::GREEN() {
-        static Color color = Color::rgb(0, 255, 0);
+        static const Color color = Color::rgb(0, 255, 0);
         return color;
     }
 
     const Color& Color::BLUE() {
-        static Color color = Color::rgb(0, 0, 255);
+        static const Color color = Color::rgb(0, 0, 255);
         return color;
     }
 
     const Color& Color::WHITE() {
-        static Color color = Color::rgb(255, 255, 255);
+        static const Color color = Color::rgb(255, 255, 255);
         return color;
     }
 
     const Color& Color::BLACK() {
-        static Color color = Color::rgb(0, 0, 0);
+        static const Color color = Color::rgb(0, 0, 0);
         return color;
     }
 }
