@@ -109,3 +109,7 @@ void TextManager::saveSettings() noexcept {
     std::ofstream settingsFile(this->settingsPath);
     settingsFile << this->settings.dump(4);
 }
+
+const nlohmann::json& TextManager::getSettings(const std::string& key) const {
+    return this->settings.at(key);
+}

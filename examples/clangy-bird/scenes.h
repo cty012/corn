@@ -10,6 +10,19 @@ class MainMenuScene : public corn::Scene {
 public:
     MainMenuScene();
     ~MainMenuScene() override;
+
+private:
+    corn::EventManager::ListenerID langChangeEventID;
+};
+
+/// The settings scene
+class SettingsScene : public corn::Scene {
+public:
+    SettingsScene();
+    ~SettingsScene() override;
+
+private:
+    corn::EventManager::ListenerID langChangeEventID;
 };
 
 /// The main game scene
@@ -28,6 +41,7 @@ private:
     corn::CMovement2D* birdMovement;
     corn::EventManager::ListenerID keyboardEventID;
     corn::EventManager::ListenerID mouseEventID;
+    corn::EventManager::ListenerID langChangeEventID;
 
     void onKeyboardEvent(const corn::EventArgsKeyboard& args);
     void onMouseEvent(const corn::EventArgsMouseButton& args);

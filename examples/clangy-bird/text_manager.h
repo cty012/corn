@@ -10,6 +10,7 @@ public:
     [[nodiscard]] std::u8string getu8(const std::string& key) const;
     [[nodiscard]] corn::RichText getRichText(const std::string& key) const;
 
+    const nlohmann::json& getSettings(const std::string& key) const;
     void changeSettings(std::string key, nlohmann::json val) noexcept;
     void saveSettings() noexcept;
 

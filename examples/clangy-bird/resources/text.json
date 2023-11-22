@@ -63,6 +63,86 @@
             }
         ]
     },
+    "settings-title": {
+        "eng": [
+            {
+                "text": "Settings",
+                "font": ["noto-sans-zh", 48],
+                "color": "#ff0000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "设置",
+                "font": ["noto-sans-zh", 48],
+                "color": "#ff0000"
+            }
+        ]
+    },
+    "settings-lang": {
+        "eng": [
+            {
+                "text": "Language: ",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "语言：",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ]
+    },
+    "settings-lang-eng": {
+        "eng": [
+            {
+                "text": "English",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "English",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ]
+    },
+    "settings-lang-chn": {
+        "eng": [
+            {
+                "text": "中文",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "中文",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ]
+    },
+    "settings-save": {
+        "eng": [
+            {
+                "text": "Save and exit",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "保存并退出",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ]
+    },
     "game-pause-title": {
         "eng": [
             {
