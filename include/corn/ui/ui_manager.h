@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include <corn/geometry/vec4.h>
 #include <corn/ui/ui_widget.h>
@@ -154,6 +155,9 @@ namespace corn {
 
         EventManager::ListenerID mousebtnEventID;
         EventManager::ListenerID mousemvEventID;
+
+        std::vector<UIWidget*> hoveredWidgets;
+        std::unordered_set<UIWidget*> hoveredWidgetSet;
     };
 
     template<WidgetType T, typename... Args>

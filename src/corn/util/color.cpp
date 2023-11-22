@@ -49,13 +49,13 @@ namespace corn {
 
     std::string Color::hexString() const {
         char hexStr[8];
-        std::snprintf(hexStr, sizeof(hexStr), "#%02X%02X%02X", this->red, this->green, this->blue);
+        std::snprintf(hexStr, sizeof(hexStr), "#%02x%02x%02x", this->red, this->green, this->blue);
         return {hexStr};
     }
 
     std::string Color::hexStringAlpha() const {
         char hexStr[10];
-        std::snprintf(hexStr, sizeof(hexStr), "#%02X%02X%02X%02X", this->red, this->green, this->blue, this->alpha);
+        std::snprintf(hexStr, sizeof(hexStr), "#%02x%02x%02x%02x", this->red, this->green, this->blue, this->alpha);
         return {hexStr};
     }
 

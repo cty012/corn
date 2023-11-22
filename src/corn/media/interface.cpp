@@ -80,14 +80,14 @@ namespace corn {
                 case (sf::Event::MouseWheelScrolled): {
                     EventArgsMouseScroll eventArgs(
                             event.mouseWheelScroll.delta,
-                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                            Vec2((float)event.mouseWheelScroll.x, (float)event.mouseWheelScroll.y));
                     EventManager::instance().emit(eventArgs);
                     this->game.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
                 case sf::Event::MouseMoved: {
                     EventArgsMouseMove eventArgs(
-                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                            Vec2((float)event.mouseMove.x, (float)event.mouseMove.y));
                     EventManager::instance().emit(eventArgs);
                     this->game.getTopScene()->getEventManager().emit(eventArgs);
                     break;

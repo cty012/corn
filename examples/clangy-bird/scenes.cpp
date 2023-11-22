@@ -4,6 +4,19 @@
 #include "systems.h"
 #include "text_manager.h"
 
+void underlineOnHover(corn::UILabel* label) {
+    label->getEventManager().addListener(
+            "corn::ui::onenter", [label](const corn::EventArgs& args) {
+                (void)args;
+                corn::setVariant(label->getText().segments[0], corn::FontVariant::UNDERLINE);
+            });
+    label->getEventManager().addListener(
+            "corn::ui::onexit", [label](const corn::EventArgs& args) {
+                (void)args;
+                corn::setVariant(label->getText().segments[0], corn::FontVariant::REGULAR);
+            });
+}
+
 MainMenuScene::MainMenuScene() {
     // UI
     auto* body = this->getUIManager().createWidget<corn::UIWidget>("body", nullptr);
@@ -20,17 +33,40 @@ MainMenuScene::MainMenuScene() {
     this->getUIManager().createWidget<corn::UILabel>(
             "title", contents, TextManager::instance().getRichText("main-menu-title"));
 
-    auto* newGame = this->getUIManager().createWidget<corn::UILabel>(
-            "new-game", contents, TextManager::instance().getRichText("main-menu-new-game"));
-    newGame->setY("90px");
+    // Start button
+    auto* start = this->getUIManager().createWidget<corn::UILabel>(
+            "start", contents, TextManager::instance().getRichText("main-menu-start"));
+    start->setY("110px");
+    underlineOnHover(start);
+    start->getEventManager().addListener(
+            "corn::ui::onclick", [](const corn::EventArgs& args) {
+                (void)args;
+                corn::EventManager::instance().emit(
+                        corn::EventArgsScene(corn::SceneOperation::PUSH, new GameScene()));
+            });
 
+    // Settings button
     auto* settings = this->getUIManager().createWidget<corn::UILabel>(
             "settings", contents, TextManager::instance().getRichText("main-menu-settings"));
-    settings->setY("135px");
+    settings->setY("155px");
+    underlineOnHover(settings);
+    settings->getEventManager().addListener(
+            "corn::ui::onclick", [](const corn::EventArgs& args) {
+                (void)args;
+                corn::EventManager::instance().emit(
+                        corn::EventArgsScene(corn::SceneOperation::PUSH, new GameScene()));
+            });
 
+    // Exit button
     auto* exit = this->getUIManager().createWidget<corn::UILabel>(
             "exit", contents, TextManager::instance().getRichText("main-menu-exit"));
-    exit->setY("180px");
+    exit->setY("200px");
+    underlineOnHover(exit);
+    exit->getEventManager().addListener(
+            "corn::ui::onclick", [](const corn::EventArgs& args) {
+                (void)args;
+                corn::EventManager::instance().emit(corn::EventArgsExit());
+            });
 }
 
 MainMenuScene::~MainMenuScene() = default;
@@ -62,16 +98,33 @@ GameScene::GameScene() : paused(false) {
     this->pauseMenu->active = false;
     this->pauseMenu->setW("100%pw");
     this->pauseMenu->setH("100%ph");
-    this->pauseMenu->background = corn::Color::rgb(0, 0, 0, 128);
+    this->pauseMenu->background = corn::Color::rgb(0, 0, 0, 100);
 
     auto* menu = this->getUIManager().createWidget<corn::UIWidget>("menu", this->pauseMenu);
     menu->setX("50%pw - 50%nw");
-    menu->setY("50%ph - 50%nh");
+    menu->setY("50%ph - 50%nh - 50px");
 
-    corn::TextStyle style = corn::TextStyle(corn::FontManager::instance().get("noto-sans-zh"), 36);
-    this->getUIManager().createWidget<corn::UILabel>("title", menu, corn::RichText()
-            .addText(u8"暂停中 ", style)
-            .addText(u8"(PAUSED)", style.setColor(corn::Color::RED())));
+    this->getUIManager().createWidget<corn::UILabel>(
+            "title", menu, TextManager::instance().getRichText("game-pause-title"));
+    auto* cont = this->getUIManager().createWidget<corn::UILabel>(
+            "continue", menu, TextManager::instance().getRichText("game-pause-continue"));
+    cont->setY("60px");
+    underlineOnHover(cont);
+    cont->getEventManager().addListener(
+            "corn::ui::onclick", [this](const corn::EventArgs& args) {
+                (void)args;
+                this->togglePause();
+            });
+
+    auto* exitToMainMenu = this->getUIManager().createWidget<corn::UILabel>(
+            "exit-to-main-menu", menu, TextManager::instance().getRichText("game-pause-exit-to-main-menu"));
+    exitToMainMenu->setY("100px");
+    underlineOnHover(exitToMainMenu);
+    exitToMainMenu->getEventManager().addListener(
+            "corn::ui::onclick", [](const corn::EventArgs& args) {
+                (void)args;
+                corn::EventManager::instance().emit(corn::EventArgsScene(corn::SceneOperation::POP, nullptr));
+            });
 
     // Event listeners
     this->keyboardEventID = this->getEventManager().addListener(

@@ -83,4 +83,18 @@ namespace corn {
         EventArgsMouseMove mousemvEvent;
         UIWidget* target;
     };
+
+    struct EventArgsUIOnEnter : public EventArgs {
+        [[nodiscard]] constexpr const char* type() const override { return "corn::ui::onenter"; }
+        EventArgsUIOnEnter(EventArgsMouseMove mousemvEvent, UIWidget* target);
+        EventArgsMouseMove mousemvEvent;
+        UIWidget* target;
+    };
+
+    struct EventArgsUIOnExit : public EventArgs {
+        [[nodiscard]] constexpr const char* type() const override { return "corn::ui::onexit"; }
+        EventArgsUIOnExit(EventArgsMouseMove mousemvEvent, UIWidget* target);
+        EventArgsMouseMove mousemvEvent;
+        UIWidget* target;
+    };
 }

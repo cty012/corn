@@ -33,24 +33,38 @@ namespace corn {
         return style;
     }
 
-    RichText::Segment::Segment(const std::u8string& text, TextStyle style): text(), style(style) {
-        this->text.setFont(style.font->sffont);
-        this->text.setString(sf::String::fromUtf8(text.begin(), text.end()));
-        this->text.setCharacterSize((unsigned int)style.size);
-        auto [r, g, b, a] = style.color.getRGBA();
-        this->text.setFillColor(sf::Color(r, g, b, a));
-        switch (style.variant) {
+    RichText::Segment::Segment(const std::u8string& str, TextStyle style): text(), style(style) {
+        setTextFont(this->text, style.font);
+        setTextString(this->text, str);
+        setTextSize(this->text, (unsigned int)style.size);
+        setTextVariant(this->text, style.variant);
+    }
+
+    void setTextString(sf::Text& text, const std::u8string& str) {
+        text.setString(sf::String::fromUtf8(str.begin(), str.end()));
+    }
+
+    void setTextFont(sf::Text& text, const Font* font) {
+        text.setFont(font->sffont);
+    }
+
+    void setTextSize(sf::Text& text, unsigned int size) {
+        text.setCharacterSize(size);
+    }
+
+    void setTextVariant(sf::Text& text, FontVariant variant) {
+        switch (variant) {
             case FontVariant::REGULAR:
-                this->text.setStyle(sf::Text::Regular);
+                text.setStyle(sf::Text::Regular);
                 break;
             case FontVariant::BOLD:
-                this->text.setStyle(sf::Text::Bold);
+                text.setStyle(sf::Text::Bold);
                 break;
             case FontVariant::ITALIC:
-                this->text.setStyle(sf::Text::Italic);
+                text.setStyle(sf::Text::Italic);
                 break;
             case FontVariant::UNDERLINE:
-                this->text.setStyle(sf::Text::Underlined);
+                text.setStyle(sf::Text::Underlined);
                 break;
         }
     }
@@ -101,5 +115,32 @@ namespace corn {
     RichText& RichText::addText(const std::u8string& text, TextStyle style) {
         this->segments.push_back(new Segment(text, style));
         return *this;
+    }
+
+    const TextStyle& getStyle(RichText::Segment* segment) {
+        return segment->style;
+    }
+
+    void setString(RichText::Segment* segment, const std::u8string& str) {
+        setTextString(segment->text, str);
+    }
+
+    void setFont(RichText::Segment* segment, const Font* font) {
+        segment->style.font = font;
+        setTextFont(segment->text, font);
+    }
+
+    void setSize(RichText::Segment* segment, unsigned int size) {
+        segment->style.size = size;
+        setTextSize(segment->text, size);
+    }
+
+    void setColor(RichText::Segment* segment, Color color) {
+        segment->style.color = color;
+    }
+
+    void setVariant(RichText::Segment* segment, FontVariant variant) {
+        segment->style.variant = variant;
+        setTextVariant(segment->text, variant);
     }
 }

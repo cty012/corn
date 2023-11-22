@@ -42,4 +42,12 @@ namespace corn {
         /// @brief Each segment represent a piece of text with uniform style.
         std::vector<Segment*> segments;
     };
+
+    const TextStyle& getStyle(RichText::Segment* segment);
+
+    void setString(RichText::Segment* segment, const std::u8string& str);
+    void setFont(RichText::Segment* segment, const Font* font);
+    void setSize(RichText::Segment* segment, unsigned int size);
+    void setColor(RichText::Segment* segment, Color color);
+    void setVariant(RichText::Segment* segment, FontVariant variant);
 }

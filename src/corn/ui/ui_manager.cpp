@@ -11,13 +11,13 @@
 namespace corn {
     UIManager::Node::Node(UIWidget* widget, UIManager::Node* parent): widget(widget), parent(parent), dirty(false) {}
 
-    UIManager::UIManager(Scene& scene): scene(scene), root(nullptr, nullptr) {
+    UIManager::UIManager(Scene& scene): scene(scene), root(nullptr, nullptr), hoveredWidgets(), hoveredWidgetSet() {
         this->mousebtnEventID = this->scene.getEventManager().addListener(
                 "corn::input::mousebtn", [this](const EventArgs& args) {
                     this->onClick(dynamic_cast<const EventArgsMouseButton&>(args));
                 });
         this->mousemvEventID = this->scene.getEventManager().addListener(
-                "corn::input::mousebtn", [this](const EventArgs& args) {
+                "corn::input::mousemv", [this](const EventArgs& args) {
                     this->onHover(dynamic_cast<const EventArgsMouseMove&>(args));
                 });
     }
@@ -174,26 +174,50 @@ namespace corn {
 
     void UIManager::onClick(const EventArgsMouseButton& args) {
         UIWidget* widget = this->getTargetWidget(args.mousePos);
-        UIWidget* current = widget;
+
         // Bubble up
-        while (current) {
+        for (UIWidget* current = widget; current; current = current->getParent()) {
             if (this->widgetContains(current, args.mousePos)) {
                 current->getEventManager().emit(EventArgsUIOnClick(args, widget));
             }
-            current = current->getParent();
         }
     }
 
     void UIManager::onHover(const EventArgsMouseMove& args) {
         UIWidget* widget = this->getTargetWidget(args.mousePos);
-        UIWidget* current = widget;
+
         // Bubble up
-        while (current) {
+        std::vector<UIWidget*> newHoveredWidgets;
+        std::unordered_set<UIWidget*> newHoveredWidgetSet;
+        for (UIWidget* current = widget; current; current = current->getParent()) {
             if (this->widgetContains(current, args.mousePos)) {
-                current->getEventManager().emit(EventArgsUIOnHover(args, widget));
+                newHoveredWidgets.push_back(current);
+                newHoveredWidgetSet.insert(current);
             }
-            current = current->getParent();
         }
+
+        // On exit
+        for (UIWidget* current : this->hoveredWidgets) {
+            if (!newHoveredWidgetSet.contains(current)) {
+                current->getEventManager().emit(EventArgsUIOnExit(args, widget));
+            }
+        }
+
+        // On enter
+        for (UIWidget* current : newHoveredWidgets) {
+            if (!this->hoveredWidgetSet.contains(current)) {
+                current->getEventManager().emit(EventArgsUIOnEnter(args, widget));
+            }
+        }
+
+        // On hover
+        for (UIWidget* current : newHoveredWidgets) {
+            current->getEventManager().emit(EventArgsUIOnHover(args, widget));
+        }
+
+        // Update hovered widgets
+        this->hoveredWidgets = std::move(newHoveredWidgets);
+        this->hoveredWidgetSet = std::move(newHoveredWidgetSet);
     }
 
     void UIManager::destroyNode(Node* node) {

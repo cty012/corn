@@ -91,7 +91,7 @@ namespace corn {
             try {
                 action(args);
             } catch (const std::exception& e) {
-                fprintf(stderr, "Exception occurred when emitting event [%s]: %s",
+                fprintf(stderr, "Exception occurred when emitting event [%s]: %s\n",
                         args.type(), e.what());
             }
         }

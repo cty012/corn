@@ -51,6 +51,7 @@ namespace corn {
     void Game::changeScene(corn::SceneOperation op, corn::Scene* scene) {
         switch (op) {
             case SceneOperation::PUSH:  // Add new scene to top
+                scene->game = this;
                 this->scenes.push(scene);
                 break;
             case SceneOperation::POP:  // Remove the top scene
@@ -59,10 +60,12 @@ namespace corn {
                 break;
             case SceneOperation::REPLACE:  // Remove the top scene and add new scene to top
                 this->removeOneScene();
+                scene->game = this;
                 this->scenes.push(scene);
                 break;
             case SceneOperation::REPLACE_ALL:  // Remove all scenes and add new scene to top
                 this->removeAllScenes();
+                scene->game = this;
                 this->scenes.push(scene);
                 break;
         }
@@ -85,7 +88,6 @@ namespace corn {
     }
 
     void Game::onSceneEvent(const EventArgsScene& args) {
-        args.scene->game = this;
         this->sceneEvents.push(args);
     }
 

@@ -32,4 +32,10 @@ namespace corn {
 
     EventArgsUIOnHover::EventArgsUIOnHover(EventArgsMouseMove mousemvEvent, UIWidget* target)
             : mousemvEvent(std::move(mousemvEvent)), target(target) {}
+
+    EventArgsUIOnEnter::EventArgsUIOnEnter(EventArgsMouseMove mousemvEvent, UIWidget* target)
+            : mousemvEvent(std::move(mousemvEvent)), target(target) {}
+
+    EventArgsUIOnExit::EventArgsUIOnExit(EventArgsMouseMove mousemvEvent, UIWidget* target)
+            : mousemvEvent(std::move(mousemvEvent)), target(target) {}
 }
