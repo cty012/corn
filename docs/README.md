@@ -10,40 +10,52 @@ It's designed to be easy to use and efficient, allowing developers to create hig
 - 2D rendering (3D in future plans)
 
 ## Prerequisites
-- Visual Studio 2022 (Windows) / MinGW-w64 13.1.0 (Windows) / Clang (MacOS) / GCC (Linux)
+- MSVC (Windows) / MinGW-w64 13.1.0 (Windows) / Clang (MacOS) / GCC (Linux)
 - (Optional) [CMake](https://cmake.org/): only if building from the source
-- (Optional) [SFML 2.6](https://www.sfml-dev.org/): only if building from the source
-- (Optional) [Google test](https://github.com/google/googletest): only if building the test cases
+- (Optional) [vcpkg](https://vcpkg.io/): only if building from the source
+- (Optional) [SFML 2.6](https://www.sfml-dev.org/): only if building from the source (installed in vcpkg)
+- (Optional) [Google test](https://github.com/google/googletest): only if building the test cases (installed in vcpkg)
 
 ## Getting Started
 
-### Windows (Visual Studio):
+### MSVC (Windows):
+1. Clone the repo:
+   ```shell
+   git clone https://github.com/cty012/corn.git
+   cd corn
+   ```
+2. Install [SFML 2.6](https://www.sfml-dev.org/) and [Google test](https://github.com/google/googletest):
+   ```shell
+   <Path_to_your_vcpkg> install sfml:x64-windows-static gtest:x64-windows-static
+   ```
+   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
+3. Build the source using Visual Studio IDE.
+   ```shell
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DCMAKE_GENERATOR_PLATFORM=x64
+   cmake --build build --config Release
+   ```
+   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
+
+### MinGW-w64 (Windows):
 1. Clone the repo and create the `deps/` folder:
    ```shell
    git clone https://github.com/cty012/corn.git
    cd corn
    mkdir deps
    ```
-2. Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
-3. Install [SFML 2.6](https://www.sfml-dev.org/) binaries in the `deps/` folder.
-4. Build the source using Visual Studio IDE.
-
-### Windows (MinGW-w64):
-1. Clone the repo and create the `deps/` folder:
+2. Install [SFML 2.6](https://www.sfml-dev.org/) and [Google test](https://github.com/google/googletest):
    ```shell
-   git clone https://github.com/cty012/corn.git
-   cd corn
-   mkdir deps
+   <Path_to_your_vcpkg> install sfml:x64-mingw-static gtest:x64-mingw-static
    ```
-2. Install [MinGW-w64](https://www.mingw-w64.org/downloads/).
-3. Install [SFML 2.6](https://www.sfml-dev.org/) binaries in the `deps/` folder.
-4. Build the source:
+   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
+3. Build the source:
    ```shell
-   cmd.exe /c 'cmake -B build -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=cmake/mingw-toolchain.cmake'
-   mingw32-make -C build
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-static -DCMAKE_GENERATOR_PLATFORM=x64
+   cmake --build build --config Release
    ```
+   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
 
-### MacOS:
+### Clang (MacOS):
 1. Clone the repo and create the `deps/` folder:
    ```shell
    git clone https://github.com/cty012/corn.git
@@ -58,7 +70,7 @@ It's designed to be easy to use and efficient, allowing developers to create hig
    ```
    Replace `<ARCHITECTURE>` with your Mac's architecture (arm64 or x86_64), and `<PKG_NAME>` with the directory name containing your SFML binaries in `deps/`.
 
-### Linux:
+### GCC (Linux):
 1. Clone the repo:
    ```shell
    git clone https://github.com/cty012/corn.git
