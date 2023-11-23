@@ -10,7 +10,7 @@ It's designed to be easy to use and efficient, allowing developers to create hig
 - 2D rendering (3D in future plans)
 
 ## Prerequisites
-- MSVC (Windows) / MinGW-w64 13.1.0 (Windows) / Clang (MacOS) / GCC (Linux)
+- MSVC (Windows) / MinGW-w64 13.1.0 (Windows) / Clang (macOS) / GCC (Linux)
 - (Optional) [CMake](https://cmake.org/): only if building from the source
 - (Optional) [vcpkg](https://vcpkg.io/): only if building from the source
 - (Optional) [SFML 2.6](https://www.sfml-dev.org/): only if building from the source (installed in vcpkg)
@@ -24,9 +24,9 @@ It's designed to be easy to use and efficient, allowing developers to create hig
    git clone https://github.com/cty012/corn.git
    cd corn
    ```
-2. Install [SFML 2.6](https://www.sfml-dev.org/) and [Google test](https://github.com/google/googletest):
+2. Install [SFML 2.6](https://www.sfml-dev.org/):
    ```shell
-   <Path_to_your_vcpkg> install sfml:x64-windows-static gtest:x64-windows-static
+   <Path_to_your_vcpkg> install sfml:x64-windows-static
    ```
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
 3. Build the source using Visual Studio IDE.
@@ -37,15 +37,14 @@ It's designed to be easy to use and efficient, allowing developers to create hig
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
 
 ### MinGW-w64 (Windows):
-1. Clone the repo and create the `deps/` folder:
+1. Clone the repo:
    ```shell
    git clone https://github.com/cty012/corn.git
    cd corn
-   mkdir deps
    ```
-2. Install [SFML 2.6](https://www.sfml-dev.org/) and [Google test](https://github.com/google/googletest):
+2. Install [SFML 2.6](https://www.sfml-dev.org/):
    ```shell
-   <Path_to_your_vcpkg> install sfml:x64-mingw-static gtest:x64-mingw-static
+   <Path_to_your_vcpkg> install sfml:x64-mingw-static
    ```
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
 3. Build the source:
@@ -55,20 +54,23 @@ It's designed to be easy to use and efficient, allowing developers to create hig
    ```
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
 
-### Clang (MacOS):
-1. Clone the repo and create the `deps/` folder:
+### Clang (macOS):
+1. Clone the repo:
    ```shell
    git clone https://github.com/cty012/corn.git
    cd corn
-   mkdir deps
    ```
-2. Install [SFML 2.6](https://www.sfml-dev.org/) binaries in the `deps/` folder.
+2. Install [SFML 2.6](https://www.sfml-dev.org/):
+   ```shell
+   <Path_to_your_vcpkg> install sfml:<Cpu_arch>-osx-release
+   ```
+   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path and `<Cpu_arch>` is your CPU's architecture (`arm64` or `x64`).
 3. Build the source:
    ```shell
-   cmake -B build -DCMAKE_TOOLCHAIN_FILE=cmake/clang-<ARCHITECTURE>-toolchain.cmake -DSFML_PACKAGE_NAME=<PKG_NAME>
-   make -C build
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=arm64-osx-static
+   cmake --build build --config Release
    ```
-   Replace `<ARCHITECTURE>` with your Mac's architecture (arm64 or x86_64), and `<PKG_NAME>` with the directory name containing your SFML binaries in `deps/`.
+   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path and `<Cpu_arch>` is your CPU's architecture (`arm64` or `x64`).
 
 ### GCC (Linux):
 1. Clone the repo:
