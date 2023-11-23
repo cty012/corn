@@ -71,7 +71,7 @@ It's designed to be easy to use and efficient, allowing developers to create hig
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path and `<Cpu_arch>` is your CPU's architecture (`arm64` or `x64`).
 4. Build the source:
    ```shell
-   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=arm64-osx-static
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=arm64-osx-release
    cmake --build build --config Release
    ```
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path and `<Cpu_arch>` is your CPU's architecture (`arm64` or `x64`).
@@ -82,16 +82,17 @@ It's designed to be easy to use and efficient, allowing developers to create hig
    git clone https://github.com/cty012/corn.git
    cd corn
    ```
-2. Install SFML and its dependencies to the default location using your package manager or from the [SFML website](https://www.sfml-dev.org/).
-   For example, on Ubuntu:
+2. Install [SFML 2.6](https://www.sfml-dev.org/):
    ```shell
-   sudo apt install libsfml-dev
+   <Path_to_your_vcpkg> install sfml:x64-linux-release
    ```
+   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
 3. Build the source:
    ```shell
-   cmake -B build -DCMAKE_TOOLCHAIN_FILE=cmake/gcc-toolchain.cmake
-   make -C build
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux-release
+   cmake --build build --config Release
    ```
+   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
 
 ## Documentation
 The documentation of this project is generated using [Doxygen](https://www.doxygen.nl/).
