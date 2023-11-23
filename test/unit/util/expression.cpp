@@ -1,3 +1,4 @@
+#include <array>
 #include <gtest/gtest.h>
 #include <corn/util/expression.h>
 #include "../../../src/corn/util/expression_impl.h"

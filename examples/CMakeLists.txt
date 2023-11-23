@@ -5,15 +5,16 @@ add_custom_target(examples
 
 # Build examples
 function (build_example EXAMPLE_NAME)
-    if (MSVC)
-        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-    endif ()
-
     file(GLOB EXAMPLE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}/*.h")
     file(GLOB EXAMPLE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}/*.cpp")
 
     if (WIN32)
         add_executable(${EXAMPLE_NAME} WIN32 ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
+        if (MSVC)
+            set_target_properties(${EXAMPLE_NAME} PROPERTIES
+                    LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS"
+            )
+        endif ()
     elseif (APPLE)
         add_executable(${EXAMPLE_NAME} ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
         set_target_properties(${EXAMPLE_NAME} PROPERTIES
