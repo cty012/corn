@@ -35,6 +35,8 @@ function (build_example EXAMPLE_NAME)
     file(GLOB_RECURSE RESOURCES "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}/resources/*")
     add_custom_target(${EXAMPLE_NAME}_resources ALL
             COMMAND ${CMAKE_COMMAND} -E echo "Copying resources..."
+            COMMAND ${CMAKE_COMMAND} -E make_directory
+                ${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}
             COMMAND ${CMAKE_COMMAND} -E remove_directory
                 ${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}/resources
             COMMAND ${CMAKE_COMMAND} -E copy_directory

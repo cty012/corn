@@ -83,25 +83,25 @@ namespace corn {
     }
 
     void UIWidget::setX(const std::string& expression) {
-        static constexpr std::array<std::string, 5> units = {"px", "%pw", "%ph", "%nw", "%nh"};
+        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%nw", "%nh"};
         this->x = Expression(expression, units);
         this->independent[0] = expression.find("%p") == std::string::npos;
     }
 
     void UIWidget::setY(const std::string& expression) {
-        static constexpr std::array<std::string, 5> units = {"px", "%pw", "%ph", "%nw", "%nh"};
+        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%nw", "%nh"};
         this->y = Expression(expression, units);
         this->independent[1] = expression.find("%p") == std::string::npos;
     }
 
     void UIWidget::setW(const std::string& expression) {
-        static constexpr std::array<std::string, 5> units = {"px", "%pw", "%ph", "%nw", "%nh"};
+        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%nw", "%nh"};
         this->w = Expression(expression, units);
         this->independent[2] = expression.find("%p") == std::string::npos;
     }
 
     void UIWidget::setH(const std::string& expression) {
-        static constexpr std::array<std::string, 5> units = {"px", "%pw", "%ph", "%nw", "%nh"};
+        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%nw", "%nh"};
         this->h = Expression(expression, units);
         this->independent[3] = expression.find("%p") == std::string::npos;
     }
