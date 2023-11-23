@@ -17,19 +17,21 @@ It's designed to be easy to use and efficient, allowing developers to create hig
 - (Optional) [Google test](https://github.com/google/googletest): only if building the test cases (installed in vcpkg)
 
 ## Getting Started
+First, clone the source code from the repository:
+```shell
+git clone https://github.com/cty012/corn.git
+cd corn
+```
+To build the source code, the steps are slightly different for different platforms and compilers.
+In the following section, everything enclosed by `<>` should be replaced with things specific to your system (there will be explanations below).
 
 ### MSVC (Windows):
-1. Clone the repo:
-   ```shell
-   git clone https://github.com/cty012/corn.git
-   cd corn
-   ```
-2. Install [SFML 2.6](https://www.sfml-dev.org/):
+1. Install [SFML 2.6](https://www.sfml-dev.org/):
    ```shell
    <Path_to_your_vcpkg> install sfml:x64-windows-static
    ```
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
-3. Build the source using Visual Studio IDE.
+2. Build the source using Visual Studio IDE.
    ```shell
    cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static
    cmake --build build --config Release
@@ -37,17 +39,12 @@ It's designed to be easy to use and efficient, allowing developers to create hig
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
 
 ### MinGW-w64 (Windows):
-1. Clone the repo:
-   ```shell
-   git clone https://github.com/cty012/corn.git
-   cd corn
-   ```
-2. Install [SFML 2.6](https://www.sfml-dev.org/):
+1. Install [SFML 2.6](https://www.sfml-dev.org/):
    ```shell
    <Path_to_your_vcpkg> install sfml:x64-mingw-static
    ```
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
-3. Build the source:
+2. Build the source:
    ```shell
    cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-static
    cmake --build build --config Release
@@ -55,39 +52,30 @@ It's designed to be easy to use and efficient, allowing developers to create hig
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
 
 ### Clang (macOS):
-1. Clone the repo:
-   ```shell
-   git clone https://github.com/cty012/corn.git
-   cd corn
-   ```
-2. Before you install anything, make sure `pkg-config` is installed:
+1. Before you install anything, make sure `pkg-config` is installed since it might be required by the build system:
    ```shell
    brew install pkg-config
    ```
-3. Install [SFML 2.6](https://www.sfml-dev.org/):
+2. Install [SFML 2.6](https://www.sfml-dev.org/):
    ```shell
    <Path_to_your_vcpkg> install sfml:<Cpu_arch>-osx-release
    ```
-   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path and `<Cpu_arch>` is your CPU's architecture (`arm64` or `x64`).
-4. Build the source:
+   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path and `<Cpu_arch>` is your CPU's architecture.
+   If your Mac has a M1/M2 chip then it is `arm64`. Otherwise, it is `x64`.
+3. Build the source:
    ```shell
    cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=<Cpu_arch>-osx-release
    cmake --build build --config Release
    ```
-   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path and `<Cpu_arch>` is your CPU's architecture (`arm64` or `x64`).
+   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path and `<Cpu_arch>` is your CPU's architecture.
 
 ### GCC (Linux):
-1. Clone the repo:
-   ```shell
-   git clone https://github.com/cty012/corn.git
-   cd corn
-   ```
-2. Install [SFML 2.6](https://www.sfml-dev.org/):
+1. Install [SFML 2.6](https://www.sfml-dev.org/):
    ```shell
    <Path_to_your_vcpkg> install sfml:x64-linux-release
    ```
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
-3. Build the source:
+2. Build the source:
    ```shell
    cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux-release
    cmake --build build --config Release
