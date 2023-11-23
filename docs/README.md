@@ -31,7 +31,7 @@ It's designed to be easy to use and efficient, allowing developers to create hig
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
 3. Build the source using Visual Studio IDE.
    ```shell
-   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DCMAKE_GENERATOR_PLATFORM=x64
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static
    cmake --build build --config Release
    ```
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
@@ -50,7 +50,7 @@ It's designed to be easy to use and efficient, allowing developers to create hig
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
 3. Build the source:
    ```shell
-   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-static -DCMAKE_GENERATOR_PLATFORM=x64
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-static
    cmake --build build --config Release
    ```
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
