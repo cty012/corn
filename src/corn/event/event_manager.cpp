@@ -6,6 +6,9 @@ namespace corn {
     EventManager::EventManager() : listeners() {}
 
     EventManager::~EventManager() {
+        for (EventManager* room : this->privateRooms) {
+            delete room;
+        }
         for (auto& [roomName, room] : this->rooms) {
             delete room;
         }
@@ -23,10 +26,15 @@ namespace corn {
         return *instance.rooms[room];
     }
 
+    EventManager& EventManager::privateInstance() {
+        static EventManager instance;
+        return instance;
+    }
+
     bool EventManager::addRoom(const std::string& room) noexcept {
         EventManager& instance = EventManager::instance();
         if (instance.rooms.contains(room)) return false;
-        EventManager* manager = new EventManager();
+        auto* manager = new EventManager();
         instance.rooms[room] = manager;
         return true;
     }
@@ -36,6 +44,22 @@ namespace corn {
         if (!instance.rooms.contains(room)) return false;
         delete instance.rooms[room];
         instance.rooms.erase(room);
+        return true;
+    }
+
+    EventManager* EventManager::addPrivateRoom() noexcept {
+        EventManager& instance = EventManager::privateInstance();
+        auto* manager = new EventManager();
+        instance.privateRooms.push_back(manager);
+        return manager;
+    }
+
+    bool EventManager::removePrivateRoom(EventManager* manager) noexcept {
+        EventManager& instance = EventManager::privateInstance();
+        std::vector<EventManager*>& rooms = instance.privateRooms;
+        auto newEnd = std::remove(rooms.begin(), rooms.end(), manager);
+        if (newEnd == rooms.end()) return false;
+        rooms.erase(newEnd, rooms.end());
         return true;
     }
 
@@ -67,7 +91,7 @@ namespace corn {
             try {
                 action(args);
             } catch (const std::exception& e) {
-                fprintf(stderr, "Exception occurred when emitting event [%s]: %s",
+                fprintf(stderr, "Exception occurred when emitting event [%s]: %s\n",
                         args.type(), e.what());
             }
         }

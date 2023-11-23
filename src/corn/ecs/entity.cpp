@@ -41,13 +41,12 @@ namespace corn {
     }
 
     Entity* Entity::getParent() const {
-        EntityManager::Node* parent = this->entityManager.nodes.at(id).parent;
-        if (!parent) return nullptr;
-        return parent->ent;
+        EntityManager::Node* parent = this->entityManager.nodes.at(this->id).parent;
+        return parent ? parent->ent : nullptr;
     }
 
     std::vector<Entity*> Entity::getChildren() const {
-        std::vector<EntityManager::Node*> children = this->entityManager.nodes.at(id).children;
+        std::vector<EntityManager::Node*> children = this->entityManager.nodes.at(this->id).children;
         std::vector<Entity*> result = std::vector<Entity*>(children.size());
         for (size_t i = 0; i < children.size(); i++) {
             result[i] = children[i]->ent;

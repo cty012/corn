@@ -1,12 +1,16 @@
+#include <ranges>
 #include <corn/core/game.h>
 #include <corn/ecs/component.h>
 #include <corn/event/event_manager.h>
 #include <corn/geometry/vec2.h>
 #include <corn/media/interface.h>
+#include <corn/ui/ui_label.h>
 #include "camera_viewport_impl.h"
+#include "font_impl.h"
 #include "image_impl.h"
 #include "interface_impl.h"
 #include "interface_helper.h"
+#include "rich_text_impl.h"
 
 namespace corn {
     std::unordered_map<Key, bool> Interface::keyPressed = std::unordered_map<Key, bool>();
@@ -34,9 +38,9 @@ namespace corn {
 
     void Interface::init() {
         sf::ContextSettings contextSettings;
-        contextSettings.antialiasingLevel = 16;
+        contextSettings.antialiasingLevel = this->config.antialiasing;
         this->impl->window->create(
-                sf::VideoMode(this->config.width, this->config.height),
+                sf::VideoMode((int)this->config.width, (int)this->config.height),
                 this->config.title,
                 cornMode2SfStyle(this->config.mode),
                 contextSettings);
@@ -76,14 +80,14 @@ namespace corn {
                 case (sf::Event::MouseWheelScrolled): {
                     EventArgsMouseScroll eventArgs(
                             event.mouseWheelScroll.delta,
-                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                            Vec2((float)event.mouseWheelScroll.x, (float)event.mouseWheelScroll.y));
                     EventManager::instance().emit(eventArgs);
                     this->game.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
                 case sf::Event::MouseMoved: {
                     EventArgsMouseMove eventArgs(
-                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                            Vec2((float)event.mouseMove.x, (float)event.mouseMove.y));
                     EventManager::instance().emit(eventArgs);
                     this->game.getTopScene()->getEventManager().emit(eventArgs);
                     break;
@@ -132,7 +136,7 @@ namespace corn {
         this->impl->window->clear(sf::Color(r, g, b));
     }
 
-    bool renderCamera(Scene* scene, const CCamera* camera, const Vec2& percentWindowSize) {
+    bool renderCamera(Scene* scene, const CCamera* camera, const Config& config, const Vec2& percentWindowSize) {
         // Check if camera is active
         if (!camera->active) return false;
 
@@ -153,7 +157,7 @@ namespace corn {
 
         // Reset the camera viewport
         CameraViewportImpl* viewportImpl = InterfaceImpl::getCameraViewportImpl(camera->viewport);
-        viewportImpl->setSize(viewportSize);
+        viewportImpl->setSize(viewportSize, config.antialiasing);
         auto [r, g, b, a] = camera->background.getRGBA();
         viewportImpl->texture.clear(sf::Color(r, g, b, a));
 
@@ -181,14 +185,70 @@ namespace corn {
         return true;
     }
 
+    void Interface::renderUI(UIManager& uiManager) {
+        Vec2 windowSize = this->windowSize();
+        uiManager.tidy();
+        uiManager.calcGeometry(windowSize);
+        std::vector<UIWidget*> widgets = uiManager.getAllActiveWidgets();
+
+        // Find opacity
+        std::unordered_map<const UIWidget*, float> opacities;
+        opacities[nullptr] = 1.0f;
+
+        // Render
+        for (const UIWidget* widget : widgets) {
+            // Find opacity
+            UIWidget* parent = widget->getParent();
+            opacities[widget] = opacities[parent] * (float)widget->opacity / 255.0f;
+
+            // Find geometry
+            auto [x, y, w, h] = uiManager.getCachedGeometry(widget);
+
+            // Render the background
+            sf::RectangleShape boundingRect(sf::Vector2f(w, h));
+            boundingRect.setPosition(x, y);
+            auto [r, g, b, a] = widget->background.getRGBA();
+            boundingRect.setFillColor(sf::Color(r, g, b, (unsigned char)((float)a * opacities[widget])));
+            this->impl->window->draw(boundingRect);
+
+            // Render the widget
+            switch (widget->type) {
+                case UIType::PANEL:
+                    break;
+                case UIType::LABEL: {
+                    const auto* label = dynamic_cast<const UILabel*>(widget);
+                    float _x = x, _y = y;
+                    for (RichText::Segment* segment: label->getText().segments) {
+                        if (segment->style.font->state != FontState::LOADED) continue;
+                        segment->text.setPosition(_x, _y);
+                        auto [_r, _g, _b, _a] = segment->style.color.getRGBA();
+                        segment->text.setFillColor(sf::Color(_r, _g, _b, (unsigned char)((float)_a * opacities[widget])));
+                        this->impl->window->draw(segment->text);
+                        _x += segment->text.getLocalBounds().width;  // TODO: Text wrap
+                    }
+                    break;
+                }
+                case UIType::IMAGE:
+                    // TODO
+                    break;
+                case UIType::INPUT:
+                    // TODO
+                    break;
+            }
+        }
+    }
+
     void Interface::render(Scene* scene) {
         Vec2 windowSize = this->windowSize();
-        Vec2 percentWindowSize = windowSize * 0.01;
+        Vec2 percentWindowSize = windowSize * 0.01f;
 
+        // Clear the screen
         this->clear();
+
+        // Render Entities
         scene->getEntityManager().tidy();
         for (const CCamera* camera : scene->getEntityManager().cameras) {
-            if (renderCamera(scene, camera, percentWindowSize)) {
+            if (renderCamera(scene, camera, this->config, percentWindowSize)) {
                 float x = camera->viewport.x.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
                 float y = camera->viewport.y.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
                 sf::View view(sf::FloatRect(-x, -y, windowSize.x, windowSize.y));
@@ -199,8 +259,12 @@ namespace corn {
             }
         }
 
+        // Render UI widgets
+        sf::View view(sf::FloatRect(0, 0, windowSize.x, windowSize.y));
+        this->impl->window->setView(view);
+        this->renderUI(scene->getUIManager());
+
         this->impl->window->setView(this->impl->window->getDefaultView());
-        this->impl->window->display();
     }
 
     void Interface::update() {

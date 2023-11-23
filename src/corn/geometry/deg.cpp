@@ -47,12 +47,12 @@ namespace corn {
     }
 
     float Deg::sin() const {
-        static constexpr float degToRad = PI / 180;
+        static constexpr float degToRad = (float)(PI / 180.0);
         return std::sin(this->_val * degToRad);
     }
 
     float Deg::cos() const {
-        static constexpr float degToRad = PI / 180;
+        static constexpr float degToRad = (float)(PI / 180.0);
         return std::cos(this->_val * degToRad);
     }
 

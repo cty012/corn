@@ -3,6 +3,7 @@
 #include <vector>
 #include <corn/ecs/entity.h>
 #include <corn/ecs/system.h>
+#include <corn/ui/ui_manager.h>
 
 namespace corn {
     /**
@@ -58,6 +59,9 @@ namespace corn {
         /// @return The EntityManager owned by this scene.
         [[nodiscard]] EntityManager& getEntityManager() const;
 
+        /// @return The UIManager owned by this scene.
+        [[nodiscard]] UIManager& getUIManager() const;
+
         /// @return The EventManager room corresponding to this scene.
         [[nodiscard]] EventManager& getEventManager() const;
 
@@ -69,6 +73,10 @@ namespace corn {
 
 
     protected:
+        /// @brief List of all Systems in this scene.
+        std::vector<System*> systems;
+
+    private:
         /// @brief The unique ID of the scene.
         SceneID id;
         std::string room;
@@ -79,7 +87,7 @@ namespace corn {
         /// @brief Manages the lifetime of all Entities in this scene.
         EntityManager* entityManager;
 
-        /// @brief List of all Systems in this scene.
-        std::vector<System*> systems;
+        /// @brief Manages the lifetime of all UI widgets in this scene.
+        UIManager* uiManager;
     };
 }

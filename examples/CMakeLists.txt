@@ -9,11 +9,11 @@ function (build_example EXAMPLE_NAME)
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
     endif ()
 
-    file(GLOB EXAMPLE_HEADERS "${CMAKE_SOURCE_DIR}/examples/${EXAMPLE_NAME}/*.h")
-    file(GLOB EXAMPLE_SOURCES "${CMAKE_SOURCE_DIR}/examples/${EXAMPLE_NAME}/*.cpp")
+    file(GLOB EXAMPLE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}/*.h")
+    file(GLOB EXAMPLE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}/*.cpp")
+
     if (WIN32)
-        add_executable(${EXAMPLE_NAME} ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
-        # add_executable(${EXAMPLE_NAME} WIN32 ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
+        add_executable(${EXAMPLE_NAME} WIN32 ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
     elseif (APPLE)
         add_executable(${EXAMPLE_NAME} ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
         set_target_properties(${EXAMPLE_NAME} PROPERTIES
@@ -25,22 +25,35 @@ function (build_example EXAMPLE_NAME)
                 BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "$ORIGIN"
         )
     endif ()
-    set_target_properties(${EXAMPLE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXAMPLE_OUTPUT_DIR}")
+
+    set_target_properties(${EXAMPLE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}")
     target_include_directories(${EXAMPLE_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include")
     target_link_libraries(${EXAMPLE_NAME} corn)
     add_dependencies(${EXAMPLE_NAME} examples)
-endfunction ()
 
-build_example("clangy-bird")
+    # Copy resources folder
+    file(GLOB_RECURSE RESOURCES "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}/resources/*")
+    add_custom_target(${EXAMPLE_NAME}_resources ALL
+            COMMAND ${CMAKE_COMMAND} -E echo "Copying resources..."
+            COMMAND ${CMAKE_COMMAND} -E make_directory
+                ${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}
+            COMMAND ${CMAKE_COMMAND} -E remove_directory
+                ${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}/resources
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                ${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}/resources
+                ${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}/resources
+            SOURCES ${RESOURCES}
+    )
+    add_dependencies(${EXAMPLE_NAME} ${EXAMPLE_NAME}_resources)
 
-# Move corn DLL to example folder
-if (NOT ${CORN_OUTPUT_DIR} STREQUAL ${EXAMPLES_OUTPUT_DIR})
+    # Copy corn DLL
     add_custom_command(
-            TARGET examples
+            TARGET ${EXAMPLE_NAME}
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${CORN_OUTPUT_PATH}
-                ${EXAMPLES_OUTPUT_DIR}
-            COMMENT "Copied corn DLL to examples output directory"
+                ${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}
     )
-endif ()
+endfunction ()
+
+build_example("clangy-bird")

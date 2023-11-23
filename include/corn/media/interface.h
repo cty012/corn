@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <corn/core/input.h>
 #include <corn/core/scene.h>
+#include <corn/ui/ui_widget.h>
 #include <corn/util/config.h>
 
 namespace corn {
@@ -23,6 +24,7 @@ namespace corn {
         static const std::unordered_map<Key, bool>& getKeyPressed();
 
         void clear();
+        void renderUI(UIManager& uiManager);
         void render(Scene* scene);
         void update();
 

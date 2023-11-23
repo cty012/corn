@@ -59,7 +59,7 @@ namespace corn {
          * @brief Creates a new Entity with no Components attached.
          * @param name Name of the Entity. Entities can have the same name.
          * @param parent Parent Entity to attach the new Entity. If value is null, will attach to the root.
-         * @return Reference to the Entity created.
+         * @return Pointer to the Entity created.
          * @throw std::invalid_argument if parent is not a valid Entity created by the Entity Manager.
          *
          * If reaches the maximum Entity existing simultaneously, will result in undefined behavior.
@@ -99,7 +99,7 @@ namespace corn {
          * @return The first Entity that satisfy the conditions given by filter. Null pointer if it doesn't exist.
          */
         Entity* getEntityThat(
-                const std::function<bool(Entity*)>& pred, const Entity* parent = nullptr, bool recurse = true) const;
+                const std::function<bool(const Entity*)>& pred, const Entity* parent = nullptr, bool recurse = true) const;
 
         /**
          * @param pred A predicate function that takes an Entity pointer and returns whether it satisfy the conditions.
@@ -108,7 +108,7 @@ namespace corn {
          * @return All Entities that satisfy the conditions given by filter.
          */
         std::vector<Entity*> getEntitiesThat(
-                const std::function<bool(Entity*)>& pred, const Entity* parent = nullptr, bool recurse = true) const;
+                const std::function<bool(const Entity*)>& pred, const Entity* parent = nullptr, bool recurse = true) const;
 
         /**
          * @param parent Parent to start searching from.
@@ -146,8 +146,11 @@ namespace corn {
         void tidy();
 
     private:
-        /// Helper to EntityManager::destroyEntity
-        /// Destroys a node and the entity inside, as well as all descendant nodes, but does not modify parent node
+        /**
+         * @brief Helper to EntityManager::destroyEntity
+         *
+         * Destroys a node and the Entity inside, as well as all descendant nodes, but does not modify parent node
+         */
         void destroyNode(Node* node);
 
         /**

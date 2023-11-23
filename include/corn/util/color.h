@@ -15,7 +15,15 @@ namespace corn {
         static Color rgb(const RGBA& rgbValue);
         [[nodiscard]] RGB getRGB() const;
         [[nodiscard]] RGBA getRGBA() const;
+        static Color parse(const std::string& hexString);
         [[nodiscard]] std::string hexString() const;
+        [[nodiscard]] std::string hexStringAlpha() const;
+
+        static const Color& RED();
+        static const Color& GREEN();
+        static const Color& BLUE();
+        static const Color& WHITE();
+        static const Color& BLACK();
 
     private:
         Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a);

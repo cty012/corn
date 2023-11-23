@@ -2,12 +2,13 @@
 #include <corn/event/event_manager.h>
 
 namespace corn {
-    Scene::Scene() : game(), entityManager(nullptr), systems(std::vector<System*>()) {
+    Scene::Scene() : systems(std::vector<System*>()), game(nullptr) {
         static SceneID uniqueID = 0;
         this->id = uniqueID++;
         this->room = "Scene::" + std::to_string(this->id);
         EventManager::addRoom(this->room);
         this->entityManager = new EntityManager(*this);
+        this->uiManager = new UIManager(*this);
     }
 
     Scene::~Scene() {
@@ -25,6 +26,10 @@ namespace corn {
 
     EntityManager& Scene::getEntityManager() const {
         return *this->entityManager;
+    }
+
+    UIManager& Scene::getUIManager() const {
+        return *this->uiManager;
     }
 
     EventManager& Scene::getEventManager() const {

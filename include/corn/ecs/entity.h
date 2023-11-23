@@ -10,7 +10,7 @@
 
 namespace corn {
     template <typename T>
-    concept ComponentType = std::derived_from<T, corn::Component>;
+    concept ComponentType = std::derived_from<T, Component>;
 
     /**
      * @class Entity
@@ -25,7 +25,7 @@ namespace corn {
      */
     class Entity final {
     public:
-        using EntityID = unsigned long long int;
+        using EntityID = size_t;
         // EntityManager need access to ctor/dtor
         friend class EntityManager;
 
@@ -110,6 +110,7 @@ namespace corn {
         explicit Entity(EntityID id, std::string name, EntityManager& entityManager);
         ~Entity();
         Entity(const Entity& other) = delete;
+        Entity& operator=(const Entity& other) = delete;
     };
 
     template<ComponentType T, typename... Args>

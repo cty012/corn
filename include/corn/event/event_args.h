@@ -8,6 +8,7 @@ namespace corn {
     struct EventArgs {
         /// @return Type of the event
         [[nodiscard]] virtual constexpr const char* type() const = 0;
+        virtual ~EventArgs();
     };
 
     struct EventArgsExit : public EventArgs {
@@ -66,5 +67,34 @@ namespace corn {
         EventArgsCollision(CAABB* collider1, CAABB* collider2);
         CAABB* collider1;
         CAABB* collider2;
+    };
+
+    class UIWidget;
+    struct EventArgsUIOnClick : public EventArgs {
+        [[nodiscard]] constexpr const char* type() const override { return "corn::ui::onclick"; }
+        EventArgsUIOnClick(EventArgsMouseButton mousebtnEvent, UIWidget* target);
+        EventArgsMouseButton mousebtnEvent;
+        UIWidget* target;
+    };
+
+    struct EventArgsUIOnHover : public EventArgs {
+        [[nodiscard]] constexpr const char* type() const override { return "corn::ui::onhover"; }
+        EventArgsUIOnHover(EventArgsMouseMove mousemvEvent, UIWidget* target);
+        EventArgsMouseMove mousemvEvent;
+        UIWidget* target;
+    };
+
+    struct EventArgsUIOnEnter : public EventArgs {
+        [[nodiscard]] constexpr const char* type() const override { return "corn::ui::onenter"; }
+        EventArgsUIOnEnter(EventArgsMouseMove mousemvEvent, UIWidget* target);
+        EventArgsMouseMove mousemvEvent;
+        UIWidget* target;
+    };
+
+    struct EventArgsUIOnExit : public EventArgs {
+        [[nodiscard]] constexpr const char* type() const override { return "corn::ui::onexit"; }
+        EventArgsUIOnExit(EventArgsMouseMove mousemvEvent, UIWidget* target);
+        EventArgsMouseMove mousemvEvent;
+        UIWidget* target;
     };
 }
