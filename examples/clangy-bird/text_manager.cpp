@@ -23,13 +23,13 @@ std::string getSettingsRootFolder() {
             }
         #else
             const char* appDataPath = std::getenv("APPDATA");
-            std::string folderPath(appDataPath);
-            return folderPath + R"(\corn-games\clangy-bird\settings\)";
+            return std::string(appDataPath) + R"(\corn-games\clangy-bird\settings\)";
         #endif
 
     #elif defined(__APPLE__) || defined(__MACH__)
         // macOS
-        return "~/Library/Application Support/corn-games/clangy-bird/settings/";
+        const char* homePath = std::getenv("HOME");
+        return std::string(homePath) + "/Library/Application Support/corn-games/clangy-bird/settings/";
 
     #elif defined(__linux__)
         // Linux

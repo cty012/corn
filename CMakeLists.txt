@@ -40,33 +40,8 @@ set(CORN_OUTPUT_PATH $<TARGET_FILE:corn>)
 target_include_directories(corn PRIVATE "${CMAKE_SOURCE_DIR}/include")
 
 # Link with SFML
-#if (WIN32)
-#    set(VCPKG_TARGET_ARCHITECTURE x64)
-#elseif (APPLE)
-#    set(SFML_ROOT "${CMAKE_SOURCE_DIR}/deps/${SFML_PACKAGE_NAME}")
-#    set(SFML_INCLUDE_DIR "${SFML_ROOT}/include")
-#    set(SFML_LIBRARY_DIR "${SFML_ROOT}/lib")
-#    set(SFML_LIBRARIES
-#            ${SFML_LIBRARY_DIR}/libsfml-audio.dylib
-#            ${SFML_LIBRARY_DIR}/libsfml-graphics.dylib
-#            ${SFML_LIBRARY_DIR}/libsfml-network.dylib
-#            ${SFML_LIBRARY_DIR}/libsfml-system.dylib
-#            ${SFML_LIBRARY_DIR}/libsfml-window.dylib
-#    )
-#    target_include_directories(corn PRIVATE ${SFML_INCLUDE_DIR})
-#elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-#endif ()
-
 find_package(SFML 2.6 COMPONENTS audio graphics network system window CONFIG REQUIRED)
-set(SFML_LIBRARIES
-        sfml-audio
-        sfml-graphics
-        sfml-network
-        sfml-system
-        sfml-window
-)
-
-target_link_libraries(corn PRIVATE ${SFML_LIBRARIES})
+target_link_libraries(corn PRIVATE sfml-audio sfml-graphics sfml-network sfml-system sfml-window)
 
 # Build examples
 if (BUILD_EXAMPLES)
