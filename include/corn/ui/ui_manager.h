@@ -100,7 +100,7 @@ namespace corn {
         Vec4 getCachedGeometry(const UIWidget* target) const;
 
     private:
-        bool widgetContains(UIWidget* widget, Vec2 pos) const;
+        bool widgetContains(const UIWidget* widget, Vec2 pos) const;
         UIWidget* getTargetWidget(Vec2 pos);
         void onClick(const EventArgsMouseButton& args);
         void onHover(const EventArgsMouseMove& args);
