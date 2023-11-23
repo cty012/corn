@@ -1,5 +1,4 @@
 enable_testing()  # Enables testing functionalities
-set(GTEST_ROOT "$ENV{Library}/googletest")
 find_package(GTest REQUIRED)
 
 file(GLOB_RECURSE TEST_HEADERS "${CMAKE_SOURCE_DIR}/test/*.h")
@@ -12,7 +11,7 @@ target_include_directories(test PRIVATE
         "${CMAKE_SOURCE_DIR}/test/common"
         "${CMAKE_SOURCE_DIR}/include"
 )
-target_link_libraries(test ${GTEST_BOTH_LIBRARIES} pthread corn)
+target_link_libraries(test ${GTEST_BOTH_LIBRARIES} corn)
 
 if (NOT ${CORN_OUTPUT_DIR} STREQUAL ${TEST_OUTPUT_DIR})
     add_custom_command(

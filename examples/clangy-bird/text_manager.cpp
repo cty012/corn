@@ -11,9 +11,21 @@ TextManager& TextManager::instance() {
 std::string getSettingsRootFolder() {
     #if defined(_WIN32) || defined(_WIN64)
         // Windows
-        const char* appDataPath = std::getenv("APPDATA");
-        std::string folderPath(appDataPath);
-        return folderPath + R"(\corn-games\clangy-bird\settings\)";
+        #if defined(_MSC_VER)
+            char* appDataPath = nullptr;
+            size_t size = 0;
+            if (_dupenv_s(&appDataPath, &size, "APPDATA") == 0 && appDataPath != nullptr) {
+                std::string folderPath(appDataPath);
+                free(appDataPath);  // Free the allocated memory
+                return folderPath + R"(\corn-games\clangy-bird\settings\)";
+            } else {
+                throw std::runtime_error("APPDATA environment variable not found");
+            }
+        #else
+            const char* appDataPath = std::getenv("APPDATA");
+            std::string folderPath(appDataPath);
+            return folderPath + R"(\corn-games\clangy-bird\settings\)";
+        #endif
 
     #elif defined(__APPLE__) || defined(__MACH__)
         // macOS
@@ -27,14 +39,14 @@ std::string getSettingsRootFolder() {
 
     #else
         #error "Unknown platform"
-#endif
+    #endif
 }
 
 bool createSettings(const std::string& settingsRootFolder, const std::string& fileName, const std::string& fileContents) {
     try {
         // Create the directory and all its parent directories if they don't exist
         std::filesystem::create_directories(settingsRootFolder);
-    } catch (const std::filesystem::filesystem_error& e) {
+    } catch (const std::filesystem::filesystem_error&) {
         return false;
     }
     std::string settingsPath = settingsRootFolder + fileName;
