@@ -60,12 +60,16 @@ It's designed to be easy to use and efficient, allowing developers to create hig
    git clone https://github.com/cty012/corn.git
    cd corn
    ```
-2. Install [SFML 2.6](https://www.sfml-dev.org/):
+2. Before you install anything, make sure `pkg-config` is installed:
+   ```shell
+   brew install pkg-config
+   ```
+3. Install [SFML 2.6](https://www.sfml-dev.org/):
    ```shell
    <Path_to_your_vcpkg> install sfml:<Cpu_arch>-osx-release
    ```
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path and `<Cpu_arch>` is your CPU's architecture (`arm64` or `x64`).
-3. Build the source:
+4. Build the source:
    ```shell
    cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=arm64-osx-static
    cmake --build build --config Release
