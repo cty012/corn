@@ -77,7 +77,7 @@ namespace corn {
         };
 
         // First pass (natural size)
-        for (const UIWidget* widget : std::ranges::reverse_view(widgets)) {
+        for (const UIWidget* widget : std::ranges::reverse_view(std::views::all(widgets))) {
             UIGeometry geometry = widget->getGeometry();
 
             // Calculate natural size
@@ -159,14 +159,15 @@ namespace corn {
         return { node->location.x, node->location.y, node->size.x, node->size.y };
     }
 
-    bool UIManager::widgetContains(UIWidget* widget, Vec2 pos) const {
+    bool UIManager::widgetContains(const UIWidget* widget, Vec2 pos) const {
         auto [x, y, w, h] = this->getCachedGeometry(widget);
         return x < pos.x && y < pos.y && x + w > pos.x && y + h > pos.y;
     }
 
     UIWidget* UIManager::getTargetWidget(Vec2 pos) {
         this->tidy();
-        for (UIWidget* widget : std::ranges::reverse_view(this->getAllActiveWidgets())) {
+        std::vector<UIWidget*> widgets = this->getAllActiveWidgets();
+        for (UIWidget* widget : std::ranges::reverse_view(std::views::all(widgets))) {
             if (this->widgetContains(widget, pos)) return widget;
         }
         return nullptr;
