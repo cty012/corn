@@ -71,7 +71,7 @@ It's designed to be easy to use and efficient, allowing developers to create hig
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path and `<Cpu_arch>` is your CPU's architecture (`arm64` or `x64`).
 4. Build the source:
    ```shell
-   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=arm64-osx-release
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=<Cpu_arch>-osx-release
    cmake --build build --config Release
    ```
    where `<Path_to_your_vcpkg>` is your `vcpkg` installation path and `<Cpu_arch>` is your CPU's architecture (`arm64` or `x64`).
