@@ -17,70 +17,67 @@ It's designed to be easy to use and efficient, allowing developers to create hig
 - (Optional) [Google test](https://github.com/google/googletest): only if building the test cases (installed in vcpkg)
 
 ## Getting Started
-First, clone the source code from the repository:
+To get started with the project, clone the repository to your local machine using the following commands:
 ```shell
 git clone https://github.com/cty012/corn.git
 cd corn
 ```
-To build the source code, the steps are slightly different for different platforms and compilers.
-In the following section, everything enclosed by `<>` should be replaced with things specific to your system (there will be explanations below).
+
+The build process varies depending on your operating system and compiler.
+Make sure you already have `CMake` and `vcpkg` installed on your machine.
+You will need to replace placeholders with actual values for your setup.
+For `<path_to_vcpkg>`, use the full path where vcpkg is installed on your system.
 
 ### MSVC (Windows):
-1. Install [SFML 2.6](https://www.sfml-dev.org/):
+1. Install SFML 2.6 using `vcpkg`:
    ```shell
-   <Path_to_your_vcpkg> install sfml:x64-windows-static
+   <path_to_vcpkg> install sfml:x64-windows-static
    ```
-   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
-2. Build the source using Visual Studio IDE.
+2. Build the project with `CMake`:
    ```shell
-   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static
    cmake --build build --config Release
    ```
-   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
 
 ### MinGW-w64 (Windows):
-1. Install [SFML 2.6](https://www.sfml-dev.org/):
+1. Install SFML 2.6 using `vcpkg`:
    ```shell
-   <Path_to_your_vcpkg> install sfml:x64-mingw-static
+   <path_to_vcpkg> install sfml:x64-mingw-static
    ```
-   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
-2. Build the source:
+2. Build the project with `CMake`:
    ```shell
-   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-static
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-static
    cmake --build build --config Release
    ```
-   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
 
 ### Clang (macOS):
-1. Before you install anything, make sure `pkg-config` is installed since it might be required by the build system:
+1. Ensure `pkg-config` is installed (required by some dependencies):
    ```shell
    brew install pkg-config
    ```
-2. Install [SFML 2.6](https://www.sfml-dev.org/):
+2. Install SFML 2.6 using `vcpkg`:
    ```shell
-   <Path_to_your_vcpkg> install sfml:<Cpu_arch>-osx-release
+   <path_to_vcpkg> install sfml:<cpu_arch>-osx-release
    ```
-   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path and `<Cpu_arch>` is your CPU's architecture.
-   If your Mac has a M1/M2 chip then it is `arm64`. Otherwise, it is `x64`.
-3. Build the source:
+   Replace `<cpu_arch>` with `arm64` for Apple Silicon (M1/M2) or `x64` for Intel-based Macs.
+3. Build the project with `CMake`:
    ```shell
-   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=<Cpu_arch>-osx-release
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=<Cpu_arch>-osx-release
    cmake --build build --config Release
    ```
-   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path and `<Cpu_arch>` is your CPU's architecture.
 
 ### GCC (Linux):
-1. Install [SFML 2.6](https://www.sfml-dev.org/):
+1. Install SFML 2.6 using `vcpkg`:
    ```shell
-   <Path_to_your_vcpkg> install sfml:x64-linux-release
+   <path_to_vcpkg> install sfml:x64-linux-release
    ```
-   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
-2. Build the source:
+2. Build the project with `CMake`:
    ```shell
-   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<Path_to_your_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux-release
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux-release
    cmake --build build --config Release
    ```
-   where `<Path_to_your_vcpkg>` is your `vcpkg` installation path.
+
+After building, you'll find the executables in the build directory.
 
 ## Documentation
 The documentation of this project is generated using [Doxygen](https://www.doxygen.nl/).
