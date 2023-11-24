@@ -1,19 +1,20 @@
 #include <stack>
 #include <vector>
 #include <corn/core/scene.h>
+#include <corn/ecs/entity_manager.h>
 #include <corn/ecs/system.h>
 
 namespace corn {
-    System::System(Scene& scene) : active(true), scene(scene) {}
+    System::System(Scene& scene) : active(true), scene_(scene) {}
 
     System::~System() = default;
 
     Scene& System::getScene() const {
-        return this->scene;
+        return this->scene_;
     }
 
     const Game* System::getGame() const {
-        return this->scene.getGame();
+        return this->scene_.getGame();
     }
 
     SMovement2D::SMovement2D(Scene& scene) : System(scene) {}
@@ -28,7 +29,7 @@ namespace corn {
         }
     }
 
-    SGravity::SGravity(Scene& scene, float scale) : System(scene), scale(scale) {}
+    SGravity::SGravity(Scene& scene, float g) : System(scene), g(g) {}
 
     void SGravity::update(float millis) {
         for (Entity* entity : this->getScene().getEntityManager().getActiveEntitiesWith<CMovement2D, CGravity2D>()) {
@@ -37,14 +38,13 @@ namespace corn {
             // TODO: gravity 3D
             if (!movement->active || !gravity2D->active) continue;
             movement->addWorldVelocityOffset(
-                    Vec2(0, SGravity::g * this->scale * gravity2D->scale * (millis / 1000.0f)));
+                    Vec2(0, this->g * gravity2D->scale * (millis / 1000.0f)));
         }
     }
 
     SCollisionDetection::SCollisionDetection(Scene& scene) : System(scene) {}
 
-    void SCollisionDetection::update(float millis) {
-        (void)millis;
+    void SCollisionDetection::update(float) {
         std::vector<Entity*> entities = this->getScene().getEntityManager().getActiveEntitiesWith<CTransform2D, CAABB>();
         for (size_t i = 0; i < entities.size(); i++) {
             for (size_t j = i + 1; j < entities.size(); j++) {

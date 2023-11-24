@@ -1,6 +1,5 @@
-#include <corn/event/event_args.h>
-
 #include <utility>
+#include <corn/event/event_args.h>
 #include "event_args_extend.h"
 
 namespace corn {
@@ -17,9 +16,9 @@ namespace corn {
     EventArgsMouseScroll::EventArgsMouseScroll(float value, const Vec2& mousePos)
             : value(value), mousePos(mousePos) {}
 
-    EventArgsScene::EventArgsScene(SceneOperation op, Scene* scene): op(op), scene(scene) {}
+    EventArgsScene::EventArgsScene(SceneOperation op, Scene* scene) : op(op), scene(scene) {}
 
-    EventArgsZOrderChange::EventArgsZOrderChange(Entity* entity): entity(entity) {}
+    EventArgsZOrderChange::EventArgsZOrderChange(Entity* entity) : entity(entity) {}
 
     EventArgsCamera::EventArgsCamera(CameraEventType eventType, const CCamera* camera)
             : eventType(eventType), camera(camera) {}

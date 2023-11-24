@@ -22,7 +22,6 @@ namespace corn {
     public:
         // Entity needs access to the destroyEntity function
         friend class Entity;
-        friend class Interface;
 
         /**
          * @struct Node
@@ -41,14 +40,15 @@ namespace corn {
             Node(Entity* ent, Node* parent);
         };
 
+        /// @brief Constructor.
         explicit EntityManager(Scene& scene);
+        /// @brief Destructor.
         ~EntityManager();
         EntityManager(const EntityManager& other) = delete;
         EntityManager& operator=(const EntityManager& other) = delete;
 
         /// @return The scene that owns this Entity manager.
         [[nodiscard]] Scene& getScene() const;
-
         /// @return The game that contains this Entity manager.
         [[nodiscard]] const Game* getGame() const;
 
@@ -137,33 +137,35 @@ namespace corn {
          * @tparam T List of type of the Components, must derive from Component class.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
-         * @return All active Entities with the list of Components. See `Entity::isActive()` for definition of active.
+         * @return All active entities with the list of components. See `Entity::isActive()` for definition of active.
          */
         template <ComponentType... T>
         std::vector<Entity*> getActiveEntitiesWith(const Entity* parent = nullptr, bool recurse = true) const;
+
+        const std::vector<const CCamera*>& getCameras() const;
 
         /// @brief Cleans up all dirty nodes. Auto-called before rendering.
         void tidy();
 
     private:
         /**
-         * @brief Helper to EntityManager::destroyEntity
+         * @brief Helper to `EntityManager::destroyEntity`
          *
-         * Destroys a node and the Entity inside, as well as all descendant nodes, but does not modify parent node
+         * Destroys a node and the entity inside, as well as all descendant nodes, but does not modify parent node.
          */
         void destroyNode(Node* node);
 
         /**
-         * @brief Destroys an Entity. First destroys all children before destroying itself.
-         * @param entity The Entity to be destroyed.
+         * @brief Destroys an entity. First destroys all children before destroying itself.
+         * @param entity The entity to be destroyed.
          *
-         * You should not use this function to destroy an Entity. Use `entity.destroy()` instead.
+         * You should not use this function to destroy an entity. Use `entity.destroy()` instead.
          */
         void destroyEntity(Entity& entity);
 
         /**
-         * @brief Given a pointer to Entity, return the Node containing it.
-         * @throw std::invalid_argument if parent is not a valid Entity created by the Entity Manager.
+         * @brief Given a pointer to entity, return the Node containing it.
+         * @throw std::invalid_argument if parent is not a valid entity created by the entity manager.
          *
          * The two functions are the same, but one is the const version of the other.
          */
@@ -186,16 +188,17 @@ namespace corn {
                 const Entity* parent, bool recurse) const;
 
         /// @brief The scene that owns this entity manager.
-        Scene& scene;
+        Scene& scene_;
         /// @brief The root node (does not contain a entity).
-        Node root;
+        Node root_;
         /// @brief Quick access for finding nodes by entity ID (does not contain root).
-        std::unordered_map<Entity::EntityID, Node> nodes;
+        std::unordered_map<Entity::EntityID, Node> nodes_;
         /// @brief List of camera entities for quick access.
-        std::vector<const CCamera*> cameras;
+        std::vector<const CCamera*> cameras_;
 
         /// @brief Event listeners.
-        std::vector<EventManager::ListenerID> eventIDs;
+        EventManager::ListenerID zOrderEventID_;
+        EventManager::ListenerID cameraEventID_;
     };
 
     template<ComponentType... T>

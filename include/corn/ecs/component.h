@@ -6,6 +6,7 @@
 #include <corn/geometry/vec3.h>
 #include <corn/media/camera_viewport.h>
 #include <corn/media/image.h>
+#include <corn/util/color.h>
 #include <corn/util/expression.h>
 
 namespace corn {
@@ -26,24 +27,25 @@ namespace corn {
      * @see System
      */
     struct Component {
+        /// @brief An inactive component will be ignored.
         bool active;
+
+        /// @brief Constructor.
         explicit Component(Entity& entity);
-        virtual ~Component() = default;
+        /// @brief Destructor.
+        virtual ~Component();
 
-        /// @return The Entity that owns this component.
+        /// @return The entity that owns this component.
         [[nodiscard]] Entity& getEntity() const;
-
-        /// @return The Entity manager that contains this component.
+        /// @return The entity manager that contains this component.
         [[nodiscard]] EntityManager& getEntityManager() const;
-
         /// @return The scene that contains this component.
         [[nodiscard]] Scene& getScene() const;
-
         /// @return The game that contains this component.
         [[nodiscard]] const Game* getGame() const;
 
     private:
-        /// @brief The Entity that owns this component.
+        /// @brief The entity that owns this component.
         Entity& entity;
     };
 
@@ -55,21 +57,37 @@ namespace corn {
      * @see SMovement2D
      */
     struct CTransform2D : public Component {
+        /// @brief Location of the entity in its parent's reference frame.
         Vec2 location;
+        /// @brief Rotation of the entity in its parent's reference frame.
         Deg rotation;
+
+        /// @brief Constructor.
         CTransform2D(Entity& entity, Vec2 location, Deg rotation = Deg());
-        [[nodiscard]] std::pair<Vec2, Deg> worldTransform() const;
-        void setWorldLocation(Vec2 newLocation);
+
+        /// @return The transform in the world's reference frame.
+        [[nodiscard]] std::pair<Vec2, Deg> getWorldTransform() const;
+        /// @brief Set the location of the entity in the world's reference frame.
+        void setWorldLocation(Vec2 worldLocation);
+        /// @brief Adds an offset to the location of the entity in the world's reference frame.
         void addWorldLocationOffset(Vec2 offset);
+
+        /// @brief Getter of the z-order of the entity.
         [[nodiscard]] int getZOrder() const;
-        void setZOrder(int _zorder);
+        /// @brief Setter of the z-order of the entity.
+        void setZOrder(int zOrder);
+
     private:
-        int zorder;
+        /**
+         * @brief Defines the order of the Entities in the z direction (in/out of the screen). A higher z-order means
+         * closer to the user.
+         */
+        int zOrder_;
     };
 
     /**
      * @class CSprite
-     * @brief Stores the image of the Entity. A 2D Entity is only rendered if it has a CSprite Component and a
+     * @brief Stores the image of the entity. A 2D entity is only rendered if it has a CSprite Component and a
      * CTransform2D Component.
      *
      * @see Component
@@ -77,10 +95,14 @@ namespace corn {
      * @see Interface
      */
     struct CSprite : public Component {
+        /// @brief Pointer to the image.
         Image* image;
-        Vec2 topLeft;
-        bool visible;
-        CSprite(Entity& entity, Image *image, Vec2 topLeft = Vec2::ZERO());
+        /// @brief Location of the top left corner of the image.
+        Vec2 location;
+
+        /// @brief Constructor.
+        CSprite(Entity& entity, Image *image, Vec2 location = Vec2::ZERO());
+        /// @brief Destructor.
         ~CSprite() override;
     };
 
@@ -88,29 +110,46 @@ namespace corn {
      * @class CMovement2D
      * @brief Stores the velocity of the object in 2D space.
      *
-     * Unit: pixels/second & degrees/second
-     *
      * @see Component
      * @see SMovement2D
      */
     struct CMovement2D : public Component {
+        /**
+         * @brief Linear velocity of the entity in its parent's reference frame.
+         *
+         * Unit: pixel/second
+         */
         Vec2 velocity;
+        /**
+         * @brief Angular velocity of the entity in its parent's reference frame.
+         *
+         * Unit: degree/second
+         */
         float angularVelocity;
+
+        /// @brief Constructor.
         explicit CMovement2D(Entity& entity, Vec2 velocity = Vec2::ZERO(), float angularVelocity = 0.0f);
-        [[nodiscard]] std::pair<Vec2, float> worldMovement() const;
-        void setWorldVelocity(Vec2 newVelocity);
+
+        /// @return The velocities in the world's reference frame.
+        [[nodiscard]] std::pair<Vec2, float> getWorldMovement() const;
+        /// @brief Set the linear velocity of the entity in the world's reference frame.
+        void setWorldVelocity(Vec2 worldVelocity);
+        /// @brief Adds an offset to the linear velocity of the entity in the world's reference frame.
         void addWorldVelocityOffset(Vec2 offset);
     };
 
     /**
      * @class CGravity2D
-     * @brief Constantly increases world velocity.
+     * @brief Constantly increases world velocity in the positive y direction.
      *
      * @see Component
      * @see SGravity
      */
     struct CGravity2D : public Component {
+        /// @brief Scale of the gravitational acceleration on the entity.
         float scale;
+
+        /// @brief Constructor.
         explicit CGravity2D(Entity& entity, float scale = 1.0f);
     };
 
@@ -119,7 +158,7 @@ namespace corn {
      * @brief Axis-aligned bounding box (AABB), or a rectangular box for collision detection.
      *
      * The Vec2 for the corners are relative to the world location of the entity. i.e. <0, 0> would refer to the exact
-     * location of the object. Having an invalid set of upper left and lower right corner will result in no collisions.
+     * location of the object. Having an invalid set of top left and bottom right corner will result in no collisions.
      *
      * Note that the AABB is not affected by rotation.
      *
@@ -128,13 +167,15 @@ namespace corn {
      * @see CCollisionResolve
      */
     struct CAABB : public Component {
-        /// @brief Upper left corner
-        Vec2 ul;
-        /// @brief Lower right corner
-        Vec2 lr;
-        CAABB(Entity& entity, Vec2 ul, Vec2 lr);
+        /// @brief Location of the top left corner.
+        Vec2 tl;
+        /// @brief Location of the bottom right corner.
+        Vec2 br;
 
-        /// @brief Check if two AABBs overlap
+        /// @brief Constructor.
+        CAABB(Entity& entity, Vec2 tl, Vec2 br);
+
+        /// @return Whether the two AABBs overlap.
         [[nodiscard]] bool overlapWith(const CAABB& other) const;
     };
 
@@ -142,8 +183,10 @@ namespace corn {
 
     /**
      * @class CCamera
+     * @brief Captures graphics from the world and renders to the window.
      *
-     * @todo Implement this
+     * @see Component
+     * @see Interface
      */
     struct CCamera : public Component {
         /// @brief 2D camera renders entities with 2D transforms, and the same for 3D cameras.
@@ -151,7 +194,6 @@ namespace corn {
 
         /// @brief The background color of the camera's field of view.
         Color background;
-
         /// @brief The opacity of the camera, on a scale of [0, 255].
         unsigned char opacity;
 
@@ -178,17 +220,21 @@ namespace corn {
          */
         Expression<3> fovW, fovH;
 
-        /// @brief Creates a 2D camera
+        /// @brief Constructor for 2D camera.
         CCamera(Entity& entity, Vec2 anchor, Color background = Color::rgb(0, 0, 0, 0));
-        /// @brief Creates a 3D camera
+        /// @brief Constructor for 3D camera.
         CCamera(Entity& entity, Vec3 anchor, Color background = Color::rgb(0, 0, 0, 0));
-
+        /// @brief Destructor.
         ~CCamera() override;
 
         /**
          * @brief Set the top-left corner, width, and height of the viewport.
          *
-         * E.g. To render to the entire window, use:
+         * Each parameter is an expression of px, %ww (percentage window width), and %wh (percentage window height). If
+         * a parameter is an emtpy string, then its value will not be reassigned.
+         *
+         * @example
+         * To render to the entire window, use:
          * `setViewport("0px", "0px", "100%ww", "100%wh")`
          *
          * To maintain an aspect ratio of 16:9 while fitting inside the window, use:
@@ -205,11 +251,12 @@ namespace corn {
 
         /**
          * @brief Set the width and height of the field of view.
+         * Similar to setViewport, but uses viewport width (%vw) and viewport height (%vh). If a parameter is an emtpy
+         * string, then its value will not be reassigned.
          *
-         * Similar to @setViewport, but uses viewport width (%vw) and viewport height (%vh).
-         *
+         * @example
          * To capture a fixed FOV (such as 1920x1080), use `setFov("1920px", "1080px")`.
-         * To let the FOV change size with the viewport, use `setFov("100%w", "100%h")`.
+         * To let the FOV resize with the viewport, use `setFov("100%vw", "100%vh")`.
          */
         void setFov(const std::string& w, const std::string& h);
     };

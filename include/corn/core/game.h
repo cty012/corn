@@ -78,27 +78,21 @@ namespace corn {
          */
         void changeScene(SceneOperation op, Scene* scene);
 
-        /// @brief Callback to the scene event.
-        void onSceneEvent(const EventArgsScene& args);
-
-        /// @brief Callback to the exit event.
-        void onExitEvent(const EventArgsExit &args);
-
         /// @brief Resolves all pending scene events at the end of a game loop.
         void resolveSceneEvents();
 
         /// Indicates if the game is currently running
-        bool active;
+        bool active_;
         /// Game settings (e.g. resolution, display mode, volume, etc.)
-        Config config;
+        Config config_;
         /// Scene stack
-        std::stack<Scene*> scenes;
-        std::queue<EventArgsScene> sceneEvents;
-        Interface* interface;
+        std::stack<Scene*> scenes_;
+        std::queue<EventArgsScene> sceneEvents_;
+        Interface* interface_;
 
-        Stopwatch sw;
+        Stopwatch sw_;
 
-        EventManager::ListenerID sceneEventID;
-        EventManager::ListenerID closeEventID;
+        EventManager::ListenerID sceneEventID_;
+        EventManager::ListenerID closeEventID_;
     };
 }

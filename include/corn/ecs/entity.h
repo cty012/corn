@@ -16,8 +16,8 @@ namespace corn {
      * @class Entity
      * @brief Entity in the ECS architecture.
      *
-     * The Entity class does nothing but serves as a container for Components. They should not be created or destroyed
-     * directly. Instead, their lifetime is managed by the Entity Manager.
+     * The Entity class does nothing but serves as a container for components. They should not be created or destroyed
+     * directly. Instead, their lifetime is managed by the entity manager.
      *
      * @see EntityManager
      * @see Component
@@ -25,115 +25,135 @@ namespace corn {
      */
     class Entity final {
     public:
-        using EntityID = size_t;
+        using EntityID = unsigned long long int;
+
         // EntityManager need access to ctor/dtor
         friend class EntityManager;
 
-        /// @brief Indicates whether the Entity is active.
-        bool active;
+        /// @brief Getter for the entity's ID.
+        [[nodiscard]] EntityID getID() const;
+
+        /// @brief Getter for the entity's name.
+        [[nodiscard]] const std::string& getName() const;
+
+        /// @brief Setter for the entity's name.
+        void setName(std::string name);
+
+        /// @return Getter for the entity's active property.
+        [[nodiscard]] bool isActiveA() const;
+
+        /// @brief Setter for the entity's active property.
+        void setActive(bool active);
 
         /**
-         * @brief The unique ID of the Entity.
+         * @return Whether the entity is active in the world.
          *
-         * The unique ID starts from 0 and adds one for each new Entity created within the same scene. After it reaches
-         * the max value of EntityID, it goes back to 0.
+         * An entity is active in the world if and only if itself and all its ancestors have property active set to
+         * true.
          */
-        const EntityID id;
+        [[nodiscard]] bool isActiveInWorld() const;
 
-        /**
-         * @brief The name of the Entity.
-         *
-         * Unlike ID, the name is a mutable property assigned during creation. Multiple Entities are allowed to have
-         * the same name.
-         */
-        std::string name;
+        /// @return The entity manager that owns this entity.
+        [[nodiscard]] EntityManager& getEntityManager() const;
 
-        /// @brief Destroys the Entity itself.
+        /// @return The scene that contains this entity.
+        [[nodiscard]] Scene& getScene() const;
+
+        /// @return The game that contains this entity.
+        [[nodiscard]] const Game* getGame() const;
+
+        /// @brief Destroys the entity itself.
         void destroy();
 
         /**
-         * @return Whether the Entity is active. An Entity is active iff itself and all its ancestors have
-         * Entity::active set to true.
-         */
-        [[nodiscard]] bool isActive() const;
-
-        /// @return The Entity manager that owns this Entity.
-        [[nodiscard]] EntityManager& getEntityManager() const;
-
-        /// @return The scene that contains this Entity.
-        [[nodiscard]] Scene& getScene() const;
-
-        /// @return The game that contains this Entity.
-        [[nodiscard]] const Game* getGame() const;
-
-        /**
-         * @brief Create a Component and attach it to the Entity.
-         * @tparam T Type of the Component, must derive from Component class.
-         * @param args Arguments for constructing the Component (excluding the first argument Entity& entity).
-         * @return Pointer to the Component if successfully added, else null pointer.
+         * @brief Create a component and attach it to the entity.
+         * @tparam T Type of the component, must derive from Component class.
+         * @param args Arguments for constructing the component (excluding the first argument Entity& entity).
+         * @return Pointer to the component if successfully added, else null pointer.
          *
-         * If a component of the same type already exist, it will NOT be replaced.
+         * If a component of the same type already exist, it will NOT be replaced. Instead null pointer will be
+         * returned.
          */
         template <ComponentType T, typename... Args>
-        T* createComponent(Args&&... args);
+        T* addComponent(Args&&... args);
 
         /**
-         * @brief Obtain the corresponding Component.
-         * @tparam T Type of the Component, must derive from Component class.
-         * @return Pointer to the Component if exists, else null pointer.
+         * @brief Obtain the corresponding component.
+         * @tparam T Type of the component, must derive from Component class.
+         * @return Pointer to the component if exists, else null pointer.
          */
         template <ComponentType T>
         T* getComponent() const;
 
         /**
-         * @brief Removing a Component from the Entity.
-         * @tparam T Type of the Component, must derive from Component class.
-         * @return Whether the Component originally exists.
+         * @brief Removing a component from the entity.
+         * @tparam T Type of the component, must derive from Component class.
+         * @return Whether the component originally exists.
          */
         template <ComponentType T>
         bool removeComponent();
 
-        /// @return Get the parent Entity.
+        /// @return Get the parent entity.
         Entity* getParent() const;
 
-        /// @return Get the list of child Entities.
+        /// @return Get the list of child entities.
         std::vector<Entity*> getChildren() const;
 
     private:
-        /// @brief The Entity manager that owns this Entity.
-        EntityManager& entityManager;
-
-        /// List of all attached Components
-        std::unordered_map<std::type_index, Component*> components;
-
-        // Private constructor/destructor
+        /// Constructor.
         explicit Entity(EntityID id, std::string name, EntityManager& entityManager);
+        /// Destructor.
         ~Entity();
         Entity(const Entity& other) = delete;
         Entity& operator=(const Entity& other) = delete;
+
+        /**
+         * @brief The unique ID of the entity.
+         *
+         * The unique ID starts from 0 and adds one for each new entity created within the same scene. After it reaches
+         * the max value of EntityID, it goes back to 0.
+         */
+        const EntityID id_;
+
+        /**
+         * @brief The name of the entity.
+         *
+         * Unlike ID, the name is a mutable property assigned during creation. Multiple Entities are allowed to have
+         * the same name.
+         */
+        std::string name_;
+
+        /// @brief Indicates whether the entity is active.
+        bool active_;
+
+        /// @brief The entity manager that owns this entity.
+        EntityManager& entityManager_;
+
+        /// @brief List of all attached components.
+        std::unordered_map<std::type_index, Component*> components_;
     };
 
     template<ComponentType T, typename... Args>
-    T* Entity::createComponent(Args&&... args) {
+    T* Entity::addComponent(Args&&... args) {
         auto key = std::type_index(typeid(T));
-        if (this->components.find(key) != this->components.end()) return nullptr;
+        if (this->components_.find(key) != this->components_.end()) return nullptr;
         T* component = new T(*this, std::forward<Args>(args)...);
-        this->components[key] = component;
+        this->components_[key] = component;
         return component;
     }
 
     template<ComponentType T>
     T* Entity::getComponent() const {
         auto key = std::type_index(typeid(T));
-        if (this->components.find(key) == this->components.end()) return nullptr;
-        return dynamic_cast<T*>(this->components.at(key));
+        if (this->components_.find(key) == this->components_.end()) return nullptr;
+        return dynamic_cast<T*>(this->components_.at(key));
     }
 
     template<ComponentType T>
     bool Entity::removeComponent() {
         auto key = std::type_index(typeid(T));
-        if (this->components.find(key) == this->components.end()) return false;
-        this->components.erase(key);
+        if (this->components_.find(key) == this->components_.end()) return false;
+        this->components_.erase(key);
         return true;
     }
 }

@@ -10,7 +10,7 @@ void WallManager::update([[maybe_unused]] float millis) {
     // Iterate over existing walls
     for (corn::Entity* entity : this->getScene().getEntityManager().getEntitiesWith<Wall>()) {
         auto* transform = entity->getComponent<corn::CTransform2D>();
-        float locationX = transform->worldTransform().first.x;
+        float locationX = transform->getWorldTransform().first.x;
         if ((locationX + WALL_THICKNESS) < 0) {
             entity->destroy();
         }
@@ -39,7 +39,7 @@ BirdCollisionResolve::~BirdCollisionResolve() {
 
 void BirdCollisionResolve::resolve(const corn::EventArgsCollision& args) {
     if (this->hasCollided) return;
-    if (args.collider1->getEntity().name != "bird" && args.collider2->getEntity().name != "bird") return;
+    if (args.collider1->getEntity().getName() != "bird" && args.collider2->getEntity().getName() != "bird") return;
     this->hasCollided = true;
     corn::EventManager::instance().emit(corn::EventArgsScene(
             corn::SceneOperation::REPLACE, new GameScene()));

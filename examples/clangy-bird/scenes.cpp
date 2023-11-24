@@ -7,13 +7,11 @@
 
 void underlineOnHover(corn::UILabel* label) {
     label->getEventManager().addListener(
-            "corn::ui::onenter", [label](const corn::EventArgs& args) {
-                (void)args;
+            "corn::ui::onenter", [label](const corn::EventArgs&) {
                 corn::setVariant(label->getText().segments[0], corn::FontVariant::UNDERLINE);
             });
     label->getEventManager().addListener(
-            "corn::ui::onexit", [label](const corn::EventArgs& args) {
-                (void)args;
+            "corn::ui::onexit", [label](const corn::EventArgs&) {
                 corn::setVariant(label->getText().segments[0], corn::FontVariant::REGULAR);
             });
 }
@@ -42,7 +40,9 @@ MainMenuScene::MainMenuScene() {
     underlineOnHover(start);
     start->getEventManager().addListener(
             "corn::ui::onclick", [](const corn::EventArgs& args) {
-                (void)args;
+                if (dynamic_cast<const corn::EventArgsUIOnClick&>(args).mousebtnEvent.status != corn::ButtonEvent::UP) {
+                    return;
+                }
                 corn::EventManager::instance().emit(
                         corn::EventArgsScene(corn::SceneOperation::PUSH, new GameScene()));
             });
@@ -54,7 +54,9 @@ MainMenuScene::MainMenuScene() {
     underlineOnHover(settings);
     settings->getEventManager().addListener(
             "corn::ui::onclick", [](const corn::EventArgs& args) {
-                (void)args;
+                if (dynamic_cast<const corn::EventArgsUIOnClick&>(args).mousebtnEvent.status != corn::ButtonEvent::UP) {
+                    return;
+                }
                 corn::EventManager::instance().emit(
                         corn::EventArgsScene(corn::SceneOperation::PUSH, new SettingsScene()));
             });
@@ -66,13 +68,14 @@ MainMenuScene::MainMenuScene() {
     underlineOnHover(exit);
     exit->getEventManager().addListener(
             "corn::ui::onclick", [](const corn::EventArgs& args) {
-                (void)args;
+                if (dynamic_cast<const corn::EventArgsUIOnClick&>(args).mousebtnEvent.status != corn::ButtonEvent::UP) {
+                    return;
+                }
                 corn::EventManager::instance().emit(corn::EventArgsExit());
             });
 
     this->langChangeEventID = corn::EventManager::instance().addListener(
-            "clangy-bird::langchange", [title, start, settings, exit](const corn::EventArgs& args) {
-                (void)args;
+            "clangy-bird::langchange", [title, start, settings, exit](const corn::EventArgs&) {
                 title->setText(TextManager::instance().getRichText("main-menu-title"));
                 start->setText(TextManager::instance().getRichText("main-menu-start"));
                 settings->setText(TextManager::instance().getRichText("main-menu-settings"));
@@ -111,11 +114,13 @@ SettingsScene::SettingsScene() {
     underlineOnHover(lang);
     lang->getEventManager().addListener(
             "corn::ui::onclick", [](const corn::EventArgs& args) {
+                if (dynamic_cast<const corn::EventArgsUIOnClick&>(args).mousebtnEvent.status != corn::ButtonEvent::UP) {
+                    return;
+                }
                 std::string language = (std::string)TextManager::instance().getSettings("lang");
                 TextManager::instance().changeSettings("lang", language == "eng" ? "chn" : "eng");
                 TextManager::instance().saveSettings();
                 corn::EventManager::instance().emit(EventArgsLanguageChange());
-                (void)args;
             });
 
     // Save button
@@ -126,14 +131,15 @@ SettingsScene::SettingsScene() {
     underlineOnHover(save);
     save->getEventManager().addListener(
             "corn::ui::onclick", [](const corn::EventArgs& args) {
-                (void)args;
+                if (dynamic_cast<const corn::EventArgsUIOnClick&>(args).mousebtnEvent.status != corn::ButtonEvent::UP) {
+                    return;
+                }
                 corn::EventManager::instance().emit(
                         corn::EventArgsScene(corn::SceneOperation::POP, nullptr));
             });
 
     this->langChangeEventID = corn::EventManager::instance().addListener(
-            "clangy-bird::langchange", [title, langLabel, lang, save](const corn::EventArgs& args) {
-                (void)args;
+            "clangy-bird::langchange", [title, langLabel, lang, save](const corn::EventArgs&) {
                 title->setText(TextManager::instance().getRichText("settings-title"));
                 langLabel->setText(TextManager::instance().getRichText("settings-lang"));
                 std::string language = (std::string)TextManager::instance().getSettings("lang");
@@ -146,7 +152,7 @@ SettingsScene::~SettingsScene() {
     corn::EventManager::instance().removeListener(this->langChangeEventID);
 }
 
-GameScene::GameScene() : paused(false) {
+GameScene::GameScene() : paused(false), addedSystems_() {
     // Camera
     createCamera(this->getEntityManager());
 
@@ -156,11 +162,11 @@ GameScene::GameScene() : paused(false) {
     createCeilAndFloor(this->getEntityManager());
 
     // Systems
-    this->systems.push_back(new corn::SMovement2D(*this));
-    this->systems.push_back(new corn::SGravity(*this));
-    this->systems.push_back(new corn::SCollisionDetection(*this));
-    this->systems.push_back(new WallManager(*this));
-    this->systems.push_back(new BirdCollisionResolve(*this));
+    this->addedSystems_.push_back(this->addSystem<corn::SMovement2D>());
+    this->addedSystems_.push_back(this->addSystem<corn::SGravity>());
+    this->addedSystems_.push_back(this->addSystem<corn::SCollisionDetection>());
+    this->addedSystems_.push_back(this->addSystem<WallManager>());
+    this->addedSystems_.push_back(this->addSystem<BirdCollisionResolve>());
 
     // UI
     auto* body = this->getUIManager().createWidget<corn::UIWidget>("body", nullptr);
@@ -187,7 +193,9 @@ GameScene::GameScene() : paused(false) {
     underlineOnHover(cont);
     cont->getEventManager().addListener(
             "corn::ui::onclick", [this](const corn::EventArgs& args) {
-                (void)args;
+                if (dynamic_cast<const corn::EventArgsUIOnClick&>(args).mousebtnEvent.status != corn::ButtonEvent::UP) {
+                    return;
+                }
                 this->togglePause();
             });
 
@@ -197,7 +205,9 @@ GameScene::GameScene() : paused(false) {
     underlineOnHover(exitToMainMenu);
     exitToMainMenu->getEventManager().addListener(
             "corn::ui::onclick", [](const corn::EventArgs& args) {
-                (void)args;
+                if (dynamic_cast<const corn::EventArgsUIOnClick&>(args).mousebtnEvent.status != corn::ButtonEvent::UP) {
+                    return;
+                }
                 corn::EventManager::instance().emit(
                         corn::EventArgsScene(corn::SceneOperation::POP, nullptr));
             });
@@ -213,8 +223,7 @@ GameScene::GameScene() : paused(false) {
             });
 
     this->langChangeEventID = corn::EventManager::instance().addListener(
-            "clangy-bird::langchange", [title, cont, exitToMainMenu](const corn::EventArgs& args) {
-                (void)args;
+            "clangy-bird::langchange", [title, cont, exitToMainMenu](const corn::EventArgs&) {
                 title->setText(TextManager::instance().getRichText("game-pause-title"));
                 cont->setText(TextManager::instance().getRichText("game-pause-continue"));
                 exitToMainMenu->setText(TextManager::instance().getRichText("game-pause-exit-to-main-menu"));
@@ -225,9 +234,6 @@ GameScene::~GameScene() {
     this->getEventManager().removeListener(this->keyboardEventID);
     this->getEventManager().removeListener(this->mouseEventID);
     this->getEventManager().removeListener(this->langChangeEventID);
-    for (corn::System* system : this->systems) {
-        delete system;
-    }
 }
 
 bool GameScene::isPaused() const {
@@ -237,7 +243,7 @@ bool GameScene::isPaused() const {
 void GameScene::togglePause() {
     this->paused = !this->paused;
     this->pauseMenu->active = this->paused;
-    for (corn::System* system : this->systems) {
+    for (corn::System* system : this->addedSystems_) {
         system->active = !this->paused;
     }
 }

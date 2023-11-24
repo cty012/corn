@@ -2,10 +2,15 @@
 
 #include <vector>
 #include <corn/ecs/entity.h>
+#include <corn/ecs/entity_manager.h>
 #include <corn/ecs/system.h>
+#include <corn/event/event_manager.h>
 #include <corn/ui/ui_manager.h>
 
 namespace corn {
+    template <typename T>
+    concept SystemType = std::derived_from<T, System>;
+
     /**
      * @enum SceneOperation
      * @brief Possible operations on a scene stack
@@ -17,8 +22,6 @@ namespace corn {
                                       // If scene stack is empty then same with PUSH
         REPLACE_ALL,                  // Empties the scene stack before pushing the new scene onto the stack
     };
-
-    class Game;
 
     /**
      * @class Scene
@@ -66,28 +69,44 @@ namespace corn {
         [[nodiscard]] EventManager& getEventManager() const;
 
         /**
-         * @brief Update all Entities, Components, and Systems in the scene.
+         * @brief Adds a system and attach it to the scene.
+         * @tparam T Type of the system, must derive from System class.
+         * @param args Arguments for constructing the system (excluding the first argument Scene& scene).
+         * @return Pointer to the system if successfully added.
+         *
+         * Multiple systems of the same type CAN coexist.
+         */
+        template <SystemType T, typename... Args>
+        T* addSystem(Args&&... args);
+
+        /**
+         * @brief Calls the update methods of all systems added to the scene.
          * @param millis Number of milliseconds elapsed.
          */
         void update(float millis);
 
-
-    protected:
-        /// @brief List of all Systems in this scene.
-        std::vector<System*> systems;
-
     private:
         /// @brief The unique ID of the scene.
-        SceneID id;
-        std::string room;
+        SceneID id_;
+        std::string room_;
 
         /// @brief The game that owns this scene.
-        const Game* game;
+        const Game* game_;
 
-        /// @brief Manages the lifetime of all Entities in this scene.
-        EntityManager* entityManager;
+        /// @brief List of all Systems in this scene.
+        std::vector<System*> systems_;
+
+        /// @brief Manages the lifetime of all entities in this scene.
+        EntityManager* entityManager_;
 
         /// @brief Manages the lifetime of all UI widgets in this scene.
-        UIManager* uiManager;
+        UIManager* uiManager_;
     };
+
+    template<SystemType T, typename... Args>
+    T* Scene::addSystem(Args&&... args) {
+        T* system = new T(*this, std::forward<Args>(args)...);
+        this->systems_.push_back(system);
+        return system;
+    }
 }

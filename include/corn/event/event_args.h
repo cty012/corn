@@ -1,13 +1,15 @@
 #pragma once
 
 #include <string>
-#include <corn/core/input.h>
+#include <corn/event/input.h>
 #include <corn/geometry/vec2.h>
 
 namespace corn {
     struct EventArgs {
         /// @return Type of the event
         [[nodiscard]] virtual constexpr const char* type() const = 0;
+
+        /// @brief Destructor.
         virtual ~EventArgs();
     };
 
@@ -17,7 +19,7 @@ namespace corn {
 
     struct EventArgsKeyboard : public EventArgs {
         [[nodiscard]] constexpr const char* type() const override { return "corn::input::keyboard"; }
-        EventArgsKeyboard(Key key, ButtonEvent status, unsigned char modifiers, const Vec2& mousePos);
+
         Key key;
         ButtonEvent status;
         /**
@@ -28,27 +30,35 @@ namespace corn {
          */
         unsigned char modifiers;
         Vec2 mousePos;
+
+        EventArgsKeyboard(Key key, ButtonEvent status, unsigned char modifiers, const Vec2& mousePos);
     };
 
     struct EventArgsMouseButton : public EventArgs {
         [[nodiscard]] constexpr const char* type() const override { return "corn::input::mousebtn"; }
-        EventArgsMouseButton(Mouse mouse, ButtonEvent status, const Vec2& mousePos);
+
         Mouse mouse;
         ButtonEvent status;
         Vec2 mousePos;
+
+        EventArgsMouseButton(Mouse mouse, ButtonEvent status, const Vec2& mousePos);
     };
 
     struct EventArgsMouseMove : public EventArgs {
         [[nodiscard]] constexpr const char* type() const override { return "corn::input::mousemv"; }
-        explicit EventArgsMouseMove(const Vec2& mousePos);
+
         Vec2 mousePos;
+
+        explicit EventArgsMouseMove(const Vec2& mousePos);
     };
 
     struct EventArgsMouseScroll : public EventArgs {
         [[nodiscard]] constexpr const char* type() const override { return "corn::input::mousesc"; }
-        EventArgsMouseScroll(float value, const Vec2& mousePos);
+
         float value;
         Vec2 mousePos;
+
+        EventArgsMouseScroll(float value, const Vec2& mousePos);
     };
 
     class Scene;
@@ -56,45 +66,57 @@ namespace corn {
 
     struct EventArgsScene : public EventArgs {
         [[nodiscard]] constexpr const char* type() const override { return "corn::game::scene"; }
-        EventArgsScene(SceneOperation op, Scene* scene);
+
         SceneOperation op;
         Scene* scene;
+
+        EventArgsScene(SceneOperation op, Scene* scene);
     };
 
     struct CAABB;
     struct EventArgsCollision : public EventArgs {
         [[nodiscard]] constexpr const char* type() const override { return "corn::game::collision"; }
-        EventArgsCollision(CAABB* collider1, CAABB* collider2);
+
         CAABB* collider1;
         CAABB* collider2;
+
+        EventArgsCollision(CAABB* collider1, CAABB* collider2);
     };
 
     class UIWidget;
     struct EventArgsUIOnClick : public EventArgs {
         [[nodiscard]] constexpr const char* type() const override { return "corn::ui::onclick"; }
-        EventArgsUIOnClick(EventArgsMouseButton mousebtnEvent, UIWidget* target);
+
         EventArgsMouseButton mousebtnEvent;
         UIWidget* target;
+
+        EventArgsUIOnClick(EventArgsMouseButton mousebtnEvent, UIWidget* target);
     };
 
     struct EventArgsUIOnHover : public EventArgs {
         [[nodiscard]] constexpr const char* type() const override { return "corn::ui::onhover"; }
-        EventArgsUIOnHover(EventArgsMouseMove mousemvEvent, UIWidget* target);
+
         EventArgsMouseMove mousemvEvent;
         UIWidget* target;
+
+        EventArgsUIOnHover(EventArgsMouseMove mousemvEvent, UIWidget* target);
     };
 
     struct EventArgsUIOnEnter : public EventArgs {
         [[nodiscard]] constexpr const char* type() const override { return "corn::ui::onenter"; }
-        EventArgsUIOnEnter(EventArgsMouseMove mousemvEvent, UIWidget* target);
+
         EventArgsMouseMove mousemvEvent;
         UIWidget* target;
+
+        EventArgsUIOnEnter(EventArgsMouseMove mousemvEvent, UIWidget* target);
     };
 
     struct EventArgsUIOnExit : public EventArgs {
         [[nodiscard]] constexpr const char* type() const override { return "corn::ui::onexit"; }
-        EventArgsUIOnExit(EventArgsMouseMove mousemvEvent, UIWidget* target);
+
         EventArgsMouseMove mousemvEvent;
         UIWidget* target;
+
+        EventArgsUIOnExit(EventArgsMouseMove mousemvEvent, UIWidget* target);
     };
 }

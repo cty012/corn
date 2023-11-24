@@ -169,11 +169,11 @@ namespace corn {
         for (Entity* entity: scene->getEntityManager().getActiveEntitiesWith<CTransform2D, CSprite>()) {
             auto transform = entity->getComponent<CTransform2D>();
             auto sprite = entity->getComponent<CSprite>();
-            if (!sprite->visible) continue;
+            if (!sprite->active) continue;
 
-            auto [worldLocation, worldRotation] = transform->worldTransform();
+            auto [worldLocation, worldRotation] = transform->getWorldTransform();
             auto [ancX, ancY] = worldLocation - cameraTL;
-            auto [locX, locY] = sprite->topLeft;
+            auto [locX, locY] = sprite->location;
             ImageImpl* imageImpl = InterfaceImpl::getImageImpl(*sprite->image);
             imageImpl->sfSprite->setOrigin(-locX, -locY);
             imageImpl->sfSprite->setPosition(ancX, ancY);
@@ -247,7 +247,7 @@ namespace corn {
 
         // Render Entities
         scene->getEntityManager().tidy();
-        for (const CCamera* camera : scene->getEntityManager().cameras) {
+        for (const CCamera* camera : scene->getEntityManager().getCameras()) {
             if (renderCamera(scene, camera, this->config, percentWindowSize)) {
                 float x = camera->viewport.x.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
                 float y = camera->viewport.y.calc(1.0f, percentWindowSize.x, percentWindowSize.y);

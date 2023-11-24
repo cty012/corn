@@ -1,8 +1,8 @@
 #pragma once
 
 #include <unordered_map>
-#include <corn/core/input.h>
 #include <corn/core/scene.h>
+#include <corn/event/input.h>
 #include <corn/ui/ui_widget.h>
 #include <corn/util/config.h>
 

@@ -6,54 +6,52 @@
 #include "../event/event_args_extend.h"
 
 namespace corn {
-    EntityManager::Node::Node(Entity* ent, Node* parent)
-            : ent(ent), parent(parent), children(std::vector<Node*>()), dirty(false) {}
+    EntityManager::Node::Node(Entity* ent, Node* parent) : ent(ent), parent(parent), children(), dirty(false) {}
 
-    EntityManager::EntityManager(Scene& scene)
-        : scene(scene), root(Node(nullptr, nullptr)), nodes(std::unordered_map<Entity::EntityID, Node>()) {
+    EntityManager::EntityManager(Scene& scene) : scene_(scene), root_(Node(nullptr, nullptr)), nodes_() {
 
         // Listen to zorder change events
-        this->eventIDs.push_back(this->scene.getEventManager().addListener(
+        this->zOrderEventID_ = this->scene_.getEventManager().addListener(
                 "corn::game::ecs::zorder", [this](const EventArgs& args) {
                     const auto& _args = dynamic_cast<const EventArgsZOrderChange&>(args);
                     if (!_args.entity || &_args.entity->getEntityManager() != this) return;
                     Node* node = this->getNodeFromEntity(_args.entity);
                     node->parent->dirty = true;
-                }));
-        this->eventIDs.push_back(this->scene.getEventManager().addListener(
+                });
+        this->cameraEventID_ = this->scene_.getEventManager().addListener(
                 "corn::game::ecs::camera", [this](const EventArgs& args) {
                     const auto& _args = dynamic_cast<const EventArgsCamera&>(args);
                     if (!_args.camera || &_args.camera->getEntityManager() != this) return;
                     switch (_args.eventType) {
                         case CameraEventType::ADD:
-                            this->cameras.push_back(_args.camera);
+                            this->cameras_.push_back(_args.camera);
                             break;
                         case CameraEventType::REMOVE:
-                            this->cameras.erase(std::remove(
-                                    this->cameras.begin(), this->cameras.end(), _args.camera), this->cameras.end());
+                            this->cameras_.erase(
+                                    std::remove(this->cameras_.begin(), this->cameras_.end(), _args.camera),
+                                    this->cameras_.end());
                             break;
                     }
-                }));
+                });
     }
 
     EntityManager::~EntityManager() {
         // Unregister event listeners
-        for (EventManager::ListenerID id : this->eventIDs) {
-            this->scene.getEventManager().removeListener(id);
-        }
+        this->scene_.getEventManager().removeListener(this->zOrderEventID_);
+        this->scene_.getEventManager().removeListener(this->cameraEventID_);
 
         // Delete entities
-        for (auto& [id, node] : this->nodes) {
+        for (auto& [id, node] : this->nodes_) {
             delete node.ent;
         }
     }
 
     Scene& EntityManager::getScene() const {
-        return this->scene;
+        return this->scene_;
     }
 
     const EntityManager::Node* EntityManager::getRoot() const {
-        return &root;
+        return &this->root_;
     }
 
     Entity& EntityManager::createEntity(const std::string& name, const Entity* parent) {
@@ -62,14 +60,14 @@ namespace corn {
 
         // Create the entity
         static Entity::EntityID entID = 0;
-        while (this->nodes.contains(entID)) {
+        while (this->nodes_.contains(entID)) {
             entID++;
         }
         auto* entity = new Entity(entID++, name, *this);
 
         // Create the node
-        this->nodes.emplace(entity->id, Node(entity, parentNode));
-        parentNode->children.push_back(&this->nodes.at(entity->id));
+        this->nodes_.emplace(entity->id_, Node(entity, parentNode));
+        parentNode->children.push_back(&this->nodes_.at(entity->id_));
         parentNode->dirty = true;
 
         return *entity;
@@ -82,13 +80,13 @@ namespace corn {
             this->destroyNode(child);
         }
         // Destroy self
-        Entity::EntityID entID = node->ent->id;
+        Entity::EntityID entID = node->ent->id_;
         delete node->ent;
-        this->nodes.erase(entID);
+        this->nodes_.erase(entID);
     }
 
     void EntityManager::destroyEntity(Entity& entity) {
-        Node* node = &this->nodes.at(entity.id);
+        Node* node = &this->nodes_.at(entity.id_);
         Node* parent = node->parent;
         this->destroyNode(node);
         // Removes relation (parent --> node)
@@ -98,13 +96,13 @@ namespace corn {
     }
 
     Entity* EntityManager::getEntityByID(Entity::EntityID id) const {
-        if (!this->nodes.contains(id)) return nullptr;
-        return this->nodes.at(id).ent;
+        if (!this->nodes_.contains(id)) return nullptr;
+        return this->nodes_.at(id).ent;
     }
 
     Entity* EntityManager::getEntityByName(const std::string& name, const Entity* parent, bool recurse) const {
         std::vector<Entity*> result = getEntitiesHelper([&name](const Entity* entity) {
-                return entity->name == name;
+                return entity->name_ == name;
             }, false, 1, parent, recurse);
         return result.empty() ? nullptr : result[0];
     }
@@ -113,7 +111,7 @@ namespace corn {
             const std::string& name, const Entity* parent, bool recurse) const {
 
         return getEntitiesHelper([&name](const Entity* entity) {
-                return entity->name == name;
+                return entity->name_ == name;
             }, false, 0, parent, recurse);
     }
 
@@ -139,9 +137,9 @@ namespace corn {
     }
 
     void EntityManager::tidy() {
-        if (this->root.dirty) {
-            this->root.dirty = false;
-            std::stable_sort(this->root.children.begin(), this->root.children.end(),
+        if (this->root_.dirty) {
+            this->root_.dirty = false;
+            std::stable_sort(this->root_.children.begin(), this->root_.children.end(),
                              [](Node* left, Node* right) {
                                  auto lTrans = left->ent->getComponent<CTransform2D>();
                                  auto rTrans = right->ent->getComponent<CTransform2D>();
@@ -151,7 +149,7 @@ namespace corn {
                              });
         }
 
-        for (auto& [id, node] : this->nodes) {
+        for (auto& [id, node] : this->nodes_) {
             if (!node.dirty) continue;
             node.dirty = false;
             std::stable_sort(node.children.begin(), node.children.end(),
@@ -167,9 +165,9 @@ namespace corn {
 
     const EntityManager::Node* EntityManager::getNodeFromEntity(const Entity* entity) const {
         if (!entity) {
-            return &this->root;
-        } else if (&entity->entityManager == this) {
-            return &this->nodes.at(entity->id);
+            return &this->root_;
+        } else if (&entity->entityManager_ == this) {
+            return &this->nodes_.at(entity->id_);
         } else {
             throw std::invalid_argument("Parent Entity must be created by the same Entity Manager.");
         }
@@ -177,9 +175,9 @@ namespace corn {
 
     EntityManager::Node* EntityManager::getNodeFromEntity(const Entity* entity) {
         if (!entity) {
-            return &this->root;
-        } else if (&entity->entityManager == this) {
-            return &this->nodes.at(entity->id);
+            return &this->root_;
+        } else if (&entity->entityManager_ == this) {
+            return &this->nodes_.at(entity->id_);
         } else {
             throw std::invalid_argument("Parent Entity must be created by the same Entity Manager.");
         }
@@ -201,7 +199,7 @@ namespace corn {
             nodeStack.pop();
 
             // Skip if not active
-            if (onlyActive && (next != &root) && !next->ent->active) continue;
+            if (onlyActive && (next != &this->root_) && !next->ent->active_) continue;
 
             // Add Entity pointer to vector if current Entity satisfy conditions
             if (!pred || pred(next->ent)) {
@@ -220,6 +218,10 @@ namespace corn {
     }
 
     const Game* EntityManager::getGame() const {
-        return this->scene.getGame();
+        return this->scene_.getGame();
+    }
+
+    const std::vector<const CCamera*>& EntityManager::getCameras() const {
+        return this->cameras_;
     }
 }

@@ -39,6 +39,7 @@ private:
     corn::UIWidget* pauseMenu;
     corn::Entity* bird;
     corn::CMovement2D* birdMovement;
+    std::vector<corn::System*> addedSystems_;
     corn::EventManager::ListenerID keyboardEventID;
     corn::EventManager::ListenerID mouseEventID;
     corn::EventManager::ListenerID langChangeEventID;

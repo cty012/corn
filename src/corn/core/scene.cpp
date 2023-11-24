@@ -1,44 +1,45 @@
 #include <corn/core/scene.h>
-#include <corn/event/event_manager.h>
 
 namespace corn {
-    Scene::Scene() : systems(std::vector<System*>()), game(nullptr) {
+    Scene::Scene() : game_(nullptr), systems_() {
         static SceneID uniqueID = 0;
-        this->id = uniqueID++;
-        this->room = "Scene::" + std::to_string(this->id);
-        EventManager::addRoom(this->room);
-        this->entityManager = new EntityManager(*this);
-        this->uiManager = new UIManager(*this);
+        this->id_ = uniqueID++;
+        this->room_ = "Scene::" + std::to_string(this->id_);
+        EventManager::addRoom(this->room_);
+        this->entityManager_ = new EntityManager(*this);
+        this->uiManager_ = new UIManager(*this);
     }
 
     Scene::~Scene() {
-        delete this->entityManager;
-        EventManager::removeRoom(this->room);
+        for (corn::System* system : this->systems_) {
+            delete system;
+        }
+        delete this->entityManager_;
+        EventManager::removeRoom(this->room_);
     }
 
     Scene::SceneID Scene::getID() const {
-        return this->id;
+        return this->id_;
     }
 
     const Game* Scene::getGame() const {
-        return this->game;
+        return this->game_;
     }
 
     EntityManager& Scene::getEntityManager() const {
-        return *this->entityManager;
+        return *this->entityManager_;
     }
 
     UIManager& Scene::getUIManager() const {
-        return *this->uiManager;
+        return *this->uiManager_;
     }
 
     EventManager& Scene::getEventManager() const {
-        return EventManager::instance(this->room);
+        return EventManager::instance(this->room_);
     }
 
     void Scene::update(float millis) {
-        // TODO
-        for (System* system : this->systems) {
+        for (System* system : this->systems_) {
             if (system->active) {
                 system->update(millis);
             }
