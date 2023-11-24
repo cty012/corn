@@ -43,41 +43,12 @@ namespace corn {
     struct Quaternion {
         Vec4 val;
 
+        /// @brief Construct from Vec4.
         Quaternion(Vec4 val);  // NOLINT
         /// @brief Construct from the four components.
         Quaternion(float a, float b, float c, float d);
         /// @brief Construct from rotation around an axis.
         Quaternion(const Deg& theta, const Vec3& axis);
-        // /// @brief Convert to Euler angles.
-        // [[nodiscard]] EulerAngles euler() const;
-
-        /// @brief Rotate a 3D point.
-        [[nodiscard]] Vec3 rotate(const Vec3& point) const;
-
-        // Operations
-        /// @return A copy of the quaternion itself.
-        Quaternion operator+() const;
-        /// @return The reversed quaternion.
-        Quaternion operator-() const;
-        /// @return Result of adding this and other.
-        Quaternion operator+(const Quaternion& other) const;
-        /// @return Result of subtracting other from this.
-        Quaternion operator-(const Quaternion& other) const;
-        /**
-         * @brief Add other to this quaternion in-place.
-         * @return Reference to itself.
-         */
-        Quaternion& operator+=(const Quaternion& other);
-        /**
-         * @brief Subtract other from this quaternion in-place.
-         * @return Reference to itself.
-         */
-        Quaternion& operator-=(const Quaternion& other);
-
-        /// @return Multiplying this and other. Same as applying other and this on a 3D point.
-        Quaternion operator*(const Quaternion& other) const;
-        /// @return Multiplying this and other in-place.
-        Quaternion& operator*=(const Quaternion& other);
 
         /// @return 2-norm of the quaternion.
         [[nodiscard]] float norm() const;
@@ -86,4 +57,38 @@ namespace corn {
         /// @return Inverse of the quaternion.
         [[nodiscard]] Quaternion inv() const;
     };
+
+    // Operations
+    /// @return A copy of the quaternion itself.
+    Quaternion operator+(const Quaternion& rhs);
+
+    /// @return The reversed quaternion (represents the same rotation).
+    Quaternion operator-(const Quaternion& rhs);
+
+    /// @return Result of adding lhs and rhs.
+    Quaternion operator+(const Quaternion& lhs, const Quaternion& rhs);
+
+    /// @return Result of subtracting rhs from lhs.
+    Quaternion operator-(const Quaternion& lhs, const Quaternion& rhs);
+
+    /// @return Multiplying lhs and rhs. Same as applying rhs and then lhs on a 3D point.
+    Quaternion operator*(const Quaternion& lhs, const Quaternion& rhs);
+
+    /**
+     * @brief Add rhs to lhs quaternion in-place.
+     * @return Reference to lhs.
+     */
+    Quaternion& operator+=(Quaternion& lhs, const Quaternion& rhs);
+
+    /**
+     * @brief Subtract rhs from lhs quaternion in-place.
+     * @return Reference to lhs.
+     */
+    Quaternion& operator-=(Quaternion& lhs, const Quaternion& rhs);
+
+    /**
+     * @brief In-place multiplication of lhs and rhs.
+     * @return Reference to lhs.
+     */
+    Quaternion& operator*=(Quaternion& lhs, const Quaternion& rhs);
 }

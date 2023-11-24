@@ -4,6 +4,7 @@
 #include <corn/ecs/entity.h>
 #include <corn/ecs/entity_manager.h>
 #include <corn/event/event_manager.h>
+#include <corn/geometry/operations.h>
 #include "../event/event_args_extend.h"
 
 namespace corn {
@@ -31,12 +32,12 @@ namespace corn {
             : Component(entity), location(location), rotation(rotation), zOrder_(0) {}
 
     std::pair<Vec2, Deg> CTransform2D::getWorldTransform() const {
-        std::pair<Vec2, Deg> worldTransform = {this->location, this->rotation};
+        std::pair<Vec2, Deg> worldTransform = { this->location, this->rotation };
         for (Entity* ancestor = this->getEntity().getParent(); ancestor; ancestor = ancestor->getParent()) {
             auto* ancestorTransform = ancestor->getComponent<CTransform2D>();
             if (ancestorTransform) {
                 worldTransform.second += ancestorTransform->rotation;
-                worldTransform.first = ancestorTransform->rotation.rotate(worldTransform.first);
+                worldTransform.first = rotate(worldTransform.first, ancestorTransform->rotation);
                 worldTransform.first += ancestorTransform->location;
             }
         }
@@ -46,14 +47,14 @@ namespace corn {
     void CTransform2D::setWorldLocation(Vec2 worldLocation) {
         auto [curWorldLocation, curWorldRotation] = this->getWorldTransform();
         Deg parentWorldRotation = curWorldRotation - this->rotation;
-        Vec2 parentWorldLocation = curWorldLocation - parentWorldRotation.rotate(this->location);
-        this->location = (-parentWorldRotation).rotate(worldLocation - parentWorldLocation);
+        Vec2 parentWorldLocation = curWorldLocation - rotate(this->location, parentWorldRotation);
+        this->location = rotate(worldLocation - parentWorldLocation, -parentWorldRotation);
     }
 
     void CTransform2D::addWorldLocationOffset(Vec2 offset) {
         Deg curWorldRotation = this->getWorldTransform().second;
         Deg parentWorldRotation = curWorldRotation - this->rotation;
-        this->location += (-parentWorldRotation).rotate(offset);
+        this->location += rotate(offset, -parentWorldRotation);
     }
 
     int CTransform2D::getZOrder() const {
@@ -76,14 +77,14 @@ namespace corn {
             : Component(entity), velocity(velocity), angularVelocity(angularVelocity) {}
 
     std::pair<Vec2, float> CMovement2D::getWorldMovement() const {
-        std::pair<Vec2, float> movement = {this->velocity, this->angularVelocity};
+        std::pair<Vec2, float> movement = { this->velocity, this->angularVelocity };
         for (Entity* ancestor = this->getEntity().getParent(); ancestor; ancestor = ancestor->getParent()) {
             auto* ancestorMovement = ancestor->getComponent<CMovement2D>();
             if (ancestorMovement) {
                 movement.second += ancestorMovement->angularVelocity;
                 auto* ancestorTransform = ancestor->getComponent<CTransform2D>();
                 if (ancestorTransform) {
-                    movement.first = ancestorTransform->rotation.rotate(movement.first);
+                    movement.first = rotate(movement.first, ancestorTransform->rotation);
                     movement.first += ancestorMovement->velocity;
                 }
             }
@@ -103,10 +104,10 @@ namespace corn {
 
         // Calculate parent world velocity
         Vec2 curWorldVelocity = this->getWorldMovement().first;
-        Vec2 parentWorldVelocity = curWorldVelocity - parentWorldRotation.rotate(this->velocity);
+        Vec2 parentWorldVelocity = curWorldVelocity - rotate(this->velocity, parentWorldRotation);
 
         // Set current velocity
-        this->velocity = (-parentWorldRotation).rotate(worldVelocity - parentWorldVelocity);
+        this->velocity = rotate(worldVelocity - parentWorldVelocity, -parentWorldRotation);
     }
 
     void CMovement2D::addWorldVelocityOffset(Vec2 offset) {
@@ -120,7 +121,7 @@ namespace corn {
         }
 
         // Add offset to velocity
-        this->velocity += (-parentWorldRotation).rotate(offset);
+        this->velocity += rotate(offset, -parentWorldRotation);
     }
 
     CGravity2D::CGravity2D(Entity& entity, float scale) : Component(entity), scale(scale) {}
@@ -162,7 +163,7 @@ namespace corn {
     }
 
     void CCamera::setViewport(const std::string& x, const std::string& y, const std::string& w, const std::string& h) {
-        static const std::array<std::string, 3> units = {"px", "%ww", "%wh"};
+        static const std::array<std::string, 3> units = { "px", "%ww", "%wh" };
         if (!x.empty()) {
             this->viewport.x = Expression(x, units);
         }
@@ -178,7 +179,7 @@ namespace corn {
     }
 
     void CCamera::setFov(const std::string& w, const std::string& h) {
-        static const std::array<std::string, 3> units = {"px", "%vw", "%vh"};
+        static const std::array<std::string, 3> units = { "px", "%vw", "%vh" };
         if (!w.empty()) {
             this->fovW = Expression(w, units);
         }

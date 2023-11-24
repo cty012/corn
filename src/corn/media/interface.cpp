@@ -202,7 +202,7 @@ namespace corn {
             opacities[widget] = opacities[parent] * (float)widget->opacity / 255.0f;
 
             // Find geometry
-            auto [x, y, w, h] = uiManager.getCachedGeometry(widget);
+            auto [x, y, w, h] = uiManager.getCachedGeometry(widget);  // NOLINT
 
             // Render the background
             sf::RectangleShape boundingRect(sf::Vector2f(w, h));

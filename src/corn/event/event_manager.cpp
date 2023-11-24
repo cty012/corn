@@ -84,7 +84,7 @@ namespace corn {
         return result;
     }
 
-    int EventManager::emit(const EventArgs& args, bool propagate) noexcept {
+    int EventManager::emit(const EventArgs& args, bool propagate) noexcept {  // NOLINT
         if (!this->listeners_.contains(args.type())) return 0;
         const std::vector<std::pair<ListenerID, Action>>& callbacks = this->listeners_.at(args.type());
         for (const auto& [listenerId, action] : callbacks) {

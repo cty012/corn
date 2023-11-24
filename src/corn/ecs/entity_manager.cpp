@@ -73,7 +73,7 @@ namespace corn {
         return *entity;
     }
 
-    void EntityManager::destroyNode(Node* node) {
+    void EntityManager::destroyNode(Node* node) {  // NOLINT
         if (node == nullptr) return;
         // Destroy all children
         for (Node* child : node->children) {

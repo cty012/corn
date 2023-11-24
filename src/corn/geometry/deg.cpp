@@ -3,62 +3,60 @@
 #include <corn/util/constants.h>
 
 namespace corn {
-    Deg::Deg(float val): _val(0.0) {
+    Deg::Deg(float val) : val_(0.0) {
         this->set(val);
     }
 
     float Deg::get() const {
-        return this->_val;
+        return this->val_;
     }
 
     void Deg::set(float val) {
         val = fmodf(val, 360.0);
-        this->_val = val >= 0 ? val : val + 360.0f;
-    }
-
-    Deg Deg::operator+() const {
-        return *this;
-    }
-
-    Deg Deg::operator-() const {
-        return -this->_val;
-    }
-
-    Deg Deg::operator+(const Deg& other) const {
-        return this->_val + other._val;
-    }
-
-    Deg Deg::operator-(const Deg& other) const {
-        return this->_val - other._val;
-    }
-
-    Deg& Deg::operator+=(const Deg& other) {
-        this->set(this->_val + other._val);
-        return *this;
-    }
-
-    Deg& Deg::operator-=(const Deg& other) {
-        this->set(this->_val - other._val);
-        return *this;
-    }
-
-    Deg Deg::mult(float factor) const {
-        return this->_val * factor;
+        this->val_ = val >= 0 ? val : val + 360.0f;
     }
 
     float Deg::sin() const {
-        static constexpr float degToRad = (float)(PI / 180.0);
-        return std::sin(this->_val * degToRad);
+        static constexpr auto degToRad = (float)(PI / 180.0);
+        return std::sin(this->val_ * degToRad);
     }
 
     float Deg::cos() const {
-        static constexpr float degToRad = (float)(PI / 180.0);
-        return std::cos(this->_val * degToRad);
+        static constexpr auto degToRad = (float)(PI / 180.0);
+        return std::cos(this->val_ * degToRad);
     }
 
-    Vec2 Deg::rotate(const Vec2& point) const {
-        float cdeg = this->cos();
-        float sdeg = this->sin();
-        return {point.x * cdeg + point.y * sdeg, -point.x * sdeg + point.y * cdeg};
+    Deg operator+(const Deg& rhs) {
+        return rhs;
+    }
+
+    Deg operator-(const Deg& rhs) {
+        return -rhs.get();
+    }
+
+    Deg operator+(const Deg& lhs, const Deg& rhs) {
+        return lhs.get() + rhs.get();
+    }
+
+    Deg operator-(const Deg& lhs, const Deg& rhs) {
+        return lhs.get() - rhs.get();
+    }
+
+    Deg operator*(const Deg& deg, float scalar) {
+        return deg.get() * scalar;
+    }
+
+    Deg operator*(float scalar, const Deg& deg) {
+        return scalar * deg.get();
+    }
+
+    Deg& operator+=(Deg& lhs, const Deg& rhs) {
+        lhs.set(lhs.get() + rhs.get());
+        return lhs;
+    }
+
+    Deg& operator-=(Deg& lhs, const Deg& rhs) {
+        lhs.set(lhs.get() - rhs.get());
+        return lhs;
     }
 }

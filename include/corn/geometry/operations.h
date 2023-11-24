@@ -3,6 +3,7 @@
 #include <concepts>
 #include <type_traits>
 #include <corn/geometry/deg.h>
+#include <corn/geometry/rotation.h>
 #include <corn/geometry/vec2.h>
 #include <corn/geometry/vec3.h>
 #include <corn/geometry/vec4.h>
@@ -13,10 +14,8 @@ namespace corn {
 
     /// @return Dot product of lhs and rhs of type Vec2.
     float dot(const Vec2& lhs, const Vec2& rhs);
-
     /// @return Dot product of lhs and rhs of type Vec3.
     float dot(const Vec3& lhs, const Vec3& rhs);
-
     /// @return Dot product of lhs and rhs of type Vec4.
     float dot(const Vec4& lhs, const Vec4& rhs);
 
@@ -35,7 +34,14 @@ namespace corn {
     template <VectorType Vec>
     float dist(const Vec& v1, const Vec& v2);
 
-    // TODO: vector rotation, etc.
-}
+    /// @brief Rotate a 2D point.
+    [[nodiscard]] Vec2 rotate(const Vec2& point, const Deg& deg);
+    /// @brief Rotate a 3D point.
+    [[nodiscard]] Vec3 rotate(const Vec3& point, const Quaternion& quaternion);
 
-#include "operations_template.h"
+    // Template definitions
+    template <VectorType Vec>
+    float dist(const Vec& v1, const Vec& v2) {
+        return (v1 - v2).norm();
+    }
+}

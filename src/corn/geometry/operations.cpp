@@ -20,4 +20,16 @@ namespace corn {
             v1.x * v2.y - v2.x * v1.y,
         };
     }
+
+    Vec2 rotate(const Vec2& point, const Deg& deg) {
+        float cdeg = deg.cos();
+        float sdeg = deg.sin();
+        return { point.x * cdeg + point.y * sdeg, -point.x * sdeg + point.y * cdeg };
+    }
+
+    Vec3 rotate(const Vec3& point, const Quaternion& quaternion) {
+        Quaternion p = { 0, point.x, point.y, point.z };
+        Vec4 result = (quaternion * p * quaternion.inv()).val;
+        return { result.y, result.z, result.w };  // NOLINT
+    }
 }

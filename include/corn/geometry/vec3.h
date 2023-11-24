@@ -27,7 +27,6 @@ namespace corn {
 
         /// @return 2-norm of the vector.
         [[nodiscard]] float norm() const;
-
         /// @return Normalized vector. Zero if this is a zero vector.
         [[nodiscard]] Vec3 normalize() const;
     };
@@ -56,19 +55,19 @@ namespace corn {
 
     /**
      * @brief Add rhs to lhs vector in-place.
-     * @return Reference to itself.
+     * @return Reference to lhs.
      */
     Vec3& operator+=(Vec3& lhs, const Vec3& rhs);
 
     /**
      * @brief Subtract rhs from lhs vector in-place.
-     * @return Reference to itself.
+     * @return Reference to lhs.
      */
     Vec3& operator-=(Vec3& lhs, const Vec3& rhs);
 
     /**
      * @brief Element-wise in-place multiplication of lhs and rhs.
-     * @return Reference to itself.
+     * @return Reference to lhs.
      */
     Vec3& operator*=(Vec3& lhs, const Vec3& rhs);
 }

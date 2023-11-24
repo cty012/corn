@@ -179,7 +179,7 @@ namespace corn {
         [[nodiscard]] bool overlapWith(const CAABB& other) const;
     };
 
-    enum class CameraType{ _2D, _3D };
+    enum class CameraType { _2D, _3D };
 
     /**
      * @class CCamera

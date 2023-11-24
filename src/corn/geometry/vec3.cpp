@@ -9,31 +9,31 @@ namespace corn {
     Vec3::Vec3(float x, float y, float z) : x(x), y(y), z(z) {}
 
     const Vec3& Vec3::ZERO() {
-        static const Vec3 zero = {0.0f, 0.0f, 0.0f};
+        static const Vec3 zero = { 0.0f, 0.0f, 0.0f };
         return zero;
     }
 
     const Vec3& Vec3::UNIT_X() {
-        static const Vec3 unitX = {1.0f, 0.0f, 0.0f};
+        static const Vec3 unitX = { 1.0f, 0.0f, 0.0f };
         return unitX;
     }
 
     const Vec3& Vec3::UNIT_Y() {
-        static const Vec3 unitY = {0.0f, 1.0f, 0.0f};
+        static const Vec3 unitY = { 0.0f, 1.0f, 0.0f };
         return unitY;
     }
 
     const Vec3& Vec3::UNIT_Z() {
-        static const Vec3 unitZ = {0.0f, 0.0f, 1.0f};
+        static const Vec3 unitZ = { 0.0f, 0.0f, 1.0f };
         return unitZ;
     }
 
     Vec2 Vec3::vec2() const {
-        return {this->x, this->y};
+        return { this->x, this->y };
     }
 
     Vec4 Vec3::vec4(float w) const {
-        return {this->x, this->y, this->z, w};
+        return { this->x, this->y, this->z, w };
     }
 
     float Vec3::norm() const {
@@ -50,27 +50,27 @@ namespace corn {
     }
 
     Vec3 operator-(const Vec3& rhs) {
-        return {-rhs.x, -rhs.y, -rhs.z};
+        return { -rhs.x, -rhs.y, -rhs.z };
     }
 
     Vec3 operator+(const Vec3& lhs, const Vec3& rhs) {
-        return {lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z};
+        return { lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z };
     }
 
     Vec3 operator-(const Vec3& lhs, const Vec3& rhs) {
-        return {lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
+        return { lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z };
     }
 
     Vec3 operator*(const Vec3& lhs, const Vec3& rhs) {
-        return {lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z};
+        return { lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z };
     }
 
     Vec3 operator*(const Vec3& vec, float scalar) {
-        return {vec.x * scalar, vec.y * scalar, vec.z * scalar};
+        return { vec.x * scalar, vec.y * scalar, vec.z * scalar };
     }
 
     Vec3 operator*(float scalar, const Vec3& vec) {
-        return {scalar * vec.x, scalar * vec.y, scalar * vec.z};
+        return { scalar * vec.x, scalar * vec.y, scalar * vec.z };
     }
 
     Vec3& operator+=(Vec3& lhs, const Vec3& rhs) {

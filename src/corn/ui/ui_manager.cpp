@@ -160,7 +160,7 @@ namespace corn {
     }
 
     bool UIManager::widgetContains(const UIWidget* widget, Vec2 pos) const {
-        auto [x, y, w, h] = this->getCachedGeometry(widget);
+        auto [x, y, w, h] = this->getCachedGeometry(widget);  // NOLINT
         return x < pos.x && y < pos.y && x + w > pos.x && y + h > pos.y;
     }
 
