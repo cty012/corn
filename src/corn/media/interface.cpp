@@ -9,7 +9,7 @@
 #include "image_impl.h"
 #include "interface_impl.h"
 #include "interface_helper.h"
-#include "rich_text_impl.h"
+#include "text_render_impl.h"
 
 namespace corn {
     Interface::InterfaceImpl::InterfaceImpl() : window(new sf::RenderWindow()) {}
@@ -247,14 +247,19 @@ namespace corn {
                     break;
                 case UIType::LABEL: {
                     const auto* label = dynamic_cast<const UILabel*>(widget);
-                    float _x = x, _y = y;
-                    for (RichText::Segment* segment: label->getText().segments) {
-                        if (segment->style.font->state != FontState::LOADED) continue;
-                        segment->text.setPosition(_x, _y);
-                        auto [_r, _g, _b, _a] = segment->style.color.getRGBA();
-                        segment->text.setFillColor(sf::Color(_r, _g, _b, (unsigned char)((float)_a * opacities[widget])));
-                        this->impl_->window->draw(segment->text);
-                        _x += segment->text.getLocalBounds().width;  // TODO: Text wrap
+                    float segX = x, segY = y;
+                    for (const TextRender::TextRenderImpl::Line& line : label->getTextRender().impl_->lines) {
+                        for (const auto& [text, color] : line.contents) {
+                            auto [segR, segG, segB, segA] = color.getRGBA();
+                            auto& mutText = const_cast<sf::Text&>(text);
+                            mutText.setPosition(segX, segY);
+                            mutText.setFillColor(sf::Color(
+                                    segR, segG, segB, (unsigned char) ((float) segA * opacities[widget])));
+                            this->impl_->window->draw(text);
+                            segX += text.getLocalBounds().width;
+                        }
+                        segX = x;
+                        segY += line.size.y;
                     }
                     break;
                 }

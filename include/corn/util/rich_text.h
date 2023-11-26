@@ -25,19 +25,18 @@ namespace corn {
     class RichText {
     public:
         /// @brief Stores a pair of text string and text style.
-        struct Segment;
+        struct Segment {
+            std::u8string str;
+            TextStyle style;
+        };
 
         /// @brief Each segment represent a piece of text with uniform style.
-        std::vector<Segment*> segments;
+        std::vector<Segment> segments;
 
         /// @brief Constructor.
         RichText();
         /// @brief Destructor.
         ~RichText();
-        RichText(const RichText& other);
-        RichText& operator=(const RichText& other);
-        RichText(RichText&& other) noexcept;
-        RichText& operator=(RichText&& other) noexcept;
 
         /**
          * @brief Appends a segment with the specified text string and text style.
@@ -47,13 +46,4 @@ namespace corn {
          */
         RichText& addText(const std::u8string& text, TextStyle style);
     };
-
-    const TextStyle& getStyle(RichText::Segment* segment);
-
-    /// @brief Change the text displayed by the segment.
-    void setString(RichText::Segment* segment, const std::u8string& str);
-    void setFont(RichText::Segment* segment, const Font* font);
-    void setSize(RichText::Segment* segment, unsigned int size);
-    void setColor(RichText::Segment* segment, Color color);
-    void setVariant(RichText::Segment* segment, FontVariant variant);
 }

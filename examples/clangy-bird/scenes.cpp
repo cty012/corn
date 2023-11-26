@@ -8,11 +8,15 @@
 void underlineOnHover(corn::UILabel* label) {
     label->getEventManager().addListener(
             "corn::ui::onenter", [label](const corn::EventArgs&) {
-                corn::setVariant(label->getText().segments[0], corn::FontVariant::UNDERLINE);
+                corn::RichText newText = label->getText();
+                newText.segments[0].style.variant = corn::FontVariant::UNDERLINE;
+                label->setText(newText);
             });
     label->getEventManager().addListener(
             "corn::ui::onexit", [label](const corn::EventArgs&) {
-                corn::setVariant(label->getText().segments[0], corn::FontVariant::REGULAR);
+                corn::RichText newText = label->getText();
+                newText.segments[0].style.variant = corn::FontVariant::REGULAR;
+                label->setText(newText);
             });
 }
 

@@ -2,11 +2,11 @@
 #include <ranges>
 #include <stack>
 #include <corn/core/scene.h>
-#include <corn/media/rich_text.h>
 #include <corn/ui/ui_label.h>
-#include "../media/rich_text_impl.h"
+#include "../media/text_render_impl.h"
 #include <corn/ui/ui_manager.h>
 #include <corn/util/exceptions.h>
+#include <corn/util/rich_text.h>
 
 namespace corn {
     UIManager::Node::Node(UIWidget* widget, UIManager::Node* parent): widget(widget), parent(parent), dirty(false) {}
@@ -97,7 +97,7 @@ namespace corn {
                     break;
                 }
                 case UIType::LABEL: {
-                    auto nsize = dynamic_cast<const UILabel*>(widget)->getNaturalSize();
+                    auto nsize = dynamic_cast<const UILabel*>(widget)->getTextRender().getSize();
                     nw = nsize.x;
                     nh = nsize.y;
                     break;

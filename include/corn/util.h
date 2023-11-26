@@ -5,4 +5,5 @@
 #include <corn/util/constants.h>
 #include <corn/util/exceptions.h>
 #include <corn/util/expression.h>
+#include <corn/util/rich_text.h>
 #include <corn/util/stopwatch.h>

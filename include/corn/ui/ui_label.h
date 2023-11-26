@@ -1,7 +1,8 @@
 #pragma once
 
-#include <corn/media/rich_text.h>
+#include <corn/media/text_render.h>
 #include <corn/ui/ui_widget.h>
+#include <corn/util/rich_text.h>
 
 namespace corn {
     class UILabel : public UIWidget {
@@ -10,14 +11,15 @@ namespace corn {
         friend class UIManager;
 
         [[nodiscard]] const RichText& getText() const;
-        void setText(const RichText& newText);
+        void setText(const RichText& richText);
 
-        [[nodiscard]] Vec2 getNaturalSize() const;
+        [[nodiscard]] const TextRender& getTextRender() const;
 
     private:
-        UILabel(WidgetID id, std::string name, UIManager& uiManager, RichText text);
+        /// @brief Constructor.
+        UILabel(WidgetID id, std::string name, UIManager& uiManager, const RichText& text);
 
-        /// @brief The text to be displayed.
-        RichText text;
+        /// @brief The text to be rendered.
+        TextRender textRender_;
     };
 }
