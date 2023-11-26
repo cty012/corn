@@ -3,7 +3,7 @@
 
 namespace corn {
     Game::Game(Scene* startScene, Config config)
-            : active_(false), config_(std::move(config)), scenes_(), sw_() {
+            : active_(false), config_(std::move(config)), scenes_(), keyPressed_(), sw_() {
 
         this->scenes_.push(startScene);
 
@@ -17,7 +17,7 @@ namespace corn {
                     this->active_ = false;
                 });
 
-        this->interface_ = new Interface(*this);
+        this->interface_ = new Interface(*this, this->keyPressed_);
         this->interface_->init();
     }
 
@@ -46,6 +46,10 @@ namespace corn {
 
     Scene* Game::getTopScene() const {
         return this->scenes_.empty() ? nullptr : this->scenes_.top();
+    }
+
+    const std::unordered_map<Key, bool>& Game::getKeyPressed() const {
+        return this->keyPressed_;
     }
 
     void Game::changeScene(corn::SceneOperation op, corn::Scene* scene) {

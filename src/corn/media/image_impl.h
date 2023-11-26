@@ -3,11 +3,11 @@
 #include <SFML/Graphics.hpp>
 
 namespace corn {
-    class ImageImpl {
+    class Image::ImageImpl {
     public:
         sf::Image image;
-        sf::Texture* texture;
-        sf::Sprite* sfSprite;
+        sf::Texture texture;
+        sf::Sprite sfSprite;
 
         ImageImpl(const sf::Image& image, const std::string& errorMsg);
         ~ImageImpl();

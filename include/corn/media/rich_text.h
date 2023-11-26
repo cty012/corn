@@ -11,7 +11,10 @@ namespace corn {
         size_t size;
         Color color;
         FontVariant variant;
+
+        /// @brief Simple constructor.
         TextStyle(const Font* font, size_t size);
+        /// @brief Complete constructor.
         TextStyle(const Font* font, size_t size, const Color& color, FontVariant variant);
         TextStyle setFont(const Font* newFont);
         TextStyle setSize(size_t newSize);
@@ -24,7 +27,12 @@ namespace corn {
         /// @brief Stores a pair of text string and text style.
         struct Segment;
 
+        /// @brief Each segment represent a piece of text with uniform style.
+        std::vector<Segment*> segments;
+
+        /// @brief Constructor.
         RichText();
+        /// @brief Destructor.
         ~RichText();
         RichText(const RichText& other);
         RichText& operator=(const RichText& other);
@@ -32,19 +40,17 @@ namespace corn {
         RichText& operator=(RichText&& other) noexcept;
 
         /**
-         * Appends a segment with the specified text string and text style.
+         * @brief Appends a segment with the specified text string and text style.
          * @param text The text string.
          * @param style The text style.
          * @return A reference to itself.
          */
         RichText& addText(const std::u8string& text, TextStyle style);
-
-        /// @brief Each segment represent a piece of text with uniform style.
-        std::vector<Segment*> segments;
     };
 
     const TextStyle& getStyle(RichText::Segment* segment);
 
+    /// @brief Change the text displayed by the segment.
     void setString(RichText::Segment* segment, const std::u8string& str);
     void setFont(RichText::Segment* segment, const Font* font);
     void setSize(RichText::Segment* segment, unsigned int size);

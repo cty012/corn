@@ -4,7 +4,7 @@
 
 namespace corn {
     TextStyle::TextStyle(const Font* font, size_t size)
-        : font(font), size(size), color(Color::WHITE()), variant(FontVariant::REGULAR) {}
+            : font(font), size(size), color(Color::WHITE()), variant(FontVariant::REGULAR) {}
 
     TextStyle::TextStyle(const Font* font, size_t size, const Color& color, FontVariant variant)
             : font(font), size(size), color(color), variant(variant) {}
@@ -33,7 +33,7 @@ namespace corn {
         return style;
     }
 
-    RichText::Segment::Segment(const std::u8string& str, TextStyle style): text(), style(style) {
+    RichText::Segment::Segment(const std::u8string& str, TextStyle style) : text(), style(style) {
         setTextFont(this->text, style.font);
         setTextString(this->text, str);
         setTextSize(this->text, (unsigned int)style.size);
@@ -69,7 +69,7 @@ namespace corn {
         }
     }
 
-    RichText::RichText(): segments() {}
+    RichText::RichText() : segments() {}
 
     RichText::~RichText() {
         for (Segment* segment : this->segments) {
@@ -77,7 +77,7 @@ namespace corn {
         }
     }
 
-    RichText::RichText(const RichText& other): segments() {
+    RichText::RichText(const RichText& other) : segments() {
         this->segments.reserve(other.segments.size());
         for (Segment* segment : other.segments) {
             this->segments.push_back(new Segment(*segment));

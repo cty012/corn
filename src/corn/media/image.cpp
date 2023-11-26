@@ -3,17 +3,13 @@
 #include "image_impl.h"
 
 namespace corn {
-    ImageImpl::ImageImpl(const sf::Image& image, const std::string& errorMsg): image(image) {
-        this->texture = new sf::Texture();
-        if (!this->texture->loadFromImage(image))
+    Image::ImageImpl::ImageImpl(const sf::Image& image, const std::string& errorMsg) : image(image), texture() {
+        if (!this->texture.loadFromImage(image))
             throw ResourceLoadFailed(errorMsg);
-        this->sfSprite = new sf::Sprite(*this->texture);
+        this->sfSprite = sf::Sprite(this->texture);
     }
 
-    ImageImpl::~ImageImpl() {
-        delete this->sfSprite;
-        delete this->texture;
-    }
+    Image::ImageImpl::~ImageImpl() = default;
 
     Image::Image(const std::string& path) {
         std::string msg = "Failed to load image: " + path + ".";
@@ -21,43 +17,43 @@ namespace corn {
         if (!image.loadFromFile(path))
             throw ResourceLoadFailed(msg);
         auto [w, h] = image.getSize();
-        this->width = w;
-        this->height = h;
-        this->impl = new ImageImpl(image, msg);
+        this->width_ = w;
+        this->height_ = h;
+        this->impl_ = new ImageImpl(image, msg);
     }
 
-    Image::Image(unsigned int width, unsigned int height, Color color): width(width), height(height) {
+    Image::Image(unsigned int width, unsigned int height, Color color) : width_(width), height_(height) {
         std::string msg = "Failed to load image.";
         auto [r, g, b, a] = color.getRGBA();
         sf::Image image = sf::Image();
         image.create(width, height, sf::Color(r, g, b, a));
-        this->impl = new ImageImpl(image, msg);
+        this->impl_ = new ImageImpl(image, msg);
     }
 
     Image::~Image() {
-        delete this->impl;
+        delete this->impl_;
     }
 
-    Image::Image(const Image& other): width(other.width), height(other.height) {
-        this->impl = new ImageImpl(other.impl->image, "Failed to copy image.");
+    Image::Image(const Image& other) : width_(other.width_), height_(other.height_) {
+        this->impl_ = new ImageImpl(other.impl_->image, "Failed to copy image.");
     }
 
     Image& Image::operator=(const Image& other) {
         if (&other == this) return *this;
-        delete this->impl;
-        this->width = other.width;
-        this->height = other.height;
-        this->impl = new ImageImpl(other.impl->image, "Failed to copy image.");
+        delete this->impl_;
+        this->width_ = other.width_;
+        this->height_ = other.height_;
+        this->impl_ = new ImageImpl(other.impl_->image, "Failed to copy image.");
         return *this;
     }
 
     std::pair<unsigned int, unsigned int> Image::getSize() const {
-        return {this->width, this->height};
+        return { this->width_, this->height_ };
     }
 
     Image& Image::resize(unsigned int newWidth, unsigned int newHeight) {
-        this->width = newWidth;
-        this->height = newHeight;
+        this->width_ = newWidth;
+        this->height_ = newHeight;
         return *this;
     }
 }

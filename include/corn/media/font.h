@@ -7,10 +7,15 @@ namespace corn {
     class Font;
 
     /**
-     * @todo More styles
+     * @class FontVariant
+     * @brief Variants of the font, including weight, slant, and other styles.
+     *
+     * @todo More styles (allow loading custom style fonts)
      * 1. Light, Regular, Semi-bold, Bold, Heavy
      * 2. Regular, Italic
      * 3. Regular, Underline
+     *
+     * @see FontManager
      */
     enum class FontVariant {
         REGULAR, BOLD, ITALIC, UNDERLINE,
@@ -19,6 +24,8 @@ namespace corn {
     /**
      * @class FontManager
      * @brief Manages font loading.
+     *
+     * @see FontVariant
      */
     class FontManager {
     public:
@@ -47,10 +54,10 @@ namespace corn {
         FontManager(const FontManager& other) = delete;
         FontManager& operator=(const FontManager& other) = delete;
 
-        std::unordered_map<std::string, Font*> fonts;
-        mutable std::unordered_map<std::string, std::future<bool>> futures;
-        mutable std::mutex mutex;
-        mutable std::mutex mutexFonts;
-        mutable std::mutex mutexFutures;
+        std::unordered_map<std::string, Font*> fonts_;
+        mutable std::unordered_map<std::string, std::future<bool>> futures_;
+        mutable std::mutex mutex_;
+        mutable std::mutex mutexFonts_;
+        mutable std::mutex mutexFutures_;
     };
 }

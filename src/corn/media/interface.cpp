@@ -1,4 +1,3 @@
-#include <ranges>
 #include <corn/core/game.h>
 #include <corn/ecs/component.h>
 #include <corn/event/event_manager.h>
@@ -13,52 +12,44 @@
 #include "rich_text_impl.h"
 
 namespace corn {
-    std::unordered_map<Key, bool> Interface::keyPressed = std::unordered_map<Key, bool>();
+    Interface::InterfaceImpl::InterfaceImpl() : window(new sf::RenderWindow()) {}
 
-    InterfaceImpl::InterfaceImpl(): window(new sf::RenderWindow()) {}
-
-    InterfaceImpl::~InterfaceImpl() {
+    Interface::InterfaceImpl::~InterfaceImpl() {
         this->window->close();
         delete this->window;
     }
 
-    CameraViewportImpl* InterfaceImpl::getCameraViewportImpl(const CameraViewport& cameraViewport) {
-        return cameraViewport.impl;
-    }
-
-    ImageImpl* InterfaceImpl::getImageImpl(const Image& image) {
-        return image.impl;
-    }
-
-    Interface::Interface(const Game& game): game(game), config(game.getConfig()), impl(new InterfaceImpl()) {}
+    Interface::Interface(const Game& game, std::unordered_map<Key, bool>& keyPressed)
+            : game_(game), keyPressed_(keyPressed), impl_(new Interface::InterfaceImpl()) {}
 
     Interface::~Interface() {
-        delete this->impl;
+        delete this->impl_;
     }
 
     void Interface::init() {
+        const Config& config = this->game_.getConfig();
         sf::ContextSettings contextSettings;
-        contextSettings.antialiasingLevel = this->config.antialiasing;
-        this->impl->window->create(
-                sf::VideoMode((int)this->config.width, (int)this->config.height),
-                this->config.title,
-                cornMode2SfStyle(this->config.mode),
+        contextSettings.antialiasingLevel = config.antialiasing;
+        this->impl_->window->create(
+                sf::VideoMode((int)config.width, (int)config.height),
+                config.title,
+                cornMode2SfStyle(config.mode),
                 contextSettings);
     }
 
     Vec2 Interface::windowSize() const {
-        sf::Vector2u size = this->impl->window->getSize();
+        sf::Vector2u size = this->impl_->window->getSize();
         return {(float)size.x, (float)size.y};
     }
 
     void Interface::handleUserInput() const {  // TODO: change this
         sf::Event event{};
-        while (this->impl->window->pollEvent(event)) {
+        while (this->impl_->window->pollEvent(event)) {
             switch (event.type) {
                 case (sf::Event::Closed): {
                     EventArgsExit eventArgs;
                     EventManager::instance().emit(eventArgs);
-                    this->game.getTopScene()->getEventManager().emit(eventArgs);
+                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
                 case (sf::Event::MouseButtonPressed): {
@@ -66,7 +57,7 @@ namespace corn {
                             sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
                             Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
-                    this->game.getTopScene()->getEventManager().emit(eventArgs);
+                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
                 case (sf::Event::MouseButtonReleased): {
@@ -74,7 +65,7 @@ namespace corn {
                             sfInput2CornInput(event.mouseButton.button), ButtonEvent::UP,
                             Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
-                    this->game.getTopScene()->getEventManager().emit(eventArgs);
+                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
                 case (sf::Event::MouseWheelScrolled): {
@@ -82,40 +73,40 @@ namespace corn {
                             event.mouseWheelScroll.delta,
                             Vec2((float)event.mouseWheelScroll.x, (float)event.mouseWheelScroll.y));
                     EventManager::instance().emit(eventArgs);
-                    this->game.getTopScene()->getEventManager().emit(eventArgs);
+                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
                 case sf::Event::MouseMoved: {
                     EventArgsMouseMove eventArgs(
                             Vec2((float)event.mouseMove.x, (float)event.mouseMove.y));
                     EventManager::instance().emit(eventArgs);
-                    this->game.getTopScene()->getEventManager().emit(eventArgs);
+                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
                 case (sf::Event::KeyPressed): {
                     sf::Event::KeyEvent keyEvent = event.key;
                     Key key = sfInput2CornInput(keyEvent.code, keyEvent.scancode);
-                    if (Interface::keyPressed[key]) break;
-                    Interface::keyPressed[key] = true;
+                    if (this->keyPressed_[key]) break;
+                    this->keyPressed_[key] = true;
                     EventArgsKeyboard eventArgs(
                             key, ButtonEvent::DOWN,
                             (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
                             Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
-                    this->game.getTopScene()->getEventManager().emit(eventArgs);
+                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
                 case (sf::Event::KeyReleased): {
                     sf::Event::KeyEvent keyEvent = event.key;
                     Key key = sfInput2CornInput(keyEvent.code, keyEvent.scancode);
-                    if (!Interface::keyPressed[key]) break;
-                    Interface::keyPressed[key] = false;
+                    if (!this->keyPressed_[key]) break;
+                    this->keyPressed_[key] = false;
                     EventArgsKeyboard eventArgs(
                             key, ButtonEvent::UP,
                             (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
                             Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
-                    this->game.getTopScene()->getEventManager().emit(eventArgs);
+                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
                 case (sf::Event::TextEntered):
@@ -127,43 +118,70 @@ namespace corn {
         }
     }
 
-    const std::unordered_map<Key, bool>& Interface::getKeyPressed() {
-        return Interface::keyPressed;
-    }
-
     void Interface::clear() {
-        auto [r, g, b] = this->config.background.getRGB();
-        this->impl->window->clear(sf::Color(r, g, b));
+        auto [r, g, b] = this->game_.getConfig().background.getRGB();
+        this->impl_->window->clear(sf::Color(r, g, b));
     }
 
-    bool renderCamera(Scene* scene, const CCamera* camera, const Config& config, const Vec2& percentWindowSize) {
-        // Check if camera is active
-        if (!camera->active) return false;
+    void Interface::render(Scene* scene) {
+        // Clear the screen
+        this->clear();
 
-        // TODO: 3D
-        if (camera->cameraType == CameraType::_3D) return false;
+        // Render Entities
+        scene->getEntityManager().tidy();
+        for (const CCamera* camera : scene->getEntityManager().getCameras()) {
+            renderCamera(scene, camera);
+        }
 
-        // Check if camera has CTransform2D component
-        auto cameraTransform = camera->getEntity().getComponent<CTransform2D>();
-        if (!cameraTransform) return false;
+        // Render UI widgets
+        this->renderUI(scene->getUIManager());
+
+        this->impl_->window->setView(this->impl_->window->getDefaultView());
+    }
+
+    void Interface::update() {
+        this->impl_->window->display();
+    }
+
+    std::pair<Vec2, Vec2> Interface::getCameraTransformation(const CCamera* camera) const {
+        // Calculate window size
+        Vec2 windowSize = this->windowSize();
+        Vec2 percentWindowSize = windowSize * 0.01f;
 
         // Calculate camera viewport and FOV
         Vec2 viewportSize(camera->viewport.w.calc(1.0f, percentWindowSize.x, percentWindowSize.y),
                           camera->viewport.h.calc(1.0f, percentWindowSize.x, percentWindowSize.y));
         Vec2 fovSize(camera->fovW.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100),
                      camera->fovH.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100));
-        sf::Transform stretchTransform;
-        stretchTransform.scale(viewportSize.x / fovSize.x, viewportSize.y / fovSize.y);
 
         // Reset the camera viewport
-        CameraViewportImpl* viewportImpl = InterfaceImpl::getCameraViewportImpl(camera->viewport);
-        viewportImpl->setSize(viewportSize, config.antialiasing);
+        camera->viewport.impl_->setSize(viewportSize, this->game_.getConfig().antialiasing);
         auto [r, g, b, a] = camera->background.getRGBA();
-        viewportImpl->texture.clear(sf::Color(r, g, b, a));
+        camera->viewport.impl_->texture.clear(sf::Color(r, g, b, a));
 
-        // Calculate center of camera
-        Vec2 cameraCenter = cameraTransform->location + camera->anchor.vec2();
-        Vec2 cameraTL = cameraCenter - fovSize * 0.5;
+        // Calculate location of camera
+        Vec2 cameraCenter = camera->getEntity().getComponent<CTransform2D>()->location + camera->anchor.vec2();
+
+        // Return the location and scale
+        return { cameraCenter - fovSize * 0.5, { viewportSize.x / fovSize.x, viewportSize.y / fovSize.y } };
+    }
+
+    void Interface::renderCamera(Scene* scene, const CCamera* camera) {
+        // Calculate window size
+        Vec2 windowSize = this->windowSize();
+        Vec2 percentWindowSize = windowSize * 0.01f;
+
+        // Check if camera is active
+        if (!camera->active) return;
+        // TODO: 3D
+        if (camera->cameraType == CameraType::_3D) return;
+        // Check if camera has CTransform2D component
+        if (!camera->getEntity().getComponent<CTransform2D>()) return;
+
+        // Get camera transform
+        auto [cameraOffset, cameraScale] = this->getCameraTransformation(camera);
+        sf::Transform scaleTransform;
+        scaleTransform.scale(cameraScale.x, cameraScale.y);
 
         // Render entities
         for (Entity* entity: scene->getEntityManager().getActiveEntitiesWith<CTransform2D, CSprite>()) {
@@ -172,21 +190,33 @@ namespace corn {
             if (!sprite->active) continue;
 
             auto [worldLocation, worldRotation] = transform->getWorldTransform();
-            auto [ancX, ancY] = worldLocation - cameraTL;
+            auto [ancX, ancY] = worldLocation - cameraOffset;
             auto [locX, locY] = sprite->location;
-            ImageImpl* imageImpl = InterfaceImpl::getImageImpl(*sprite->image);
-            imageImpl->sfSprite->setOrigin(-locX, -locY);
-            imageImpl->sfSprite->setPosition(ancX, ancY);
-            imageImpl->sfSprite->setRotation(-worldRotation.get());
-            viewportImpl->texture.draw(*imageImpl->sfSprite, stretchTransform);
+            sf::Sprite& sfSprite = sprite->image->impl_->sfSprite;
+            sfSprite.setOrigin(-locX, -locY);
+            sfSprite.setPosition(ancX, ancY);
+            sfSprite.setRotation(-worldRotation.get());
+            camera->viewport.impl_->texture.draw(sfSprite, scaleTransform);
         }
+        camera->viewport.impl_->texture.display();
 
-        viewportImpl->texture.display();
-        return true;
+        // Render camera onto the window
+        float x = camera->viewport.x.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
+        float y = camera->viewport.y.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
+        sf::View view(sf::FloatRect(-x, -y, windowSize.x, windowSize.y));
+        sf::Sprite cameraSprite(camera->viewport.impl_->texture.getTexture());
+        cameraSprite.setColor(sf::Color(255, 255, 255, camera->opacity));
+        this->impl_->window->setView(view);
+        this->impl_->window->draw(cameraSprite);
     }
 
     void Interface::renderUI(UIManager& uiManager) {
+        // Calculate window size
         Vec2 windowSize = this->windowSize();
+        sf::View view(sf::FloatRect(0, 0, windowSize.x, windowSize.y));
+        this->impl_->window->setView(view);
+
+        // Resolve UI widget location and size
         uiManager.tidy();
         uiManager.calcGeometry(windowSize);
         std::vector<UIWidget*> widgets = uiManager.getAllActiveWidgets();
@@ -209,7 +239,7 @@ namespace corn {
             boundingRect.setPosition(x, y);
             auto [r, g, b, a] = widget->background.getRGBA();
             boundingRect.setFillColor(sf::Color(r, g, b, (unsigned char)((float)a * opacities[widget])));
-            this->impl->window->draw(boundingRect);
+            this->impl_->window->draw(boundingRect);
 
             // Render the widget
             switch (widget->type) {
@@ -223,7 +253,7 @@ namespace corn {
                         segment->text.setPosition(_x, _y);
                         auto [_r, _g, _b, _a] = segment->style.color.getRGBA();
                         segment->text.setFillColor(sf::Color(_r, _g, _b, (unsigned char)((float)_a * opacities[widget])));
-                        this->impl->window->draw(segment->text);
+                        this->impl_->window->draw(segment->text);
                         _x += segment->text.getLocalBounds().width;  // TODO: Text wrap
                     }
                     break;
@@ -236,38 +266,5 @@ namespace corn {
                     break;
             }
         }
-    }
-
-    void Interface::render(Scene* scene) {
-        Vec2 windowSize = this->windowSize();
-        Vec2 percentWindowSize = windowSize * 0.01f;
-
-        // Clear the screen
-        this->clear();
-
-        // Render Entities
-        scene->getEntityManager().tidy();
-        for (const CCamera* camera : scene->getEntityManager().getCameras()) {
-            if (renderCamera(scene, camera, this->config, percentWindowSize)) {
-                float x = camera->viewport.x.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
-                float y = camera->viewport.y.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
-                sf::View view(sf::FloatRect(-x, -y, windowSize.x, windowSize.y));
-                sf::Sprite cameraSprite(InterfaceImpl::getCameraViewportImpl(camera->viewport)->texture.getTexture());
-                cameraSprite.setColor(sf::Color(255, 255, 255, camera->opacity));
-                this->impl->window->setView(view);
-                this->impl->window->draw(cameraSprite);
-            }
-        }
-
-        // Render UI widgets
-        sf::View view(sf::FloatRect(0, 0, windowSize.x, windowSize.y));
-        this->impl->window->setView(view);
-        this->renderUI(scene->getUIManager());
-
-        this->impl->window->setView(this->impl->window->getDefaultView());
-    }
-
-    void Interface::update() {
-        this->impl->window->display();
     }
 }

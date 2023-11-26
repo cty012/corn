@@ -50,6 +50,9 @@ namespace corn {
          */
         Scene* getTopScene() const;
 
+        /// @return An unordered map indicating which keys are currently pressed down.
+        const std::unordered_map<Key, bool>& getKeyPressed() const;
+
         /**
          * @brief Launch the game.
          * @return Status code. 0 for success, non-zero for failure.
@@ -81,14 +84,17 @@ namespace corn {
         /// @brief Resolves all pending scene events at the end of a game loop.
         void resolveSceneEvents();
 
-        /// Indicates if the game is currently running
+        /// Indicates if the game is currently running.
         bool active_;
         /// Game settings (e.g. resolution, display mode, volume, etc.)
         Config config_;
-        /// Scene stack
+        /// Scene stack.
         std::stack<Scene*> scenes_;
         std::queue<EventArgsScene> sceneEvents_;
+
         Interface* interface_;
+        /// Stores which keys are currently pressed down.
+        std::unordered_map<Key, bool> keyPressed_;
 
         Stopwatch sw_;
 

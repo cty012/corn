@@ -3,11 +3,9 @@
 #include <corn/util/expression.h>
 
 namespace corn {
-    class CameraViewportImpl;
-
     class CameraViewport {
     public:
-        friend class InterfaceImpl;
+        friend class Interface;
 
         CameraViewport();
         ~CameraViewport();
@@ -25,6 +23,7 @@ namespace corn {
         Expression<3> x, y, w, h;
 
     private:
-        CameraViewportImpl* impl;
+        class CameraViewportImpl;
+        CameraViewportImpl* impl_;
     };
 }
