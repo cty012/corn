@@ -5,7 +5,7 @@
 
 namespace corn {
     /**
-     * @enum DisplayMode
+     * @class DisplayMode
      * @brief How the window will be displayed on the computer screen.
      */
     enum class DisplayMode {

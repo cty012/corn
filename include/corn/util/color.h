@@ -1,9 +1,18 @@
+/**
+ * @file color.h
+ * @class Defines color-related data structures and operations.
+ */
+
 #pragma once
 
 #include <string>
 #include <tuple>
 
 namespace corn {
+    /**
+     * @class Color
+     * @brief A class for representing colors.
+     */
     class Color {
     public:
         using RGB = std::tuple<unsigned char, unsigned char, unsigned char>;
@@ -27,9 +36,9 @@ namespace corn {
 
     private:
         Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
-        unsigned char red;
-        unsigned char green;
-        unsigned char blue;
-        unsigned char alpha;
+        unsigned char r_;
+        unsigned char g_;
+        unsigned char b_;
+        unsigned char a_;
     };
 }

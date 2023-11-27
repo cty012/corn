@@ -1,3 +1,8 @@
+/**
+ * @file stopwatch.h
+ * @brief Defines a stopwatch utility with simple functions.
+ */
+
 #pragma once
 
 #include <chrono>
@@ -29,9 +34,9 @@ namespace corn {
         bool isRunning() const;
 
     private:
-        mutable std::mutex mutex;
-        bool running;
-        float elapsedTime;
-        std::chrono::high_resolution_clock::time_point startTime;
+        bool running_;
+        std::chrono::high_resolution_clock::time_point startTime_;
+        float elapsedTime_;
+        mutable std::mutex mutex_;
     };
 }

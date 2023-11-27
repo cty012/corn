@@ -1,3 +1,8 @@
+/**
+ * @file rich_text.h
+ * @brief Defines the RichText class and a container for storing text styles.
+ */
+
 #pragma once
 
 #include <string>
@@ -6,6 +11,12 @@
 #include <corn/util/color.h>
 
 namespace corn {
+    /**
+     * @class TextStyle
+     * @brief Uses a builder-like pattern to specify text styles.
+     *
+     * @see RichText
+     */
     struct TextStyle {
         const Font* font;
         size_t size;
@@ -22,8 +33,16 @@ namespace corn {
         TextStyle setVariant(FontVariant newVariant);
     };
 
-    class RichText {
-    public:
+    /**
+     * @class RichText
+     * @brief Contains a piece of styled text encoded with utf-8.
+     *
+     * This class is a pure data container and does not store any cached information about text rendering.
+     *
+     * @see TextStyle
+     * @see TextRender
+     */
+    struct RichText {
         /// @brief Stores a pair of text string and text style.
         struct Segment {
             std::u8string str;
