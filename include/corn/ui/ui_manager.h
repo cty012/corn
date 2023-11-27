@@ -39,12 +39,13 @@ namespace corn {
             Node(UIWidget* widget, Node* parent);
         };
 
+        /// @brief Constructor.
         explicit UIManager(Scene& scene);
+        /// @brief Destructor.
         ~UIManager();
 
         /// @return The scene that owns this UI manager.
         [[nodiscard]] Scene& getScene() const;
-
         /// @return The game that contains this UI manager.
         [[nodiscard]] const Game* getGame() const;
 
@@ -94,9 +95,16 @@ namespace corn {
         /// @brief Cleans up all dirty nodes. Auto-called before rendering.
         void tidy();
 
-        /// @brief Calculate and cache the locations and sizes of all widgets.
-        void calcGeometry(Vec2 rootSize);
+        /**
+         * @brief Calculate and cache the locations and sizes of all widgets.
+         * @param windowSize Size of the window
+         */
+        void calcGeometry(Vec2 windowSize);
 
+        /**
+         * @param target The target UI widget.
+         * @return The cached value indicating the x location (left), y location (top), width, and height of the target.
+         */
         Vec4 getCachedGeometry(const UIWidget* target) const;
 
     private:
@@ -145,19 +153,19 @@ namespace corn {
                 const UIWidget* parent, bool recurse) const;
 
         /// @brief The scene that owns this UI manager.
-        Scene& scene;
+        Scene& scene_;
 
         /// @brief The root node (does not contain a widget)
-        Node root;
+        Node root_;
 
         /// @brief Quick access for finding nodes by widget ID (does not contain root)
-        std::unordered_map<UIWidget::WidgetID, Node> nodes;
+        std::unordered_map<UIWidget::WidgetID, Node> nodes_;
 
-        EventManager::ListenerID mousebtnEventID;
-        EventManager::ListenerID mousemvEventID;
+        EventManager::ListenerID mousebtnEventID_;
+        EventManager::ListenerID mousemvEventID_;
 
-        std::vector<UIWidget*> hoveredWidgets;
-        std::unordered_set<UIWidget*> hoveredWidgetSet;
+        std::vector<UIWidget*> hoveredWidgets_;
+        std::unordered_set<UIWidget*> hoveredWidgetSet_;
     };
 
     template<WidgetType T, typename... Args>
@@ -167,14 +175,14 @@ namespace corn {
 
         // Create the widget
         static UIWidget::WidgetID widgetID = 0;
-        while (this->nodes.contains(widgetID)) {
+        while (this->nodes_.contains(widgetID)) {
             widgetID++;
         }
         T* widget = new T(widgetID, name, *this, std::forward<Args>(args)...);
 
         // Create the node
-        this->nodes.emplace(widget->id, Node(widget, parentNode));
-        parentNode->children.push_back(&this->nodes.at(widget->id));
+        this->nodes_.emplace(widget->getID(), Node(widget, parentNode));
+        parentNode->children.push_back(&this->nodes_.at(widget->getID()));
         parentNode->dirty = true;
 
         return widget;

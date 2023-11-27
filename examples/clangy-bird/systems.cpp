@@ -5,7 +5,7 @@
 
 WallManager::WallManager(corn::Scene& scene) : corn::System(scene) {}
 
-void WallManager::update([[maybe_unused]] float millis) {
+void WallManager::update(float) {
     bool needNewWall = true;
     // Iterate over existing walls
     for (corn::Entity* entity : this->getScene().getEntityManager().getEntitiesWith<Wall>()) {
@@ -25,7 +25,7 @@ void WallManager::update([[maybe_unused]] float millis) {
 }
 
 BirdCollisionResolve::BirdCollisionResolve(corn::Scene& scene) : corn::System(scene), hasCollided(false) {
-    this->active = false;
+    this->setActive(false);
     this->collisionEventID = this->getScene().getEventManager().addListener(
             "corn::game::collision", [this](const corn::EventArgs& args) {
                 const auto& _args = dynamic_cast<const corn::EventArgsCollision&>(args);
@@ -45,4 +45,4 @@ void BirdCollisionResolve::resolve(const corn::EventArgsCollision& args) {
             corn::SceneOperation::REPLACE, new GameScene()));
 }
 
-void BirdCollisionResolve::update([[maybe_unused]] float millis) {}
+void BirdCollisionResolve::update(float) {}

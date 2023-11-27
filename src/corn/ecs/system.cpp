@@ -5,7 +5,7 @@
 #include <corn/ecs/system.h>
 
 namespace corn {
-    System::System(Scene& scene) : active(true), scene_(scene) {}
+    System::System(Scene& scene) : scene_(scene), active_(true) {}
 
     System::~System() = default;
 
@@ -15,6 +15,14 @@ namespace corn {
 
     const Game* System::getGame() const {
         return this->scene_.getGame();
+    }
+
+    bool System::isActive() const {
+        return this->active_;
+    }
+
+    void System::setActive(bool active) {
+        this->active_ = active;
     }
 
     SMovement2D::SMovement2D(Scene& scene) : System(scene) {}

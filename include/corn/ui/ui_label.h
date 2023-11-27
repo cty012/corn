@@ -10,9 +10,13 @@ namespace corn {
         // UIManager need access to ctor/dtor
         friend class UIManager;
 
+        /// @brief Getter for the rich text.
         [[nodiscard]] const RichText& getText() const;
+
+        /// @brief Setter for the rich text.
         void setText(const RichText& richText);
 
+        /// @brief Getter for the text render.
         [[nodiscard]] const TextRender& getTextRender() const;
 
     private:

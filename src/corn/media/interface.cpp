@@ -229,7 +229,7 @@ namespace corn {
         for (const UIWidget* widget : widgets) {
             // Find opacity
             UIWidget* parent = widget->getParent();
-            opacities[widget] = opacities[parent] * (float)widget->opacity / 255.0f;
+            opacities[widget] = opacities[parent] * (float)widget->getOpacity() / 255.0f;
 
             // Find geometry
             auto [x, y, w, h] = uiManager.getCachedGeometry(widget);  // NOLINT
@@ -237,12 +237,12 @@ namespace corn {
             // Render the background
             sf::RectangleShape boundingRect(sf::Vector2f(w, h));
             boundingRect.setPosition(x, y);
-            auto [r, g, b, a] = widget->background.getRGBA();
+            auto [r, g, b, a] = widget->getBackground().getRGBA();
             boundingRect.setFillColor(sf::Color(r, g, b, (unsigned char)((float)a * opacities[widget])));
             this->impl_->window->draw(boundingRect);
 
             // Render the widget
-            switch (widget->type) {
+            switch (widget->getType()) {
                 case UIType::PANEL:
                     break;
                 case UIType::LABEL: {

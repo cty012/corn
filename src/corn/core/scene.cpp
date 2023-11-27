@@ -40,7 +40,7 @@ namespace corn {
 
     void Scene::update(float millis) {
         for (System* system : this->systems_) {
-            if (system->active) {
+            if (system->isActive()) {
                 system->update(millis);
             }
         }

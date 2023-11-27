@@ -27,7 +27,7 @@ MainMenuScene::MainMenuScene() {
     body->setY("(100%ph - min(100%pw * 9, 100%ph * 16) / 16) / 2");
     body->setW("min(100%pw * 9, 100%ph * 16) / 9");
     body->setH("min(100%pw * 9, 100%ph * 16) / 16");
-    body->background = corn::Color::rgb(60, 179, 113);
+    body->setBackground(corn::Color::rgb(60, 179, 113));
 
     auto* contents = this->getUIManager().createWidget<corn::UIWidget>("contents", body);
     contents->setX("200px");
@@ -98,7 +98,7 @@ SettingsScene::SettingsScene() {
     body->setY("(100%ph - min(100%pw * 9, 100%ph * 16) / 16) / 2");
     body->setW("min(100%pw * 9, 100%ph * 16) / 9");
     body->setH("min(100%pw * 9, 100%ph * 16) / 16");
-    body->background = corn::Color::rgb(60, 179, 113);
+    body->setBackground(corn::Color::rgb(60, 179, 113));
 
     auto* contents = this->getUIManager().createWidget<corn::UIWidget>("contents", body);
     contents->setX("200px");
@@ -180,10 +180,10 @@ GameScene::GameScene() : paused(false), addedSystems_() {
     body->setH("min(100%pw * 9, 100%ph * 16) / 16");
 
     this->pauseMenu = this->getUIManager().createWidget<corn::UIWidget>("pause", body);
-    this->pauseMenu->active = false;
+    this->pauseMenu->setActive(false);
     this->pauseMenu->setW("100%pw");
     this->pauseMenu->setH("100%ph");
-    this->pauseMenu->background = corn::Color::rgb(0, 0, 0, 100);
+    this->pauseMenu->setBackground(corn::Color::rgb(0, 0, 0, 100));
 
     auto* menu = this->getUIManager().createWidget<corn::UIWidget>("menu", this->pauseMenu);
     menu->setX("50%pw - 50%nw");
@@ -246,9 +246,9 @@ bool GameScene::isPaused() const {
 
 void GameScene::togglePause() {
     this->paused = !this->paused;
-    this->pauseMenu->active = this->paused;
+    this->pauseMenu->setActive(this->paused);
     for (corn::System* system : this->addedSystems_) {
-        system->active = !this->paused;
+        system->setActive(!this->paused);
     }
 }
 

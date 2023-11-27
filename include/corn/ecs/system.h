@@ -15,8 +15,6 @@ namespace corn {
      */
     class System {
     public:
-        /// @brief The update function will only be called if the system is active.
-        bool active;
 
         /// @brief Constructor.
         explicit System(Scene& scene);
@@ -27,8 +25,15 @@ namespace corn {
 
         /// @return The scene that owns this system.
         [[nodiscard]] Scene& getScene() const;
+
         /// @return The game that contains this system.
         [[nodiscard]] const Game* getGame() const;
+
+        /// @brief Getter for active.
+        [[nodiscard]] bool isActive() const;
+
+        /// @brief Setter for active.
+        void setActive(bool active);
 
         /**
          * @brief If active, will be called repeatedly during game loop.
@@ -39,6 +44,8 @@ namespace corn {
     private:
         /// @brief The Scene that owns this system.
         Scene& scene_;
+        /// @brief The update function will only be called if the system is active.
+        bool active_;
     };
 
     /**

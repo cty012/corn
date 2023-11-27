@@ -40,7 +40,7 @@ namespace corn {
         void setName(std::string name);
 
         /// @return Getter for the entity's active property.
-        [[nodiscard]] bool isActiveA() const;
+        [[nodiscard]] bool isActive() const;
 
         /// @brief Setter for the entity's active property.
         void setActive(bool active);

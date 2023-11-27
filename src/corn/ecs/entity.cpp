@@ -26,7 +26,7 @@ namespace corn {
         this->name_ = std::move(name);
     }
 
-    bool Entity::isActiveA() const {
+    bool Entity::isActive() const {
         return this->active_;
     }
 

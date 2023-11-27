@@ -5,104 +5,144 @@
 
 namespace corn {
     UIWidget::UIWidget(UIType type, WidgetID id, std::string name, UIManager& uiManager)
-        : active(true), type(type), id(id), name(std::move(name)), geometry(UIGeometry::DEFAULT),
-          background(Color::rgb(255, 255, 255, 0)), opacity(255), independent(), uiManager(uiManager) {
+            : type_(type), id_(id), name_(std::move(name)), active_(true), uiManager_(uiManager), geometry_(UIGeometry::DEFAULT),
+            x_(), y_(), w_(), h_(), independent_(), background_(Color::rgb(255, 255, 255, 0)), opacity_(255) {
 
         this->setX("0px");
         this->setY("0px");
         this->setW("100%nw");
         this->setH("100%nh");
-        this->eventManager = EventManager::addPrivateRoom();
+        this->eventManager_ = EventManager::addPrivateRoom();
     }
 
     UIWidget::UIWidget(UIWidget::WidgetID id, std::string name, UIManager& uiManager)
-        : UIWidget(UIType::PANEL, id, std::move(name), uiManager) {}
+            : UIWidget(UIType::PANEL, id, std::move(name), uiManager) {}
 
     UIWidget::~UIWidget() {
-        EventManager::removePrivateRoom(this->eventManager);
+        EventManager::removePrivateRoom(this->eventManager_);
     }
 
-    void UIWidget::destroy() {
-        uiManager.destroyWidget(*this);
+    UIType UIWidget::getType() const {
+        return this->type_;
+    }
+
+    UIWidget::WidgetID UIWidget::getID() const {
+        return this->id_;
+    }
+
+    const std::string& UIWidget::getName() const {
+        return this->name_;
+    }
+
+    void UIWidget::setName(std::string name) {
+        this->name_ = std::move(name);
     }
 
     bool UIWidget::isActive() const {
+        return this->active_;
+    }
+
+    void UIWidget::setActive(bool active) {
+        this->active_ = active;
+    }
+
+    bool UIWidget::isActiveInWorld() const {
         const UIWidget* current = this;
         while (current) {
-            if (!this->active) return false;
+            if (!this->active_) return false;
             current = current->getParent();
         }
         return true;
     }
 
     UIManager& UIWidget::getUIManager() const {
-        return this->uiManager;
+        return this->uiManager_;
     }
 
     EventManager& UIWidget::getEventManager() const {
-        return *this->eventManager;
+        return *this->eventManager_;
     }
 
     Scene& UIWidget::getScene() const {
-        return this->uiManager.getScene();
+        return this->uiManager_.getScene();
     }
 
     const Game* UIWidget::getGame() const {
-        return this->uiManager.getGame();
+        return this->uiManager_.getGame();
+    }
+
+    void UIWidget::destroy() {
+        uiManager_.destroyWidget(*this);
     }
 
     UIWidget* UIWidget::getParent() const {
-        UIManager::Node* parent = this->uiManager.nodes.at(this->id).parent;
+        UIManager::Node* parent = this->uiManager_.nodes_.at(this->id_).parent;
         return parent ? parent->widget : nullptr;
     }
 
-    UIGeometry UIWidget::getGeometry() const {
-        switch (this->geometry) {
+    UIGeometry UIWidget::getActualGeometry() const {
+        switch (this->geometry_) {
             case UIGeometry::DEFAULT:
-                return this->independent[0] && this->independent[1] && this->independent[2] && this->independent[3] ?
+                return this->independent_[0] && this->independent_[1] && this->independent_[2] && this->independent_[3] ?
                     UIGeometry::INDEPENDENT : UIGeometry::DEPENDENT;
             default:
-                return this->geometry;
+                return this->geometry_;
         }
     }
 
     const Expression<5>& UIWidget::getX() const {
-        return this->x;
+        return this->x_;
     }
 
     const Expression<5>& UIWidget::getY() const {
-        return this->y;
+        return this->y_;
     }
 
     const Expression<5>& UIWidget::getW() const {
-        return this->w;
+        return this->w_;
     }
 
     const Expression<5>& UIWidget::getH() const {
-        return this->h;
+        return this->h_;
     }
 
     void UIWidget::setX(const std::string& expression) {
-        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%nw", "%nh"};
-        this->x = Expression(expression, units);
-        this->independent[0] = expression.find("%p") == std::string::npos;
+        static const std::array<std::string, 5> units = { "px", "%pw", "%ph", "%nw", "%nh" };
+        this->x_ = Expression(expression, units);
+        this->independent_[0] = expression.find("%p") == std::string::npos;
     }
 
     void UIWidget::setY(const std::string& expression) {
-        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%nw", "%nh"};
-        this->y = Expression(expression, units);
-        this->independent[1] = expression.find("%p") == std::string::npos;
+        static const std::array<std::string, 5> units = { "px", "%pw", "%ph", "%nw", "%nh" };
+        this->y_ = Expression(expression, units);
+        this->independent_[1] = expression.find("%p") == std::string::npos;
     }
 
     void UIWidget::setW(const std::string& expression) {
-        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%nw", "%nh"};
-        this->w = Expression(expression, units);
-        this->independent[2] = expression.find("%p") == std::string::npos;
+        static const std::array<std::string, 5> units = { "px", "%pw", "%ph", "%nw", "%nh" };
+        this->w_ = Expression(expression, units);
+        this->independent_[2] = expression.find("%p") == std::string::npos;
     }
 
     void UIWidget::setH(const std::string& expression) {
-        static const std::array<std::string, 5> units = {"px", "%pw", "%ph", "%nw", "%nh"};
-        this->h = Expression(expression, units);
-        this->independent[3] = expression.find("%p") == std::string::npos;
+        static const std::array<std::string, 5> units = { "px", "%pw", "%ph", "%nw", "%nh" };
+        this->h_ = Expression(expression, units);
+        this->independent_[3] = expression.find("%p") == std::string::npos;
+    }
+
+    const Color& UIWidget::getBackground() const {
+        return this->background_;
+    }
+
+    unsigned char UIWidget::getOpacity() const {
+        return this->opacity_;
+    }
+
+    void UIWidget::setBackground(Color background) {
+        this->background_ = std::move(background);
+    }
+
+    void UIWidget::setOpacity(unsigned char opacity) {
+        this->opacity_ = opacity;
     }
 }
