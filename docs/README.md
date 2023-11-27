@@ -31,11 +31,11 @@ For `<path_to_vcpkg>`, use the full path where vcpkg is installed on your system
 ### MSVC (Windows):
 1. Install SFML 2.6 using `vcpkg`:
    ```shell
-   <path_to_vcpkg> install sfml:x64-windows-static
+   <path_to_vcpkg> install sfml:x64-windows-static-md
    ```
 2. Build the project with `CMake`:
    ```shell
-   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static-md
    cmake --build build --config Release
    ```
 
