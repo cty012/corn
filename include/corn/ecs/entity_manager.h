@@ -37,115 +37,119 @@ namespace corn {
              * False means it must be sorted, and true means it might not be
              */
             bool dirty;
-            Node(Entity* ent, Node* parent);
+            Node(Entity* ent, Node* parent) noexcept;
         };
 
         /// @brief Constructor.
-        explicit EntityManager(Scene& scene);
+        explicit EntityManager(Scene& scene) noexcept;
+
         /// @brief Destructor.
         ~EntityManager();
+
         EntityManager(const EntityManager& other) = delete;
         EntityManager& operator=(const EntityManager& other) = delete;
 
         /// @return The scene that owns this Entity manager.
-        [[nodiscard]] Scene& getScene() const;
+        [[nodiscard]] Scene& getScene() const noexcept;
+
         /// @return The game that contains this Entity manager.
-        [[nodiscard]] const Game* getGame() const;
+        [[nodiscard]] const Game* getGame() const noexcept;
 
         /// @return The root node of the Entity tree.
-        const Node* getRoot() const;
+        [[nodiscard]] const Node* getRoot() const noexcept;
 
         /**
-         * @brief Creates a new Entity with no Components attached.
-         * @param name Name of the Entity. Entities can have the same name.
-         * @param parent Parent Entity to attach the new Entity. If value is null, will attach to the root.
-         * @return Pointer to the Entity created.
-         * @throw std::invalid_argument if parent is not a valid Entity created by the Entity Manager.
+         * @brief Creates a new entity with no components attached.
+         * @param name Name of the entity. Entities can have the same name.
+         * @param parent Parent entity to attach the new entity. If value is null, will attach to the root.
+         * @return Pointer to the entity created.
+         * @throw std::invalid_argument if parent is not a valid entity created by the entity manager.
          *
-         * If reaches the maximum Entity existing simultaneously, will result in undefined behavior.
+         * If reaches the maximum entity existing simultaneously, will result in undefined behavior.
          */
         Entity& createEntity(const std::string& name, const Entity* parent = nullptr);
 
         /**
-         * @param id ID of the Entity.
-         * @return Entity with the given ID. Null pointer if it doesn't exist.
+         * @param id ID of the entity.
+         * @return Entity with the given ID, or null pointer if it doesn't exist.
          *
-         * Acquiring the Entity by ID is the only method to access an Entity in O(1) time complexity. All other methods
-         * require traversing the Entity tree, which takes O(n) time.
+         * Acquiring the entity by ID is the only method to access an entity in O(1) time complexity. All other methods
+         * require traversing the entity tree, which takes O(n) time.
          */
-        Entity* getEntityByID(Entity::EntityID id) const;
+        [[nodiscard]] Entity* getEntityByID(Entity::EntityID id) const noexcept;
 
         /**
-         * @param name Name of the Entity.
+         * @param name Name of the entity.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
-         * @return The first Entity with the given name. Null pointer if it doesn't exist.
+         * @return The first entity with the given name, or null pointer if it doesn't exist.
          */
-        Entity* getEntityByName(const std::string& name, const Entity* parent = nullptr, bool recurse = true) const;
+        [[nodiscard]] Entity* getEntityByName(const std::string& name, const Entity* parent = nullptr, bool recurse = true) const noexcept;
 
         /**
-         * @param name Name of the Entity.
+         * @param name Name of the entity.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
-         * @return All Entities with the given name.
+         * @return All entities with the given name.
          */
-        std::vector<Entity*> getEntitiesByName(
-                const std::string& name, const Entity* parent = nullptr, bool recurse = true) const;
+        [[nodiscard]] std::vector<Entity*> getEntitiesByName(
+                const std::string& name, const Entity* parent = nullptr, bool recurse = true) const noexcept;
 
         /**
-         * @param pred A predicate function that takes an Entity pointer and returns whether it satisfy the conditions.
+         * @param pred A predicate function that takes an entity pointer and returns whether it satisfy the conditions.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
-         * @return The first Entity that satisfy the conditions given by filter. Null pointer if it doesn't exist.
+         * @return The first entity that satisfy the conditions given by filter, or null pointer if it doesn't exist.
          */
-        Entity* getEntityThat(
+        [[nodiscard]] Entity* getEntityThat(
                 const std::function<bool(const Entity*)>& pred, const Entity* parent = nullptr, bool recurse = true) const;
 
         /**
-         * @param pred A predicate function that takes an Entity pointer and returns whether it satisfy the conditions.
+         * @param pred A predicate function that takes an entity pointer and returns whether it satisfy the conditions.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
-         * @return All Entities that satisfy the conditions given by filter.
+         * @return All entities that satisfy the conditions given by filter.
          */
-        std::vector<Entity*> getEntitiesThat(
+        [[nodiscard]] std::vector<Entity*> getEntitiesThat(
                 const std::function<bool(const Entity*)>& pred, const Entity* parent = nullptr, bool recurse = true) const;
 
         /**
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
-         * @return All Entities.
+         * @return All entities.
          */
-        std::vector<Entity*> getAllEntities(const Entity* parent = nullptr, bool recurse = true) const;
+        [[nodiscard]] std::vector<Entity*> getAllEntities(const Entity* parent = nullptr, bool recurse = true) const noexcept;
 
         /**
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
-         * @return All active Entities. See `Entity::isActive()` for definition of active.
+         * @return All active entities. See `Entity::isActive()` for definition of active.
          */
-        std::vector<Entity*> getAllActiveEntities(const Entity* parent = nullptr, bool recurse = true) const;
+        [[nodiscard]] std::vector<Entity*> getAllActiveEntities(const Entity* parent = nullptr, bool recurse = true) const noexcept;
 
         /**
-         * @tparam T List of type of the Components, must derive from Component class.
+         * @tparam T List of type of the components, must derive from Component class.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
-         * @return All Entities with the list of Components.
+         * @return All entities with the list of components.
          */
         template <ComponentType... T>
-        std::vector<Entity*> getEntitiesWith(const Entity* parent = nullptr, bool recurse = true) const;
+        [[nodiscard]] std::vector<Entity*> getEntitiesWith(const Entity* parent = nullptr, bool recurse = true) const noexcept;
 
         /**
-         * @tparam T List of type of the Components, must derive from Component class.
+         * @tparam T List of type of the components, must derive from Component class.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
          * @return All active entities with the list of components. See `Entity::isActive()` for definition of active.
          */
         template <ComponentType... T>
-        std::vector<Entity*> getActiveEntitiesWith(const Entity* parent = nullptr, bool recurse = true) const;
+        [[nodiscard]] std::vector<Entity*> getActiveEntitiesWith(const Entity* parent = nullptr, bool recurse = true) const noexcept;
 
-        const std::vector<const CCamera*>& getCameras() const;
+        /// @return A list of cameras components registered in this scene.
+        [[nodiscard]] const std::vector<const CCamera*>& getCameras() const noexcept;
 
         /// @brief Cleans up all dirty nodes. Auto-called before rendering.
-        void tidy();
+        void tidy() noexcept;
 
     private:
         /**
@@ -153,7 +157,7 @@ namespace corn {
          *
          * Destroys a node and the entity inside, as well as all descendant nodes, but does not modify parent node.
          */
-        void destroyNode(Node* node);
+        void destroyNode(Node* node) noexcept;
 
         /**
          * @brief Destroys an entity. First destroys all children before destroying itself.
@@ -161,16 +165,18 @@ namespace corn {
          *
          * You should not use this function to destroy an entity. Use `entity.destroy()` instead.
          */
-        void destroyEntity(Entity& entity);
+        void destroyEntity(Entity& entity) noexcept;
 
         /**
-         * @brief Given a pointer to entity, return the Node containing it.
+         * @defgroup Given a pointer to entity, return the Node containing it.
          * @throw std::invalid_argument if parent is not a valid entity created by the entity manager.
          *
          * The two functions are the same, but one is the const version of the other.
          */
+        /// @{
         const Node* getNodeFromEntity(const Entity* entity) const;
         Node* getNodeFromEntity(const Entity* entity);
+        /// @}
 
         /**
          * @brief Helper to all getEntity/getEntities functions.
@@ -189,27 +195,29 @@ namespace corn {
 
         /// @brief The scene that owns this entity manager.
         Scene& scene_;
+
         /// @brief The root node (does not contain a entity).
         Node root_;
+
         /// @brief Quick access for finding nodes by entity ID (does not contain root).
         std::unordered_map<Entity::EntityID, Node> nodes_;
+
         /// @brief List of camera entities for quick access.
         std::vector<const CCamera*> cameras_;
 
-        /// @brief Event listeners.
         EventManager::ListenerID zOrderEventID_;
         EventManager::ListenerID cameraEventID_;
     };
 
     template<ComponentType... T>
-    std::vector<Entity*> EntityManager::getEntitiesWith(const Entity* parent, bool recurse) const {
+    std::vector<Entity*> EntityManager::getEntitiesWith(const Entity* parent, bool recurse) const noexcept {
         return getEntitiesHelper([](Entity* entity) {
             return (... && entity->getComponent<T>());
         }, false, 0, parent, recurse);
     }
 
     template<ComponentType... T>
-    std::vector<Entity*> EntityManager::getActiveEntitiesWith(const Entity* parent, bool recurse) const {
+    std::vector<Entity*> EntityManager::getActiveEntitiesWith(const Entity* parent, bool recurse) const noexcept {
         return getEntitiesHelper([](Entity* entity) {
             return (... && entity->getComponent<T>());
         }, true, 0, parent, recurse);

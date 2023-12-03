@@ -15,25 +15,29 @@ namespace corn {
      */
     class System {
     public:
+        /**
+         * @brief Constructor.
+         * @param scene Target scene to attach to.
+         */
+        explicit System(Scene& scene) noexcept;
 
-        /// @brief Constructor.
-        explicit System(Scene& scene);
         /// @brief Destructor.
         virtual ~System();
+
         System(const System&) = delete;
         System& operator=(const System&) = delete;
 
-        /// @return The scene that owns this system.
-        [[nodiscard]] Scene& getScene() const;
-
-        /// @return The game that contains this system.
-        [[nodiscard]] const Game* getGame() const;
-
         /// @brief Getter for active.
-        [[nodiscard]] bool isActive() const;
+        [[nodiscard]] bool isActive() const noexcept;
 
         /// @brief Setter for active.
-        void setActive(bool active);
+        void setActive(bool active) noexcept;
+
+        /// @return The scene that owns this system.
+        [[nodiscard]] Scene& getScene() const noexcept;
+
+        /// @return The game that contains this system.
+        [[nodiscard]] const Game* getGame() const noexcept;
 
         /**
          * @brief If active, will be called repeatedly during game loop.
@@ -44,6 +48,7 @@ namespace corn {
     private:
         /// @brief The Scene that owns this system.
         Scene& scene_;
+
         /// @brief The update function will only be called if the system is active.
         bool active_;
     };
@@ -58,7 +63,16 @@ namespace corn {
      */
     class SMovement2D : public System {
     public:
-        explicit SMovement2D(Scene& scene);
+        /**
+         * @brief Constructor.
+         * @param scene Target scene to attach to.
+         */
+        explicit SMovement2D(Scene& scene) noexcept;
+
+        /**
+         * Moves all entities by their velocity.
+         * @param millis Number of milliseconds elapsed.
+         */
         void update(float millis) override;
     };
 
@@ -79,8 +93,12 @@ namespace corn {
          */
         float g;
 
-        /// @brief Constructor.
-        explicit SGravity(Scene& scene, float g = 2000.0);
+        /**
+         * @brief Constructor.
+         * @param scene Target scene to attach to.
+         * @param g Gravitational acceleration. Default value is 2000 pixel/second^2.
+         */
+        explicit SGravity(Scene& scene, float g = 2000.0f) noexcept;
 
         /**
          * @brief Calculates amount of velocity change for all entities with the CGravity2D component.
@@ -102,8 +120,11 @@ namespace corn {
      */
     class SCollisionDetection : public System {
     public:
-        /// @brief Constructor.
-        explicit SCollisionDetection(Scene& scene);
+        /**
+         * @brief Constructor.
+         * @param scene Target scene to attach to.
+         */
+        explicit SCollisionDetection(Scene& scene) noexcept;
 
         /**
          * @brief Detects all collisions and emit events.

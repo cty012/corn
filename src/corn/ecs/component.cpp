@@ -3,35 +3,34 @@
 #include <corn/ecs/component.h>
 #include <corn/ecs/entity.h>
 #include <corn/ecs/entity_manager.h>
-#include <corn/event/event_manager.h>
 #include <corn/geometry/operations.h>
 #include "../event/event_args_extend.h"
 
 namespace corn {
-    Component::Component(Entity& entity) : active(true), entity(entity) {}
+    Component::Component(Entity& entity) noexcept : active(true), entity(entity) {}
 
     Component::~Component() = default;
 
-    Entity& Component::getEntity() const {
+    Entity& Component::getEntity() const noexcept {
         return this->entity;
     }
 
-    EntityManager& Component::getEntityManager() const {
+    EntityManager& Component::getEntityManager() const noexcept {
         return this->entity.getEntityManager();
     }
 
-    Scene& Component::getScene() const {
+    Scene& Component::getScene() const noexcept {
         return this->entity.getScene();
     }
 
-    const Game* Component::getGame() const {
+    const Game* Component::getGame() const noexcept {
         return this->entity.getGame();
     }
 
-    CTransform2D::CTransform2D(Entity &entity, Vec2 location, Deg rotation)
+    CTransform2D::CTransform2D(Entity &entity, Vec2 location, Deg rotation) noexcept
             : Component(entity), location(location), rotation(rotation), zOrder_(0) {}
 
-    std::pair<Vec2, Deg> CTransform2D::getWorldTransform() const {
+    std::pair<Vec2, Deg> CTransform2D::getWorldTransform() const noexcept {
         std::pair<Vec2, Deg> worldTransform = { this->location, this->rotation };
         for (Entity* ancestor = this->getEntity().getParent(); ancestor; ancestor = ancestor->getParent()) {
             auto* ancestorTransform = ancestor->getComponent<CTransform2D>();
@@ -44,39 +43,39 @@ namespace corn {
         return worldTransform;
     }
 
-    void CTransform2D::setWorldLocation(Vec2 worldLocation) {
+    void CTransform2D::setWorldLocation(Vec2 worldLocation) noexcept {
         auto [curWorldLocation, curWorldRotation] = this->getWorldTransform();
         Deg parentWorldRotation = curWorldRotation - this->rotation;
         Vec2 parentWorldLocation = curWorldLocation - rotate(this->location, parentWorldRotation);
         this->location = rotate(worldLocation - parentWorldLocation, -parentWorldRotation);
     }
 
-    void CTransform2D::addWorldLocationOffset(Vec2 offset) {
+    void CTransform2D::addWorldLocationOffset(Vec2 offset) noexcept {
         Deg curWorldRotation = this->getWorldTransform().second;
         Deg parentWorldRotation = curWorldRotation - this->rotation;
         this->location += rotate(offset, -parentWorldRotation);
     }
 
-    int CTransform2D::getZOrder() const {
+    int CTransform2D::getZOrder() const noexcept {
         return this->zOrder_;
     }
 
-    void CTransform2D::setZOrder(int zOrder) {
+    void CTransform2D::setZOrder(int zOrder) noexcept {
         this->zOrder_ = zOrder;
         this->getScene().getEventManager().emit(EventArgsZOrderChange(&this->getEntity()));
     }
 
-    CSprite::CSprite(Entity& entity, Image *image, Vec2 location)
+    CSprite::CSprite(Entity& entity, Image *image, Vec2 location) noexcept
             : Component(entity), image(image), location(location) {}
 
     CSprite::~CSprite() {
         delete this->image;
     }
 
-    CMovement2D::CMovement2D(Entity& entity, Vec2 velocity, float angularVelocity)
+    CMovement2D::CMovement2D(Entity& entity, Vec2 velocity, float angularVelocity) noexcept
             : Component(entity), velocity(velocity), angularVelocity(angularVelocity) {}
 
-    std::pair<Vec2, float> CMovement2D::getWorldMovement() const {
+    std::pair<Vec2, float> CMovement2D::getWorldMovement() const noexcept {
         std::pair<Vec2, float> movement = { this->velocity, this->angularVelocity };
         for (Entity* ancestor = this->getEntity().getParent(); ancestor; ancestor = ancestor->getParent()) {
             auto* ancestorMovement = ancestor->getComponent<CMovement2D>();
@@ -92,7 +91,7 @@ namespace corn {
         return movement;
     }
 
-    void CMovement2D::setWorldVelocity(Vec2 worldVelocity) {
+    void CMovement2D::setWorldVelocity(Vec2 worldVelocity) noexcept {
         // Calculate parent rotation
         Deg parentWorldRotation = 0.0f;
         for (Entity* ancestor = this->getEntity().getParent(); ancestor; ancestor = ancestor->getParent()) {
@@ -110,7 +109,7 @@ namespace corn {
         this->velocity = rotate(worldVelocity - parentWorldVelocity, -parentWorldRotation);
     }
 
-    void CMovement2D::addWorldVelocityOffset(Vec2 offset) {
+    void CMovement2D::addWorldVelocityOffset(Vec2 offset) noexcept {
         // Calculate parent rotation
         Deg parentWorldRotation = 0.0f;
         for (Entity* ancestor = this->getEntity().getParent(); ancestor; ancestor = ancestor->getParent()) {
@@ -124,11 +123,11 @@ namespace corn {
         this->velocity += rotate(offset, -parentWorldRotation);
     }
 
-    CGravity2D::CGravity2D(Entity& entity, float scale) : Component(entity), scale(scale) {}
+    CGravity2D::CGravity2D(Entity& entity, float scale) noexcept : Component(entity), scale(scale) {}
 
-    CAABB::CAABB(Entity& entity, Vec2 tl, Vec2 br) : Component(entity), tl(tl), br(br) {}
+    CAABB::CAABB(Entity& entity, Vec2 tl, Vec2 br) noexcept : Component(entity), tl(tl), br(br) {}
 
-    bool CAABB::overlapWith(const CAABB& other) const {
+    bool CAABB::overlapWith(const CAABB& other) const noexcept {
         auto* transform1 = this->getEntity().getComponent<CTransform2D>();
         auto* transform2 = other.getEntity().getComponent<CTransform2D>();
         if (!transform1 || !transform2) return false;
@@ -143,7 +142,7 @@ namespace corn {
         return xDirection && yDirection;
     }
 
-    CCamera::CCamera(Entity& entity, Vec2 anchor, Color background)
+    CCamera::CCamera(Entity& entity, Vec2 anchor, Color background) noexcept
             : Component(entity), cameraType(CameraType::_2D), background(background), opacity(255),
             anchor(anchor.vec3(0)) {
 
@@ -152,7 +151,7 @@ namespace corn {
         this->getScene().getEventManager().emit(EventArgsCamera(CameraEventType::ADD, this));
     }
 
-    CCamera::CCamera(Entity& entity, Vec3 anchor, Color background)
+    CCamera::CCamera(Entity& entity, Vec3 anchor, Color background) noexcept
             : Component(entity), cameraType(CameraType::_3D), background(background), opacity(255), anchor(anchor) {
 
         this->getScene().getEventManager().emit(EventArgsCamera(CameraEventType::ADD, this));

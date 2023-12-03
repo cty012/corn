@@ -35,24 +35,27 @@ namespace corn {
         }
     }
 
-    const Config& Game::getConfig() const {
+    const Config& Game::getConfig() const noexcept {
         return this->config_;
     }
 
-    void Game::setConfig(Config newConfig) {
-        this->config_ = std::move(newConfig);
+    void Game::setConfig(Config config) {
+        this->config_ = std::move(config);
         // TODO: reload settings
+        delete this->interface_;
+        this->interface_ = new Interface(*this, this->keyPressed_);
+        this->interface_->init();
     }
 
-    Scene* Game::getTopScene() const {
+    Scene* Game::getTopScene() const noexcept {
         return this->scenes_.empty() ? nullptr : this->scenes_.top();
     }
 
-    const std::unordered_map<Key, bool>& Game::getKeyPressed() const {
+    const std::unordered_map<Key, bool>& Game::getKeyPressed() const noexcept {
         return this->keyPressed_;
     }
 
-    void Game::changeScene(corn::SceneOperation op, corn::Scene* scene) {
+    void Game::changeScene(corn::SceneOperation op, corn::Scene* scene) noexcept {
         switch (op) {
             case SceneOperation::PUSH:  // Add new scene to top
                 scene->game_ = this;
@@ -75,14 +78,14 @@ namespace corn {
         }
     }
 
-    bool Game::removeOneScene() {
+    bool Game::removeOneScene() noexcept {
         if (this->scenes_.empty()) return false;
         delete this->scenes_.top();
         this->scenes_.pop();
         return true;
     }
 
-    size_t Game::removeAllScenes() {
+    size_t Game::removeAllScenes() noexcept {
         size_t result = this->scenes_.size();
         while (!this->scenes_.empty()) {
             delete this->scenes_.top();
@@ -91,7 +94,7 @@ namespace corn {
         return result;
     }
 
-    void Game::resolveSceneEvents() {
+    void Game::resolveSceneEvents() noexcept {
         while (!this->sceneEvents_.empty()) {
             EventArgsScene& args = this->sceneEvents_.front();
             this->changeScene(args.op, args.scene);
@@ -99,7 +102,7 @@ namespace corn {
         }
     }
 
-    int Game::run() {
+    void Game::run() {
         this->active_ = true;
         this->sw_.clear();  // Just in case
         this->sw_.play();
@@ -120,6 +123,5 @@ namespace corn {
             // Update scene stack
             this->resolveSceneEvents();
         }
-        return 0;
     }
 }

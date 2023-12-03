@@ -31,19 +31,19 @@ namespace corn {
         friend class EntityManager;
 
         /// @brief Getter for the entity's ID.
-        [[nodiscard]] EntityID getID() const;
+        [[nodiscard]] EntityID getID() const noexcept;
 
         /// @brief Getter for the entity's name.
-        [[nodiscard]] const std::string& getName() const;
+        [[nodiscard]] const std::string& getName() const noexcept;
 
         /// @brief Setter for the entity's name.
-        void setName(std::string name);
+        void setName(std::string name) noexcept;
 
         /// @return Getter for the entity's active property.
-        [[nodiscard]] bool isActive() const;
+        [[nodiscard]] bool isActive() const noexcept;
 
         /// @brief Setter for the entity's active property.
-        void setActive(bool active);
+        void setActive(bool active) noexcept;
 
         /**
          * @return Whether the entity is active in the world.
@@ -51,19 +51,19 @@ namespace corn {
          * An entity is active in the world if and only if itself and all its ancestors have property active set to
          * true.
          */
-        [[nodiscard]] bool isActiveInWorld() const;
+        [[nodiscard]] bool isActiveInWorld() const noexcept;
 
         /// @return The entity manager that owns this entity.
-        [[nodiscard]] EntityManager& getEntityManager() const;
+        [[nodiscard]] EntityManager& getEntityManager() const noexcept;
 
         /// @return The scene that contains this entity.
-        [[nodiscard]] Scene& getScene() const;
+        [[nodiscard]] Scene& getScene() const noexcept;
 
         /// @return The game that contains this entity.
-        [[nodiscard]] const Game* getGame() const;
+        [[nodiscard]] const Game* getGame() const noexcept;
 
         /// @brief Destroys the entity itself.
-        void destroy();
+        void destroy() noexcept;
 
         /**
          * @brief Create a component and attach it to the entity.
@@ -83,7 +83,7 @@ namespace corn {
          * @return Pointer to the component if exists, else null pointer.
          */
         template <ComponentType T>
-        T* getComponent() const;
+        T* getComponent() const noexcept;
 
         /**
          * @brief Removing a component from the entity.
@@ -91,19 +91,21 @@ namespace corn {
          * @return Whether the component originally exists.
          */
         template <ComponentType T>
-        bool removeComponent();
+        bool removeComponent() noexcept;
 
         /// @return Get the parent entity.
-        Entity* getParent() const;
+        [[nodiscard]] Entity* getParent() const noexcept;
 
         /// @return Get the list of child entities.
-        std::vector<Entity*> getChildren() const;
+        [[nodiscard]] std::vector<Entity*> getChildren() const noexcept;
 
     private:
-        /// Constructor.
-        explicit Entity(EntityID id, std::string name, EntityManager& entityManager);
-        /// Destructor.
+        /// @brief Constructor.
+        explicit Entity(EntityID id, std::string name, EntityManager& entityManager) noexcept;
+
+        /// @brief Destructor.
         ~Entity();
+
         Entity(const Entity& other) = delete;
         Entity& operator=(const Entity& other) = delete;
 
@@ -143,14 +145,14 @@ namespace corn {
     }
 
     template<ComponentType T>
-    T* Entity::getComponent() const {
+    T* Entity::getComponent() const noexcept {
         auto key = std::type_index(typeid(T));
         if (this->components_.find(key) == this->components_.end()) return nullptr;
         return dynamic_cast<T*>(this->components_.at(key));
     }
 
     template<ComponentType T>
-    bool Entity::removeComponent() {
+    bool Entity::removeComponent() noexcept {
         auto key = std::type_index(typeid(T));
         if (this->components_.find(key) == this->components_.end()) return false;
         this->components_.erase(key);

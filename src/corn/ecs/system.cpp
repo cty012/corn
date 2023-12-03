@@ -1,31 +1,30 @@
-#include <stack>
 #include <vector>
 #include <corn/core/scene.h>
 #include <corn/ecs/entity_manager.h>
 #include <corn/ecs/system.h>
 
 namespace corn {
-    System::System(Scene& scene) : scene_(scene), active_(true) {}
+    System::System(Scene& scene) noexcept : scene_(scene), active_(true) {}
 
     System::~System() = default;
 
-    Scene& System::getScene() const {
-        return this->scene_;
-    }
-
-    const Game* System::getGame() const {
-        return this->scene_.getGame();
-    }
-
-    bool System::isActive() const {
+    bool System::isActive() const noexcept {
         return this->active_;
     }
 
-    void System::setActive(bool active) {
+    void System::setActive(bool active) noexcept {
         this->active_ = active;
     }
 
-    SMovement2D::SMovement2D(Scene& scene) : System(scene) {}
+    Scene& System::getScene() const noexcept {
+        return this->scene_;
+    }
+
+    const Game* System::getGame() const noexcept {
+        return this->scene_.getGame();
+    }
+
+    SMovement2D::SMovement2D(Scene& scene) noexcept : System(scene) {}
 
     void SMovement2D::update(float millis) {
         for (Entity* entity : this->getScene().getEntityManager().getActiveEntitiesWith<CTransform2D, CMovement2D>()) {
@@ -37,7 +36,7 @@ namespace corn {
         }
     }
 
-    SGravity::SGravity(Scene& scene, float g) : System(scene), g(g) {}
+    SGravity::SGravity(Scene& scene, float g) noexcept : System(scene), g(g) {}
 
     void SGravity::update(float millis) {
         for (Entity* entity : this->getScene().getEntityManager().getActiveEntitiesWith<CMovement2D, CGravity2D>()) {
@@ -50,7 +49,7 @@ namespace corn {
         }
     }
 
-    SCollisionDetection::SCollisionDetection(Scene& scene) : System(scene) {}
+    SCollisionDetection::SCollisionDetection(Scene& scene) noexcept : System(scene) {}
 
     void SCollisionDetection::update(float) {
         std::vector<Entity*> entities = this->getScene().getEntityManager().getActiveEntitiesWith<CTransform2D, CAABB>();

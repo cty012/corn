@@ -1,7 +1,7 @@
 #include <corn/core/scene.h>
 
 namespace corn {
-    Scene::Scene() : game_(nullptr), systems_() {
+    Scene::Scene() noexcept : game_(nullptr), systems_() {
         static SceneID uniqueID = 0;
         this->id_ = uniqueID++;
         this->room_ = "Scene::" + std::to_string(this->id_);
@@ -18,24 +18,24 @@ namespace corn {
         EventManager::removeRoom(this->room_);
     }
 
-    Scene::SceneID Scene::getID() const {
+    Scene::SceneID Scene::getID() const noexcept {
         return this->id_;
     }
 
-    const Game* Scene::getGame() const {
-        return this->game_;
-    }
-
-    EntityManager& Scene::getEntityManager() const {
+    EntityManager& Scene::getEntityManager() const noexcept {
         return *this->entityManager_;
     }
 
-    UIManager& Scene::getUIManager() const {
+    UIManager& Scene::getUIManager() const noexcept {
         return *this->uiManager_;
     }
 
-    EventManager& Scene::getEventManager() const {
+    EventManager& Scene::getEventManager() const noexcept {
         return EventManager::instance(this->room_);
+    }
+
+    const Game* Scene::getGame() const noexcept {
+        return this->game_;
     }
 
     void Scene::update(float millis) {

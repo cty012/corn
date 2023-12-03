@@ -31,18 +31,22 @@ namespace corn {
         bool active;
 
         /// @brief Constructor.
-        explicit Component(Entity& entity);
+        explicit Component(Entity& entity) noexcept;
+
         /// @brief Destructor.
         virtual ~Component();
 
         /// @return The entity that owns this component.
-        [[nodiscard]] Entity& getEntity() const;
+        [[nodiscard]] Entity& getEntity() const noexcept;
+
         /// @return The entity manager that contains this component.
-        [[nodiscard]] EntityManager& getEntityManager() const;
+        [[nodiscard]] EntityManager& getEntityManager() const noexcept;
+
         /// @return The scene that contains this component.
-        [[nodiscard]] Scene& getScene() const;
+        [[nodiscard]] Scene& getScene() const noexcept;
+
         /// @return The game that contains this component.
-        [[nodiscard]] const Game* getGame() const;
+        [[nodiscard]] const Game* getGame() const noexcept;
 
     private:
         /// @brief The entity that owns this component.
@@ -59,23 +63,27 @@ namespace corn {
     struct CTransform2D : public Component {
         /// @brief Location of the entity in its parent's reference frame.
         Vec2 location;
+
         /// @brief Rotation of the entity in its parent's reference frame.
         Deg rotation;
 
         /// @brief Constructor.
-        CTransform2D(Entity& entity, Vec2 location, Deg rotation = Deg());
+        CTransform2D(Entity& entity, Vec2 location, Deg rotation = Deg()) noexcept;
 
         /// @return The transform in the world's reference frame.
-        [[nodiscard]] std::pair<Vec2, Deg> getWorldTransform() const;
+        [[nodiscard]] std::pair<Vec2, Deg> getWorldTransform() const noexcept;
+
         /// @brief Set the location of the entity in the world's reference frame.
-        void setWorldLocation(Vec2 worldLocation);
+        void setWorldLocation(Vec2 worldLocation) noexcept;
+
         /// @brief Adds an offset to the location of the entity in the world's reference frame.
-        void addWorldLocationOffset(Vec2 offset);
+        void addWorldLocationOffset(Vec2 offset) noexcept;
 
         /// @brief Getter of the z-order of the entity.
-        [[nodiscard]] int getZOrder() const;
+        [[nodiscard]] int getZOrder() const noexcept;
+
         /// @brief Setter of the z-order of the entity.
-        void setZOrder(int zOrder);
+        void setZOrder(int zOrder) noexcept;
 
     private:
         /**
@@ -97,11 +105,13 @@ namespace corn {
     struct CSprite : public Component {
         /// @brief Pointer to the image.
         Image* image;
+
         /// @brief Location of the top left corner of the image.
         Vec2 location;
 
         /// @brief Constructor.
-        CSprite(Entity& entity, Image *image, Vec2 location = Vec2::ZERO());
+        CSprite(Entity& entity, Image *image, Vec2 location = Vec2::ZERO()) noexcept;
+
         /// @brief Destructor.
         ~CSprite() override;
     };
@@ -120,6 +130,7 @@ namespace corn {
          * Unit: pixel/second
          */
         Vec2 velocity;
+
         /**
          * @brief Angular velocity of the entity in its parent's reference frame.
          *
@@ -128,14 +139,16 @@ namespace corn {
         float angularVelocity;
 
         /// @brief Constructor.
-        explicit CMovement2D(Entity& entity, Vec2 velocity = Vec2::ZERO(), float angularVelocity = 0.0f);
+        explicit CMovement2D(Entity& entity, Vec2 velocity = Vec2::ZERO(), float angularVelocity = 0.0f) noexcept;
 
         /// @return The velocities in the world's reference frame.
-        [[nodiscard]] std::pair<Vec2, float> getWorldMovement() const;
+        [[nodiscard]] std::pair<Vec2, float> getWorldMovement() const noexcept;
+
         /// @brief Set the linear velocity of the entity in the world's reference frame.
-        void setWorldVelocity(Vec2 worldVelocity);
+        void setWorldVelocity(Vec2 worldVelocity) noexcept;
+
         /// @brief Adds an offset to the linear velocity of the entity in the world's reference frame.
-        void addWorldVelocityOffset(Vec2 offset);
+        void addWorldVelocityOffset(Vec2 offset) noexcept;
     };
 
     /**
@@ -150,7 +163,7 @@ namespace corn {
         float scale;
 
         /// @brief Constructor.
-        explicit CGravity2D(Entity& entity, float scale = 1.0f);
+        explicit CGravity2D(Entity& entity, float scale = 1.0f) noexcept;
     };
 
     /**
@@ -169,14 +182,15 @@ namespace corn {
     struct CAABB : public Component {
         /// @brief Location of the top left corner.
         Vec2 tl;
+
         /// @brief Location of the bottom right corner.
         Vec2 br;
 
         /// @brief Constructor.
-        CAABB(Entity& entity, Vec2 tl, Vec2 br);
+        CAABB(Entity& entity, Vec2 tl, Vec2 br) noexcept;
 
         /// @return Whether the two AABBs overlap.
-        [[nodiscard]] bool overlapWith(const CAABB& other) const;
+        [[nodiscard]] bool overlapWith(const CAABB& other) const noexcept;
     };
 
     enum class CameraType { _2D, _3D };
@@ -194,6 +208,7 @@ namespace corn {
 
         /// @brief The background color of the camera's field of view.
         Color background;
+
         /// @brief The opacity of the camera, on a scale of [0, 255].
         unsigned char opacity;
 
@@ -221,9 +236,11 @@ namespace corn {
         Expression<3> fovW, fovH;
 
         /// @brief Constructor for 2D camera.
-        CCamera(Entity& entity, Vec2 anchor, Color background = Color::rgb(0, 0, 0, 0));
+        CCamera(Entity& entity, Vec2 anchor, Color background = Color::rgb(0, 0, 0, 0)) noexcept;
+
         /// @brief Constructor for 3D camera.
-        CCamera(Entity& entity, Vec3 anchor, Color background = Color::rgb(0, 0, 0, 0));
+        CCamera(Entity& entity, Vec3 anchor, Color background = Color::rgb(0, 0, 0, 0)) noexcept;
+
         /// @brief Destructor.
         ~CCamera() override;
 

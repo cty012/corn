@@ -6,9 +6,9 @@
 #include "../event/event_args_extend.h"
 
 namespace corn {
-    EntityManager::Node::Node(Entity* ent, Node* parent) : ent(ent), parent(parent), children(), dirty(false) {}
+    EntityManager::Node::Node(Entity* ent, Node* parent) noexcept : ent(ent), parent(parent), children(), dirty(false) {}
 
-    EntityManager::EntityManager(Scene& scene) : scene_(scene), root_(Node(nullptr, nullptr)), nodes_() {
+    EntityManager::EntityManager(Scene& scene) noexcept : scene_(scene), root_(nullptr, nullptr), nodes_() {
 
         // Listen to zorder change events
         this->zOrderEventID_ = this->scene_.getEventManager().addListener(
@@ -46,11 +46,11 @@ namespace corn {
         }
     }
 
-    Scene& EntityManager::getScene() const {
+    Scene& EntityManager::getScene() const noexcept {
         return this->scene_;
     }
 
-    const EntityManager::Node* EntityManager::getRoot() const {
+    const EntityManager::Node* EntityManager::getRoot() const noexcept {
         return &this->root_;
     }
 
@@ -73,7 +73,7 @@ namespace corn {
         return *entity;
     }
 
-    void EntityManager::destroyNode(Node* node) {  // NOLINT
+    void EntityManager::destroyNode(Node* node) noexcept {  // NOLINT
         if (node == nullptr) return;
         // Destroy all children
         for (Node* child : node->children) {
@@ -85,7 +85,7 @@ namespace corn {
         this->nodes_.erase(entID);
     }
 
-    void EntityManager::destroyEntity(Entity& entity) {
+    void EntityManager::destroyEntity(Entity& entity) noexcept {
         Node* node = &this->nodes_.at(entity.id_);
         Node* parent = node->parent;
         this->destroyNode(node);
@@ -95,12 +95,12 @@ namespace corn {
                 parent->children.end());
     }
 
-    Entity* EntityManager::getEntityByID(Entity::EntityID id) const {
+    Entity* EntityManager::getEntityByID(Entity::EntityID id) const noexcept {
         if (!this->nodes_.contains(id)) return nullptr;
         return this->nodes_.at(id).ent;
     }
 
-    Entity* EntityManager::getEntityByName(const std::string& name, const Entity* parent, bool recurse) const {
+    Entity* EntityManager::getEntityByName(const std::string& name, const Entity* parent, bool recurse) const noexcept {
         std::vector<Entity*> result = getEntitiesHelper([&name](const Entity* entity) {
                 return entity->name_ == name;
             }, false, 1, parent, recurse);
@@ -108,7 +108,7 @@ namespace corn {
     }
 
     std::vector<Entity*> EntityManager::getEntitiesByName(
-            const std::string& name, const Entity* parent, bool recurse) const {
+            const std::string& name, const Entity* parent, bool recurse) const noexcept {
 
         return getEntitiesHelper([&name](const Entity* entity) {
                 return entity->name_ == name;
@@ -128,15 +128,15 @@ namespace corn {
         return this->getEntitiesHelper(pred, false, 0, parent, recurse);
     }
 
-    std::vector<Entity*> EntityManager::getAllEntities(const Entity* parent, bool recurse) const {
+    std::vector<Entity*> EntityManager::getAllEntities(const Entity* parent, bool recurse) const noexcept {
         return this->getEntitiesHelper(nullptr, false, 0, parent, recurse);
     }
 
-    std::vector<Entity*> EntityManager::getAllActiveEntities(const Entity* parent, bool recurse) const {
+    std::vector<Entity*> EntityManager::getAllActiveEntities(const Entity* parent, bool recurse) const noexcept {
         return this->getEntitiesHelper(nullptr, true, 0, parent, recurse);
     }
 
-    void EntityManager::tidy() {
+    void EntityManager::tidy() noexcept {
         if (this->root_.dirty) {
             this->root_.dirty = false;
             std::stable_sort(this->root_.children.begin(), this->root_.children.end(),
@@ -217,11 +217,11 @@ namespace corn {
         return entities;
     }
 
-    const Game* EntityManager::getGame() const {
+    const Game* EntityManager::getGame() const noexcept {
         return this->scene_.getGame();
     }
 
-    const std::vector<const CCamera*>& EntityManager::getCameras() const {
+    const std::vector<const CCamera*>& EntityManager::getCameras() const noexcept {
         return this->cameras_;
     }
 }

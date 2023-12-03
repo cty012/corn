@@ -43,8 +43,12 @@ namespace corn {
 
         friend class Game;
 
-        Scene();
+        /// @brief Constructor.
+        Scene() noexcept;
+
+        /// @brief Destructor.
         virtual ~Scene();
+
         Scene(const Scene& other) = delete;
         Scene& operator=(const Scene& other) = delete;
 
@@ -54,25 +58,25 @@ namespace corn {
          * The unique ID starts from 0 and adds one for each new scene created. After it reaches the max value of
          * SceneID, it goes back to 0.
          */
-        [[nodiscard]] SceneID getID() const;
-
-        /// @return The game that owns this scene.
-        [[nodiscard]] const Game* getGame() const;
+        [[nodiscard]] SceneID getID() const noexcept;
 
         /// @return The EntityManager owned by this scene.
-        [[nodiscard]] EntityManager& getEntityManager() const;
+        [[nodiscard]] EntityManager& getEntityManager() const noexcept;
 
         /// @return The UIManager owned by this scene.
-        [[nodiscard]] UIManager& getUIManager() const;
+        [[nodiscard]] UIManager& getUIManager() const noexcept;
 
         /// @return The EventManager room corresponding to this scene.
-        [[nodiscard]] EventManager& getEventManager() const;
+        [[nodiscard]] EventManager& getEventManager() const noexcept;
+
+        /// @return The game that owns this scene.
+        [[nodiscard]] const Game* getGame() const noexcept;
 
         /**
-         * @brief Adds a system and attach it to the scene.
-         * @tparam T Type of the system, must derive from System class.
+         * @brief Creates a system and attach it to the scene.
+         * @tparam T Type of the system. Must derive from System class.
          * @param args Arguments for constructing the system (excluding the first argument Scene& scene).
-         * @return Pointer to the system if successfully added.
+         * @return Pointer to the system created.
          *
          * Multiple systems of the same type CAN coexist.
          */
@@ -80,14 +84,18 @@ namespace corn {
         T* addSystem(Args&&... args);
 
         /**
-         * @brief Calls the update methods of all systems added to the scene.
+         * @brief Calls the update methods of all ACTIVE systems added to the scene.
          * @param millis Number of milliseconds elapsed.
+         *
+         * Systems' update methods will be called in the order they are added. This order cannot be changed.
          */
         void update(float millis);
 
     private:
         /// @brief The unique ID of the scene.
         SceneID id_;
+
+        /// @brief The room ID of the scene.
         std::string room_;
 
         /// @brief The game that owns this scene.
