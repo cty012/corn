@@ -8,17 +8,19 @@ namespace corn {
      * @brief Degree represented by a float in range [0, 360).
      */
     struct Deg {
-        Deg(float val = 0.0);  // NOLINT
+        Deg(float val = 0.0) noexcept;  // NOLINT
 
         /// @brief Getter of the float value.
-        [[nodiscard]] float get() const;
+        [[nodiscard]] float get() const noexcept;
+
         /// @brief Setter of the float value.
-        void set(float val);
+        void set(float val) noexcept;
 
         /// @return Sine of the degree.
-        [[nodiscard]] float sin() const;
+        [[nodiscard]] float sin() const noexcept;
+
         /// @return Cosine of the degree.
-        [[nodiscard]] float cos() const;
+        [[nodiscard]] float cos() const noexcept;
 
     private:
         float val_;
@@ -26,32 +28,32 @@ namespace corn {
 
     // Operations
     /// @return A copy of the degree itself.
-    Deg operator+(const Deg& rhs);
+    [[nodiscard]] Deg operator+(const Deg& rhs) noexcept;
 
     /// @return The additive inverse of the degree.
-    Deg operator-(const Deg& rhs);
+    [[nodiscard]] Deg operator-(const Deg& rhs) noexcept;
 
     /// @return Result of adding lhs and rhs.
-    Deg operator+(const Deg& lhs, const Deg& rhs);
+    [[nodiscard]] Deg operator+(const Deg& lhs, const Deg& rhs) noexcept;
 
     /// @return Result of subtracting rhs from lhs.
-    Deg operator-(const Deg& lhs, const Deg& rhs);
+    [[nodiscard]] Deg operator-(const Deg& lhs, const Deg& rhs) noexcept;
 
     /// @return Result of multiplying by a scalar.
-    Deg operator*(const Deg& deg, float scalar);
+    [[nodiscard]] Deg operator*(const Deg& deg, float scalar) noexcept;
 
     /// @return Result of multiplying by a scalar.
-    Deg operator*(float scalar, const Deg& deg);
+    [[nodiscard]] Deg operator*(float scalar, const Deg& deg) noexcept;
 
     /**
      * @brief Add rhs to lhs degree in-place.
      * @return Reference to lhs.
      */
-    Deg& operator+=(Deg& lhs, const Deg& rhs);
+    Deg& operator+=(Deg& lhs, const Deg& rhs) noexcept;
 
     /**
      * @brief Subtract rhs from lhs degree in-place.
      * @return Reference to lhs.
      */
-    Deg& operator-=(Deg& lhs, const Deg& rhs);
+    Deg& operator-=(Deg& lhs, const Deg& rhs) noexcept;
 }

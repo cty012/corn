@@ -11,64 +11,77 @@ namespace corn {
     struct Vec4 {
         float x, y, z, w;
 
-        // Constructors
-        Vec4();
-        Vec4(float x, float y, float z, float w);
+        /// @brief Constructor.
+        Vec4() noexcept;
 
-        // Constants
-        static const Vec4& ZERO();
-        static const Vec4& UNIT_X();
-        static const Vec4& UNIT_Y();
-        static const Vec4& UNIT_Z();
-        static const Vec4& UNIT_W();
+        /// @brief Constructor.
+        Vec4(float x, float y, float z, float w) noexcept;
 
-        // Conversions
-        [[nodiscard]] Vec2 vec2() const;
-        [[nodiscard]] Vec3 vec3() const;
+        /// @return Zero vector.
+        [[nodiscard]] static const Vec4& ZERO() noexcept;
+
+        /// @return Unit vector in the X direction.
+        [[nodiscard]] static const Vec4& UNIT_X() noexcept;
+
+        /// @return Unit vector in the Y direction.
+        [[nodiscard]] static const Vec4& UNIT_Y() noexcept;
+
+        /// @return Unit vector in the Z direction.
+        [[nodiscard]] static const Vec4& UNIT_Z() noexcept;
+
+        /// @return Unit vector in the W direction.
+        [[nodiscard]] static const Vec4& UNIT_W() noexcept;
+
+        /// @return Vector obtained by dropping the fourth dimension.
+        [[nodiscard]] Vec2 vec2() const noexcept;
+
+        /// @return Vector obtained by dropping the third and fourth dimensions.
+        [[nodiscard]] Vec3 vec3() const noexcept;
 
         /// @return 2-norm of the vector.
-        [[nodiscard]] float norm() const;
+        [[nodiscard]] float norm() const noexcept;
+
         /// @return Normalized vector. Zero if this is a zero vector.
-        [[nodiscard]] Vec4 normalize() const;
+        [[nodiscard]] Vec4 normalize() const noexcept;
     };
 
     // Operations
     /// @return A copy of the vector itself.
-    Vec4 operator+(const Vec4& rhs);
+    [[nodiscard]] Vec4 operator+(const Vec4& rhs) noexcept;
 
     /// @return The additive inverse of the vector.
-    Vec4 operator-(const Vec4& rhs);
+    [[nodiscard]] Vec4 operator-(const Vec4& rhs) noexcept;
 
     /// @return Result of adding lhs and rhs.
-    Vec4 operator+(const Vec4& lhs, const Vec4& rhs);
+    [[nodiscard]] Vec4 operator+(const Vec4& lhs, const Vec4& rhs) noexcept;
 
     /// @return Result of subtracting rhs from lhs.
-    Vec4 operator-(const Vec4& lhs, const Vec4& rhs);
+    [[nodiscard]] Vec4 operator-(const Vec4& lhs, const Vec4& rhs) noexcept;
 
     /// @return Element-wise multiplication of lhs and rhs.
-    Vec4 operator*(const Vec4& lhs, const Vec4& rhs);
+    [[nodiscard]] Vec4 operator*(const Vec4& lhs, const Vec4& rhs) noexcept;
 
     /// @return Result of multiplying by a scalar.
-    Vec4 operator*(const Vec4& vec, float scalar);
+    [[nodiscard]] Vec4 operator*(const Vec4& vec, float scalar) noexcept;
 
     /// @return Result of multiplying by a scalar.
-    Vec4 operator*(float scalar, const Vec4& vec);
+    [[nodiscard]] Vec4 operator*(float scalar, const Vec4& vec) noexcept;
 
     /**
      * @brief Add rhs to lhs vector in-place.
      * @return Reference to lhs.
      */
-    Vec4& operator+=(Vec4& lhs, const Vec4& rhs);
+    Vec4& operator+=(Vec4& lhs, const Vec4& rhs) noexcept;
 
     /**
      * @brief Subtract rhs from lhs vector in-place.
      * @return Reference to lhs.
      */
-    Vec4& operator-=(Vec4& lhs, const Vec4& rhs);
+    Vec4& operator-=(Vec4& lhs, const Vec4& rhs) noexcept;
 
     /**
      * @brief Element-wise in-place multiplication of lhs and rhs.
      * @return Reference to lhs.
      */
-    Vec4& operator*=(Vec4& lhs, const Vec4& rhs);
+    Vec4& operator*=(Vec4& lhs, const Vec4& rhs) noexcept;
 }
