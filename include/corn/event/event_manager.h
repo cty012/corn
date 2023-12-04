@@ -31,14 +31,14 @@ namespace corn {
          *
          * Events emitted from this instance will propagate to all rooms.
          */
-        static EventManager& instance() noexcept;
+        [[nodiscard]] static EventManager& instance() noexcept;
 
         /**
          * @param room Identifier of the room.
          * @return An instance for the specified room.
          * @throw std::invalid_argument If the room doesn't exist.
          */
-        static EventManager& instance(const std::string& room);
+        [[nodiscard]] static EventManager& instance(const std::string& room);
 
         /**
          * @brief Creates a new room.
@@ -75,14 +75,14 @@ namespace corn {
          * @param listener Call back function which activates when an event with the same event type is emitted.
          * @return Event ID.
          */
-        ListenerID addListener(const std::string& eventType, const Action& listener);
+        ListenerID addListener(const std::string& eventType, const Action& listener) noexcept;
 
         /**
          * @brief Removes an event listener by its ID.
          * @param listenerID ID of the listener assigned when adding the event.
          * @return Whether the listener is removed successfully.
          */
-        bool removeListener(ListenerID listenerID);
+        bool removeListener(ListenerID listenerID) noexcept;
 
         /**
          * @brief Emits an event with the given argument. Calls all listeners with the same event type.
@@ -95,18 +95,22 @@ namespace corn {
     private:
         /// @brief Constructor.
         EventManager();
+
         /// @brief Destructor.
         ~EventManager();
+
         EventManager(const EventManager& other) = delete;
         EventManager& operator=(const EventManager& other) = delete;
 
-        /// @brief Get the root of all private instances.
-        static EventManager& privateInstance();
+        /// @return The root of all private instances.
+        [[nodiscard]] static EventManager& privateInstance();
 
         /// @brief Map for storing all event listeners.
         std::unordered_map<std::string, std::vector<std::pair<ListenerID, Action>>> listeners_;
+
         /// @brief Map for storing all (public) sub-rooms.
         std::unordered_map<std::string, EventManager*> rooms_;
+
         /// @brief Vector for storing private sub-rooms.
         std::vector<EventManager*> privateRooms_;
     };

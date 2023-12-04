@@ -63,14 +63,14 @@ namespace corn {
         return true;
     }
 
-    EventManager::ListenerID EventManager::addListener(const std::string &eventType, const Action& listener) {
+    EventManager::ListenerID EventManager::addListener(const std::string &eventType, const Action& listener) noexcept {
         static EventManager::ListenerID listenerId = 0;
         EventManager::ListenerID currentId = listenerId++;
         this->listeners_[eventType].emplace_back(currentId, listener);
         return currentId;
     }
 
-    bool EventManager::removeListener(EventManager::ListenerID listenerID) {
+    bool EventManager::removeListener(EventManager::ListenerID listenerID) noexcept {
         bool result = false;
         for (auto& [eventType, callbacks] : this->listeners_) {
             size_t count = std::erase_if(callbacks, [listenerID](const auto& item) {

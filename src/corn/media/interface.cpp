@@ -47,7 +47,7 @@ namespace corn {
         while (this->impl_->window->pollEvent(event)) {
             switch (event.type) {
                 case (sf::Event::Closed): {
-                    EventArgsExit eventArgs;
+                    EventArgsInputExit eventArgs;
                     EventManager::instance().emit(eventArgs);
                     this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     break;

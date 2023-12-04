@@ -13,7 +13,7 @@ namespace corn {
                     this->sceneEvents_.push(dynamic_cast<const EventArgsScene&>(args));
                 });
         this->closeEventID_ = EventManager::instance().addListener(
-                "corn::input::exit", [this](const EventArgs&) {
+                "corn::exit", [this](const EventArgs&) {
                     this->active_ = false;
                 });
 

@@ -5,36 +5,36 @@
 namespace corn {
     EventArgs::~EventArgs() = default;
 
-    EventArgsKeyboard::EventArgsKeyboard(Key key, ButtonEvent status, unsigned char modifiers, const Vec2& mousePos)
+    EventArgsKeyboard::EventArgsKeyboard(Key key, ButtonEvent status, unsigned char modifiers, const Vec2& mousePos) noexcept
             : key(key), status(status), modifiers(modifiers), mousePos(mousePos) {}
 
-    EventArgsMouseButton::EventArgsMouseButton(Mouse mouse, ButtonEvent status, const Vec2& mousePos)
+    EventArgsMouseButton::EventArgsMouseButton(Mouse mouse, ButtonEvent status, const Vec2& mousePos) noexcept
             : mouse(mouse), status(status), mousePos(mousePos) {}
 
-    EventArgsMouseMove::EventArgsMouseMove(const Vec2& mousePos) : mousePos(mousePos) {}
+    EventArgsMouseMove::EventArgsMouseMove(const Vec2& mousePos) noexcept : mousePos(mousePos) {}
 
-    EventArgsMouseScroll::EventArgsMouseScroll(float value, const Vec2& mousePos)
+    EventArgsMouseScroll::EventArgsMouseScroll(float value, const Vec2& mousePos) noexcept
             : value(value), mousePos(mousePos) {}
 
-    EventArgsScene::EventArgsScene(SceneOperation op, Scene* scene) : op(op), scene(scene) {}
+    EventArgsScene::EventArgsScene(SceneOperation op, Scene* scene) noexcept : op(op), scene(scene) {}
 
-    EventArgsZOrderChange::EventArgsZOrderChange(Entity* entity) : entity(entity) {}
+    EventArgsZOrderChange::EventArgsZOrderChange(Entity* entity) noexcept : entity(entity) {}
 
-    EventArgsCamera::EventArgsCamera(CameraEventType eventType, const CCamera* camera)
+    EventArgsCamera::EventArgsCamera(CameraEventType eventType, const CCamera* camera) noexcept
             : eventType(eventType), camera(camera) {}
 
-    EventArgsCollision::EventArgsCollision(CAABB* collider1, CAABB* collider2)
+    EventArgsCollision::EventArgsCollision(CAABB* collider1, CAABB* collider2) noexcept
             : collider1(collider1), collider2(collider2) {}
 
-    EventArgsUIOnClick::EventArgsUIOnClick(EventArgsMouseButton mousebtnEvent, UIWidget* target)
+    EventArgsUIOnClick::EventArgsUIOnClick(EventArgsMouseButton mousebtnEvent, UIWidget* target) noexcept
             : mousebtnEvent(std::move(mousebtnEvent)), target(target) {}
 
-    EventArgsUIOnHover::EventArgsUIOnHover(EventArgsMouseMove mousemvEvent, UIWidget* target)
+    EventArgsUIOnHover::EventArgsUIOnHover(EventArgsMouseMove mousemvEvent, UIWidget* target) noexcept
             : mousemvEvent(std::move(mousemvEvent)), target(target) {}
 
-    EventArgsUIOnEnter::EventArgsUIOnEnter(EventArgsMouseMove mousemvEvent, UIWidget* target)
+    EventArgsUIOnEnter::EventArgsUIOnEnter(EventArgsMouseMove mousemvEvent, UIWidget* target) noexcept
             : mousemvEvent(std::move(mousemvEvent)), target(target) {}
 
-    EventArgsUIOnExit::EventArgsUIOnExit(EventArgsMouseMove mousemvEvent, UIWidget* target)
+    EventArgsUIOnExit::EventArgsUIOnExit(EventArgsMouseMove mousemvEvent, UIWidget* target) noexcept
             : mousemvEvent(std::move(mousemvEvent)), target(target) {}
 }
