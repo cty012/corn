@@ -7,8 +7,12 @@ namespace corn {
     public:
         friend class Interface;
 
-        CameraViewport();
+        /// @brief Constructor.
+        CameraViewport() noexcept;
+
+        /// @brief Destructor.
         ~CameraViewport();
+
         CameraViewport(const CameraViewport& other) = delete;
         CameraViewport& operator=(const CameraViewport& other) = delete;
 
@@ -23,6 +27,7 @@ namespace corn {
         Expression<3> x, y, w, h;
 
     private:
+        /// @brief Pimpl idiom.
         class CameraViewportImpl;
         CameraViewportImpl* impl_;
     };

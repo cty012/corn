@@ -37,7 +37,7 @@ namespace corn {
                 contextSettings);
     }
 
-    Vec2 Interface::windowSize() const {
+    Vec2 Interface::windowSize() const noexcept {
         sf::Vector2u size = this->impl_->window->getSize();
         return {(float)size.x, (float)size.y};
     }

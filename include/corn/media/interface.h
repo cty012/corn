@@ -17,8 +17,10 @@ namespace corn {
     public:
         /// @brief Constructor.
         Interface(const Game& game, std::unordered_map<Key, bool>& keyPressed_);
+
         /// @brief Destructor.
         ~Interface();
+
         Interface(const Interface& other) = delete;
         Interface& operator=(const Interface& other) = delete;
 
@@ -26,7 +28,7 @@ namespace corn {
         void init();
 
         /// @return The current size of the window in pixels.
-        [[nodiscard]] Vec2 windowSize() const;
+        [[nodiscard]] Vec2 windowSize() const noexcept;
 
         /**
          * @brief Handles user keyboard, mouse, and other inputs and emits a global event.
@@ -38,8 +40,13 @@ namespace corn {
 
         /// @brief Clears the contents on the window.
         void clear();
-        /// @brief Renders the contents of the scene to the window.
+
+        /**
+         * @brief Renders the contents of the scene to the window.
+         * @param scene The scene to render.
+         */
         void render(Scene* scene);
+
         /// @brief Flushes all changes.
         void update();
 
@@ -49,22 +56,28 @@ namespace corn {
          * @return The transformation (offset and scale) that defines how to transform coordinates from the world's
          * reference frame to camera's reference frame.
          */
-        std::pair<Vec2, Vec2> getCameraTransformation(const CCamera* camera) const;
+        [[nodiscard]] std::pair<Vec2, Vec2> getCameraTransformation(const CCamera* camera) const;
+
         /**
          * @brief Render the view of the camera onto a temporary texture.
          * @param scene The scene containing the target entities.
          * @param camera The target camera.
          */
         void renderCamera(Scene* scene, const CCamera* camera);
+
         /**
          * @brief Render the UI onto the window.
          * @param uiManager The target UI manager.
          */
         void renderUI(UIManager& uiManager);
 
+        /// @brief The game that owns the interface.
         const Game& game_;
+
+        /// @brief Reference to the map that stores the state of all keys.
         std::unordered_map<Key, bool>& keyPressed_;
 
+        /// @brief Pimpl idiom.
         class InterfaceImpl;
         InterfaceImpl* impl_;
     };

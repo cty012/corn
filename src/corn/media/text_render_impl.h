@@ -24,7 +24,10 @@ namespace corn {
     };
 
     void setTextString(sf::Text& text, const std::u8string& str);
+
     void setTextFont(sf::Text& text, const Font* font);
+
     void setTextSize(sf::Text& text, unsigned int size);
+
     void setTextVariant(sf::Text& text, FontVariant variant);
 }

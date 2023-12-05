@@ -5,7 +5,7 @@
 namespace corn {
     class CameraViewport::CameraViewportImpl {
     public:
-        CameraViewportImpl();
+        CameraViewportImpl() noexcept;
 
         /**
          * Set the size of the texture.

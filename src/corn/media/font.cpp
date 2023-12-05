@@ -2,7 +2,7 @@
 #include "font_impl.h"
 
 namespace corn {
-    Font::Font() : state(FontState::LOADING), sffont() {}
+    Font::Font() noexcept : state(FontState::LOADING), sffont() {}
 
     FontManager& FontManager::instance() {
         static FontManager instance;
@@ -68,7 +68,7 @@ namespace corn {
         });
     }
 
-    bool FontManager::unload(const std::string& name) {
+    bool FontManager::unload(const std::string& name) noexcept {
         std::lock_guard<std::mutex> lock(this->mutex_);
         std::lock_guard<std::mutex> lockFonts(this->mutexFonts_);
         if (!this->fonts_.contains(name)) return false;
@@ -77,7 +77,7 @@ namespace corn {
         return true;
     }
 
-    const Font* FontManager::get(const std::string& name) const {
+    const Font* FontManager::get(const std::string& name) const noexcept {
         std::lock_guard<std::mutex> lock(this->mutex_);
         std::lock_guard<std::mutex> lockFonts(this->mutexFonts_);
         if (!this->fonts_.contains(name) || this->fonts_.at(name)->state != FontState::LOADED) {

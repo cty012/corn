@@ -8,7 +8,7 @@ namespace corn {
 
     /**
      * @class Image
-     * @brief Holds image information.
+     * @brief Holds image data.
      *
      * @see Interface
      */
@@ -22,6 +22,7 @@ namespace corn {
          * @throw ResourceLoadFailed If the file cannot be loaded successfully.
          */
         explicit Image(const std::string& path);
+
         /**
          * @brief Creates an empty image with the provided width, height, and color.
          * @param width Width of the image.
@@ -29,18 +30,32 @@ namespace corn {
          * @param color Color to fill the image (can be transparent).
          */
         Image(unsigned int width, unsigned int height, Color color);
+
         /// @brief Destructor.
         ~Image();
+
         Image(const Image& other);
         Image& operator=(const Image& other);
 
         /// @return Width and height of the image.
         [[nodiscard]] std::pair<unsigned int, unsigned int> getSize() const;
-        Image& resize(unsigned int width, unsigned int height);  // TODO: allow resizing image
+
+        /**
+         * @brief Resize the image. Contents will interpolate automatically
+         * @param width New width.
+         * @param height New height.
+         * @return Reference to the image itself.
+         *
+         * @todo Implement this function.
+         */
+        Image& resize(unsigned int width, unsigned int height);
 
     private:
+        /// @brief Pimpl idiom.
         class ImageImpl;
         ImageImpl* impl_;
+
+        /// @brief Width and height of the image.
         unsigned int width_, height_;
     };
 }
