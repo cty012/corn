@@ -8,9 +8,10 @@
 #include <corn/util/exceptions.h>
 
 namespace corn {
-    UIManager::Node::Node(UIWidget* widget, UIManager::Node* parent) : widget(widget), parent(parent), dirty(false) {}
+    UIManager::Node::Node(UIWidget* widget, UIManager::Node* parent) noexcept
+            : widget(widget), parent(parent), dirty(false) {}
 
-    UIManager::UIManager(Scene& scene)
+    UIManager::UIManager(Scene& scene) noexcept
             : scene_(scene), root_(nullptr, nullptr), hoveredWidgets_(), hoveredWidgetSet_() {
 
         this->mousebtnEventID_ = this->scene_.getEventManager().addListener(
@@ -32,11 +33,11 @@ namespace corn {
         }
     }
 
-    Scene& UIManager::getScene() const {
+    Scene& UIManager::getScene() const noexcept {
         return this->scene_;
     }
 
-    const Game* UIManager::getGame() const {
+    const Game* UIManager::getGame() const noexcept {
         return this->scene_.getGame();
     }
 
@@ -53,15 +54,15 @@ namespace corn {
         return this->getWidgetsHelper(pred, false, 0, parent, recurse);
     }
 
-    std::vector<UIWidget*> UIManager::getAllWidgets(const UIWidget* parent, bool recurse) const {
+    std::vector<UIWidget*> UIManager::getAllWidgets(const UIWidget* parent, bool recurse) const noexcept {
         return this->getWidgetsHelper(nullptr, false, 0, parent, recurse);
     }
 
-    std::vector<UIWidget*> UIManager::getAllActiveWidgets(const UIWidget* parent, bool recurse) const {
+    std::vector<UIWidget*> UIManager::getAllActiveWidgets(const UIWidget* parent, bool recurse) const noexcept {
         return this->getWidgetsHelper(nullptr, true, 0, parent, recurse);
     }
 
-    void UIManager::tidy() {
+    void UIManager::tidy() noexcept {
         // TODO: implement this and UI z-order
     }
 
@@ -155,17 +156,17 @@ namespace corn {
         }
     }
 
-    Vec4 UIManager::getCachedGeometry(const UIWidget* target) const {
-        const Node* node = this->getNodeFromWidget(target);
+    Vec4 UIManager::getCachedGeometry(const UIWidget* widget) const noexcept {
+        const Node* node = this->getNodeFromWidget(widget);
         return { node->location.x, node->location.y, node->size.x, node->size.y };
     }
 
-    bool UIManager::widgetContains(const UIWidget* widget, Vec2 pos) const {
+    bool UIManager::widgetContains(const UIWidget* widget, Vec2 pos) const noexcept {
         auto [x, y, w, h] = this->getCachedGeometry(widget);  // NOLINT
         return x < pos.x && y < pos.y && x + w > pos.x && y + h > pos.y;
     }
 
-    UIWidget* UIManager::getTargetWidget(Vec2 pos) {
+    UIWidget* UIManager::getTargetWidget(Vec2 pos) noexcept {
         this->tidy();
         std::vector<UIWidget*> widgets = this->getAllActiveWidgets();
         for (UIWidget* widget : std::ranges::reverse_view(std::views::all(widgets))) {
@@ -174,7 +175,7 @@ namespace corn {
         return nullptr;
     }
 
-    void UIManager::onClick(const EventArgsMouseButton& args) {
+    void UIManager::onClick(const EventArgsMouseButton& args) noexcept {
         UIWidget* widget = this->getTargetWidget(args.mousePos);
 
         // Bubble up
@@ -185,7 +186,7 @@ namespace corn {
         }
     }
 
-    void UIManager::onHover(const EventArgsMouseMove& args) {
+    void UIManager::onHover(const EventArgsMouseMove& args) noexcept {
         UIWidget* widget = this->getTargetWidget(args.mousePos);
 
         // Bubble up
@@ -222,7 +223,7 @@ namespace corn {
         this->hoveredWidgetSet_ = std::move(newHoveredWidgetSet);
     }
 
-    void UIManager::destroyNode(Node* node) {
+    void UIManager::destroyNode(Node* node) noexcept {
         if (node == nullptr) return;
         // Destroy all children
         for (Node* child : node->children) {
@@ -234,7 +235,7 @@ namespace corn {
         this->nodes_.erase(widgetID);
     }
 
-    void UIManager::destroyWidget(UIWidget& widget) {
+    void UIManager::destroyWidget(UIWidget& widget) noexcept {
         Node* node = &this->nodes_.at(widget.getID());
         Node* parent = node->parent;
         this->destroyNode(node);

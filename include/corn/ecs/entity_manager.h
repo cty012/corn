@@ -34,7 +34,7 @@ namespace corn {
             /**
              * @brief Whether the node's children are sorted by their z-order (small to large)
              *
-             * False means it must be sorted, and true means it might not be
+             * False means it must be sorted, and true means it might not be.
              */
             bool dirty;
             Node(Entity* ent, Node* parent) noexcept;
@@ -168,7 +168,7 @@ namespace corn {
         void destroyEntity(Entity& entity) noexcept;
 
         /**
-         * @defgroup Given a pointer to entity, return the Node containing it.
+         * @defgroup Given a pointer to entity, return the node containing it.
          * @throw std::invalid_argument if parent is not a valid entity created by the entity manager.
          *
          * The two functions are the same, but one is the const version of the other.
@@ -180,16 +180,16 @@ namespace corn {
 
         /**
          * @brief Helper to all getEntity/getEntities functions.
-         * @param pred A predicate function that takes an Entity pointer and returns whether it satisfy the conditions.
+         * @param pred A predicate function that takes an entity pointer and returns whether it satisfy the conditions.
          *             Set it to null pointer to disable it.
-         * @param onlyActive Whether to only consider active entities. See `Entity::isActive()` for definition of
-         *                   active.
+         * @param onlyActive Whether to only consider active entities. See `Entity::isActiveInWorld()` for definition
+         *                   of active.
          * @param limit Maximum number of entities to match. If set to 0, will match as much as possible.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
          * @return All entities satisfying the given conditions.
          */
-        std::vector<Entity*> getEntitiesHelper(
+        [[nodiscard]] std::vector<Entity*> getEntitiesHelper(
                 const std::function<bool(Entity*)>& pred, bool onlyActive, size_t limit,
                 const Entity* parent, bool recurse) const;
 

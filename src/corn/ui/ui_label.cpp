@@ -2,10 +2,10 @@
 #include "../media/text_render_impl.h"
 
 namespace corn {
-    UILabel::UILabel(WidgetID id, std::string name, UIManager& uiManager, const RichText& text)
+    UILabel::UILabel(WidgetID id, std::string name, UIManager& uiManager, const RichText& text) noexcept
             : UIWidget(UIType::LABEL, id, std::move(name), uiManager), textRender_(text) {}
 
-    const RichText& UILabel::getText() const {
+    const RichText& UILabel::getText() const noexcept {
         return this->textRender_.getText();
     }
 
@@ -13,7 +13,7 @@ namespace corn {
         this->textRender_.setText(richText);
     }
 
-    const TextRender& UILabel::getTextRender() const {
+    const TextRender& UILabel::getTextRender() const noexcept {
         return this->textRender_;
     }
 }

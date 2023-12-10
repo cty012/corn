@@ -1,10 +1,8 @@
-#include <array>
-#include <string>
 #include <corn/ui/ui_manager.h>
 #include <corn/ui/ui_widget.h>
 
 namespace corn {
-    UIWidget::UIWidget(UIType type, WidgetID id, std::string name, UIManager& uiManager)
+    UIWidget::UIWidget(UIType type, WidgetID id, std::string name, UIManager& uiManager) noexcept
             : type_(type), id_(id), name_(std::move(name)), active_(true), uiManager_(uiManager), geometry_(UIGeometry::DEFAULT),
             x_(), y_(), w_(), h_(), independent_(), background_(Color::rgb(255, 255, 255, 0)), opacity_(255) {
 
@@ -15,38 +13,38 @@ namespace corn {
         this->eventManager_ = EventManager::addPrivateRoom();
     }
 
-    UIWidget::UIWidget(UIWidget::WidgetID id, std::string name, UIManager& uiManager)
+    UIWidget::UIWidget(UIWidget::WidgetID id, std::string name, UIManager& uiManager) noexcept
             : UIWidget(UIType::PANEL, id, std::move(name), uiManager) {}
 
     UIWidget::~UIWidget() {
         EventManager::removePrivateRoom(this->eventManager_);
     }
 
-    UIType UIWidget::getType() const {
+    UIType UIWidget::getType() const noexcept {
         return this->type_;
     }
 
-    UIWidget::WidgetID UIWidget::getID() const {
+    UIWidget::WidgetID UIWidget::getID() const noexcept {
         return this->id_;
     }
 
-    const std::string& UIWidget::getName() const {
+    const std::string& UIWidget::getName() const noexcept {
         return this->name_;
     }
 
-    void UIWidget::setName(std::string name) {
+    void UIWidget::setName(std::string name) noexcept {
         this->name_ = std::move(name);
     }
 
-    bool UIWidget::isActive() const {
+    bool UIWidget::isActive() const noexcept {
         return this->active_;
     }
 
-    void UIWidget::setActive(bool active) {
+    void UIWidget::setActive(bool active) noexcept {
         this->active_ = active;
     }
 
-    bool UIWidget::isActiveInWorld() const {
+    bool UIWidget::isActiveInWorld() const noexcept {
         const UIWidget* current = this;
         while (current) {
             if (!this->active_) return false;
@@ -55,32 +53,32 @@ namespace corn {
         return true;
     }
 
-    UIManager& UIWidget::getUIManager() const {
+    UIManager& UIWidget::getUIManager() const noexcept {
         return this->uiManager_;
     }
 
-    EventManager& UIWidget::getEventManager() const {
+    EventManager& UIWidget::getEventManager() const noexcept {
         return *this->eventManager_;
     }
 
-    Scene& UIWidget::getScene() const {
+    Scene& UIWidget::getScene() const noexcept {
         return this->uiManager_.getScene();
     }
 
-    const Game* UIWidget::getGame() const {
+    const Game* UIWidget::getGame() const noexcept {
         return this->uiManager_.getGame();
     }
 
-    void UIWidget::destroy() {
+    void UIWidget::destroy() noexcept {
         uiManager_.destroyWidget(*this);
     }
 
-    UIWidget* UIWidget::getParent() const {
+    UIWidget* UIWidget::getParent() const noexcept {
         UIManager::Node* parent = this->uiManager_.nodes_.at(this->id_).parent;
         return parent ? parent->widget : nullptr;
     }
 
-    UIGeometry UIWidget::getActualGeometry() const {
+    UIGeometry UIWidget::getActualGeometry() const noexcept {
         switch (this->geometry_) {
             case UIGeometry::DEFAULT:
                 return this->independent_[0] && this->independent_[1] && this->independent_[2] && this->independent_[3] ?
@@ -90,20 +88,8 @@ namespace corn {
         }
     }
 
-    const Expression<5>& UIWidget::getX() const {
+    const Expression<5>& UIWidget::getX() const noexcept {
         return this->x_;
-    }
-
-    const Expression<5>& UIWidget::getY() const {
-        return this->y_;
-    }
-
-    const Expression<5>& UIWidget::getW() const {
-        return this->w_;
-    }
-
-    const Expression<5>& UIWidget::getH() const {
-        return this->h_;
     }
 
     void UIWidget::setX(const std::string& expression) {
@@ -112,10 +98,18 @@ namespace corn {
         this->independent_[0] = expression.find("%p") == std::string::npos;
     }
 
+    const Expression<5>& UIWidget::getY() const noexcept {
+        return this->y_;
+    }
+
     void UIWidget::setY(const std::string& expression) {
         static const std::array<std::string, 5> units = { "px", "%pw", "%ph", "%nw", "%nh" };
         this->y_ = Expression(expression, units);
         this->independent_[1] = expression.find("%p") == std::string::npos;
+    }
+
+    const Expression<5>& UIWidget::getW() const noexcept {
+        return this->w_;
     }
 
     void UIWidget::setW(const std::string& expression) {
@@ -124,25 +118,29 @@ namespace corn {
         this->independent_[2] = expression.find("%p") == std::string::npos;
     }
 
+    const Expression<5>& UIWidget::getH() const noexcept {
+        return this->h_;
+    }
+
     void UIWidget::setH(const std::string& expression) {
         static const std::array<std::string, 5> units = { "px", "%pw", "%ph", "%nw", "%nh" };
         this->h_ = Expression(expression, units);
         this->independent_[3] = expression.find("%p") == std::string::npos;
     }
 
-    const Color& UIWidget::getBackground() const {
+    const Color& UIWidget::getBackground() const noexcept {
         return this->background_;
     }
 
-    unsigned char UIWidget::getOpacity() const {
+    unsigned char UIWidget::getOpacity() const noexcept {
         return this->opacity_;
     }
 
-    void UIWidget::setBackground(Color background) {
+    void UIWidget::setBackground(Color background) noexcept {
         this->background_ = std::move(background);
     }
 
-    void UIWidget::setOpacity(unsigned char opacity) {
+    void UIWidget::setOpacity(unsigned char opacity) noexcept {
         this->opacity_ = opacity;
     }
 }
