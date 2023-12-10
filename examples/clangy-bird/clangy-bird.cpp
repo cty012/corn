@@ -1,5 +1,5 @@
 #include <corn/core.h>
-#include <corn/media.h>
+#include <corn/event.h>
 #include <corn/util.h>
 #include "scenes.h"
 #include "constants.h"
@@ -12,8 +12,15 @@ int main() {
     config.antialiasing = 4;
     corn::FontManager::instance().load(
             "noto-sans-zh", "resources/fonts/noto-sans-zh/static/NotoSansSC-Regular.ttf");
+
     corn::Game game(new MainMenuScene(), config);
+    corn::EventManager::ListenerID exitEventID = corn::EventManager::instance().addListener(
+            "corn::input::exit", [](const corn::EventArgs&) {
+                corn::EventManager::instance().emit(corn::EventArgsExit());
+            });
     game.run();
+
+    corn::EventManager::instance().removeListener(exitEventID);
     corn::FontManager::instance().unload("noto-sans-zh");
     return 0;
 }

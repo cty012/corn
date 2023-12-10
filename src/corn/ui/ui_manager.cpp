@@ -2,41 +2,43 @@
 #include <ranges>
 #include <stack>
 #include <corn/core/scene.h>
-#include <corn/media/rich_text.h>
 #include <corn/ui/ui_label.h>
-#include "../media/rich_text_impl.h"
+#include "../media/text_render_impl.h"
 #include <corn/ui/ui_manager.h>
 #include <corn/util/exceptions.h>
 
 namespace corn {
-    UIManager::Node::Node(UIWidget* widget, UIManager::Node* parent): widget(widget), parent(parent), dirty(false) {}
+    UIManager::Node::Node(UIWidget* widget, UIManager::Node* parent) noexcept
+            : widget(widget), parent(parent), dirty(false) {}
 
-    UIManager::UIManager(Scene& scene): scene(scene), root(nullptr, nullptr), hoveredWidgets(), hoveredWidgetSet() {
-        this->mousebtnEventID = this->scene.getEventManager().addListener(
+    UIManager::UIManager(Scene& scene) noexcept
+            : scene_(scene), root_(nullptr, nullptr), hoveredWidgets_(), hoveredWidgetSet_() {
+
+        this->mousebtnEventID_ = this->scene_.getEventManager().addListener(
                 "corn::input::mousebtn", [this](const EventArgs& args) {
                     this->onClick(dynamic_cast<const EventArgsMouseButton&>(args));
                 });
-        this->mousemvEventID = this->scene.getEventManager().addListener(
+        this->mousemvEventID_ = this->scene_.getEventManager().addListener(
                 "corn::input::mousemv", [this](const EventArgs& args) {
                     this->onHover(dynamic_cast<const EventArgsMouseMove&>(args));
                 });
     }
 
     UIManager::~UIManager() {
-        this->scene.getEventManager().removeListener(this->mousebtnEventID);
-        this->scene.getEventManager().removeListener(this->mousemvEventID);
+        this->scene_.getEventManager().removeListener(this->mousebtnEventID_);
+        this->scene_.getEventManager().removeListener(this->mousemvEventID_);
         // Delete UI widgets
-        for (auto& [id, node] : this->nodes) {
+        for (auto& [id, node] : this->nodes_) {
             delete node.widget;
         }
     }
 
-    Scene& UIManager::getScene() const {
-        return this->scene;
+    Scene& UIManager::getScene() const noexcept {
+        return this->scene_;
     }
 
-    const Game* UIManager::getGame() const {
-        return this->scene.getGame();
+    const Game* UIManager::getGame() const noexcept {
+        return this->scene_.getGame();
     }
 
     UIWidget* UIManager::getWidgetThat(
@@ -52,19 +54,19 @@ namespace corn {
         return this->getWidgetsHelper(pred, false, 0, parent, recurse);
     }
 
-    std::vector<UIWidget*> UIManager::getAllWidgets(const UIWidget* parent, bool recurse) const {
+    std::vector<UIWidget*> UIManager::getAllWidgets(const UIWidget* parent, bool recurse) const noexcept {
         return this->getWidgetsHelper(nullptr, false, 0, parent, recurse);
     }
 
-    std::vector<UIWidget*> UIManager::getAllActiveWidgets(const UIWidget* parent, bool recurse) const {
+    std::vector<UIWidget*> UIManager::getAllActiveWidgets(const UIWidget* parent, bool recurse) const noexcept {
         return this->getWidgetsHelper(nullptr, true, 0, parent, recurse);
     }
 
-    void UIManager::tidy() {
+    void UIManager::tidy() noexcept {
         // TODO: implement this and UI z-order
     }
 
-    void UIManager::calcGeometry(Vec2 rootSize) {
+    void UIManager::calcGeometry(Vec2 windowSize) {
         std::vector<UIWidget*> widgets = this->getAllActiveWidgets();
         struct Property {
             UIGeometry geometry;
@@ -73,20 +75,20 @@ namespace corn {
         std::unordered_map<const UIWidget*, Property> widgetProps;
         widgetProps[nullptr] = {
                 UIGeometry::INDEPENDENT,
-                0.0f, 0.0f, rootSize.x, rootSize.y, rootSize.x, rootSize.y,
+                0.0f, 0.0f, windowSize.x, windowSize.y, windowSize.x, windowSize.y,
         };
 
         // First pass (natural size)
         for (const UIWidget* widget : std::ranges::reverse_view(std::views::all(widgets))) {
-            UIGeometry geometry = widget->getGeometry();
+            UIGeometry geometry = widget->getActualGeometry();
 
             // Calculate natural size
             float nw = 0.0f, nh = 0.0f;
-            switch (widget->type) {
+            switch (widget->getType()) {
                 case UIType::PANEL: {
                     std::vector<UIWidget*> independentChildren = this->getWidgetsThat(
                             [&widgetProps](const UIWidget* widget) {
-                                return widget->active && widgetProps.at(widget).geometry == UIGeometry::INDEPENDENT;
+                                return widget->isActive() && widgetProps.at(widget).geometry == UIGeometry::INDEPENDENT;
                             },
                             widget, false);
                     // TODO: find max of children size
@@ -97,7 +99,7 @@ namespace corn {
                     break;
                 }
                 case UIType::LABEL: {
-                    auto nsize = dynamic_cast<const UILabel*>(widget)->getNaturalSize();
+                    auto nsize = dynamic_cast<const UILabel*>(widget)->getTextRender().getSize();
                     nw = nsize.x;
                     nh = nsize.y;
                     break;
@@ -148,23 +150,23 @@ namespace corn {
         // Final pass (assign to node)
         for (const UIWidget* widget : widgets) {
             Property& props = widgetProps[widget];
-            Node& node = this->nodes.at(widget->id);
+            Node& node = this->nodes_.at(widget->getID());
             node.location = { props.x, props.y };
             node.size = { props.w, props.h };
         }
     }
 
-    Vec4 UIManager::getCachedGeometry(const UIWidget* target) const {
-        const Node* node = this->getNodeFromWidget(target);
+    Vec4 UIManager::getCachedGeometry(const UIWidget* widget) const noexcept {
+        const Node* node = this->getNodeFromWidget(widget);
         return { node->location.x, node->location.y, node->size.x, node->size.y };
     }
 
-    bool UIManager::widgetContains(const UIWidget* widget, Vec2 pos) const {
-        auto [x, y, w, h] = this->getCachedGeometry(widget);
+    bool UIManager::widgetContains(const UIWidget* widget, Vec2 pos) const noexcept {
+        auto [x, y, w, h] = this->getCachedGeometry(widget);  // NOLINT
         return x < pos.x && y < pos.y && x + w > pos.x && y + h > pos.y;
     }
 
-    UIWidget* UIManager::getTargetWidget(Vec2 pos) {
+    UIWidget* UIManager::getTargetWidget(Vec2 pos) noexcept {
         this->tidy();
         std::vector<UIWidget*> widgets = this->getAllActiveWidgets();
         for (UIWidget* widget : std::ranges::reverse_view(std::views::all(widgets))) {
@@ -173,7 +175,7 @@ namespace corn {
         return nullptr;
     }
 
-    void UIManager::onClick(const EventArgsMouseButton& args) {
+    void UIManager::onClick(const EventArgsMouseButton& args) noexcept {
         UIWidget* widget = this->getTargetWidget(args.mousePos);
 
         // Bubble up
@@ -184,7 +186,7 @@ namespace corn {
         }
     }
 
-    void UIManager::onHover(const EventArgsMouseMove& args) {
+    void UIManager::onHover(const EventArgsMouseMove& args) noexcept {
         UIWidget* widget = this->getTargetWidget(args.mousePos);
 
         // Bubble up
@@ -198,7 +200,7 @@ namespace corn {
         }
 
         // On exit
-        for (UIWidget* current : this->hoveredWidgets) {
+        for (UIWidget* current : this->hoveredWidgets_) {
             if (!newHoveredWidgetSet.contains(current)) {
                 current->getEventManager().emit(EventArgsUIOnExit(args, widget));
             }
@@ -206,7 +208,7 @@ namespace corn {
 
         // On enter
         for (UIWidget* current : newHoveredWidgets) {
-            if (!this->hoveredWidgetSet.contains(current)) {
+            if (!this->hoveredWidgetSet_.contains(current)) {
                 current->getEventManager().emit(EventArgsUIOnEnter(args, widget));
             }
         }
@@ -217,24 +219,24 @@ namespace corn {
         }
 
         // Update hovered widgets
-        this->hoveredWidgets = std::move(newHoveredWidgets);
-        this->hoveredWidgetSet = std::move(newHoveredWidgetSet);
+        this->hoveredWidgets_ = std::move(newHoveredWidgets);
+        this->hoveredWidgetSet_ = std::move(newHoveredWidgetSet);
     }
 
-    void UIManager::destroyNode(Node* node) {
+    void UIManager::destroyNode(Node* node) noexcept {
         if (node == nullptr) return;
         // Destroy all children
         for (Node* child : node->children) {
             UIManager::destroyNode(child);
         }
         // Destroy self
-        UIWidget::WidgetID widgetID = node->widget->id;
+        UIWidget::WidgetID widgetID = node->widget->getID();
         delete node->widget;
-        this->nodes.erase(widgetID);
+        this->nodes_.erase(widgetID);
     }
 
-    void UIManager::destroyWidget(UIWidget& widget) {
-        Node* node = &this->nodes.at(widget.id);
+    void UIManager::destroyWidget(UIWidget& widget) noexcept {
+        Node* node = &this->nodes_.at(widget.getID());
         Node* parent = node->parent;
         this->destroyNode(node);
         // Removes relation (parent --> node)
@@ -245,9 +247,9 @@ namespace corn {
 
     const UIManager::Node* UIManager::getNodeFromWidget(const UIWidget* widget) const {
         if (!widget) {
-            return &this->root;
-        } else if (&widget->uiManager == this) {
-            return &this->nodes.at(widget->id);
+            return &this->root_;
+        } else if (&widget->getUIManager() == this) {
+            return &this->nodes_.at(widget->getID());
         } else {
             throw std::invalid_argument("Parent widget must be created by the same UI Manager.");
         }
@@ -255,9 +257,9 @@ namespace corn {
 
     UIManager::Node* UIManager::getNodeFromWidget(const UIWidget* widget) {
         if (!widget) {
-            return &this->root;
-        } else if (&widget->uiManager == this) {
-            return &this->nodes.at(widget->id);
+            return &this->root_;
+        } else if (&widget->getUIManager() == this) {
+            return &this->nodes_.at(widget->getID());
         } else {
             throw std::invalid_argument("Parent widget must be created by the same UI Manager.");
         }
@@ -279,7 +281,7 @@ namespace corn {
             nodeStack.pop();
 
             // Skip if not active
-            if (onlyActive && (next != &root) && !next->widget->active) continue;
+            if (onlyActive && (next != &root_) && !next->widget->isActive()) continue;
 
             // Add widget pointer to vector if current widget satisfy conditions
             if (!pred || pred(next->widget)) {

@@ -5,22 +5,29 @@
       "generator": "Ninja",
       "configurationType": "Debug",
       "inheritEnvironments": [ "msvc_x64_x64" ],
-      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "buildRoot": "${projectDir}\\out\\build-debug\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "",
-      "ctestCommandArgs": ""
+      "cmakeCommandArgs": "-DVCPKG_TARGET_TRIPLET=x64-windows-static-md",
+      "ctestCommandArgs": "",
+      "cmakeToolchain": "C:\\Library\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake",
+      "variables": [
+        {
+          "name": "BUILD_TESTS",
+          "value": "True",
+          "type": "BOOL"
+        }
+      ]
     },
     {
       "name": "x64-Release",
       "generator": "Ninja",
       "configurationType": "Release",
       "inheritEnvironments": [ "msvc_x64_x64" ],
-      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "buildRoot": "${projectDir}\\out\\build-release\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
-      "cmakeCommandArgs": "",
-      "buildCommandArgs": "",
-      "ctestCommandArgs": ""
+      "cmakeCommandArgs": "-DVCPKG_TARGET_TRIPLET=x64-windows-static-md",
+      "ctestCommandArgs": "",
+      "cmakeToolchain": "C:\\Library\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake"
     }
   ]
 }

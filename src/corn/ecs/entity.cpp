@@ -3,50 +3,69 @@
 #include <corn/ecs/entity_manager.h>
 
 namespace corn {
-    Entity::Entity(EntityID id, std::string name, EntityManager& entityManager)
-        : active(true), id(id), name(std::move(name)), entityManager(entityManager),
-          components(std::unordered_map<std::type_index, Component*>()) {}
+    Entity::Entity(EntityID id, std::string name, EntityManager& entityManager) noexcept
+            : id_(id), name_(std::move(name)), active_(true), entityManager_(entityManager), components_() {}
 
     Entity::~Entity() {
         // Destroy all components
-        for (auto& [key, component] : this->components) {
+        for (auto& [key, component] : this->components_) {
             delete component;
             component = nullptr;
         }
     }
 
-    void Entity::destroy() {
-        this->entityManager.destroyEntity(*this);
+    Entity::EntityID Entity::getID() const noexcept {
+        return this->id_;
     }
 
-    [[maybe_unused]] bool Entity::isActive() const {
+    const std::string& Entity::getName() const noexcept {
+        return this->name_;
+    }
+
+    void Entity::setName(std::string name) noexcept {
+        this->name_ = std::move(name);
+    }
+
+    bool Entity::isActive() const noexcept {
+        return this->active_;
+    }
+
+    void Entity::setActive(bool active) noexcept {
+        this->active_ = active;
+    }
+
+    bool Entity::isActiveInWorld() const noexcept {
         const Entity* current = this;
         while (current) {
-            if (!this->active) return false;
+            if (!this->active_) return false;
             current = current->getParent();
         }
         return true;
     }
 
-    EntityManager& Entity::getEntityManager() const {
-        return this->entityManager;
+    EntityManager& Entity::getEntityManager() const noexcept {
+        return this->entityManager_;
     }
 
-    Scene& Entity::getScene() const {
-        return this->entityManager.getScene();
+    Scene& Entity::getScene() const noexcept {
+        return this->entityManager_.getScene();
     }
 
-    const Game* Entity::getGame() const {
-        return this->entityManager.getGame();
+    const Game* Entity::getGame() const noexcept {
+        return this->entityManager_.getGame();
     }
 
-    Entity* Entity::getParent() const {
-        EntityManager::Node* parent = this->entityManager.nodes.at(this->id).parent;
+    void Entity::destroy() noexcept {
+        this->entityManager_.destroyEntity(*this);
+    }
+
+    Entity* Entity::getParent() const noexcept {
+        EntityManager::Node* parent = this->entityManager_.nodes_.at(this->id_).parent;
         return parent ? parent->ent : nullptr;
     }
 
-    std::vector<Entity*> Entity::getChildren() const {
-        std::vector<EntityManager::Node*> children = this->entityManager.nodes.at(this->id).children;
+    std::vector<Entity*> Entity::getChildren() const noexcept {
+        std::vector<EntityManager::Node*> children = this->entityManager_.nodes_.at(this->id_).children;
         std::vector<Entity*> result = std::vector<Entity*>(children.size());
         for (size_t i = 0; i < children.size(); i++) {
             result[i] = children[i]->ent;

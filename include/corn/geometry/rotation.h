@@ -23,10 +23,15 @@ namespace corn {
      * @see Quaternion
      */
     struct EulerAngles {
+        /**
+         * Yaw: rotation around the y axis (pointing down)
+         * Pitch: rotation around the x axis (pointing right)
+         * Roll: rotation around the z axis (pointing inside)
+         */
         Deg yaw, pitch, roll;
 
         /// @brief Convert to quaternion.
-        [[nodiscard]] Quaternion quat() const;
+        [[nodiscard]] Quaternion quat() const noexcept;
     };
 
     /**
@@ -43,47 +48,56 @@ namespace corn {
     struct Quaternion {
         Vec4 val;
 
-        Quaternion(Vec4 val);  // NOLINT
+        /// @brief Construct from Vec4.
+        Quaternion(Vec4 val) noexcept;  // NOLINT
+
         /// @brief Construct from the four components.
-        Quaternion(float a, float b, float c, float d);
+        Quaternion(float a, float b, float c, float d) noexcept;
+
         /// @brief Construct from rotation around an axis.
-        Quaternion(const Deg& theta, const Vec3& axis);
-        // /// @brief Convert to Euler angles.
-        // [[nodiscard]] EulerAngles euler() const;
-
-        /// @brief Rotate a 3D point.
-        [[nodiscard]] Vec3 rotate(const Vec3& point) const;
-
-        // Operations
-        /// @return A copy of the quaternion itself.
-        Quaternion operator+() const;
-        /// @return The reversed quaternion.
-        Quaternion operator-() const;
-        /// @return Result of adding this and other.
-        Quaternion operator+(const Quaternion& other) const;
-        /// @return Result of subtracting other from this.
-        Quaternion operator-(const Quaternion& other) const;
-        /**
-         * @brief Add other to this quaternion in-place.
-         * @return Reference to itself.
-         */
-        Quaternion& operator+=(const Quaternion& other);
-        /**
-         * @brief Subtract other from this quaternion in-place.
-         * @return Reference to itself.
-         */
-        Quaternion& operator-=(const Quaternion& other);
-
-        /// @return Multiplying this and other. Same as applying other and this on a 3D point.
-        Quaternion operator*(const Quaternion& other) const;
-        /// @return Multiplying this and other in-place.
-        Quaternion& operator*=(const Quaternion& other);
+        Quaternion(const Deg& theta, const Vec3& axis) noexcept;
 
         /// @return 2-norm of the quaternion.
-        [[nodiscard]] float norm() const;
+        [[nodiscard]] float norm() const noexcept;
+
         /// @return Normalized quaternion. Zero if this is a zero quaternion.
-        [[nodiscard]] Quaternion normalize() const;
+        [[nodiscard]] Quaternion normalize() const noexcept;
+
         /// @return Inverse of the quaternion.
-        [[nodiscard]] Quaternion inv() const;
+        [[nodiscard]] Quaternion inv() const noexcept;
     };
+
+    // Operations
+    /// @return A copy of the quaternion itself.
+    [[nodiscard]] Quaternion operator+(const Quaternion& rhs) noexcept;
+
+    /// @return The reversed quaternion (represents the same rotation).
+    [[nodiscard]] Quaternion operator-(const Quaternion& rhs) noexcept;
+
+    /// @return Result of adding lhs and rhs.
+    [[nodiscard]] Quaternion operator+(const Quaternion& lhs, const Quaternion& rhs) noexcept;
+
+    /// @return Result of subtracting rhs from lhs.
+    [[nodiscard]] Quaternion operator-(const Quaternion& lhs, const Quaternion& rhs) noexcept;
+
+    /// @return Multiplying lhs and rhs. Same as applying rhs and then lhs on a 3D point.
+    [[nodiscard]] Quaternion operator*(const Quaternion& lhs, const Quaternion& rhs) noexcept;
+
+    /**
+     * @brief Add rhs to lhs quaternion in-place.
+     * @return Reference to lhs.
+     */
+    Quaternion& operator+=(Quaternion& lhs, const Quaternion& rhs) noexcept;
+
+    /**
+     * @brief Subtract rhs from lhs quaternion in-place.
+     * @return Reference to lhs.
+     */
+    Quaternion& operator-=(Quaternion& lhs, const Quaternion& rhs) noexcept;
+
+    /**
+     * @brief In-place multiplication of lhs and rhs.
+     * @return Reference to lhs.
+     */
+    Quaternion& operator*=(Quaternion& lhs, const Quaternion& rhs) noexcept;
 }

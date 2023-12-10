@@ -4,13 +4,22 @@
 #include <unordered_map>
 
 namespace corn {
+    /**
+     * @class Font
+     * @brief Stores font data.
+     */
     class Font;
 
     /**
-     * @todo More styles
+     * @class FontVariant
+     * @brief Variants of the font, including weight, slant, and other styles.
+     *
+     * @todo More styles (allow loading custom style fonts)
      * 1. Light, Regular, Semi-bold, Bold, Heavy
      * 2. Regular, Italic
      * 3. Regular, Underline
+     *
+     * @see FontManager
      */
     enum class FontVariant {
         REGULAR, BOLD, ITALIC, UNDERLINE,
@@ -19,6 +28,8 @@ namespace corn {
     /**
      * @class FontManager
      * @brief Manages font loading.
+     *
+     * @see FontVariant
      */
     class FontManager {
     public:
@@ -38,19 +49,39 @@ namespace corn {
          * @param path Path to the font file.
          */
         void preload(const std::string& name, const std::string& path);
-        bool unload(const std::string& name);
-        const Font* get(const std::string& name) const;
+
+        /**
+         * @brief Unload a loaded font.
+         * @param name Name of the font to be unloaded.
+         * @return Whether the font is successfully unloaded.
+         *
+         * Unload will fail if the font doesn't exist.
+         */
+        bool unload(const std::string& name) noexcept;
+
+        /**
+         * @param name Name of the font.
+         * @return Pointer to the font object if loaded, otherwise null pointer.
+         */
+        const Font* get(const std::string& name) const noexcept;
 
     private:
+        /// @brief Constructor.
         FontManager();
+
+        /// @brief Destructor.
         ~FontManager();
+
         FontManager(const FontManager& other) = delete;
         FontManager& operator=(const FontManager& other) = delete;
 
-        std::unordered_map<std::string, Font*> fonts;
-        mutable std::unordered_map<std::string, std::future<bool>> futures;
-        mutable std::mutex mutex;
-        mutable std::mutex mutexFonts;
-        mutable std::mutex mutexFutures;
+        /// @brief Stores all fonts.
+        std::unordered_map<std::string, Font*> fonts_;
+
+        /// @brief Stores all futures of fonts that are still loading.
+        mutable std::unordered_map<std::string, std::future<bool>> futures_;
+
+        /// @brief Mutexes for multithreading.
+        mutable std::mutex mutex_, mutexFonts_, mutexFutures_;
     };
 }

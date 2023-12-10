@@ -4,4 +4,4 @@
 #include <corn/media/font.h>
 #include <corn/media/image.h>
 #include <corn/media/interface.h>
-#include <corn/media/rich_text.h>
+#include <corn/media/text_render.h>

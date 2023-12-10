@@ -193,9 +193,9 @@ namespace corn::test::expression {
         }
         std::vector<Token> result;
 
-        EXPECT_NO_THROW(result = toPostfix(tokenize("10px + 5%w", unitIdx)));
+        EXPECT_NO_THROW(result = toPostfix("10px + 5%w", tokenize("10px + 5%w", unitIdx)));
         TestTokenVectorsEqual(result, constructTokenVector("10px", "5%w", "+"));
-        EXPECT_NO_THROW(result = toPostfix(tokenize("28%h + 2 * (10px + 5%w)", unitIdx)));
+        EXPECT_NO_THROW(result = toPostfix("28%h + 2 * (10px + 5%w)", tokenize("28%h + 2 * (10px + 5%w)", unitIdx)));
         TestTokenVectorsEqual(result, constructTokenVector(
                 "28%h", "2", "", "10px", "5%w", "+", ",", "eval", "*", "+"));
     }

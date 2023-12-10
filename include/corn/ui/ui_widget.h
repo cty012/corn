@@ -40,11 +40,82 @@ namespace corn {
         // UIManager need access to ctor/dtor
         friend class UIManager;
 
-        /// @brief Indicates whether the widget is active.
-        bool active;
+        /// @brief Getter for the widget's type.
+        [[nodiscard]] UIType getType() const noexcept;
+
+        /// @brief Getter for the widget's ID.
+        [[nodiscard]] WidgetID getID() const noexcept;
+
+        /// @brief Getter for the widget's name.
+        [[nodiscard]] const std::string& getName() const noexcept;
+
+        /// @brief Setter for the widget's name.
+        void setName(std::string name) noexcept;
+
+        /// @return Getter for the entity's active property.
+        [[nodiscard]] bool isActive() const noexcept;
+
+        /// @brief Setter for the entity's active property.
+        void setActive(bool active) noexcept;
+
+        /**
+         * @return Whether the entity is active in the world.
+         *
+         * An entity is active in the world if and only if itself and all its ancestors have property active set to
+         * true.
+         */
+        [[nodiscard]] bool isActiveInWorld() const noexcept;
+
+        /// @return The UI manager that owns this widget.
+        [[nodiscard]] UIManager& getUIManager() const noexcept;
+
+        /// @return The private event manager owned by this widget.
+        [[nodiscard]] EventManager& getEventManager() const noexcept;
+
+        /// @return The scene that contains this widget.
+        [[nodiscard]] Scene& getScene() const noexcept;
+
+        /// @return The game that contains this widget.
+        [[nodiscard]] const Game* getGame() const noexcept;
+
+        /// @brief Destroys the widget itself.
+        void destroy() noexcept;
+
+        /// @return Get the parent Entity.
+        [[nodiscard]] UIWidget* getParent() const noexcept;
+
+        /// @return Actual geometric type of the widget. DEFAULT will resolve to either DEPENDENT or INDEPENDENT.
+        [[nodiscard]] UIGeometry getActualGeometry() const noexcept;
+
+        // Other getters & setters
+        [[nodiscard]] const Expression<5>& getX() const noexcept;
+        void setX(const std::string& expression);
+        [[nodiscard]] const Expression<5>& getY() const noexcept;
+        void setY(const std::string& expression);
+        [[nodiscard]] const Expression<5>& getW() const noexcept;
+        void setW(const std::string& expression);
+        [[nodiscard]] const Expression<5>& getH() const noexcept;
+        void setH(const std::string& expression);
+        [[nodiscard]] const Color& getBackground() const noexcept;
+        void setBackground(Color background) noexcept;
+        [[nodiscard]] unsigned char getOpacity() const noexcept;
+        void setOpacity(unsigned char opacity) noexcept;
+
+    protected:
+        /// @brief Constructor.
+        UIWidget(UIType type, WidgetID id, std::string name, UIManager& uiManager) noexcept;
+
+        /// @brief Destructor.
+        virtual ~UIWidget();
+
+        UIWidget(const UIWidget& other) = delete;
+        UIWidget& operator=(const UIWidget& other) = delete;
+
+    private:
+        UIWidget(WidgetID id, std::string name, UIManager& uiManager) noexcept;
 
         /// @brief The type of the widget. Default value is UIType::PANEL.
-        const UIType type;
+        const UIType type_;
 
         /**
          * @brief The unique ID of the widget.
@@ -52,7 +123,7 @@ namespace corn {
          * The unique ID starts from 0 and adds one for each new widget created within the same scene. After it reaches
          * the max value of WidgetID, it goes back to 0.
          */
-        const WidgetID id;
+        const WidgetID id_;
 
         /**
          * @brief The name of the widget.
@@ -60,71 +131,30 @@ namespace corn {
          * Unlike ID, the name is a mutable property assigned during creation. Multiple Entities are allowed to have
          * the same name.
          */
-        std::string name;
+        std::string name_;
 
-        /// @brief The geometric type of the widget. See @UIGeometry for details.
-        UIGeometry geometry;
-
-        /// @brief The background color of the widget.
-        Color background;
-
-        /// @brief The opacity of the widget and all children, on a scale of [0, 255].
-        unsigned char opacity;
-
-        /// @brief Destroys the widget itself.
-        void destroy();
-
-        /**
-         * @return Whether the widget is active. An UI widget is active iff itself and all its ancestors have
-         * UIWidget::active set to true.
-         */
-        [[nodiscard]] bool isActive() const;
-
-        /// @return The UI manager that owns this widget.
-        [[nodiscard]] UIManager& getUIManager() const;
-
-        /// @return The private event manager owned by this widget.
-        [[nodiscard]] EventManager& getEventManager() const;
-
-        /// @return The scene that contains this widget.
-        [[nodiscard]] Scene& getScene() const;
-
-        /// @return The game that contains this widget.
-        [[nodiscard]] const Game* getGame() const;
-
-        /// @return Get the parent Entity.
-        [[nodiscard]] UIWidget* getParent() const;
-
-        /// @return Actual geometric type of the widget. DEFAULT will resolve to either DEPENDENT or INDEPENDENT.
-        UIGeometry getGeometry() const;
-
-        // Getters & setters
-        const Expression<5>& getX() const;
-        const Expression<5>& getY() const;
-        const Expression<5>& getW() const;
-        const Expression<5>& getH() const;
-        void setX(const std::string& expression);
-        void setY(const std::string& expression);
-        void setW(const std::string& expression);
-        void setH(const std::string& expression);
-
-    protected:
-        /// @brief The UI widget
-        Expression<5> x, y, w, h;
-        std::array<bool, 4> independent;
-
-        UIWidget(UIType type, WidgetID id, std::string name, UIManager& uiManager);
-        virtual ~UIWidget();
-        UIWidget(const UIWidget& other) = delete;
-        UIWidget& operator=(const UIWidget& other) = delete;
-
-    private:
-        UIWidget(WidgetID id, std::string name, UIManager& uiManager);
+        /// @brief Indicates whether the widget is active.
+        bool active_;
 
         /// @brief The UI manager that owns this widget.
-        UIManager& uiManager;
+        UIManager& uiManager_;
 
         /// @brief The private event manager owned by this widget.
-        EventManager* eventManager;
+        EventManager* eventManager_;
+
+        /// @brief The geometric type of the widget. See @UIGeometry for details.
+        UIGeometry geometry_;
+
+        /// @brief The geometry of the widget with respect to its parent and own natural size
+        Expression<5> x_, y_, w_, h_;
+
+        /// @brief Whether the four values x, y, w, and h are independent from the parent's geometry.
+        std::array<bool, 4> independent_;
+
+        /// @brief The background color of the widget.
+        Color background_;
+
+        /// @brief The opacity of the widget and all children, on a scale of [0, 255].
+        unsigned char opacity_;
     };
 }

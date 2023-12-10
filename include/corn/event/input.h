@@ -1,6 +1,10 @@
 #pragma once
 
 namespace corn {
+    /**
+     * @class Key
+     * @brief Name of the keys on the keyboard.
+     */
     enum class Key {
         ESC, F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, SPACE,
         GRAVE, K_1, K_2, K_3, K_4, K_5, K_6, K_7, K_8, K_9, K_0,
@@ -12,10 +16,18 @@ namespace corn {
         NONE,
     };
 
+    /**
+     * @class Mouse
+     * @brief Name of the mouse buttons.
+     */
     enum class Mouse {
         LEFT, RIGHT, MIDDLE, NONE
     };
 
+    /**
+     * @class ButtonEvent
+     * @brief Standard interactions with a button.
+     */
     enum class ButtonEvent {
         DOWN, UP,
     };

@@ -9,7 +9,8 @@ function (build_example EXAMPLE_NAME)
     file(GLOB EXAMPLE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}/*.cpp")
 
     if (WIN32)
-        add_executable(${EXAMPLE_NAME} WIN32 ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
+        add_executable(${EXAMPLE_NAME} ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
+        # add_executable(${EXAMPLE_NAME} WIN32 ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
         if (MSVC)
             set_target_properties(${EXAMPLE_NAME} PROPERTIES
                     LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS"

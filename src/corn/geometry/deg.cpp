@@ -3,62 +3,60 @@
 #include <corn/util/constants.h>
 
 namespace corn {
-    Deg::Deg(float val): _val(0.0) {
+    Deg::Deg(float val) noexcept : val_(0.0) {
         this->set(val);
     }
 
-    float Deg::get() const {
-        return this->_val;
+    float Deg::get() const noexcept {
+        return this->val_;
     }
 
-    void Deg::set(float val) {
+    void Deg::set(float val) noexcept {
         val = fmodf(val, 360.0);
-        this->_val = val >= 0 ? val : val + 360.0f;
+        this->val_ = val >= 0 ? val : val + 360.0f;
     }
 
-    Deg Deg::operator+() const {
-        return *this;
+    float Deg::sin() const noexcept {
+        static constexpr auto degToRad = (float)(PI / 180.0);
+        return std::sin(this->val_ * degToRad);
     }
 
-    Deg Deg::operator-() const {
-        return -this->_val;
+    float Deg::cos() const noexcept {
+        static constexpr auto degToRad = (float)(PI / 180.0);
+        return std::cos(this->val_ * degToRad);
     }
 
-    Deg Deg::operator+(const Deg& other) const {
-        return this->_val + other._val;
+    Deg operator+(const Deg& rhs) noexcept {
+        return rhs;
     }
 
-    Deg Deg::operator-(const Deg& other) const {
-        return this->_val - other._val;
+    Deg operator-(const Deg& rhs) noexcept {
+        return -rhs.get();
     }
 
-    Deg& Deg::operator+=(const Deg& other) {
-        this->set(this->_val + other._val);
-        return *this;
+    Deg operator+(const Deg& lhs, const Deg& rhs) noexcept {
+        return lhs.get() + rhs.get();
     }
 
-    Deg& Deg::operator-=(const Deg& other) {
-        this->set(this->_val - other._val);
-        return *this;
+    Deg operator-(const Deg& lhs, const Deg& rhs) noexcept {
+        return lhs.get() - rhs.get();
     }
 
-    Deg Deg::mult(float factor) const {
-        return this->_val * factor;
+    Deg operator*(const Deg& deg, float scalar) noexcept {
+        return deg.get() * scalar;
     }
 
-    float Deg::sin() const {
-        static constexpr float degToRad = (float)(PI / 180.0);
-        return std::sin(this->_val * degToRad);
+    Deg operator*(float scalar, const Deg& deg) noexcept {
+        return scalar * deg.get();
     }
 
-    float Deg::cos() const {
-        static constexpr float degToRad = (float)(PI / 180.0);
-        return std::cos(this->_val * degToRad);
+    Deg& operator+=(Deg& lhs, const Deg& rhs) noexcept {
+        lhs.set(lhs.get() + rhs.get());
+        return lhs;
     }
 
-    Vec2 Deg::rotate(const Vec2& point) const {
-        float cdeg = this->cos();
-        float sdeg = this->sin();
-        return {point.x * cdeg + point.y * sdeg, -point.x * sdeg + point.y * cdeg};
+    Deg& operator-=(Deg& lhs, const Deg& rhs) noexcept {
+        lhs.set(lhs.get() - rhs.get());
+        return lhs;
     }
 }

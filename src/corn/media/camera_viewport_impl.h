@@ -3,9 +3,9 @@
 #include <SFML/Graphics.hpp>
 
 namespace corn {
-    class CameraViewportImpl {
+    class CameraViewport::CameraViewportImpl {
     public:
-        CameraViewportImpl();
+        CameraViewportImpl() noexcept;
 
         /**
          * Set the size of the texture.

@@ -14,10 +14,10 @@ namespace corn {
         } else if (tokenStr == ",") {
             this->type = impl::expression::TokenType::SEPARATOR;
             this->name = ",";
-        } else if (tokenStr.size() == 1 && impl::expression::_operators.contains(tokenStr[0])) {
+        } else if (tokenStr.size() == 1 && impl::expression::operatorsCheck.contains(tokenStr[0])) {
             this->type = impl::expression::TokenType::OPERATOR;
             this->name = tokenStr;
-        } else if (impl::expression::_functions.contains(tokenStr)) {
+        } else if (impl::expression::functionsCheck.contains(tokenStr)) {
             this->type = impl::expression::TokenType::FUNCTION;
             this->name = tokenStr;
         } else {

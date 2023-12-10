@@ -3,14 +3,16 @@
 #include <corn/util/expression.h>
 
 namespace corn {
-    class CameraViewportImpl;
-
     class CameraViewport {
     public:
-        friend class InterfaceImpl;
+        friend class Interface;
 
-        CameraViewport();
+        /// @brief Constructor.
+        CameraViewport() noexcept;
+
+        /// @brief Destructor.
         ~CameraViewport();
+
         CameraViewport(const CameraViewport& other) = delete;
         CameraViewport& operator=(const CameraViewport& other) = delete;
 
@@ -25,6 +27,8 @@ namespace corn {
         Expression<3> x, y, w, h;
 
     private:
-        CameraViewportImpl* impl;
+        /// @brief Pimpl idiom.
+        class CameraViewportImpl;
+        CameraViewportImpl* impl_;
     };
 }
