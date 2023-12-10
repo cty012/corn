@@ -5,45 +5,55 @@
 namespace corn {
     /**
      * @class Deg
-     * @brief float in range [0, 360).
-     *
-     * @todo Implement this struct.
+     * @brief Degree represented by a float in range [0, 360).
      */
     struct Deg {
-        Deg(float val = 0.0);  // NOLINT
+        Deg(float val = 0.0) noexcept;  // NOLINT
 
-        [[nodiscard]] float get() const;
-        void set(float val);
+        /// @brief Getter of the float value.
+        [[nodiscard]] float get() const noexcept;
 
-        /// @return A copy of the degree itself.
-        Deg operator+() const;
-        /// @return The reversed degree.
-        Deg operator-() const;
-        /// @return Result of adding this and other.
-        Deg operator+(const Deg& other) const;
-        /// @return Result of subtracting other from this.
-        Deg operator-(const Deg& other) const;
-        /**
-         * @brief Add other to this degree in-place.
-         * @return Reference to itself.
-         */
-        Deg& operator+=(const Deg& other);
-        /**
-         * @brief Subtract other from this degree in-place.
-         * @return Reference to itself.
-         */
-        Deg& operator-=(const Deg& other);
+        /// @brief Setter of the float value.
+        void set(float val) noexcept;
 
-        /// @return Results of multiplying by a scalar.
-        [[nodiscard]] Deg mult(float factor) const;
         /// @return Sine of the degree.
-        [[nodiscard]] float sin() const;
+        [[nodiscard]] float sin() const noexcept;
+
         /// @return Cosine of the degree.
-        [[nodiscard]] float cos() const;
-        /// @brief Rotate a 2D point.
-        [[nodiscard]] Vec2 rotate(const Vec2& point) const;
+        [[nodiscard]] float cos() const noexcept;
 
     private:
-        float _val;
+        float val_;
     };
+
+    // Operations
+    /// @return A copy of the degree itself.
+    [[nodiscard]] Deg operator+(const Deg& rhs) noexcept;
+
+    /// @return The additive inverse of the degree.
+    [[nodiscard]] Deg operator-(const Deg& rhs) noexcept;
+
+    /// @return Result of adding lhs and rhs.
+    [[nodiscard]] Deg operator+(const Deg& lhs, const Deg& rhs) noexcept;
+
+    /// @return Result of subtracting rhs from lhs.
+    [[nodiscard]] Deg operator-(const Deg& lhs, const Deg& rhs) noexcept;
+
+    /// @return Result of multiplying by a scalar.
+    [[nodiscard]] Deg operator*(const Deg& deg, float scalar) noexcept;
+
+    /// @return Result of multiplying by a scalar.
+    [[nodiscard]] Deg operator*(float scalar, const Deg& deg) noexcept;
+
+    /**
+     * @brief Add rhs to lhs degree in-place.
+     * @return Reference to lhs.
+     */
+    Deg& operator+=(Deg& lhs, const Deg& rhs) noexcept;
+
+    /**
+     * @brief Subtract rhs from lhs degree in-place.
+     * @return Reference to lhs.
+     */
+    Deg& operator-=(Deg& lhs, const Deg& rhs) noexcept;
 }

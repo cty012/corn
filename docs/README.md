@@ -10,70 +10,74 @@ It's designed to be easy to use and efficient, allowing developers to create hig
 - 2D rendering (3D in future plans)
 
 ## Prerequisites
-- Visual Studio 2022 (Windows) / MinGW-w64 13.1.0 (Windows) / Clang (MacOS) / GCC (Linux)
+- MSVC (Windows) / MinGW-w64 13.1.0 (Windows) / Clang (macOS) / GCC (Linux)
 - (Optional) [CMake](https://cmake.org/): only if building from the source
-- (Optional) [SFML 2.6](https://www.sfml-dev.org/): only if building from the source
-- (Optional) [Google test](https://github.com/google/googletest): only if building the test cases
+- (Optional) [vcpkg](https://vcpkg.io/): only if building from the source
+- (Optional) [SFML 2.6](https://www.sfml-dev.org/): only if building from the source (installed in vcpkg)
+- (Optional) [Google test](https://github.com/google/googletest): only if building the test cases (installed in vcpkg)
 
 ## Getting Started
+To get started with the project, clone the repository to your local machine using the following commands:
+```shell
+git clone https://github.com/cty012/corn.git
+cd corn
+```
 
-### Windows (Visual Studio):
-1. Clone the repo and create the `deps/` folder:
-   ```shell
-   git clone https://github.com/cty012/corn.git
-   cd corn
-   mkdir deps
-   ```
-2. Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/).
-3. Install [SFML 2.6](https://www.sfml-dev.org/) binaries in the `deps/` folder.
-4. Build the source using Visual Studio IDE.
+The build process varies depending on your operating system and compiler.
+Make sure you already have `CMake` and `vcpkg` installed on your machine.
+You will need to replace placeholders with actual values for your setup.
+For `<path_to_vcpkg>`, use the full path where vcpkg is installed on your system.
 
-### Windows (MinGW-w64):
-1. Clone the repo and create the `deps/` folder:
+### MSVC (Windows):
+1. Install SFML 2.6 using `vcpkg`:
    ```shell
-   git clone https://github.com/cty012/corn.git
-   cd corn
-   mkdir deps
+   <path_to_vcpkg> install sfml:x64-windows-static-md
    ```
-2. Install [MinGW-w64](https://www.mingw-w64.org/downloads/).
-3. Install [SFML 2.6](https://www.sfml-dev.org/) binaries in the `deps/` folder.
-4. Build the source:
+2. Build the project with `CMake`:
    ```shell
-   cmd.exe /c 'cmake -B build -G "MinGW Makefiles" -DCMAKE_TOOLCHAIN_FILE=cmake/mingw-toolchain.cmake'
-   mingw32-make -C build
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static-md
+   cmake --build build --config Release
    ```
 
-### MacOS:
-1. Clone the repo and create the `deps/` folder:
+### MinGW-w64 (Windows):
+1. Install SFML 2.6 using `vcpkg`:
    ```shell
-   git clone https://github.com/cty012/corn.git
-   cd corn
-   mkdir deps
+   <path_to_vcpkg> install sfml:x64-mingw-static
    ```
-2. Install [SFML 2.6](https://www.sfml-dev.org/) binaries in the `deps/` folder.
-3. Build the source:
+2. Build the project with `CMake`:
    ```shell
-   cmake -B build -DCMAKE_TOOLCHAIN_FILE=cmake/clang-<ARCHITECTURE>-toolchain.cmake -DSFML_PACKAGE_NAME=<PKG_NAME>
-   make -C build
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-static
+   cmake --build build --config Release
    ```
-   Replace `<ARCHITECTURE>` with your Mac's architecture (arm64 or x86_64), and `<PKG_NAME>` with the directory name containing your SFML binaries in `deps/`.
 
-### Linux:
-1. Clone the repo:
+### Clang (macOS):
+1. Ensure `pkg-config` is installed (required by some dependencies):
    ```shell
-   git clone https://github.com/cty012/corn.git
-   cd corn
+   brew install pkg-config
    ```
-2. Install SFML and its dependencies to the default location using your package manager or from the [SFML website](https://www.sfml-dev.org/).
-   For example, on Ubuntu:
+2. Install SFML 2.6 using `vcpkg`:
    ```shell
-   sudo apt install libsfml-dev
+   <path_to_vcpkg> install sfml:<cpu_arch>-osx-release
    ```
-3. Build the source:
+   Replace `<cpu_arch>` with `arm64` for Apple Silicon (M1/M2) or `x64` for Intel-based Macs.
+3. Build the project with `CMake`:
    ```shell
-   cmake -B build -DCMAKE_TOOLCHAIN_FILE=cmake/gcc-toolchain.cmake
-   make -C build
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=<Cpu_arch>-osx-release
+   cmake --build build --config Release
    ```
+
+### GCC (Linux):
+1. Install SFML 2.6 using `vcpkg`:
+   ```shell
+   <path_to_vcpkg> install sfml:x64-linux-release
+   ```
+2. Build the project with `CMake`:
+   ```shell
+   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux-release
+   cmake --build build --config Release
+   ```
+
+After building, you'll find the executables in the build directory.
 
 ## Documentation
 The documentation of this project is generated using [Doxygen](https://www.doxygen.nl/).
@@ -83,5 +87,7 @@ cd docs && doxygen
 ```
 
 ## Acknowledgments
+- [CMake](https://cmake.org/) - Licensed under [3-Clause BSD License](https://cmake.org/licensing/)
+- [vcpkg](https://vcpkg.io/) - Licensed under [MIT License](https://github.com/microsoft/vcpkg/blob/master/LICENSE.txt)
 - [SFML](https://www.sfml-dev.org/) - Licensed under [zlib/libpng License](https://www.sfml-dev.org/license.php)
 - [Google Test](https://google.github.io/googletest) - Licensed under [BSD 3-Clause License](https://github.com/google/googletest/blob/main/LICENSE)

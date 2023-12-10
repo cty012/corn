@@ -4,11 +4,11 @@
 #include <corn/media/interface.h>
 
 namespace corn {
-    DisplayMode sfStyle2CornMode(int style) {
+    inline DisplayMode sfStyle2CornMode(int style) {
         return style & 0b1000 ? DisplayMode::FULLSCREEN : DisplayMode::WINDOWED;
     }
 
-    unsigned int cornMode2SfStyle(DisplayMode mode) {
+    inline unsigned int cornMode2SfStyle(DisplayMode mode) {
         switch (mode) {
             case DisplayMode::WINDOWED:
                 return sf::Style::Titlebar | sf::Style::Resize | sf::Style::Close;
@@ -21,7 +21,7 @@ namespace corn {
         }
     }
 
-    Key sfInput2CornInput(sf::Keyboard::Key key, sf::Keyboard::Scancode code) {
+    inline Key sfInput2CornInput(sf::Keyboard::Key key, sf::Keyboard::Scancode code) {
         switch (key) {
             case sf::Keyboard::A:
                 return Key::A;
@@ -222,7 +222,7 @@ namespace corn {
         }
     }
 
-    Mouse sfInput2CornInput(sf::Mouse::Button button) {
+    inline Mouse sfInput2CornInput(sf::Mouse::Button button) {
         switch (button) {
             case sf::Mouse::Button::Left:
                 return Mouse::LEFT;

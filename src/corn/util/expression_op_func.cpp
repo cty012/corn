@@ -3,93 +3,100 @@
 namespace corn::impl::expression {
     const std::unordered_set<char> reservedTokens = {'(', ')', ','};
 
-    const std::unordered_map<char, std::pair<int, std::function<bool(bool, bool)>>> _operators = {
+    const std::unordered_map<char, std::pair<int, std::function<bool(const std::string&, bool, bool)>>> operatorsCheck = {
             {
-                '+', {0, [](bool a, bool b) -> bool {
+                '+', { 0, [](const std::string& input, bool a, bool b) -> bool {
                     if (a != b)
-                        throw ExpressionParseFailed("Cannot add number literals and numbers with unit.");
+                        throw ExpressionUnitMismatch(input, "+", a, b);
                     return a;
-                }}
+                } }
             },
             {
-                '-', {0, [](bool a, bool b) -> bool {
+                '-', { 0, [](const std::string& input, bool a, bool b) -> bool {
                     if (a != b)
-                        throw ExpressionParseFailed("Cannot subtract number literals and numbers with unit.");
+                        throw ExpressionUnitMismatch(input, "-", a, b);
                     return a;
-                }}
+                } }
             },
             {
-                '*', {1, [](bool a, bool b) -> bool {
+                '*', { 1, [](const std::string& input, bool a, bool b) -> bool {
                     if (a && b)
-                        throw ExpressionParseFailed("Cannot multiply two numbers with unit.");
+                        throw ExpressionUnitMismatch(input, "*", a, b);
                     return a || b;
-                }}
+                } }
             },
             {
-                '/', {1, [](bool a, bool b) -> bool {
+                '/', { 1, [](const std::string& input, bool a, bool b) -> bool {
                     if (!a && b)
-                        throw ExpressionParseFailed("Cannot divide number literals by numbers with unit.");
+                        throw ExpressionUnitMismatch(input, "/", a, b);
                     return a && !b;
-                }}
+                } }
             },
     };
 
     const std::unordered_map<char, const std::function<Value(Value, Value)>> operators = {
             {
                 '+', [](Value a, Value b) -> Value {
-                    return Value(a.val + b.val, a.hasUnit);
+                    return Value{a.val + b.val, a.hasUnit};
                 }
             },
             {
                 '-', [](Value a, Value b) -> Value {
-                    return Value(a.val - b.val, a.hasUnit);
+                    return Value{a.val - b.val, a.hasUnit};
                 }
             },
             {
                 '*', [](Value a, Value b) -> Value {
-                    return Value(a.val * b.val, a.hasUnit || b.hasUnit);
+                    return Value{a.val * b.val, a.hasUnit || b.hasUnit};
                 }
             },
             {
                 '/', [](Value a, Value b) -> Value {
-                    return Value(a.val / b.val, a.hasUnit && !b.hasUnit);
+                    return Value{a.val / b.val, a.hasUnit && !b.hasUnit};
                 }
             },
     };
 
-    const std::unordered_map<std::string, const std::function<bool(const std::vector<bool>&)>> _functions = {
+    const std::unordered_map<std::string, const std::function<bool(const std::string&, const std::vector<bool>&)>> functionsCheck = {
             {
-                "eval", [](const std::vector<bool>& operands) -> bool {
-                    if (operands.empty())
-                        throw ExpressionParseFailed("Empty parentheses.");
-                    else if (operands.size() > 1)
-                        throw ExpressionParseFailed("Separator `,` used outside of function call.");
+                "eval", [](const std::string& input, const std::vector<bool>& operands) -> bool {
+                    if (operands.empty()) {
+                        throw ExpressionSyntaxError(input, "Empty parentheses.");
+                    } else if (operands.size() > 1) {
+                        throw ExpressionSyntaxError(input, "Separator `,` used outside of function call.");
+                    }
                     return operands[0];
                 }
             },
             {
-                "min", [](const std::vector<bool>& operands) -> bool {
-                    if (operands.empty())
-                        throw ExpressionParseFailed("Function `min` takes at least one operand.");
+                "min", [](const std::string& input, const std::vector<bool>& operands) -> bool {
+                    if (operands.empty()) {
+                        throw ExpressionSyntaxError(input, "Function `min` takes at least one operand.");
+                    }
                     size_t countHasUnit = 0;
                     for (bool operand : operands) {
                         countHasUnit += operand;
                     }
-                    if (countHasUnit != 0 && countHasUnit != operands.size())
-                        throw ExpressionParseFailed("Cannot take minimum of number literals and numbers with units.");
+                    if (countHasUnit != 0 && countHasUnit != operands.size()) {
+                        throw ExpressionUnitMismatch(
+                                input, "Function `min` cannot take a mixture of number literals and numbers with units as parameters.");
+                    }
                     return operands[0];
                 }
             },
             {
-                "max", [](const std::vector<bool>& operands) -> bool {
-                    if (operands.empty())
-                        throw ExpressionParseFailed("Function `max` takes at least one operand.");
+                "max", [](const std::string& input, const std::vector<bool>& operands) -> bool {
+                    if (operands.empty()) {
+                        throw ExpressionSyntaxError(input, "Function `max takes at least one operand.");
+                    }
                     size_t countHasUnit = 0;
                     for (bool operand : operands) {
                         countHasUnit += operand;
                     }
-                    if (countHasUnit != 0 && countHasUnit != operands.size())
-                        throw ExpressionParseFailed("Cannot take maximum of number literals and numbers with units.");
+                    if (countHasUnit != 0 && countHasUnit != operands.size()) {
+                        throw ExpressionUnitMismatch(
+                                input, "Function `max` cannot take a mixture of number literals and numbers with units as parameters.");
+                    }
                     return operands[0];
                 }
             },

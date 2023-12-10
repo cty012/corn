@@ -9,7 +9,7 @@
 namespace corn {
     /**
      * @class EventManager
-     * @brief Singleton class that handles all events.
+     * @brief Multiton class that handles all events.
      *
      * Events are defined by extending the EventArgs class. To listen to an event, use the addListener method. The
      * listener ID returned can be used for unregistering the event listener. To emit an event, use the emit method
@@ -26,38 +26,92 @@ namespace corn {
         using ListenerID = unsigned long long int;
         using Action = std::function<void(const EventArgs&)>;
 
-        /// @return The singleton instance.
-        static EventManager& instance();
+        /**
+         * @return The multiton root instance.
+         *
+         * Events emitted from this instance will propagate to all rooms.
+         */
+        [[nodiscard]] static EventManager& instance() noexcept;
 
         /**
-         * @brief Adds an event listener and return an unique id of the event.
+         * @param room Identifier of the room.
+         * @return An instance for the specified room.
+         * @throw std::invalid_argument If the room doesn't exist.
+         */
+        [[nodiscard]] static EventManager& instance(const std::string& room);
+
+        /**
+         * @brief Creates a new room.
+         * @param room Identifier of the room.
+         * @return Whether the room is created successfully.
+         */
+        static bool addRoom(const std::string& room) noexcept;
+
+        /**
+         * @brief Removes a room.
+         * @param room Identifier of the room.
+         * @return Whether the room is removed successfully.
+         */
+        static bool removeRoom(const std::string& room) noexcept;
+
+        /**
+         * @brief Creates a new private room.
+         * @return Whether the room is created successfully.
+         *
+         * A private room is isolated from the rest of the rooms, so events from the root will not propagate here.
+         */
+        static EventManager* addPrivateRoom() noexcept;
+
+        /**
+         * @brief Removes a room.
+         * @param room Identifier of the room.
+         * @return Whether the room is removed successfully.
+         */
+        static bool removePrivateRoom(EventManager* room) noexcept;
+
+        /**
+         * @brief Adds an event listener and return an unique ID of the event.
          * @param eventType Tag of the event.
          * @param listener Call back function which activates when an event with the same event type is emitted.
-         * @return Event id
+         * @return Event ID.
          */
-        ListenerID addListener(const std::string& eventType, const Action& listener);
+        ListenerID addListener(const std::string& eventType, const Action& listener) noexcept;
 
         /**
          * @brief Removes an event listener by its ID.
-         * @param listenerId ID of the listener assigned when adding the event.
+         * @param listenerID ID of the listener assigned when adding the event.
          * @return Whether the listener is removed successfully.
          */
-        bool removeListener(ListenerID listenerId);
+        bool removeListener(ListenerID listenerID) noexcept;
 
         /**
          * @brief Emits an event with the given argument. Calls all listeners with the same event type.
          * @param args Contains all information about the event.
+         * @param propagate Whether the event will propagate to sub-rooms.
          * @return The number of listeners being called.
          */
-        int emit(const EventArgs& args);
+        int emit(const EventArgs& args, bool propagate = false) noexcept;
 
     private:
-        std::unordered_map<std::string, std::vector<std::pair<ListenerID, Action>>> listeners;
-
-        // Constructors and destructors are hidden to maintain a singleton pattern.
+        /// @brief Constructor.
         EventManager();
+
+        /// @brief Destructor.
         ~EventManager();
+
         EventManager(const EventManager& other) = delete;
         EventManager& operator=(const EventManager& other) = delete;
+
+        /// @return The root of all private instances.
+        [[nodiscard]] static EventManager& privateInstance();
+
+        /// @brief Map for storing all event listeners.
+        std::unordered_map<std::string, std::vector<std::pair<ListenerID, Action>>> listeners_;
+
+        /// @brief Map for storing all (public) sub-rooms.
+        std::unordered_map<std::string, EventManager*> rooms_;
+
+        /// @brief Vector for storing private sub-rooms.
+        std::vector<EventManager*> privateRooms_;
     };
 }

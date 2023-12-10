@@ -3,24 +3,22 @@
 #include "camera_viewport_impl.h"
 
 namespace corn {
-    CameraViewportImpl::CameraViewportImpl(): texture() {}
+    CameraViewport::CameraViewportImpl::CameraViewportImpl() noexcept : texture() {}
 
-    bool CameraViewportImpl::setSize(const Vec2& size) {
+    bool CameraViewport::CameraViewportImpl::setSize(const Vec2& size, int antialiasing) {
         unsigned int newWidth = std::lround(size.x);
         unsigned int newHeight = std::lround(size.y);
         auto [width, height] = this->texture.getSize();
         if (width == newWidth && height == newHeight) return false;
         sf::ContextSettings contextSettings;
-        contextSettings.antialiasingLevel = 16;
+        contextSettings.antialiasingLevel = antialiasing;
         this->texture.create(newWidth, newHeight, contextSettings);
         return true;
     }
 
-    CameraViewport::CameraViewport(): x(), y(), w(), h() {
-        impl = new CameraViewportImpl();
-    }
+    CameraViewport::CameraViewport() noexcept : x(), y(), w(), h(), impl_(new CameraViewportImpl()) {}
 
     CameraViewport::~CameraViewport() {
-        delete impl;
+        delete impl_;
     }
 }

@@ -1,42 +1,42 @@
 #include <corn/util/stopwatch.h>
 
 namespace corn {
-    Stopwatch::Stopwatch() : running(false), elapsedTime(0) {}
+    Stopwatch::Stopwatch() noexcept : running_(false), startTime_(), elapsedTime_(0.0f), mutex_() {}
 
-    void Stopwatch::play() {
-        std::lock_guard<std::mutex> lock(mutex);
-        if (this->running) return;  // No effect if stopwatch already running
-        this->running = true;
-        this->startTime = std::chrono::high_resolution_clock::now();
+    void Stopwatch::play() noexcept {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (this->running_) return;  // No effect if stopwatch already running
+        this->running_ = true;
+        this->startTime_ = std::chrono::high_resolution_clock::now();
     }
 
-    void Stopwatch::pause() {
-        std::lock_guard<std::mutex> lock(mutex);
-        if (!this->running) return;  // No effect if stopwatch already paused
-        this->running = false;
+    void Stopwatch::pause() noexcept {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (!this->running_) return;  // No effect if stopwatch already paused
+        this->running_ = false;
         auto endTime = std::chrono::high_resolution_clock::now();
-        this->elapsedTime += std::chrono::duration<float, std::milli>(
-                endTime - this->startTime).count();
+        this->elapsedTime_ += std::chrono::duration<float, std::milli>(
+                endTime - this->startTime_).count();
     }
 
-    void Stopwatch::clear() {
-        std::lock_guard<std::mutex> lock(mutex);
-        this->running = false;
-        this->elapsedTime = 0;
+    void Stopwatch::clear() noexcept {
+        std::lock_guard<std::mutex> lock(mutex_);
+        this->running_ = false;
+        this->elapsedTime_ = 0;
     }
 
-    float Stopwatch::millis() const {
-        std::lock_guard<std::mutex> lock(mutex);
-        if (this->running) {
+    float Stopwatch::millis() const noexcept {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (this->running_) {
             auto currentTime = std::chrono::high_resolution_clock::now();
-            return this->elapsedTime + std::chrono::duration<float, std::milli>(
-                    currentTime - this->startTime).count();
+            return this->elapsedTime_ + std::chrono::duration<float, std::milli>(
+                    currentTime - this->startTime_).count();
         } else {
-            return this->elapsedTime;
+            return this->elapsedTime_;
         }
     }
 
-    bool Stopwatch::isRunning() const {
-        return this->running;
+    bool Stopwatch::isRunning() const noexcept {
+        return this->running_;
     }
 }

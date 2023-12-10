@@ -1,0 +1,194 @@
+{
+    "main-menu-title": {
+        "eng": [
+            {
+                "text": "Clangy bird",
+                "font": ["noto-sans-zh", 48],
+                "color": "#ff0000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "编译器鸟",
+                "font": ["noto-sans-zh", 48],
+                "color": "#ff0000"
+            }
+        ]
+    },
+    "main-menu-start": {
+        "eng": [
+            {
+                "text": "Start Game",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "开始游戏",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ]
+    },
+    "main-menu-settings": {
+        "eng": [
+            {
+                "text": "Settings",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "设置",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ]
+    },
+    "main-menu-exit": {
+        "eng": [
+            {
+                "text": "Exit",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "退出",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ]
+    },
+    "settings-title": {
+        "eng": [
+            {
+                "text": "Settings",
+                "font": ["noto-sans-zh", 48],
+                "color": "#ff0000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "设置",
+                "font": ["noto-sans-zh", 48],
+                "color": "#ff0000"
+            }
+        ]
+    },
+    "settings-lang": {
+        "eng": [
+            {
+                "text": "Language: ",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "语言：",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ]
+    },
+    "settings-lang-eng": {
+        "eng": [
+            {
+                "text": "English",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "English",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ]
+    },
+    "settings-lang-chn": {
+        "eng": [
+            {
+                "text": "中文",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "中文",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ]
+    },
+    "settings-save": {
+        "eng": [
+            {
+                "text": "Save and exit",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "保存并退出",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ]
+    },
+    "game-pause-title": {
+        "eng": [
+            {
+                "text": "Paused",
+                "font": ["noto-sans-zh", 30],
+                "color": "#d02020"
+            }
+        ],
+        "chn": [
+            {
+                "text": "暂停中",
+                "font": ["noto-sans-zh", 30],
+                "color": "#d02020"
+            }
+        ]
+    },
+    "game-pause-continue": {
+        "eng": [
+            {
+                "text": "Continue",
+                "font": ["noto-sans-zh", 24],
+                "color": "#202020"
+            }
+        ],
+        "chn": [
+            {
+                "text": "继续游戏",
+                "font": ["noto-sans-zh", 24],
+                "color": "#202020"
+            }
+        ]
+    },
+    "game-pause-exit-to-main-menu": {
+        "eng": [
+            {
+                "text": "Exit to main menu",
+                "font": ["noto-sans-zh", 24],
+                "color": "#202020"
+            }
+        ],
+        "chn": [
+            {
+                "text": "退出至主菜单",
+                "font": ["noto-sans-zh", 24],
+                "color": "#202020"
+            }
+        ]
+    }
+}

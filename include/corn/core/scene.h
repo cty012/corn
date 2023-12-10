@@ -2,9 +2,15 @@
 
 #include <vector>
 #include <corn/ecs/entity.h>
+#include <corn/ecs/entity_manager.h>
 #include <corn/ecs/system.h>
+#include <corn/event/event_manager.h>
+#include <corn/ui/ui_manager.h>
 
 namespace corn {
+    template <typename T>
+    concept SystemType = std::derived_from<T, System>;
+
     /**
      * @enum SceneOperation
      * @brief Possible operations on a scene stack
@@ -33,23 +39,82 @@ namespace corn {
      */
     class Scene {
     public:
-        /// @brief Manages the lifetime of all Entities in this scene.
-        EntityManager entityManager;
+        using SceneID = unsigned long long int;
 
-        Scene();
+        friend class Game;
+
+        /// @brief Constructor.
+        Scene() noexcept;
+
+        /// @brief Destructor.
         virtual ~Scene();
+
         Scene(const Scene& other) = delete;
         Scene& operator=(const Scene& other) = delete;
 
         /**
-         * @brief Update all Entities, Components, and Systems in the scene.
+         * @return The unique ID of the scene.
+         *
+         * The unique ID starts from 0 and adds one for each new scene created. After it reaches the max value of
+         * SceneID, it goes back to 0.
+         */
+        [[nodiscard]] SceneID getID() const noexcept;
+
+        /// @return The EntityManager owned by this scene.
+        [[nodiscard]] EntityManager& getEntityManager() const noexcept;
+
+        /// @return The UIManager owned by this scene.
+        [[nodiscard]] UIManager& getUIManager() const noexcept;
+
+        /// @return The EventManager room corresponding to this scene.
+        [[nodiscard]] EventManager& getEventManager() const noexcept;
+
+        /// @return The game that owns this scene.
+        [[nodiscard]] const Game* getGame() const noexcept;
+
+        /**
+         * @brief Creates a system and attach it to the scene.
+         * @tparam T Type of the system. Must derive from System class.
+         * @param args Arguments for constructing the system (excluding the first argument Scene& scene).
+         * @return Pointer to the system created.
+         *
+         * Multiple systems of the same type CAN coexist.
+         */
+        template <SystemType T, typename... Args>
+        T* addSystem(Args&&... args);
+
+        /**
+         * @brief Calls the update methods of all ACTIVE systems added to the scene.
          * @param millis Number of milliseconds elapsed.
+         *
+         * Systems' update methods will be called in the order they are added. This order cannot be changed.
          */
         void update(float millis);
 
+    private:
+        /// @brief The unique ID of the scene.
+        SceneID id_;
 
-    protected:
+        /// @brief The room ID of the scene.
+        std::string room_;
+
+        /// @brief The game that owns this scene.
+        const Game* game_;
+
         /// @brief List of all Systems in this scene.
-        std::vector<System*> systems;
+        std::vector<System*> systems_;
+
+        /// @brief Manages the lifetime of all entities in this scene.
+        EntityManager* entityManager_;
+
+        /// @brief Manages the lifetime of all UI widgets in this scene.
+        UIManager* uiManager_;
     };
+
+    template<SystemType T, typename... Args>
+    T* Scene::addSystem(Args&&... args) {
+        T* system = new T(*this, std::forward<Args>(args)...);
+        this->systems_.push_back(system);
+        return system;
+    }
 }

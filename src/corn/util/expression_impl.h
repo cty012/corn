@@ -32,7 +32,7 @@ namespace corn::impl::expression {
      * The type of the variable is represented by a bool value. True means the value has a unit, and false means it is
      * a number literal.
      */
-    extern const std::unordered_map<char, std::pair<int, std::function<bool(bool, bool)>>> _operators;
+    extern const std::unordered_map<char, std::pair<int, std::function<bool(const std::string&, bool, bool)>>> operatorsCheck;
 
     /**
      * @brief Binary operators: ? <OP> ?
@@ -51,7 +51,7 @@ namespace corn::impl::expression {
      * The type of the variable is represented by a bool value. True means the value has a unit, and false means it is
      * a number literal.
      */
-    extern const std::unordered_map<std::string, const std::function<bool(const std::vector<bool>&)>> _functions;
+    extern const std::unordered_map<std::string, const std::function<bool(const std::string&, const std::vector<bool>&)>> functionsCheck;
 
     /**
      * @brief Functions: <FUNC>(?, ?, ..., ?)
@@ -67,7 +67,7 @@ namespace corn::impl::expression {
      * @param units Unordered map of all valid units to their index.
      * @return A vector of tokens.
      */
-    std::vector<Token> tokenize(const std::string& expression, const std::unordered_map<std::string, size_t>& unitIdx);
+    std::vector<Token> tokenize(const std::string& input, const std::unordered_map<std::string, size_t>& unitIdx);
 
     /**
      * @param tokens A vector of tokens in infix notation.
@@ -75,13 +75,13 @@ namespace corn::impl::expression {
      *
      * Uses a variation of Shunting-yard algorithm to convert from infix to postfix.
      */
-    std::vector<Token> toPostfix(const std::vector<Token>& tokens);
+    std::vector<Token> toPostfix(const std::string& input, const std::vector<Token>& tokens);
 
     /**
      * @brief Validates whether the parsed expression has valid syntax.
      * @param tokens The vector of token to be validated.
      */
-    void validate(const std::vector<Token>& tokens);
+    void validate(const std::string& input, const std::vector<Token>& tokens);
 
     /**
      * @param op1 First operator.
