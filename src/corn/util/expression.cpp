@@ -281,12 +281,12 @@ namespace corn::impl::expression {
 }
 
 namespace corn {
-    std::vector<Token>* duplicateTokens(std::vector<Token>* tokens) {
+    std::vector<Token>* duplicateTokens(std::vector<Token>* tokens) noexcept {
         if (tokens == nullptr) return nullptr;
         return new std::vector<Token>(*tokens);
     }
 
-    void deleteTokens(std::vector<Token>* tokens) {
+    void deleteTokens(std::vector<Token>* tokens) noexcept {
         delete tokens;
     }
 

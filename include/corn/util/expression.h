@@ -1,8 +1,3 @@
-/**
- * @file expression.h
- * @brief Defines the Expression class.
- */
-
 #pragma once
 
 #include <string>
@@ -24,8 +19,8 @@ namespace corn {
      * @brief Holds an algebra expression. Can calculate the exact value by specifying the value of each unit.
      *
      * Supports:
-     * 1. Binary operators +, -, *, /
-     * 2. Functions min, max (with at least one argument)
+     * 1. Binary operators +, -, *, /.
+     * 2. Functions min, max (with at least one argument).
      * 3. Can use parentheses to prioritize part of the expression.
      * 4. Can combine and nest the operators and functions to create very complex expressions.
      *
@@ -38,12 +33,21 @@ namespace corn {
     class Expression {
     public:
         /// @brief Constructor.
-        Expression();
+        Expression() noexcept;
+
         /// @brief Destructor.
         ~Expression();
-        Expression(const Expression& other);
-        Expression& operator=(const Expression& other);
+
+        /// @brief Copy constructor.
+        Expression(const Expression& other) noexcept;
+
+        /// @brief Copy assignment operator.
+        Expression& operator=(const Expression& other) noexcept;
+
+        /// @brief Move constructor.
         Expression(Expression&& other) noexcept;
+
+        /// @brief Move assignment operator.
         Expression& operator=(Expression&& other) noexcept;
 
         /**
@@ -63,8 +67,13 @@ namespace corn {
         float calc(Values... values) const;
 
     private:
+        /// @brief The original input string.
         std::string input_;
+
+        /// @brief The processed tokens in postfix order.
         std::vector<Token>* tokens_;
+
+        /// @brief The list of units, preserving the order.
         std::unordered_map<std::string, size_t> unitIdx_;
     };
 
@@ -73,16 +82,16 @@ namespace corn {
      * @param tokens The vector of tokens to be duplicated.
      * @return A pointer to a copy of the original vector.
      */
-    std::vector<Token>* duplicateTokens(std::vector<Token>* tokens);
+    std::vector<Token>* duplicateTokens(std::vector<Token>* tokens) noexcept;
 
     /**
      * @brief Helper function for deallocating a vector of tokens.
      * @param tokens The vector of tokens to be deallocated.
      */
-    void deleteTokens(std::vector<Token>* tokens);
+    void deleteTokens(std::vector<Token>* tokens) noexcept;
 
     template <std::size_t N>
-    Expression<N>::Expression() : input_(), tokens_(nullptr), unitIdx_() {}
+    Expression<N>::Expression() noexcept : input_(), tokens_(nullptr), unitIdx_() {}
 
     template<std::size_t N>
     Expression<N>::~Expression() {
@@ -90,11 +99,11 @@ namespace corn {
     }
 
     template<std::size_t N>
-    Expression<N>::Expression(const Expression& other)
+    Expression<N>::Expression(const Expression& other) noexcept
             : input_(other.input_), tokens_(duplicateTokens(other.tokens_)), unitIdx_(other.unitIdx_) {}
 
     template<std::size_t N>
-    Expression<N>& Expression<N>::operator=(const Expression& other) {
+    Expression<N>& Expression<N>::operator=(const Expression& other) noexcept {
         if (&other == this) return *this;
         deleteTokens(this->tokens_);
         this->input_ = other.input_;

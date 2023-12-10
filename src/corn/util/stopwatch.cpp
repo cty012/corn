@@ -1,16 +1,16 @@
 #include <corn/util/stopwatch.h>
 
 namespace corn {
-    Stopwatch::Stopwatch() : running_(false), startTime_(), elapsedTime_(0.0f), mutex_() {}
+    Stopwatch::Stopwatch() noexcept : running_(false), startTime_(), elapsedTime_(0.0f), mutex_() {}
 
-    void Stopwatch::play() {
+    void Stopwatch::play() noexcept {
         std::lock_guard<std::mutex> lock(mutex_);
         if (this->running_) return;  // No effect if stopwatch already running
         this->running_ = true;
         this->startTime_ = std::chrono::high_resolution_clock::now();
     }
 
-    void Stopwatch::pause() {
+    void Stopwatch::pause() noexcept {
         std::lock_guard<std::mutex> lock(mutex_);
         if (!this->running_) return;  // No effect if stopwatch already paused
         this->running_ = false;
@@ -19,13 +19,13 @@ namespace corn {
                 endTime - this->startTime_).count();
     }
 
-    void Stopwatch::clear() {
+    void Stopwatch::clear() noexcept {
         std::lock_guard<std::mutex> lock(mutex_);
         this->running_ = false;
         this->elapsedTime_ = 0;
     }
 
-    float Stopwatch::millis() const {
+    float Stopwatch::millis() const noexcept {
         std::lock_guard<std::mutex> lock(mutex_);
         if (this->running_) {
             auto currentTime = std::chrono::high_resolution_clock::now();
@@ -36,7 +36,7 @@ namespace corn {
         }
     }
 
-    bool Stopwatch::isRunning() const {
+    bool Stopwatch::isRunning() const noexcept {
         return this->running_;
     }
 }

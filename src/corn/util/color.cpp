@@ -3,30 +3,55 @@
 #include <corn/util/color.h>
 
 namespace corn {
-    Color::Color() : r_(), g_(), b_(), a_() {}
+    const Color& Color::WHITE() noexcept {
+        static const Color color = { 255, 255, 255, 255 };
+        return color;
+    }
 
-    Color::Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+    const Color& Color::BLACK() noexcept {
+        static const Color color = { 0, 0, 0, 255 };
+        return color;
+    }
+
+    const Color& Color::RED() noexcept {
+        static const Color color = { 255, 0, 0, 255 };
+        return color;
+    }
+
+    const Color& Color::GREEN() noexcept {
+        static const Color color = { 0, 255, 0, 255 };
+        return color;
+    }
+
+    const Color& Color::BLUE() noexcept {
+        static const Color color = { 0, 0, 255, 255 };
+        return color;
+    }
+
+    Color::Color() noexcept : r_(255), g_(255), b_(255), a_(255) {}
+
+    Color::Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a) noexcept
             : r_(r), g_(g), b_(b), a_(a) {}
 
-    Color Color::rgb(unsigned char r, unsigned char g, unsigned char b, unsigned char a) {
+    Color Color::rgb(unsigned char r, unsigned char g, unsigned char b, unsigned char a) noexcept {
         return { r, g, b, a };
     }
 
-    Color Color::rgb(const Color::RGB& rgbValue) {
+    Color Color::rgb(const Color::RGB& rgbValue) noexcept {
         auto [r, g, b] = rgbValue;
         return { r, g, b, 255 };
     }
 
-    Color Color::rgb(const Color::RGBA &rgbValue) {
+    Color Color::rgb(const Color::RGBA &rgbValue) noexcept {
         auto [r, g, b, a] = rgbValue;
         return { r, g, b, a };
     }
 
-    Color::RGB Color::getRGB() const {
+    Color::RGB Color::getRGB() const noexcept {
         return { this->r_, this->g_, this->b_ };
     }
 
-    Color::RGBA Color::getRGBA() const {
+    Color::RGBA Color::getRGBA() const noexcept {
         return { this->r_, this->g_, this->b_, this->a_ };
     }
 
@@ -47,40 +72,15 @@ namespace corn {
         return Color::rgb(r, g, b, a);
     }
 
-    std::string Color::hexString() const {
+    std::string Color::hexString() const noexcept {
         char hexStr[8];
         std::snprintf(hexStr, sizeof(hexStr), "#%02x%02x%02x", this->r_, this->g_, this->b_);
         return { hexStr };
     }
 
-    std::string Color::hexStringAlpha() const {
+    std::string Color::hexStringAlpha() const noexcept {
         char hexStr[10];
         std::snprintf(hexStr, sizeof(hexStr), "#%02x%02x%02x%02x", this->r_, this->g_, this->b_, this->a_);
-        return { hexStr };
-    }
-
-    const Color& Color::RED() {
-        static const Color color = { 255, 0, 0, 255 };
-        return color;
-    }
-
-    const Color& Color::GREEN() {
-        static const Color color = { 0, 255, 0, 255 };
-        return color;
-    }
-
-    const Color& Color::BLUE() {
-        static const Color color = { 0, 0, 255, 255 };
-        return color;
-    }
-
-    const Color& Color::WHITE() {
-        static const Color color = { 255, 255, 255, 255 };
-        return color;
-    }
-
-    const Color& Color::BLACK() {
-        static const Color color = { 0, 0, 0, 255 };
-        return color;
+        return {hexStr};
     }
 }
