@@ -37,8 +37,8 @@ MainMenuScene::MainMenuScene() {
     auto* title = this->getUIManager().createWidget<corn::UILabel>(
             "title", contents, TextManager::instance().getRichText("main-menu-title"));
     auto* temp = this->getUIManager().createWidget<corn::UIImage>(
-            "title-image", title, new corn::Image(100, 20, corn::Color::GREEN()));
-    (void)temp;
+            "title-image", contents, new corn::Image(100, 20, corn::Color::GREEN()));
+    temp->setZOrder(-1);
 
     // Start button
     auto* start = this->getUIManager().createWidget<corn::UILabel>(

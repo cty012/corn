@@ -3,9 +3,10 @@
 #include <stack>
 #include <corn/core/scene.h>
 #include <corn/ui/ui_label.h>
-#include "../media/text_render_impl.h"
 #include <corn/ui/ui_manager.h>
 #include <corn/util/exceptions.h>
+#include "../event/event_args_extend.h"
+#include "../media/text_render_impl.h"
 
 namespace corn {
     UIManager::Node::Node(UIWidget* widget, UIManager::Node* parent) noexcept
@@ -22,11 +23,20 @@ namespace corn {
                 "corn::input::mousemv", [this](const EventArgs& args) {
                     this->onHover(dynamic_cast<const EventArgsMouseMove&>(args));
                 });
+        // Listen to zorder change events
+        this->zOrderEventID_ = this->scene_.getEventManager().addListener(
+                "corn::game::ui::zorder", [this](const EventArgs& args) {
+                    const auto& _args = dynamic_cast<const EventArgsWidgetZOrderChange&>(args);
+                    if (!_args.widget) return;
+                    Node* node = this->getNodeFromWidget(_args.widget);
+                    node->parent->dirty = true;
+                });
     }
 
     UIManager::~UIManager() {
         this->scene_.getEventManager().removeListener(this->mousebtnEventID_);
         this->scene_.getEventManager().removeListener(this->mousemvEventID_);
+        this->scene_.getEventManager().removeListener(this->zOrderEventID_);
         // Delete UI widgets
         for (auto& [id, node] : this->nodes_) {
             delete node.widget;
@@ -63,7 +73,22 @@ namespace corn {
     }
 
     void UIManager::tidy() noexcept {
-        // TODO: implement this and UI z-order
+        if (this->root_.dirty) {
+            this->root_.dirty = false;
+            std::stable_sort(this->root_.children.begin(), this->root_.children.end(),
+                             [](Node* left, Node* right) {
+                                 return left->widget->getZOrder() < right->widget->getZOrder();
+                             });
+        }
+
+        for (auto& [id, node] : this->nodes_) {
+            if (!node.dirty) continue;
+            node.dirty = false;
+            std::stable_sort(node.children.begin(), node.children.end(),
+                             [](Node* left, Node* right) {
+                                 return left->widget->getZOrder() < right->widget->getZOrder();
+                             });
+        }
     }
 
     void UIManager::calcGeometry(Vec2 windowSize) {

@@ -89,6 +89,12 @@ namespace corn {
         /// @return Actual geometric type of the widget. DEFAULT will resolve to either DEPENDENT or INDEPENDENT.
         [[nodiscard]] UIGeometry getActualGeometry() const noexcept;
 
+        /// @brief Getter of the z-order of the entity.
+        [[nodiscard]] int getZOrder() const noexcept;
+
+        /// @brief Setter of the z-order of the entity.
+        void setZOrder(int zOrder) noexcept;
+
         // Other getters & setters
         [[nodiscard]] const Expression<5>& getX() const noexcept;
         void setX(const std::string& expression);
@@ -158,5 +164,11 @@ namespace corn {
 
         /// @brief The opacity of the widget and all children, on a scale of [0, 255].
         unsigned char opacity_;
+
+        /**
+         * @brief Defines the order of the widgets in the z direction (in/out of the screen). A higher z-order means
+         * closer to the top.
+         */
+        int zOrder_;
     };
 }

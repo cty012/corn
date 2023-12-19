@@ -62,7 +62,7 @@ namespace corn {
 
     void CTransform2D::setZOrder(int zOrder) noexcept {
         this->zOrder_ = zOrder;
-        this->getScene().getEventManager().emit(EventArgsZOrderChange(&this->getEntity()));
+        this->getScene().getEventManager().emit(EventArgsEntityZOrderChange(&this->getEntity()));
     }
 
     CSprite::CSprite(Entity& entity, Image *image, Vec2 location) noexcept

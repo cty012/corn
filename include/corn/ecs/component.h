@@ -87,8 +87,8 @@ namespace corn {
 
     private:
         /**
-         * @brief Defines the order of the Entities in the z direction (in/out of the screen). A higher z-order means
-         * closer to the user.
+         * @brief Defines the order of the entities in the z direction (in/out of the screen). A higher z-order means
+         * closer to the top.
          */
         int zOrder_;
     };

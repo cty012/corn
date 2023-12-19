@@ -6,17 +6,33 @@ namespace corn {
     class Entity;
 
     /**
-     * @class EventArgsZOrderChange
+     * @class EventArgsEntityZOrderChange
      * @brief Emits when the z-order of an entity changes.
      */
-    struct EventArgsZOrderChange : public EventArgs {
+    struct EventArgsEntityZOrderChange : public EventArgs {
         [[nodiscard]] constexpr const char* type() const noexcept override { return "corn::game::ecs::zorder"; }
 
         /// @brief Entity whose z-order changes.
         Entity* entity;
 
         /// @brief Constructor.
-        explicit EventArgsZOrderChange(Entity* entity) noexcept;
+        explicit EventArgsEntityZOrderChange(Entity* entity) noexcept;
+    };
+
+    class UIWidget;
+
+    /**
+     * @class EventArgsEntityZOrderChange
+     * @brief Emits when the z-order of an entity changes.
+     */
+    struct EventArgsWidgetZOrderChange : public EventArgs {
+        [[nodiscard]] constexpr const char* type() const noexcept override { return "corn::game::ui::zorder"; }
+
+        /// @brief Entity whose z-order changes.
+        UIWidget* widget;
+
+        /// @brief Constructor.
+        explicit EventArgsWidgetZOrderChange(UIWidget* widget) noexcept;
     };
 
     enum class CameraEventType { ADD, REMOVE };
