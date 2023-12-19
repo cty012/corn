@@ -44,7 +44,7 @@ namespace corn {
         return {(float)size.x, (float)size.y};
     }
 
-    void Interface::handleUserInput() const {  // TODO: change this
+    void Interface::handleUserInput() const {
         sf::Event event{};
         while (this->impl_->window->pollEvent(event)) {
             switch (event.type) {

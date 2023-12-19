@@ -32,7 +32,16 @@ namespace corn {
         return result;
     }
 
-    void printu8(const std::u8string& target) {
-        printf("%s", reinterpret_cast<const char*>(target.c_str()));
+    size_t count(const std::u8string& str) {
+        size_t num = 0;
+        for (char8_t c : str) {
+            // Count only the starting bytes of characters
+            if ((c & 0xC0) != 0x80) num++;
+        }
+        return num;
+    }
+
+    void printu8(const std::u8string& str) {
+        printf("%s", reinterpret_cast<const char*>(str.c_str()));
     }
 }

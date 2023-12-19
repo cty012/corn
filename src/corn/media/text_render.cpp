@@ -1,4 +1,5 @@
 #include <corn/media/text_render.h>
+#include <corn/util/utf8.h>
 #include "font_impl.h"
 #include "text_render_impl.h"
 
@@ -41,7 +42,7 @@ namespace corn {
         this->impl_->lines.clear();
         this->impl_->lines.emplace_back();
         TextRenderImpl::Line& firstLine = this->impl_->lines[0];
-        firstLine.length = 0; // TODO
+        firstLine.length = 0;
         firstLine.size = { 0.0f, 0.0f };
 
         // Add all segments to the first line
@@ -49,6 +50,8 @@ namespace corn {
             firstLine.contents.emplace_back();
             auto& [text, color] = firstLine.contents.back();
             color = segment.style.color;
+            // Count characters
+            firstLine.length += count(segment.str);
             // Set styles
             setTextFont(text, segment.style.font);
             setTextString(text, segment.str);
