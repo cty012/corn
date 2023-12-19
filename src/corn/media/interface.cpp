@@ -5,6 +5,7 @@
 #include <corn/media/interface.h>
 #include <corn/ui/ui_image.h>
 #include <corn/ui/ui_label.h>
+#include <corn/util/utf8.h>
 #include "camera_viewport_impl.h"
 #include "font_impl.h"
 #include "image_impl.h"
@@ -110,9 +111,13 @@ namespace corn {
                     this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
-                case (sf::Event::TextEntered):
-                    // TODO
+                case (sf::Event::TextEntered): {
+                    EventArgsTextEntered eventArgs(
+                            event.text.unicode, unicodeToUTF8(event.text.unicode));
+                    EventManager::instance().emit(eventArgs);
+                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     break;
+                }
                 default:
                     break;
             }

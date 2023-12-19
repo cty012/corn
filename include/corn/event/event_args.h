@@ -136,6 +136,23 @@ namespace corn {
         EventArgsMouseScroll(float value, const Vec2& mousePos) noexcept;
     };
 
+    /**
+     * @class EventArgsTextEntered
+     * @brief User enters a text.
+     */
+    struct EventArgsTextEntered : public EventArgs {
+        [[nodiscard]] constexpr const char* type() const noexcept override { return "corn::input::text"; }
+
+        /// @brief The unicode of the entered character.
+        unsigned int unicode;
+
+        /// @brief The entered character encoded in UTF-8.
+        std::u8string character;
+
+        /// @brief Constructor.
+        EventArgsTextEntered(unsigned int unicode, std::u8string character) noexcept;
+    };
+
     class Scene;
     enum class SceneOperation;
 
