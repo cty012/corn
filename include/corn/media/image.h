@@ -5,7 +5,6 @@
 #include <corn/util/color.h>
 
 namespace corn {
-
     /**
      * @class Image
      * @brief Holds image data.
@@ -36,19 +35,20 @@ namespace corn {
 
         Image(const Image& other);
         Image& operator=(const Image& other);
+        Image(Image&& other) noexcept;
+        Image& operator=(Image&& other) noexcept;
 
         /// @return Width and height of the image.
-        [[nodiscard]] std::pair<unsigned int, unsigned int> getSize() const;
+        [[nodiscard]] std::pair<unsigned int, unsigned int> getSize() const noexcept;
 
         /**
          * @brief Resize the image. Contents will interpolate automatically
          * @param width New width.
          * @param height New height.
-         * @return Reference to the image itself.
          *
          * @todo Implement this function.
          */
-        Image& resize(unsigned int width, unsigned int height);
+        void resize(unsigned int width, unsigned int height);
 
     private:
         /// @brief Pimpl idiom.

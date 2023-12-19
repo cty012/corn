@@ -33,6 +33,8 @@ namespace corn {
      * @brief Base class for all UI widgets.
      *
      * All UI widgets' lifetime are managed by the UI manager class.
+     *
+     * @see UIManager
      */
     class UIWidget {
     public:

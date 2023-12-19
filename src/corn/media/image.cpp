@@ -47,13 +47,28 @@ namespace corn {
         return *this;
     }
 
-    std::pair<unsigned int, unsigned int> Image::getSize() const {
+    Image::Image(Image&& other) noexcept : width_(other.width_), height_(other.height_) {
+        this->impl_ = other.impl_;
+        other.impl_ = nullptr;
+        other.width_ = other.height_ = 0;
+    }
+
+    Image& Image::operator=(Image&& other) noexcept {
+        if (&other == this) return *this;
+        delete this->impl_;
+        this->impl_ = other.impl_;
+        other.impl_ = nullptr;
+        other.width_ = other.height_ = 0;
+        return *this;
+    }
+
+    std::pair<unsigned int, unsigned int> Image::getSize() const noexcept {
         return { this->width_, this->height_ };
     }
 
-    Image& Image::resize(unsigned int newWidth, unsigned int newHeight) {
+    void Image::resize(unsigned int newWidth, unsigned int newHeight) {
+        if (this->impl_ == nullptr) return;
         this->width_ = newWidth;
         this->height_ = newHeight;
-        return *this;
     }
 }
