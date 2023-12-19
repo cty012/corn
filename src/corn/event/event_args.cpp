@@ -18,7 +18,9 @@ namespace corn {
 
     EventArgsScene::EventArgsScene(SceneOperation op, Scene* scene) noexcept : op(op), scene(scene) {}
 
-    EventArgsZOrderChange::EventArgsZOrderChange(Entity* entity) noexcept : entity(entity) {}
+    EventArgsEntityZOrderChange::EventArgsEntityZOrderChange(Entity* entity) noexcept : entity(entity) {}
+
+    EventArgsWidgetZOrderChange::EventArgsWidgetZOrderChange(UIWidget* widget) noexcept : widget(widget) {}
 
     EventArgsCamera::EventArgsCamera(CameraEventType eventType, const CCamera* camera) noexcept
             : eventType(eventType), camera(camera) {}

@@ -197,8 +197,7 @@ namespace corn {
         /// @brief Quick access for finding nodes by widget ID (does not contain root)
         std::unordered_map<UIWidget::WidgetID, Node> nodes_;
 
-        EventManager::ListenerID mousebtnEventID_;
-        EventManager::ListenerID mousemvEventID_;
+        EventManager::ListenerID mousebtnEventID_, mousemvEventID_, zOrderEventID_;
 
         std::vector<UIWidget*> hoveredWidgets_;
         std::unordered_set<UIWidget*> hoveredWidgetSet_;

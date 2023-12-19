@@ -1,10 +1,13 @@
+#include <corn/core/scene.h>
 #include <corn/ui/ui_manager.h>
 #include <corn/ui/ui_widget.h>
+#include "../event/event_args_extend.h"
 
 namespace corn {
     UIWidget::UIWidget(UIType type, WidgetID id, std::string name, UIManager& uiManager) noexcept
             : type_(type), id_(id), name_(std::move(name)), active_(true), uiManager_(uiManager), geometry_(UIGeometry::DEFAULT),
-            x_(), y_(), w_(), h_(), independent_(), background_(Color::rgb(255, 255, 255, 0)), opacity_(255) {
+            x_(), y_(), w_(), h_(), independent_(), background_(Color::rgb(255, 255, 255, 0)), opacity_(255),
+            zOrder_(0) {
 
         this->setX("0px");
         this->setY("0px");
@@ -88,6 +91,15 @@ namespace corn {
         }
     }
 
+    int UIWidget::getZOrder() const noexcept {
+        return this->zOrder_;
+    }
+
+    void UIWidget::setZOrder(int zOrder) noexcept {
+        this->zOrder_ = zOrder;
+        this->getScene().getEventManager().emit(EventArgsWidgetZOrderChange(this));
+    }
+
     const Expression<5>& UIWidget::getX() const noexcept {
         return this->x_;
     }
@@ -137,7 +149,7 @@ namespace corn {
     }
 
     void UIWidget::setBackground(Color background) noexcept {
-        this->background_ = std::move(background);
+        this->background_ = background;
     }
 
     void UIWidget::setOpacity(unsigned char opacity) noexcept {
