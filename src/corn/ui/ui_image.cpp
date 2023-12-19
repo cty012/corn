@@ -1,0 +1,19 @@
+#include <corn/ui/ui_image.h>
+
+namespace corn {
+    UIImage::UIImage(UIWidget::WidgetID id, std::string name, UIManager& uiManager, Image* image) noexcept
+            : UIWidget(UIType::IMAGE, id, std::move(name), uiManager), image_(image) {}
+
+    UIImage::~UIImage() {
+        delete this->image_;
+    }
+
+    const Image* UIImage::getImage() const noexcept {
+        return this->image_;
+    }
+
+    void UIImage::setImage(Image* image) noexcept {
+        delete image;
+        this->image_ = image;
+    }
+}

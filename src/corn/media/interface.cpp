@@ -3,6 +3,7 @@
 #include <corn/event/event_manager.h>
 #include <corn/geometry/vec2.h>
 #include <corn/media/interface.h>
+#include <corn/ui/ui_image.h>
 #include <corn/ui/ui_label.h>
 #include "camera_viewport_impl.h"
 #include "font_impl.h"
@@ -187,7 +188,7 @@ namespace corn {
         for (Entity* entity: scene->getEntityManager().getActiveEntitiesWith<CTransform2D, CSprite>()) {
             auto transform = entity->getComponent<CTransform2D>();
             auto sprite = entity->getComponent<CSprite>();
-            if (!sprite->active) continue;
+            if (!sprite->active || !sprite->image || !sprite->image->impl_) continue;
 
             auto [worldLocation, worldRotation] = transform->getWorldTransform();
             auto [ancX, ancY] = worldLocation - cameraOffset;
@@ -246,9 +247,9 @@ namespace corn {
                 case UIType::PANEL:
                     break;
                 case UIType::LABEL: {
-                    const auto* label = dynamic_cast<const UILabel*>(widget);
+                    const auto* uiLabel = dynamic_cast<const UILabel*>(widget);
                     float segX = x, segY = y;
-                    for (const TextRender::TextRenderImpl::Line& line : label->getTextRender().impl_->lines) {
+                    for (const TextRender::TextRenderImpl::Line& line : uiLabel->getTextRender().impl_->lines) {
                         for (const auto& [text, color] : line.contents) {
                             auto [segR, segG, segB, segA] = color.getRGBA();
                             auto& mutText = const_cast<sf::Text&>(text);
@@ -263,9 +264,18 @@ namespace corn {
                     }
                     break;
                 }
-                case UIType::IMAGE:
-                    // TODO
+                case UIType::IMAGE: {
+                    const auto* uiImage = dynamic_cast<const UIImage*>(widget);
+                    const Image* image = uiImage->getImage();
+                    if (!image || !image->impl_) break;
+                    sf::Sprite& sfSprite = image->impl_->sfSprite;
+                    sfSprite.setOrigin(0, 0);
+                    sfSprite.setPosition(x, y);
+                    sf::Transform scaleTransform;
+                    scaleTransform.scale(1, 1);
+                    this->impl_->window->draw(sfSprite, scaleTransform);
                     break;
+                }
                 case UIType::INPUT:
                     // TODO
                     break;

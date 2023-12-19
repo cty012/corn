@@ -5,6 +5,12 @@
 #include <corn/util/rich_text.h>
 
 namespace corn {
+    /**
+     * @class UILabel
+     * @brief Widget that displays text.
+     *
+     * @see UIWidget
+     */
     class UILabel : public UIWidget {
     public:
         // UIManager need access to ctor/dtor

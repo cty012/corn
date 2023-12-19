@@ -8,10 +8,10 @@ namespace corn {
      * @class TextRender
      * @brief Wrapper around RichText which auto generates rendering contexts for more efficient text rendering.
      *
-     * User should not need to access this class. Most other classes' API should use RichText instead.
+     * User should not need to access this class. Other classes' API should use RichText instead.
      *
-     * It is possible to specify a width limit. When there is no limit, the text will be rendered in a single line. If
-     * there is a limit, the text will auto-wrap at white spaces.
+     * The constructor has a optional parameter to specify the width limit. When there is no limit, the text will be
+     * rendered in a single line. If there is a limit, the text will auto-wrap at white spaces.
      *
      * @see RichText
      */
