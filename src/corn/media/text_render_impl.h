@@ -21,6 +21,8 @@ namespace corn {
         Vec2 size;
 
         explicit TextRenderImpl(const RichText& richText);
+
+        void setWidth(float width);
     };
 
     void setTextString(sf::Text& text, const std::u8string& str);
