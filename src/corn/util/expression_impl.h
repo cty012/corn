@@ -91,9 +91,6 @@ namespace corn::impl::expression {
      * This function assumes that both operators are valid.
      */
     bool precedes(char op1, char op2);
-
-    /// @brief Utility function. Removes spaces and new lines from the begin and end of a string.
-    std::string trim(const std::string& str);
 }
 
 namespace corn {

@@ -5,7 +5,7 @@
 #include <corn/media/interface.h>
 #include <corn/ui/ui_image.h>
 #include <corn/ui/ui_label.h>
-#include <corn/util/utf8.h>
+#include <corn/util/string_utils.h>
 #include "camera_viewport_impl.h"
 #include "font_impl.h"
 #include "image_impl.h"
