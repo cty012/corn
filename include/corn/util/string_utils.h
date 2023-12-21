@@ -37,6 +37,19 @@ namespace corn {
     std::u8string unicodeToUTF8(unsigned int codepoint);
 
     /**
+     * @brief Break a UTF-8 string into words.
+     * @param str The target string to break.
+     * @return Words obtained from the string.
+     *
+     * The purpose of breaking a string into words is for wrapping. The definition of a word depend on the language
+     * type. For Latin-like languages, a word is bounded by whitespaces or punctuations. When using word-wrap, line
+     * breaks only occur at whitespaces. For other languages such as Chinese, Japanese, etc., every character is
+     * considered as a word. For these languages, line breaks can occur anywhere.
+     *
+     */
+    std::vector<std::u8string> breakIntoWords(const std::u8string& str);
+
+    /**
      * @param str Target UTF-8 encoded string.
      * @return The first UTF-8 character in the string.
      */

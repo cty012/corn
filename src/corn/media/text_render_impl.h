@@ -16,11 +16,14 @@ namespace corn {
         };
 
         RichText original;
+        std::vector<std::pair<std::vector<std::u8string>, TextStyle>> words;
         std::vector<Line> lines;
         bool limitWidth;
         Vec2 size;
 
         explicit TextRenderImpl(const RichText& richText);
+
+        void setRichText(const RichText& richText);
 
         void setWidth(float width);
     };

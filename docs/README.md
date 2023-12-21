@@ -13,7 +13,8 @@ It's designed to be easy to use and efficient, allowing developers to create hig
 - MSVC (Windows) / MinGW-w64 13.1.0 (Windows) / Clang (macOS) / GCC (Linux)
 - (Optional) [CMake](https://cmake.org/): only if building from the source
 - (Optional) [vcpkg](https://vcpkg.io/): only if building from the source
-- (Optional) [SFML 2.6](https://www.sfml-dev.org/): only if building from the source (installed in vcpkg)
+- (Optional) [International Components for Unicode (ICU)](https://icu.unicode.org/): only if building from the source
+- (Optional) [Simple and Fast Multimedia Library (SFML) 2.6](https://www.sfml-dev.org/): only if building from the source (installed in vcpkg)
 - (Optional) [Google test](https://github.com/google/googletest): only if building the test cases (installed in vcpkg)
 
 ## Getting Started
@@ -29,9 +30,10 @@ You will need to replace placeholders with actual values for your setup.
 For `<path_to_vcpkg>`, use the full path where vcpkg is installed on your system.
 
 ### MSVC (Windows):
-1. Install SFML 2.6 using `vcpkg`:
+1. Install SFML 2.6 and ICU using `vcpkg`:
    ```shell
    <path_to_vcpkg> install sfml:x64-windows-static-md
+   <path_to_vcpkg> install icu:x64-windows-static-md
    ```
 2. Build the project with `CMake`:
    ```shell
@@ -40,9 +42,10 @@ For `<path_to_vcpkg>`, use the full path where vcpkg is installed on your system
    ```
 
 ### MinGW-w64 (Windows):
-1. Install SFML 2.6 using `vcpkg`:
+1. Install SFML 2.6 and ICU using `vcpkg`:
    ```shell
    <path_to_vcpkg> install sfml:x64-mingw-static
+   <path_to_vcpkg> install icu:x64-mingw-static
    ```
 2. Build the project with `CMake`:
    ```shell
@@ -55,9 +58,10 @@ For `<path_to_vcpkg>`, use the full path where vcpkg is installed on your system
    ```shell
    brew install pkg-config
    ```
-2. Install SFML 2.6 using `vcpkg`:
+2. Install SFML 2.6 and ICU using `vcpkg`:
    ```shell
    <path_to_vcpkg> install sfml:<cpu_arch>-osx-release
+   <path_to_vcpkg> install icu:<cpu_arch>-osx-release
    ```
    Replace `<cpu_arch>` with `arm64` for Apple Silicon (M1/M2) or `x64` for Intel-based Macs.
 3. Build the project with `CMake`:
@@ -67,9 +71,10 @@ For `<path_to_vcpkg>`, use the full path where vcpkg is installed on your system
    ```
 
 ### GCC (Linux):
-1. Install SFML 2.6 using `vcpkg`:
+1. Install SFML 2.6 and ICU using `vcpkg`:
    ```shell
    <path_to_vcpkg> install sfml:x64-linux-release
+   <path_to_vcpkg> install icu:x64-linux-release
    ```
 2. Build the project with `CMake`:
    ```shell
@@ -90,4 +95,5 @@ cd docs && doxygen
 - [CMake](https://cmake.org/) - Licensed under [3-Clause BSD License](https://cmake.org/licensing/)
 - [vcpkg](https://vcpkg.io/) - Licensed under [MIT License](https://github.com/microsoft/vcpkg/blob/master/LICENSE.txt)
 - [SFML](https://www.sfml-dev.org/) - Licensed under [zlib/libpng License](https://www.sfml-dev.org/license.php)
+- [ICU](https://icu.unicode.org/) - Licensed under [ICU License](https://www.unicode.org/copyright.html#License)
 - [Google Test](https://google.github.io/googletest) - Licensed under [BSD 3-Clause License](https://github.com/google/googletest/blob/main/LICENSE)

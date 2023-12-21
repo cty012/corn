@@ -43,6 +43,10 @@ target_include_directories(corn PRIVATE "${CMAKE_SOURCE_DIR}/include")
 find_package(SFML 2.6 COMPONENTS audio graphics network system window CONFIG REQUIRED)
 target_link_libraries(corn PRIVATE sfml-audio sfml-graphics sfml-network sfml-system sfml-window)
 
+# Link with ICU
+find_package(ICU REQUIRED COMPONENTS uc i18n data)
+target_link_libraries(corn PRIVATE ICU::uc ICU::i18n ICU::data)
+
 # Build examples
 if (BUILD_EXAMPLES)
     add_subdirectory("examples")
