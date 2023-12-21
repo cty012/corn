@@ -33,6 +33,15 @@ function (build_example EXAMPLE_NAME)
     target_link_libraries(${EXAMPLE_NAME} corn)
     add_dependencies(${EXAMPLE_NAME} examples)
 
+    # Copy corn DLL
+    add_custom_target(${EXAMPLE_NAME}_corn ALL
+            COMMAND ${CMAKE_COMMAND} -E echo "Copying DLL..."
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${CORN_OUTPUT_PATH}
+            ${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}
+    )
+    add_dependencies(${EXAMPLE_NAME} ${EXAMPLE_NAME}_corn)
+
     # Copy resources folder
     file(GLOB_RECURSE RESOURCES "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}/resources/*")
     add_custom_target(${EXAMPLE_NAME}_resources ALL
@@ -47,15 +56,6 @@ function (build_example EXAMPLE_NAME)
             SOURCES ${RESOURCES}
     )
     add_dependencies(${EXAMPLE_NAME} ${EXAMPLE_NAME}_resources)
-
-    # Copy corn DLL
-    add_custom_command(
-            TARGET ${EXAMPLE_NAME}
-            POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                ${CORN_OUTPUT_PATH}
-                ${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}
-    )
 endfunction ()
 
 build_example("clangy-bird")

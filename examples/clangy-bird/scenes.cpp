@@ -36,9 +36,6 @@ MainMenuScene::MainMenuScene() {
     // Title
     auto* title = this->getUIManager().createWidget<corn::UILabel>(
             "title", contents, TextManager::instance().getRichText("main-menu-title"));
-    auto* temp = this->getUIManager().createWidget<corn::UIImage>(
-            "title-image", contents, new corn::Image(100, 20, corn::Color::GREEN()));
-    temp->setZOrder(-1);
 
     // Start button
     auto* start = this->getUIManager().createWidget<corn::UILabel>(
@@ -68,10 +65,24 @@ MainMenuScene::MainMenuScene() {
                         corn::EventArgsScene(corn::SceneOperation::PUSH, new SettingsScene()));
             });
 
+    // Tutorial button
+    auto* tutorial = this->getUIManager().createWidget<corn::UILabel>(
+            "tutorial", contents, TextManager::instance().getRichText("main-menu-tutorial"));
+    tutorial->setY("200px");
+    underlineOnHover(tutorial);
+    tutorial->getEventManager().addListener(
+            "corn::ui::onclick", [](const corn::EventArgs& args) {
+                if (dynamic_cast<const corn::EventArgsUIOnClick&>(args).mousebtnEvent.status != corn::ButtonEvent::UP) {
+                    return;
+                }
+                corn::EventManager::instance().emit(
+                        corn::EventArgsScene(corn::SceneOperation::PUSH, new TutorialScene()));
+            });
+
     // Exit button
     auto* exit = this->getUIManager().createWidget<corn::UILabel>(
             "exit", contents, TextManager::instance().getRichText("main-menu-exit"));
-    exit->setY("200px");
+    exit->setY("245px");
     underlineOnHover(exit);
     exit->getEventManager().addListener(
             "corn::ui::onclick", [](const corn::EventArgs& args) {
@@ -82,10 +93,11 @@ MainMenuScene::MainMenuScene() {
             });
 
     this->langChangeEventID = corn::EventManager::instance().addListener(
-            "clangy-bird::langchange", [title, start, settings, exit](const corn::EventArgs&) {
+            "clangy-bird::langchange", [title, start, settings, tutorial, exit](const corn::EventArgs&) {
                 title->setText(TextManager::instance().getRichText("main-menu-title"));
                 start->setText(TextManager::instance().getRichText("main-menu-start"));
                 settings->setText(TextManager::instance().getRichText("main-menu-settings"));
+                tutorial->setText(TextManager::instance().getRichText("main-menu-tutorial"));
                 exit->setText(TextManager::instance().getRichText("main-menu-exit"));
             });
 }
@@ -107,10 +119,11 @@ SettingsScene::SettingsScene() {
     contents->setX("200px");
     contents->setY("120px");
 
+    // Title
     auto* title = this->getUIManager().createWidget<corn::UILabel>(
             "title", contents, TextManager::instance().getRichText("settings-title"));
 
-    // Start button
+    // Language change button
     auto* langLabel = this->getUIManager().createWidget<corn::UILabel>(
             "lang-label", contents, TextManager::instance().getRichText("settings-lang"));
     langLabel->setY("110px");
@@ -156,6 +169,61 @@ SettingsScene::SettingsScene() {
 }
 
 SettingsScene::~SettingsScene() {
+    corn::EventManager::instance().removeListener(this->langChangeEventID);
+}
+
+TutorialScene::TutorialScene() {
+    // UI
+    auto* body = this->getUIManager().createWidget<corn::UIWidget>("body", nullptr);
+    body->setX("(100%pw - min(100%pw * 9, 100%ph * 16) / 9) / 2");
+    body->setY("(100%ph - min(100%pw * 9, 100%ph * 16) / 16) / 2");
+    body->setW("min(100%pw * 9, 100%ph * 16) / 9");
+    body->setH("min(100%pw * 9, 100%ph * 16) / 16");
+    body->setBackground(corn::Color::rgb(60, 179, 113));
+
+    // Title
+    auto* title = this->getUIManager().createWidget<corn::UILabel>(
+            "title", body, TextManager::instance().getRichText("tutorial-title"));
+    title->setX("200px");
+    title->setY("120px");
+
+    // Contents
+    auto* contents = this->getUIManager().createWidget<corn::UIWidget>("contents", body);
+    contents->setX("200px");
+    contents->setY("230px");
+    contents->setW("100%pw - 400px");
+    contents->setH("100%nh");
+    auto* background = this->getUIManager().createWidget<corn::UIImage>(
+            "title-image", contents, new corn::Image(
+                    1000, 800, corn::Color::rgb(128, 128, 128, 128)));
+    background->setZOrder(-1);
+    auto* text = this->getUIManager().createWidget<corn::UILabel>(
+            "text", contents, TextManager::instance().getRichText("tutorial-contents"));
+
+    // Back button
+    auto* back = this->getUIManager().createWidget<corn::UILabel>(
+            "back", body, TextManager::instance().getRichText("tutorial-back"));
+    back->setX("100%pw - 100%nw - 200px");
+    back->setY("100%ph - 100%nh - 120px");
+    underlineOnHover(back);
+    back->getEventManager().addListener(
+            "corn::ui::onclick", [](const corn::EventArgs& args) {
+                if (dynamic_cast<const corn::EventArgsUIOnClick&>(args).mousebtnEvent.status != corn::ButtonEvent::UP) {
+                    return;
+                }
+                corn::EventManager::instance().emit(
+                        corn::EventArgsScene(corn::SceneOperation::POP, nullptr));
+            });
+
+    this->langChangeEventID = corn::EventManager::instance().addListener(
+            "clangy-bird::langchange", [title, text, back](const corn::EventArgs&) {
+                title->setText(TextManager::instance().getRichText("tutorial-title"));
+                text->setText(TextManager::instance().getRichText("tutorial-text"));
+                back->setText(TextManager::instance().getRichText("tutorial-back"));
+            });
+}
+
+TutorialScene::~TutorialScene() {
     corn::EventManager::instance().removeListener(this->langChangeEventID);
 }
 

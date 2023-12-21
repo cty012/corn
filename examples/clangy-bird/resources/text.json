@@ -47,6 +47,22 @@
             }
         ]
     },
+    "main-menu-tutorial":{
+        "eng": [
+            {
+                "text": "How to play",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "游戏教程",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ]
+    },
     "main-menu-exit": {
         "eng": [
             {
@@ -143,19 +159,67 @@
             }
         ]
     },
+    "tutorial-title": {
+        "eng": [
+            {
+                "text": "How to play",
+                "font": ["noto-sans-zh", 48],
+                "color": "#ff0000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "游戏教程",
+                "font": ["noto-sans-zh", 48],
+                "color": "#ff0000"
+            }
+        ]
+    },
+    "tutorial-contents": {
+        "eng": [
+            {
+                "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "承澜翔早封脆步干荷穷己喀垅钓逊蓄瓷持上泉蕉诫行大渗抓叭若三充叙谬稿唇素颚贷哪威吐营，谋暴价渔铭兽稚乃蔬窄樟梢战殖蚁砧杰寻汗戒积蕊彻永司琴淮廷显杀然炒醒最慈级罩进几鲤惜畔？尖充野巴羔蝼距明巾董晕桶告匹奶劫谋挠靠感高七估龙颜赴亦投疲早曾永根推荀妹柜叹有锡虱蛀傅理绞弦刺素湾镍朴驴律倾吱欺煮希渗沙恢使精，壳滥盘青剧杰汹弦柬卖科疏糙桑够端崭尔拢拿肠涅铀虱惠配凸羊矩终命爵扼隔素没翅闸瞧眨崇塑婶稳孕费。",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ]
+    },
+    "tutorial-back": {
+        "eng": [
+            {
+                "text": "Back",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ],
+        "chn": [
+            {
+                "text": "返回",
+                "font": ["noto-sans-zh", 24],
+                "color": "#000000"
+            }
+        ]
+    },
     "game-pause-title": {
         "eng": [
             {
                 "text": "Paused",
                 "font": ["noto-sans-zh", 30],
-                "color": "#d02020"
+                "color": "#d00000"
             }
         ],
         "chn": [
             {
                 "text": "暂停中",
                 "font": ["noto-sans-zh", 30],
-                "color": "#d02020"
+                "color": "#d00000"
             }
         ]
     },
@@ -164,14 +228,14 @@
             {
                 "text": "Continue",
                 "font": ["noto-sans-zh", 24],
-                "color": "#202020"
+                "color": "#000000"
             }
         ],
         "chn": [
             {
                 "text": "继续游戏",
                 "font": ["noto-sans-zh", 24],
-                "color": "#202020"
+                "color": "#000000"
             }
         ]
     },
@@ -180,14 +244,14 @@
             {
                 "text": "Exit to main menu",
                 "font": ["noto-sans-zh", 24],
-                "color": "#202020"
+                "color": "#000000"
             }
         ],
         "chn": [
             {
                 "text": "退出至主菜单",
                 "font": ["noto-sans-zh", 24],
-                "color": "#202020"
+                "color": "#000000"
             }
         ]
     }

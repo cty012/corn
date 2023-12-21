@@ -1,5 +1,8 @@
 #include <algorithm>
 #include <cstdio>
+#include <unicode/brkiter.h>
+#include <unicode/uscript.h>
+#include <unicode/utypes.h>
 #include <corn/util/exceptions.h>
 #include <corn/util/string_utils.h>
 
@@ -60,6 +63,58 @@ namespace corn {
         }
 
         return result;
+    }
+
+    bool usesSpaceForWordBoundaries(UChar32 character) {
+        UErrorCode error = U_ZERO_ERROR;
+        UScriptCode script = uscript_getScript(character, &error);
+
+        // Add more scripts here if needed
+        return script == USCRIPT_LATIN || script == USCRIPT_CYRILLIC || script == USCRIPT_GREEK;
+    }
+
+    std::vector<std::u8string> breakIntoWords(const std::u8string& str) {
+        std::vector<std::u8string> words;
+        UErrorCode status = U_ZERO_ERROR;
+
+        icu::UnicodeString unicodeStr = icu::UnicodeString::fromUTF8(
+                icu::StringPiece(reinterpret_cast<const char*>(str.data()), (int32_t)str.size()));
+
+        std::unique_ptr<icu::BreakIterator> wordIter(icu::BreakIterator::createWordInstance(icu::Locale::getDefault(), status));
+        if (U_FAILURE(status)) {
+            throw std::runtime_error(u_errorName(status));
+        }
+
+        wordIter->setText(unicodeStr);
+        for (int32_t start = wordIter->first(), end = wordIter->next(); end != icu::BreakIterator::DONE; start = end, end = wordIter->next()) {
+            icu::UnicodeString word = unicodeStr.tempSubStringBetween(start, end);
+
+            UChar32 firstChar = 0;
+            U16_GET(unicodeStr.getBuffer(), 0, start, unicodeStr.length(), firstChar);
+
+            if (!usesSpaceForWordBoundaries(firstChar)) {
+                // For scripts that don't use spaces, break each character into a word
+                int32_t i = start;
+                while (i < end) {
+                    UChar32 ch;
+                    int32_t prev_i = i;
+                    U16_NEXT(unicodeStr.getBuffer(), i, end, ch);
+
+                    icu::UnicodeString charWord = unicodeStr.tempSubStringBetween(prev_i, i);
+
+                    std::string utf8Char;
+                    charWord.toUTF8String(utf8Char);
+                    words.emplace_back(reinterpret_cast<const char8_t*>(utf8Char.data()), utf8Char.length());
+                }
+            } else {
+                // For scripts that use spaces, use the word as is
+                std::string utf8Word;
+                word.toUTF8String(utf8Word);
+                words.emplace_back(reinterpret_cast<const char8_t*>(utf8Word.data()), utf8Word.length());
+            }
+        }
+
+        return words;
     }
 
     std::u8string getChar(const char8_t* str) noexcept {

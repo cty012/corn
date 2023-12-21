@@ -253,8 +253,9 @@ namespace corn {
                     break;
                 case UIType::LABEL: {
                     const auto* uiLabel = dynamic_cast<const UILabel*>(widget);
+                    const TextRender& textRender = uiLabel->getTextRender();
                     float segX = x, segY = y;
-                    for (const TextRender::TextRenderImpl::Line& line : uiLabel->getTextRender().impl_->lines) {
+                    for (const TextRender::TextRenderImpl::Line& line : textRender.impl_->lines) {
                         for (const auto& [text, color] : line.contents) {
                             auto [segR, segG, segB, segA] = color.getRGBA();
                             auto& mutText = const_cast<sf::Text&>(text);
