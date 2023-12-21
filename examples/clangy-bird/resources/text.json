@@ -211,14 +211,14 @@
         "eng": [
             {
                 "text": "Paused",
-                "font": ["noto-sans-zh", 30],
+                "font": ["noto-sans-zh", 48],
                 "color": "#d00000"
             }
         ],
         "chn": [
             {
                 "text": "暂停中",
-                "font": ["noto-sans-zh", 30],
+                "font": ["noto-sans-zh", 48],
                 "color": "#d00000"
             }
         ]
@@ -227,15 +227,15 @@
         "eng": [
             {
                 "text": "Continue",
-                "font": ["noto-sans-zh", 24],
-                "color": "#000000"
+                "font": ["noto-sans-zh", 30],
+                "color": "#202020"
             }
         ],
         "chn": [
             {
                 "text": "继续游戏",
-                "font": ["noto-sans-zh", 24],
-                "color": "#000000"
+                "font": ["noto-sans-zh", 30],
+                "color": "#202020"
             }
         ]
     },
@@ -243,15 +243,15 @@
         "eng": [
             {
                 "text": "Exit to main menu",
-                "font": ["noto-sans-zh", 24],
-                "color": "#000000"
+                "font": ["noto-sans-zh", 30],
+                "color": "#202020"
             }
         ],
         "chn": [
             {
                 "text": "退出至主菜单",
-                "font": ["noto-sans-zh", 24],
-                "color": "#000000"
+                "font": ["noto-sans-zh", 30],
+                "color": "#202020"
             }
         ]
     }

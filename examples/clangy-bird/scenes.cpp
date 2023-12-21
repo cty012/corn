@@ -264,7 +264,7 @@ GameScene::GameScene() : paused(false), addedSystems_() {
             "title", menu, TextManager::instance().getRichText("game-pause-title"));
     auto* cont = this->getUIManager().createWidget<corn::UILabel>(
             "continue", menu, TextManager::instance().getRichText("game-pause-continue"));
-    cont->setY("60px");
+    cont->setY("100px");
     underlineOnHover(cont);
     cont->getEventManager().addListener(
             "corn::ui::onclick", [this](const corn::EventArgs& args) {
@@ -276,7 +276,7 @@ GameScene::GameScene() : paused(false), addedSystems_() {
 
     auto* exitToMainMenu = this->getUIManager().createWidget<corn::UILabel>(
             "exit-to-main-menu", menu, TextManager::instance().getRichText("game-pause-exit-to-main-menu"));
-    exitToMainMenu->setY("100px");
+    exitToMainMenu->setY("150px");
     underlineOnHover(exitToMainMenu);
     exitToMainMenu->getEventManager().addListener(
             "corn::ui::onclick", [](const corn::EventArgs& args) {
