@@ -20,6 +20,7 @@ namespace corn {
         std::vector<std::pair<std::vector<std::u8string>, TextStyle>> words;
         std::vector<Line> lines;
         bool limitWidth;
+        Vec2 naturalSize;
         Vec2 size;
 
         /// @brief Constructor.
@@ -42,7 +43,7 @@ namespace corn {
          * @brief Helper function. Inserts a segment of the text into the lines respecting the width limit.
          * @param segment The segment broken into words.
          * @param style The style of the segment.
-         * @param width The width to fit in.
+         * @param width The width limit.
          */
         void insertSegment(const std::vector<std::u8string>& segment, const TextStyle& style, float width);
 
@@ -59,14 +60,14 @@ namespace corn {
         /**
          * @brief Helper function. Inserts as many characters as possible to the given line.
          * @param word UTF-8 word to insert, as a C style string. Must not be empty.
-         * @param line
-         * @param style
-         * @param width
-         * @return
+         * @param line The target line to push to. Assumed to be empty.
+         * @param style The style of the word.
+         * @param width The width limit.
+         * @return Points to the start of the remaining characters.
          *
          * Only use this function if the word is too long to fit in the current
          */
-        static const char8_t* insertCharsToEmptyLine(const char8_t* word, Line* line, const TextStyle& style, float width);
+        static const char8_t* insertCharsToEmptyLine(Line* line, const char8_t* word, const TextStyle& style, float width);
     };
 
     Vec2 measureTextSize(const std::u8string& str, const TextStyle& style);
