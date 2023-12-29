@@ -23,6 +23,7 @@ namespace corn {
         void setText(const RichText& richText);
 
         /// @brief Getter for the text render.
+        [[nodiscard]] TextRender& getTextRender() noexcept;
         [[nodiscard]] const TextRender& getTextRender() const noexcept;
 
     private:

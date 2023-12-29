@@ -19,11 +19,13 @@ namespace corn {
                 this->words.back().first.emplace_back(word);
             }
         }
+        // Find natural width
+        this->setWidth(-1.0f);
+        this->naturalSize = this->size;
     }
 
     void TextRender::TextRenderImpl::setWidth(float width) {
         this->limitWidth = width >= 0;
-        printf("Limit width: %d\n", this->limitWidth);
 
         this->lines.clear();
 
@@ -60,11 +62,11 @@ namespace corn {
     }
 
     void TextRender::setText(const RichText& richText) {
+        bool limitWidth = this->impl_->limitWidth;
+        float width = this->impl_->size.x;
         this->impl_->setRichText(richText);
-        if (this->impl_->limitWidth) {
-            this->setWidth(this->impl_->size.x);
-        } else {
-            this->setWidthNoLimit();
+        if (limitWidth) {
+            this->setWidth(width);
         }
     }
 
@@ -72,37 +74,19 @@ namespace corn {
         return this->impl_->size;
     }
 
+    const Vec2& TextRender::getNaturalSize() const {
+        return this->impl_->naturalSize;
+    }
+
     void TextRender::setWidth(float width) {
-        this->impl_->setWidth(std::max(width, 0.0f));
+        width = std::max(width, 0.0f);
+        if (this->impl_->limitWidth && this->impl_->size.x == width) return;
+        this->impl_->setWidth(width);
     }
 
     void TextRender::setWidthNoLimit() {
+        if (!this->impl_->limitWidth) return;
         this->impl_->setWidth(-1.0f);
-    }
-
-    void TextRender::TextRenderImpl::pushTextToLine(
-            TextRenderImpl::Line* line, const std::u8string& str, const TextStyle& style) {
-
-        if (line && !str.empty()) {
-            // Construct the text
-            sf::Text text;
-            setTextFont(text, style.font);
-            setTextSize(text, (unsigned int) style.size);
-            setTextVariant(text, style.variant);
-            setTextString(text, str);
-
-            // Push the text to the back of the line
-            line->contents.emplace_back(text, style.color);
-
-            // Measure width and height
-            sf::Rect<float> bounds = text.getLocalBounds();
-            Vec2 textSize = { bounds.width, bounds.height };
-
-            // Add to total length & size
-            line->length += count(str);
-            line->size.x = textSize.x + line->size.x;
-            line->size.y = std::max(line->size.y, textSize.y);
-        }
     }
 
     void TextRender::TextRenderImpl::insertSegment(
@@ -150,9 +134,11 @@ namespace corn {
                 const char8_t* start = word.c_str();
                 while (true) {
                     // Fit as many characters as possible
-                    start = corn::TextRender::TextRenderImpl::insertCharsToEmptyLine(start, currentLine, style, width);
-                    if (!start) break;
+                    const char8_t* end = corn::TextRender::TextRenderImpl::insertCharsToEmptyLine(
+                            currentLine, start, style, width);
+                    if (!*end) break;
                     // Wrap to next line
+                    start = end;
                     currentLine = &this->lines.emplace_back();
                 }
                 // Put the remaining characters in the buffer
@@ -173,11 +159,39 @@ namespace corn {
         corn::TextRender::TextRenderImpl::pushTextToLine(currentLine, buffer, style);
     }
 
+    void TextRender::TextRenderImpl::pushTextToLine(
+            TextRenderImpl::Line* line, const std::u8string& str, const TextStyle& style) {
+
+        if (line && !str.empty()) {
+            // Construct the text
+            sf::Text text;
+            setTextFont(text, style.font);
+            setTextSize(text, (unsigned int) style.size);
+            setTextVariant(text, style.variant);
+            setTextString(text, str);
+
+            // Push the text to the back of the line
+            line->contents.emplace_back(text, style.color);
+
+            // Measure width and height
+            sf::Rect<float> bounds = text.getLocalBounds();
+            Vec2 textSize = { bounds.width, bounds.height };
+
+            // Add to total length & size
+            line->length += count(str);
+            line->size.x = textSize.x + line->size.x;
+            line->size.y = std::max(line->size.y, textSize.y);
+        }
+    }
+
     const char8_t* TextRender::TextRenderImpl::insertCharsToEmptyLine(
-            const char8_t* word, TextRender::TextRenderImpl::Line* line, const TextStyle& style, float width) {
+            TextRender::TextRenderImpl::Line* line, const char8_t* word, const TextStyle& style, float width) {
+
+        if (!*word) return word;
 
         // Set up SFML buffer text for measuring the width of buffer string.
-        std::u8string buffer(word, 1);
+        std::u8string buffer(word++, 1);
+        bool firstChar = true;
 
         while (*word) {
             // Get a UTF-8 character from the remaining word
@@ -186,7 +200,7 @@ namespace corn {
             // Measure width and height
             Vec2 newSize = measureTextSize(buffer + nextChar, style);
 
-            if (newSize.x <= width) {
+            if (firstChar || newSize.x <= width) {
                 // If new character can fit
                 buffer += nextChar;
                 word += nextChar.size();
@@ -196,9 +210,11 @@ namespace corn {
                 TextRender::TextRenderImpl::pushTextToLine(line, buffer, style);
                 return word;
             }
+
+            firstChar = false;
         }
 
-        return nullptr;
+        return word;
     }
 
     Vec2 measureTextSize(const std::u8string& str, const TextStyle& style) {

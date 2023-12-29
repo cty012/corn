@@ -232,7 +232,7 @@ namespace corn {
         opacities[nullptr] = 1.0f;
 
         // Render
-        for (const UIWidget* widget : widgets) {
+        for (UIWidget* widget : widgets) {
             // Find opacity
             UIWidget* parent = widget->getParent();
             opacities[widget] = opacities[parent] * (float)widget->getOpacity() / 255.0f;
@@ -252,10 +252,13 @@ namespace corn {
                 case UIType::PANEL:
                     break;
                 case UIType::LABEL: {
-                    const auto* uiLabel = dynamic_cast<const UILabel*>(widget);
-                    const TextRender& textRender = uiLabel->getTextRender();
+                    auto* uiLabel = dynamic_cast<UILabel*>(widget);
+                    TextRender& textRender = uiLabel->getTextRender();
+                    // Fit to width limit (if any)
+                    textRender.setWidth(std::round(w));
+                    // Render
                     float segX = x, segY = y;
-                    for (const TextRender::TextRenderImpl::Line& line : textRender.impl_->lines) {
+                    for (TextRender::TextRenderImpl::Line& line : textRender.impl_->lines) {
                         for (const auto& [text, color] : line.contents) {
                             auto [segR, segG, segB, segA] = color.getRGBA();
                             auto& mutText = const_cast<sf::Text&>(text);

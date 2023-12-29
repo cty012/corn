@@ -2,6 +2,7 @@
 #include <ranges>
 #include <stack>
 #include <corn/core/scene.h>
+#include <corn/ui/ui_image.h>
 #include <corn/ui/ui_label.h>
 #include <corn/ui/ui_manager.h>
 #include <corn/util/exceptions.h>
@@ -124,14 +125,18 @@ namespace corn {
                     break;
                 }
                 case UIType::LABEL: {
-                    auto nsize = dynamic_cast<const UILabel*>(widget)->getTextRender().getSize();
+                    auto nsize = dynamic_cast<const UILabel*>(widget)->getTextRender().getNaturalSize();
                     nw = nsize.x;
                     nh = nsize.y;
                     break;
                 }
-                case UIType::IMAGE:
+                case UIType::IMAGE: {
                     // TODO
+                    auto nsize = dynamic_cast<const UIImage*>(widget)->getImage()->getSize();
+                    nw = (float)nsize.first;
+                    nh = (float)nsize.second;
                     break;
+                }
                 case UIType::INPUT:
                     // TODO
                     break;

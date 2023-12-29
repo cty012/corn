@@ -44,6 +44,13 @@ namespace corn {
         [[nodiscard]] const Vec2& getSize() const;
 
         /**
+         * @return Natural size of the text area.
+         *
+         * The natural size of the text is the size of the text if there is no width limit.
+         */
+        [[nodiscard]] const Vec2& getNaturalSize() const;
+
+        /**
          * @brief Set the new width limit of the RichText.
          * @param width New width limit.
          * @throw std::invalid_argument If invalid input (width is negative).

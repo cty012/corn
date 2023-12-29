@@ -199,6 +199,7 @@ TutorialScene::TutorialScene() {
     background->setZOrder(-1);
     auto* text = this->getUIManager().createWidget<corn::UILabel>(
             "text", contents, TextManager::instance().getRichText("tutorial-contents"));
+    text->setW("100%pw");
 
     // Back button
     auto* back = this->getUIManager().createWidget<corn::UILabel>(
