@@ -1,9 +1,10 @@
 #pragma once
 
-#include <corn/media/image.h>
 #include <corn/ui/ui_widget.h>
 
 namespace corn {
+    class Image;
+
     /**
      * @class UIImage
      * @brief Widget that displays image.

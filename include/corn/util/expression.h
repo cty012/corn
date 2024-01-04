@@ -1,11 +1,10 @@
 #pragma once
 
+#include <stdexcept>
 #include <string>
 #include <tuple>
 #include <unordered_map>
 #include <vector>
-#include <corn/geometry/vec2.h>
-#include <corn/util/exceptions.h>
 
 namespace corn {
     template <std::size_t N, typename... Values>

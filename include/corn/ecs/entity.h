@@ -6,9 +6,12 @@
 #include <typeinfo>
 #include <unordered_map>
 #include <vector>
-#include <corn/ecs/component.h>
 
 namespace corn {
+    struct Component;
+    class Game;
+    class Scene;
+
     template <typename T>
     concept ComponentType = std::derived_from<T, Component>;
 

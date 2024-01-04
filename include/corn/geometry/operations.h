@@ -2,13 +2,14 @@
 
 #include <concepts>
 #include <type_traits>
-#include <corn/geometry/deg.h>
-#include <corn/geometry/rotation.h>
-#include <corn/geometry/vec2.h>
-#include <corn/geometry/vec3.h>
-#include <corn/geometry/vec4.h>
 
 namespace corn {
+    struct Deg;
+    struct Quaternion;
+    struct Vec2;
+    struct Vec3;
+    struct Vec4;
+
     template <typename Vec>
     concept VectorType = std::is_same_v<Vec, Vec2> || std::is_same_v<Vec, Vec3> || std::is_same_v<Vec, Vec4>;
 

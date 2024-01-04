@@ -2,14 +2,14 @@
 
 #include <array>
 #include <string>
-#include <corn/event/event_manager.h>
 #include <corn/util/color.h>
 #include <corn/util/expression.h>
 
 namespace corn {
-    class UIManager;
-    class Scene;
+    class EventManager;
     class Game;
+    class Scene;
+    class UIManager;
 
     enum class UIType {
         PANEL, LABEL, IMAGE, INPUT,

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <corn/util/stopwatch.h>
-
 namespace corn {
+    class Game;
+    class Scene;
+
     /**
      * @class System
      * @brief System in the ECS architecture. Base class for all systems.

@@ -1,4 +1,8 @@
 #include <corn/geometry/operations.h>
+#include <corn/geometry/rotation.h>
+#include <corn/geometry/vec2.h>
+#include <corn/geometry/vec3.h>
+#include <corn/geometry/vec4.h>
 
 namespace corn {
     float dot(const Vec2& lhs, const Vec2& rhs) noexcept {

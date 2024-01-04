@@ -1,3 +1,4 @@
+#include <corn/util/exceptions.h>
 #include "expression_impl.h"
 
 namespace corn::impl::expression {

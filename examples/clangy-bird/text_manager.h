@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <corn/media.h>
 #include "nlohmann/json.hpp"
 

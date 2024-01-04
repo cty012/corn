@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <corn/media/image.h>
 #include <corn/geometry/vec2.h>
 
 namespace corn {

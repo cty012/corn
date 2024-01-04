@@ -1,11 +1,10 @@
 #include <cmath>
-#include <corn/core/game.h>
-#include <corn/ecs/component.h>
-#include <corn/event/event_manager.h>
-#include <corn/geometry/vec2.h>
-#include <corn/media/interface.h>
-#include <corn/ui/ui_image.h>
-#include <corn/ui/ui_label.h>
+#include <corn/core.h>
+#include <corn/ecs.h>
+#include <corn/event.h>
+#include <corn/geometry.h>
+#include <corn/media.h>
+#include <corn/ui.h>
 #include <corn/util/string_utils.h>
 #include "camera_viewport_impl.h"
 #include "font_impl.h"

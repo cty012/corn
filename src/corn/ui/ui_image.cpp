@@ -1,3 +1,4 @@
+#include <corn/media/image.h>
 #include <corn/ui/ui_image.h>
 
 namespace corn {

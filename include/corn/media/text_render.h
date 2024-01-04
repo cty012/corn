@@ -1,9 +1,9 @@
 #pragma once
 
-#include <corn/geometry/vec2.h>
-#include <corn/util/rich_text.h>
-
 namespace corn {
+    struct Vec2;
+    struct RichText;
+
     /**
      * @class TextRender
      * @brief Wrapper around RichText which auto generates rendering contexts for more efficient text rendering.
@@ -29,8 +29,6 @@ namespace corn {
          * @brief Constructor.
          * @param richText Rich text to wrap around.
          * @param width Width of the text area. If text exceeds this width, it should auto wrap at white spaces.
-         *
-         * @todo Implement this function.
          */
         TextRender(const RichText& richText, float width);
 
