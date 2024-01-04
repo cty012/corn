@@ -288,9 +288,6 @@ namespace corn {
                     this->impl_->window->draw(sfSprite);
                     break;
                 }
-                case UIType::INPUT:
-                    // TODO
-                    break;
             }
         }
     }
