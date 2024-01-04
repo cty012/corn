@@ -44,7 +44,6 @@ namespace corn {
         for (Entity* entity : this->getScene().getEntityManager().getActiveEntitiesWith<CMovement2D, CGravity2D>()) {
             auto movement = entity->getComponent<CMovement2D>();
             auto gravity2D = entity->getComponent<CGravity2D>();
-            // TODO: gravity 3D
             if (!movement->active || !gravity2D->active) continue;
             movement->addWorldVelocityOffset(
                     Vec2(0, this->g * gravity2D->scale * (millis / 1000.0f)));

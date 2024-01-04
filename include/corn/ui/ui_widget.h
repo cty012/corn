@@ -12,7 +12,7 @@ namespace corn {
     class UIManager;
 
     enum class UIType {
-        PANEL, LABEL, IMAGE, INPUT,
+        PANEL, LABEL, IMAGE,
     };
 
     /**

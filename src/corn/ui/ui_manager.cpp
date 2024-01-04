@@ -119,7 +119,7 @@ namespace corn {
                                 return widget->isActive() && widgetProps.at(widget).geometry == UIGeometry::INDEPENDENT;
                             },
                             widget, false);
-                    // TODO: find max of children size
+                    // Find max of children size
                     for (UIWidget* child : independentChildren) {
                         nw = std::max(nw, widgetProps[child].nw + widgetProps[child].x);
                         nh = std::max(nh, widgetProps[child].nh + widgetProps[child].y);
@@ -133,15 +133,11 @@ namespace corn {
                     break;
                 }
                 case UIType::IMAGE: {
-                    // TODO
                     Vec2 nsize = dynamic_cast<const UIImage*>(widget)->getImage()->getSize();
                     nw = (float)nsize.x;
                     nh = (float)nsize.y;
                     break;
                 }
-                case UIType::INPUT:
-                    // TODO
-                    break;
             }
             if (geometry == UIGeometry::INDEPENDENT) {
                 float percNW = nw * 0.01f;
