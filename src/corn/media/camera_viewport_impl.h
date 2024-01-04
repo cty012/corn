@@ -3,6 +3,8 @@
 #include <SFML/Graphics.hpp>
 
 namespace corn {
+    struct Vec2;
+
     class CameraViewport::CameraViewportImpl {
     public:
         CameraViewportImpl() noexcept;

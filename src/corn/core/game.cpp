@@ -1,5 +1,6 @@
-#include <thread>
 #include <corn/core/game.h>
+#include <corn/core/scene.h>
+#include <corn/media/interface.h>
 
 namespace corn {
     Game::Game(Scene* startScene, Config config)

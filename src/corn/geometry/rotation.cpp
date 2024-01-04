@@ -1,4 +1,5 @@
 #include <corn/geometry/rotation.h>
+#include <corn/geometry/vec3.h>
 
 namespace corn {
     Quaternion EulerAngles::quat() const noexcept {

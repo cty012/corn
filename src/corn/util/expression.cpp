@@ -1,4 +1,5 @@
 #include <stack>
+#include <corn/util/exceptions.h>
 #include <corn/util/expression.h>
 #include <corn/util/string_utils.h>
 #include "expression_impl.h"

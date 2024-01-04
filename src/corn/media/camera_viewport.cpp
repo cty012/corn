@@ -1,4 +1,5 @@
 #include <cmath>
+#include <corn/geometry/vec2.h>
 #include <corn/media/camera_viewport.h>
 #include "camera_viewport_impl.h"
 

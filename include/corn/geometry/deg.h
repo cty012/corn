@@ -1,7 +1,5 @@
 #pragma once
 
-#include <corn/geometry/vec2.h>
-
 namespace corn {
     /**
      * @class Deg

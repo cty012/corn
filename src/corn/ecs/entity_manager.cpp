@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <stack>
 #include <corn/core/scene.h>
+#include <corn/ecs/component.h>
 #include <corn/ecs/entity_manager.h>
 #include <corn/util/exceptions.h>
 #include "../event/event_args_extend.h"

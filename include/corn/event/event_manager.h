@@ -4,9 +4,10 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <corn/event/event_args.h>
 
 namespace corn {
+    struct EventArgs;
+
     /**
      * @class EventManager
      * @brief Multiton class that handles all events.

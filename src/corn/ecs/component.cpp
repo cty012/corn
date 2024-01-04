@@ -4,6 +4,7 @@
 #include <corn/ecs/entity.h>
 #include <corn/ecs/entity_manager.h>
 #include <corn/geometry/operations.h>
+#include <corn/media/image.h>
 #include "../event/event_args_extend.h"
 
 namespace corn {

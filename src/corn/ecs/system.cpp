@@ -1,7 +1,9 @@
 #include <vector>
 #include <corn/core/scene.h>
+#include <corn/ecs/component.h>
 #include <corn/ecs/entity_manager.h>
 #include <corn/ecs/system.h>
+#include <corn/event/event_args.h>
 
 namespace corn {
     System::System(Scene& scene) noexcept : scene_(scene), active_(true) {}

@@ -1,12 +1,15 @@
 #pragma once
 
 #include <unordered_map>
-#include <corn/core/scene.h>
-#include <corn/event/input.h>
-#include <corn/ui/ui_widget.h>
-#include <corn/util/config.h>
 
 namespace corn {
+    enum class Key;
+
+    struct CCamera;
+    class Game;
+    class Scene;
+    class UIManager;
+
     /**
      * @class Interface
      * @brief Receives input from the user and renders entities and UI to the window.

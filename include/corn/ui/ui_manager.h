@@ -4,11 +4,15 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <corn/geometry/vec4.h>
+#include <corn/event/event_manager.h>
+#include <corn/geometry/vec2.h>
 #include <corn/ui/ui_widget.h>
-#include <corn/util/config.h>
 
 namespace corn {
+    struct EventArgsMouseButton;
+    struct EventArgsMouseMove;
+    struct Vec4;
+
     template <typename T>
     concept WidgetType = std::derived_from<T, UIWidget>;
 

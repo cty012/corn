@@ -2,6 +2,7 @@
 
 #include <array>
 #include <string>
+#include <vector>
 
 namespace corn {
     inline const std::string WHITESPACE = "\t\n\v\f\r ";

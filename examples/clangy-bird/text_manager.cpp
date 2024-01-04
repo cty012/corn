@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <utility>
+#include <corn/util.h>
 #include "text_manager.h"
 
 TextManager& TextManager::instance() {

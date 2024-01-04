@@ -1,4 +1,8 @@
 #include <corn/core/scene.h>
+#include <corn/ecs/entity_manager.h>
+#include <corn/ecs/system.h>
+#include <corn/event/event_manager.h>
+#include <corn/ui/ui_manager.h>
 
 namespace corn {
     Scene::Scene() noexcept : game_(nullptr), systems_() {

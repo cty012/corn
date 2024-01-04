@@ -1,13 +1,15 @@
 #pragma once
 
 #include <functional>
+#include <string>
 #include <unordered_map>
 #include <vector>
 #include <corn/ecs/entity.h>
-#include <corn/event/event_args.h>
 #include <corn/event/event_manager.h>
 
 namespace corn {
+    struct CCamera;
+
     /**
      * @class EntityManager
      * @brief Manages all Entities in a scene

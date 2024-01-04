@@ -1,10 +1,10 @@
 #pragma once
 
 #include <corn/geometry/deg.h>
-#include <corn/geometry/vec3.h>
 #include <corn/geometry/vec4.h>
 
 namespace corn {
+    struct Vec3;
     struct Quaternion;
 
     /**

@@ -4,6 +4,9 @@
 #include <utility>
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include <corn/geometry/vec2.h>
+#include <corn/util/color.h>
+#include <corn/util/rich_text.h>
 
 namespace corn {
     class TextRender::TextRenderImpl {
