@@ -1,12 +1,19 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <corn/geometry/vec2.h>
 
 namespace corn {
     class Image::ImageImpl {
     public:
         /// @brief Stores the actual image data.
         sf::Image image;
+
+        /// @brief Original width and height of the image.
+        unsigned int width, height;
+
+        /// @brief Scale of the image.
+        Vec2 scale;
 
         /// @brief The texture is stored on GPU for rendering.
         sf::Texture texture;

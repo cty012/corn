@@ -190,13 +190,15 @@ TutorialScene::TutorialScene() {
     // Contents
     auto* contents = this->getUIManager().createWidget<corn::UIWidget>("contents", body);
     contents->setX("200px");
-    contents->setY("230px");
+    contents->setY("200px");
     contents->setW("100%pw - 400px");
-    contents->setH("100%nh");
+    contents->setH("100%ph - 400px");
     auto* background = this->getUIManager().createWidget<corn::UIImage>(
             "title-image", contents, new corn::Image(
-                    1000, 800, corn::Color::rgb(128, 128, 128, 128)));
+                    50, 50, corn::Color::rgb(128, 128, 128, 128)));
     background->setZOrder(-1);
+    background->setW("100%pw");
+    background->setH("100%ph");
     auto* text = this->getUIManager().createWidget<corn::UILabel>(
             "text", contents, TextManager::instance().getRichText("tutorial-contents"));
     text->setW("100%pw");

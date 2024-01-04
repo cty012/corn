@@ -2,9 +2,11 @@
 
 #include <string>
 #include <utility>
-#include <corn/util/color.h>
 
 namespace corn {
+    struct Vec2;
+    class Color;
+
     /**
      * @class Image
      * @brief Holds image data.
@@ -38,24 +40,22 @@ namespace corn {
         Image(Image&& other) noexcept;
         Image& operator=(Image&& other) noexcept;
 
-        /// @return Width and height of the image.
-        [[nodiscard]] std::pair<unsigned int, unsigned int> getSize() const noexcept;
+        /// @return Original width and height of the image (without scaling).
+        [[nodiscard]] std::pair<unsigned int, unsigned int> getOriginalSize() const noexcept;
+
+        /// @return Scaled width and height of the image.
+        [[nodiscard]] Vec2 getSize() const noexcept;
 
         /**
-         * @brief Resize the image. Contents will interpolate automatically
+         * @brief Resize the image.
          * @param width New width.
          * @param height New height.
-         *
-         * @todo Implement this function.
          */
-        void resize(unsigned int width, unsigned int height);
+        void resize(float width, float height);
 
     private:
         /// @brief Pimpl idiom.
         class ImageImpl;
         ImageImpl* impl_;
-
-        /// @brief Width and height of the image.
-        unsigned int width_, height_;
     };
 }

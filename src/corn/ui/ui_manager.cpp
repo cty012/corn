@@ -125,16 +125,16 @@ namespace corn {
                     break;
                 }
                 case UIType::LABEL: {
-                    auto nsize = dynamic_cast<const UILabel*>(widget)->getTextRender().getNaturalSize();
+                    Vec2 nsize = dynamic_cast<const UILabel*>(widget)->getTextRender().getNaturalSize();
                     nw = nsize.x;
                     nh = nsize.y;
                     break;
                 }
                 case UIType::IMAGE: {
                     // TODO
-                    auto nsize = dynamic_cast<const UIImage*>(widget)->getImage()->getSize();
-                    nw = (float)nsize.first;
-                    nh = (float)nsize.second;
+                    Vec2 nsize = dynamic_cast<const UIImage*>(widget)->getImage()->getSize();
+                    nw = (float)nsize.x;
+                    nh = (float)nsize.y;
                     break;
                 }
                 case UIType::INPUT:

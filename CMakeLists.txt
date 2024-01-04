@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.22)
 project(corn)
 
 set(CMAKE_CXX_STANDARD 20)
-list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/deps")
+set(DEPS_PATH "${CMAKE_SOURCE_DIR}/deps")
+list(APPEND CMAKE_PREFIX_PATH DEPS_PATH)
 
 option(BUILD_EXAMPLES "Build the example programs in the `examples/` folder." ON)
 option(BUILD_TESTS "Build the test cases in the `test/` folder." OFF)
