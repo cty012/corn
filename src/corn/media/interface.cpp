@@ -1,3 +1,4 @@
+#include <cmath>
 #include <corn/core/game.h>
 #include <corn/ecs/component.h>
 #include <corn/event/event_manager.h>
@@ -280,9 +281,12 @@ namespace corn {
                     sf::Sprite& sfSprite = image->impl_->sfSprite;
                     sfSprite.setOrigin(0, 0);
                     sfSprite.setPosition(x, y);
-                    sf::Transform scaleTransform;
-                    scaleTransform.scale(1, 1);
-                    this->impl_->window->draw(sfSprite, scaleTransform);
+                    // Scale image
+                    Vec2 size = image->getSize();
+                    Vec2 totalScale = image->impl_->scale * Vec2(size.x ? w / size.x : 1, size.y ? h / size.y : 1);
+                    // Draw the image on the screen
+                    sfSprite.setScale(totalScale.x, totalScale.y);
+                    this->impl_->window->draw(sfSprite);
                     break;
                 }
                 case UIType::INPUT:
