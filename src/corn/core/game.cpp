@@ -42,9 +42,6 @@ namespace corn {
 
     void Game::setConfig(Config config) {
         this->config_ = std::move(config);
-        // TODO: reload settings
-        delete this->interface_;
-        this->interface_ = new Interface(*this, this->keyPressed_);
         this->interface_->init();
     }
 
