@@ -29,6 +29,9 @@ namespace corn {
     }
 
     void Interface::init() {
+        if (this->impl_->window->isOpen()) {
+            this->impl_->window->close();
+        }
         const Config& config = this->game_.getConfig();
         sf::ContextSettings contextSettings;
         contextSettings.antialiasingLevel = config.antialiasing;
