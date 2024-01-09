@@ -3,7 +3,7 @@ project(corn)
 
 set(CMAKE_CXX_STANDARD 20)
 set(DEPS_PATH "${CMAKE_SOURCE_DIR}/deps")
-list(APPEND CMAKE_PREFIX_PATH DEPS_PATH)
+list(APPEND CMAKE_PREFIX_PATH "${DEPS_PATH}")
 
 option(BUILD_EXAMPLES "Build the example programs in the `examples/` folder." ON)
 option(BUILD_TESTS "Build the test cases in the `test/` folder." OFF)
