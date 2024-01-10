@@ -6,6 +6,7 @@
 namespace corn {
     class EntityManager;
     class EventManager;
+    class Game;
     class System;
     class UIManager;
 

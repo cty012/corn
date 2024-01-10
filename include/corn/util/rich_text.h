@@ -61,6 +61,9 @@ namespace corn {
 
             /// @brief The style of the segment.
             TextStyle style;
+
+            /// @brief Constructor.
+            Segment(std::u8string str, TextStyle style) noexcept;
         };
 
         /// @brief Each segment represent a piece of text with uniform style.
