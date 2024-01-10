@@ -54,9 +54,9 @@ For `<path_to_vcpkg>`, use the full path where vcpkg is installed on your system
    ```
 
 ### Clang (macOS):
-1. Ensure `pkg-config` is installed (required by some dependencies):
+1. Ensure `autoconf`, `autoconf-archive`, `automake`, `libtool`, and `pkg-config` are installed (required by some dependencies):
    ```shell
-   brew install pkg-config
+   brew install autoconf autoconf-archive automake libtool pkg-config
    ```
 2. Install SFML 2.6 and ICU using `vcpkg`:
    ```shell

@@ -1,5 +1,7 @@
 #include <corn/util/rich_text.h>
 
+#include <utility>
+
 namespace corn {
     TextStyle::TextStyle(const Font* font, size_t size) noexcept
             : font(font), size(size), color(Color::WHITE()), variant(FontVariant::REGULAR) {}
@@ -30,6 +32,8 @@ namespace corn {
         style.variant = newVariant;
         return style;
     }
+
+    RichText::Segment::Segment(std::u8string str, TextStyle style) noexcept : str(std::move(str)), style(style) {}
 
     RichText::RichText() noexcept : segments() {}
 
