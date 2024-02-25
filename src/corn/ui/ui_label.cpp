@@ -13,6 +13,10 @@ namespace corn {
         this->textRender_.setText(richText);
     }
 
+    TextRender& UILabel::getTextRender() noexcept {
+        return this->textRender_;
+    }
+
     const TextRender& UILabel::getTextRender() const noexcept {
         return this->textRender_;
     }

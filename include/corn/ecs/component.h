@@ -1,19 +1,18 @@
 #pragma once
 
-#include <utility>
 #include <corn/geometry/deg.h>
 #include <corn/geometry/vec2.h>
 #include <corn/geometry/vec3.h>
 #include <corn/media/camera_viewport.h>
-#include <corn/media/image.h>
 #include <corn/util/color.h>
 #include <corn/util/expression.h>
 
 namespace corn {
     class Entity;
     class EntityManager;
-    class Scene;
     class Game;
+    class Image;
+    class Scene;
 
     /**
      * @class Component
@@ -87,8 +86,8 @@ namespace corn {
 
     private:
         /**
-         * @brief Defines the order of the Entities in the z direction (in/out of the screen). A higher z-order means
-         * closer to the user.
+         * @brief Defines the order of the entities in the z direction (in/out of the screen). A higher z-order means
+         * closer to the top.
          */
         int zOrder_;
     };
@@ -110,7 +109,7 @@ namespace corn {
         Vec2 location;
 
         /// @brief Constructor.
-        CSprite(Entity& entity, Image *image, Vec2 location = Vec2::ZERO()) noexcept;
+        CSprite(Entity& entity, Image* image, Vec2 location = Vec2::ZERO()) noexcept;
 
         /// @brief Destructor.
         ~CSprite() override;

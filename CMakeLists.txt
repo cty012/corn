@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.22)
 project(corn)
 
 set(CMAKE_CXX_STANDARD 20)
-list(APPEND CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/deps")
+set(DEPS_PATH "${CMAKE_SOURCE_DIR}/deps")
+list(APPEND CMAKE_PREFIX_PATH "${DEPS_PATH}")
 
 option(BUILD_EXAMPLES "Build the example programs in the `examples/` folder." ON)
 option(BUILD_TESTS "Build the test cases in the `test/` folder." OFF)
@@ -42,6 +43,10 @@ target_include_directories(corn PRIVATE "${CMAKE_SOURCE_DIR}/include")
 # Link with SFML
 find_package(SFML 2.6 COMPONENTS audio graphics network system window CONFIG REQUIRED)
 target_link_libraries(corn PRIVATE sfml-audio sfml-graphics sfml-network sfml-system sfml-window)
+
+# Link with ICU
+find_package(ICU REQUIRED COMPONENTS uc i18n data)
+target_link_libraries(corn PRIVATE ICU::uc ICU::i18n ICU::data)
 
 # Build examples
 if (BUILD_EXAMPLES)

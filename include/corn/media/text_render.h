@@ -1,17 +1,17 @@
 #pragma once
 
-#include <corn/geometry/vec2.h>
-#include <corn/util/rich_text.h>
-
 namespace corn {
+    struct Vec2;
+    struct RichText;
+
     /**
      * @class TextRender
      * @brief Wrapper around RichText which auto generates rendering contexts for more efficient text rendering.
      *
-     * User should not need to access this class. Most other classes' API should use RichText instead.
+     * User should not need to access this class. Other classes' API should use RichText instead.
      *
-     * It is possible to specify a width limit. When there is no limit, the text will be rendered in a single line. If
-     * there is a limit, the text will auto-wrap at white spaces.
+     * The constructor has a optional parameter to specify the width limit. When there is no limit, the text will be
+     * rendered in a single line. If there is a limit, the text will auto-wrap at white spaces.
      *
      * @see RichText
      */
@@ -29,8 +29,6 @@ namespace corn {
          * @brief Constructor.
          * @param richText Rich text to wrap around.
          * @param width Width of the text area. If text exceeds this width, it should auto wrap at white spaces.
-         *
-         * @todo Implement this function.
          */
         TextRender(const RichText& richText, float width);
 
@@ -42,6 +40,13 @@ namespace corn {
 
         /// @return Size of the text area.
         [[nodiscard]] const Vec2& getSize() const;
+
+        /**
+         * @return Natural size of the text area.
+         *
+         * The natural size of the text is the size of the text if there is no width limit.
+         */
+        [[nodiscard]] const Vec2& getNaturalSize() const;
 
         /**
          * @brief Set the new width limit of the RichText.

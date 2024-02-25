@@ -7,3 +7,4 @@
 #include <corn/util/expression.h>
 #include <corn/util/rich_text.h>
 #include <corn/util/stopwatch.h>
+#include <corn/util/string_utils.h>

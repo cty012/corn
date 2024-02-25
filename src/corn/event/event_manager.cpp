@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <corn/event/event_args.h>
 #include <corn/event/event_manager.h>
 #include <corn/util/exceptions.h>
 

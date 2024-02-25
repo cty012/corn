@@ -1,13 +1,15 @@
 #pragma once
 
+#include <string>
 #include <vector>
-#include <corn/ecs/entity.h>
-#include <corn/ecs/entity_manager.h>
-#include <corn/ecs/system.h>
-#include <corn/event/event_manager.h>
-#include <corn/ui/ui_manager.h>
 
 namespace corn {
+    class EntityManager;
+    class EventManager;
+    class Game;
+    class System;
+    class UIManager;
+
     template <typename T>
     concept SystemType = std::derived_from<T, System>;
 

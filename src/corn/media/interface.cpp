@@ -1,9 +1,11 @@
-#include <corn/core/game.h>
-#include <corn/ecs/component.h>
-#include <corn/event/event_manager.h>
-#include <corn/geometry/vec2.h>
-#include <corn/media/interface.h>
-#include <corn/ui/ui_label.h>
+#include <cmath>
+#include <corn/core.h>
+#include <corn/ecs.h>
+#include <corn/event.h>
+#include <corn/geometry.h>
+#include <corn/media.h>
+#include <corn/ui.h>
+#include <corn/util/string_utils.h>
 #include "camera_viewport_impl.h"
 #include "font_impl.h"
 #include "image_impl.h"
@@ -27,6 +29,9 @@ namespace corn {
     }
 
     void Interface::init() {
+        if (this->impl_->window->isOpen()) {
+            this->impl_->window->close();
+        }
         const Config& config = this->game_.getConfig();
         sf::ContextSettings contextSettings;
         contextSettings.antialiasingLevel = config.antialiasing;
@@ -42,7 +47,7 @@ namespace corn {
         return {(float)size.x, (float)size.y};
     }
 
-    void Interface::handleUserInput() const {  // TODO: change this
+    void Interface::handleUserInput() const {
         sf::Event event{};
         while (this->impl_->window->pollEvent(event)) {
             switch (event.type) {
@@ -109,9 +114,13 @@ namespace corn {
                     this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     break;
                 }
-                case (sf::Event::TextEntered):
-                    // TODO
+                case (sf::Event::TextEntered): {
+                    EventArgsTextEntered eventArgs(
+                            event.text.unicode, unicodeToUTF8(event.text.unicode));
+                    EventManager::instance().emit(eventArgs);
+                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     break;
+                }
                 default:
                     break;
             }
@@ -187,7 +196,7 @@ namespace corn {
         for (Entity* entity: scene->getEntityManager().getActiveEntitiesWith<CTransform2D, CSprite>()) {
             auto transform = entity->getComponent<CTransform2D>();
             auto sprite = entity->getComponent<CSprite>();
-            if (!sprite->active) continue;
+            if (!sprite->active || !sprite->image || !sprite->image->impl_) continue;
 
             auto [worldLocation, worldRotation] = transform->getWorldTransform();
             auto [ancX, ancY] = worldLocation - cameraOffset;
@@ -226,7 +235,7 @@ namespace corn {
         opacities[nullptr] = 1.0f;
 
         // Render
-        for (const UIWidget* widget : widgets) {
+        for (UIWidget* widget : widgets) {
             // Find opacity
             UIWidget* parent = widget->getParent();
             opacities[widget] = opacities[parent] * (float)widget->getOpacity() / 255.0f;
@@ -246,9 +255,13 @@ namespace corn {
                 case UIType::PANEL:
                     break;
                 case UIType::LABEL: {
-                    const auto* label = dynamic_cast<const UILabel*>(widget);
+                    auto* uiLabel = dynamic_cast<UILabel*>(widget);
+                    TextRender& textRender = uiLabel->getTextRender();
+                    // Fit to width limit (if any)
+                    textRender.setWidth(std::round(w));
+                    // Render
                     float segX = x, segY = y;
-                    for (const TextRender::TextRenderImpl::Line& line : label->getTextRender().impl_->lines) {
+                    for (TextRender::TextRenderImpl::Line& line : textRender.impl_->lines) {
                         for (const auto& [text, color] : line.contents) {
                             auto [segR, segG, segB, segA] = color.getRGBA();
                             auto& mutText = const_cast<sf::Text&>(text);
@@ -263,12 +276,21 @@ namespace corn {
                     }
                     break;
                 }
-                case UIType::IMAGE:
-                    // TODO
+                case UIType::IMAGE: {
+                    const auto* uiImage = dynamic_cast<const UIImage*>(widget);
+                    const Image* image = uiImage->getImage();
+                    if (!image || !image->impl_) break;
+                    sf::Sprite& sfSprite = image->impl_->sfSprite;
+                    sfSprite.setOrigin(0, 0);
+                    sfSprite.setPosition(x, y);
+                    // Scale image
+                    Vec2 size = image->getSize();
+                    Vec2 totalScale = image->impl_->scale * Vec2(size.x ? w / size.x : 1, size.y ? h / size.y : 1);
+                    // Draw the image on the screen
+                    sfSprite.setScale(totalScale.x, totalScale.y);
+                    this->impl_->window->draw(sfSprite);
                     break;
-                case UIType::INPUT:
-                    // TODO
-                    break;
+                }
             }
         }
     }

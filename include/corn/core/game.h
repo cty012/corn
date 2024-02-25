@@ -2,12 +2,19 @@
 
 #include <queue>
 #include <stack>
-#include <corn/core/scene.h>
+#include <unordered_map>
+#include <corn/event/event_args.h>
 #include <corn/event/event_manager.h>
-#include <corn/media/interface.h>
 #include <corn/util/config.h>
+#include <corn/util/stopwatch.h>
 
 namespace corn {
+    enum class Key;
+    enum class SceneOperation;
+
+    class Scene;
+    class Interface;
+
     /**
      * @class Game
      * @brief The main class that holds all components of the game.

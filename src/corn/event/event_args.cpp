@@ -16,9 +16,14 @@ namespace corn {
     EventArgsMouseScroll::EventArgsMouseScroll(float value, const Vec2& mousePos) noexcept
             : value(value), mousePos(mousePos) {}
 
+    EventArgsTextEntered::EventArgsTextEntered(unsigned int unicode, std::u8string character) noexcept
+            : unicode(unicode), character(std::move(character)) {}
+
     EventArgsScene::EventArgsScene(SceneOperation op, Scene* scene) noexcept : op(op), scene(scene) {}
 
-    EventArgsZOrderChange::EventArgsZOrderChange(Entity* entity) noexcept : entity(entity) {}
+    EventArgsEntityZOrderChange::EventArgsEntityZOrderChange(Entity* entity) noexcept : entity(entity) {}
+
+    EventArgsWidgetZOrderChange::EventArgsWidgetZOrderChange(UIWidget* widget) noexcept : widget(widget) {}
 
     EventArgsCamera::EventArgsCamera(CameraEventType eventType, const CCamera* camera) noexcept
             : eventType(eventType), camera(camera) {}

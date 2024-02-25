@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <stack>
 #include <corn/core/scene.h>
+#include <corn/ecs/component.h>
 #include <corn/ecs/entity_manager.h>
 #include <corn/util/exceptions.h>
 #include "../event/event_args_extend.h"
@@ -9,15 +10,15 @@ namespace corn {
     EntityManager::Node::Node(Entity* ent, Node* parent) noexcept : ent(ent), parent(parent), children(), dirty(false) {}
 
     EntityManager::EntityManager(Scene& scene) noexcept : scene_(scene), root_(nullptr, nullptr), nodes_() {
-
         // Listen to zorder change events
         this->zOrderEventID_ = this->scene_.getEventManager().addListener(
                 "corn::game::ecs::zorder", [this](const EventArgs& args) {
-                    const auto& _args = dynamic_cast<const EventArgsZOrderChange&>(args);
-                    if (!_args.entity || &_args.entity->getEntityManager() != this) return;
+                    const auto& _args = dynamic_cast<const EventArgsEntityZOrderChange&>(args);
+                    if (!_args.entity) return;
                     Node* node = this->getNodeFromEntity(_args.entity);
                     node->parent->dirty = true;
                 });
+        // Listen to add/remove camera events
         this->cameraEventID_ = this->scene_.getEventManager().addListener(
                 "corn::game::ecs::camera", [this](const EventArgs& args) {
                     const auto& _args = dynamic_cast<const EventArgsCamera&>(args);

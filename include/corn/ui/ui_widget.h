@@ -2,17 +2,17 @@
 
 #include <array>
 #include <string>
-#include <corn/event/event_manager.h>
 #include <corn/util/color.h>
 #include <corn/util/expression.h>
 
 namespace corn {
-    class UIManager;
-    class Scene;
+    class EventManager;
     class Game;
+    class Scene;
+    class UIManager;
 
     enum class UIType {
-        PANEL, LABEL, IMAGE, INPUT,
+        PANEL, LABEL, IMAGE,
     };
 
     /**
@@ -33,6 +33,8 @@ namespace corn {
      * @brief Base class for all UI widgets.
      *
      * All UI widgets' lifetime are managed by the UI manager class.
+     *
+     * @see UIManager
      */
     class UIWidget {
     public:
@@ -86,6 +88,12 @@ namespace corn {
 
         /// @return Actual geometric type of the widget. DEFAULT will resolve to either DEPENDENT or INDEPENDENT.
         [[nodiscard]] UIGeometry getActualGeometry() const noexcept;
+
+        /// @brief Getter of the z-order of the entity.
+        [[nodiscard]] int getZOrder() const noexcept;
+
+        /// @brief Setter of the z-order of the entity.
+        void setZOrder(int zOrder) noexcept;
 
         // Other getters & setters
         [[nodiscard]] const Expression<5>& getX() const noexcept;
@@ -156,5 +164,11 @@ namespace corn {
 
         /// @brief The opacity of the widget and all children, on a scale of [0, 255].
         unsigned char opacity_;
+
+        /**
+         * @brief Defines the order of the widgets in the z direction (in/out of the screen). A higher z-order means
+         * closer to the top.
+         */
+        int zOrder_;
     };
 }

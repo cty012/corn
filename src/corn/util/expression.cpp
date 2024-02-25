@@ -1,5 +1,7 @@
 #include <stack>
+#include <corn/util/exceptions.h>
 #include <corn/util/expression.h>
+#include <corn/util/string_utils.h>
 #include "expression_impl.h"
 
 namespace corn::impl::expression {
@@ -264,19 +266,6 @@ namespace corn::impl::expression {
 
     bool precedes(char op1, char op2) {
         return operatorsCheck.at(op1).first > operatorsCheck.at(op2).first;
-    }
-
-    std::string trim(const std::string& str) {
-        const std::string whitespace = " \t\n\r\f\v";
-        std::size_t start = str.find_first_not_of(whitespace);
-
-        // If str consists entirely of whitespace
-        if (start == std::string::npos) {
-            return "";
-        }
-
-        std::size_t end = str.find_last_not_of(whitespace);
-        return str.substr(start, end - start + 1);
     }
 }
 

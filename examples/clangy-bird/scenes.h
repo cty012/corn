@@ -25,6 +25,16 @@ private:
     corn::EventManager::ListenerID langChangeEventID;
 };
 
+/// The tutorial scene
+class TutorialScene : public corn::Scene {
+public:
+    TutorialScene();
+    ~TutorialScene() override;
+
+private:
+    corn::EventManager::ListenerID langChangeEventID;
+};
+
 /// The main game scene
 class GameScene : public corn::Scene {
 public:
