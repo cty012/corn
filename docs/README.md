@@ -1,3 +1,5 @@
+<img src="../logo.png" width="200" style="margin: 10px;">
+
 # Corn Game Engine (Under Development)
 [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/cty012/corn/blob/main/LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-red.svg)](https://github.com/cty012/corn)
@@ -11,11 +13,11 @@ It's designed to be easy to use and efficient, allowing developers to create hig
 
 ## Prerequisites
 - MSVC (Windows) / MinGW-w64 13.1.0 (Windows) / Clang (macOS) / GCC (Linux)
-- (Optional) [CMake](https://cmake.org/): only if building from the source
-- (Optional) [vcpkg](https://vcpkg.io/): only if building from the source
-- (Optional) [International Components for Unicode (ICU)](https://icu.unicode.org/): only if building from the source
-- (Optional) [Simple and Fast Multimedia Library (SFML) 2.6](https://www.sfml-dev.org/): only if building from the source (installed in vcpkg)
-- (Optional) [Google test](https://github.com/google/googletest): only if building the test cases (installed in vcpkg)
+- (Optional) [CMake](https://cmake.org/): Only if building from the source. Make sure it is in PATH.
+- (Optional) [vcpkg](https://vcpkg.io/): Only if building from the source. Make sure it is in PATH.
+- (Optional) [Simple and Fast Multimedia Library (SFML) 2.6](https://www.sfml-dev.org/): Only if building from the source (installed in vcpkg).
+- (Optional) [International Components for Unicode (ICU)](https://icu.unicode.org/): Only if building from the source (installed in vcpkg).
+- (Optional) [Google test](https://github.com/google/googletest): Only if building the test cases (installed in vcpkg).
 
 ## Getting Started
 To get started with the project, clone the repository to your local machine using the following commands:
@@ -25,15 +27,14 @@ cd corn
 ```
 
 The build process varies depending on your operating system and compiler.
-Make sure you already have `CMake` and `vcpkg` installed on your machine.
+Make sure you already have `CMake` and `vcpkg` installed on your machine and in PATH.
 You will need to replace placeholders with actual values for your setup.
 For `<path_to_vcpkg>`, use the full path where vcpkg is installed on your system.
 
 ### MSVC (Windows):
-1. Install SFML 2.6 and ICU using `vcpkg`:
+1. Install the dependencies using `vcpkg`:
    ```shell
-   <path_to_vcpkg> install sfml:x64-windows-static-md
-   <path_to_vcpkg> install icu:x64-windows-static-md
+   vcpkg install --triplet x64-windows-static-md
    ```
 2. Build the project with `CMake`:
    ```shell
@@ -42,10 +43,10 @@ For `<path_to_vcpkg>`, use the full path where vcpkg is installed on your system
    ```
 
 ### MinGW-w64 (Windows):
-1. Install SFML 2.6 and ICU using `vcpkg`:
+> **Warning:** ICU might not compile using MinGW. MSVC is recommended on Windows systems.
+1. Install the dependencies using `vcpkg`:
    ```shell
-   <path_to_vcpkg> install sfml:x64-mingw-static
-   <path_to_vcpkg> install icu:x64-mingw-static
+   vcpkg install --triplet x64-mingw-static
    ```
 2. Build the project with `CMake`:
    ```shell
@@ -58,10 +59,9 @@ For `<path_to_vcpkg>`, use the full path where vcpkg is installed on your system
    ```shell
    brew install autoconf autoconf-archive automake libtool pkg-config
    ```
-2. Install SFML 2.6 and ICU using `vcpkg`:
+2. Install the dependencies using `vcpkg`:
    ```shell
-   <path_to_vcpkg> install sfml:<cpu_arch>-osx-release
-   <path_to_vcpkg> install icu:<cpu_arch>-osx-release
+   vcpkg install --triplet <cpu_arch>-osx-release
    ```
    Replace `<cpu_arch>` with `arm64` for Apple Silicon (M1/M2) or `x64` for Intel-based Macs.
 3. Build the project with `CMake`:
@@ -73,8 +73,7 @@ For `<path_to_vcpkg>`, use the full path where vcpkg is installed on your system
 ### GCC (Linux):
 1. Install SFML 2.6 and ICU using `vcpkg`:
    ```shell
-   <path_to_vcpkg> install sfml:x64-linux-release
-   <path_to_vcpkg> install icu:x64-linux-release
+   vcpkg install --triplet x64-linux-release
    ```
 2. Build the project with `CMake`:
    ```shell
@@ -82,11 +81,11 @@ For `<path_to_vcpkg>`, use the full path where vcpkg is installed on your system
    cmake --build build --config Release
    ```
 
-After building, you'll find the executables in the build directory.
+After building, you'll find the compiled dynamic library in the `build` directory.
 
 ## Documentation
 The documentation of this project is generated using [Doxygen](https://www.doxygen.nl/).
-To generate the documentation, run the following command:
+To generate the documentation, install Doxygen and run the following command:
 ```shell
 cd docs && doxygen
 ```
