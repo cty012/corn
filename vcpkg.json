@@ -1,9 +1,0 @@
-{
-  "name": "corn",
-  "version-string": "0.1.0",
-  "license": "MIT",
-  "dependencies": [
-    "sfml",
-    "icu"
-  ]
-}
