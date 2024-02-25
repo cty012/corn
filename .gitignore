@@ -7,15 +7,10 @@
 # Clangd
 .cache/
 
-# Dependencies
-deps/
-vcpkg_installed/
-
-# Build
+# Others
+.DS_Store
 build/
 cmake-build-*/
 out/
-
-# Others
-.DS_Store
+deps/
 docs/doxygen-output/
