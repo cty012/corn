@@ -3,6 +3,33 @@
 #include <utility.h>
 
 namespace corn::test::string_utils {
+    TEST(StringUtils, trim) {
+        std::string str;
+
+        // Empty string
+        str = "";
+        EXPECT_EQ(trim(str), "");
+
+        // Spaces only
+        str = "   \r\n    \n";
+        EXPECT_EQ(trim(str), "");
+
+        // Spaces in the front
+        str = " Hello";
+        EXPECT_EQ(trim(str), "Hello");
+
+        // Spaces at the back
+        str = "world!\n";
+        EXPECT_EQ(trim(str), "world!");
+
+        // Spaces on both sides
+        str = " Helloworld!\n";
+        EXPECT_EQ(trim(str), "Helloworld!");
+
+        // Spaces in the middle
+        str = " Hello\tworld!\n";
+        EXPECT_EQ(trim(str), "Hello\tworld!");
+    }
 
     TEST(StringUtils, break_into_words) {
         std::u8string str;
