@@ -98,6 +98,9 @@ namespace corn {
          */
         std::vector<UIWidget*> getAllActiveWidgets(const UIWidget* parent = nullptr, bool recurse = true) const noexcept;
 
+        /// @brief Clears all UI widgets.
+        void clear() noexcept;
+
         /// @brief Cleans up all dirty nodes. Auto-called before rendering.
         void tidy() noexcept;
 
