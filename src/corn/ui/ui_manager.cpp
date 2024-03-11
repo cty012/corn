@@ -54,6 +54,25 @@ namespace corn {
         return this->scene_.getGame();
     }
 
+    UIWidget* UIManager::getWidgetByID(UIWidget::WidgetID id) const noexcept {
+        if (!this->nodes_.contains(id)) return nullptr;
+        return this->nodes_.at(id).widget;
+    }
+
+    UIWidget* UIManager::getWidgetByName(const std::string& name, const UIWidget* parent, bool recurse) const noexcept {
+        std::vector<UIWidget*> result = getWidgetsHelper([&name](const UIWidget* widget) {
+            return widget->name_ == name;
+        }, false, 1, parent, recurse);
+        return result.empty() ? nullptr : result[0];
+    }
+
+    std::vector<UIWidget*>
+    UIManager::getWidgetsByName(const std::string& name, const UIWidget* parent, bool recurse) const noexcept {
+        return getWidgetsHelper([&name](const UIWidget* widget) {
+            return widget->name_ == name;
+        }, false, 0, parent, recurse);
+    }
+
     UIWidget* UIManager::getWidgetThat(
             const std::function<bool(const UIWidget*)>& pred, const UIWidget* parent, bool recurse) const {
 

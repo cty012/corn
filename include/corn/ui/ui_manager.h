@@ -67,6 +67,33 @@ namespace corn {
         T* createWidget(const std::string& name, const UIWidget* parent, Args&&... args);
 
         /**
+         * @param id ID of the UI widget.
+         * @return UI widget with the given ID, or null pointer if it doesn't exist.
+         *
+         * Acquiring the UI widget by ID is the only method to access a UI widget in O(1) time complexity. All other
+         * methods require traversing the widget tree, which takes O(n) time.
+         */
+        [[nodiscard]] UIWidget* getWidgetByID(UIWidget::WidgetID id) const noexcept;
+
+        /**
+         * @param name Name of the UI widget.
+         * @param parent Parent to start searching from.
+         * @param recurse Also searches indirect descendants of parent if set to true.
+         * @return The first UI widget with the given name, or null pointer if it doesn't exist.
+         */
+        [[nodiscard]] UIWidget* getWidgetByName(
+                const std::string& name, const UIWidget* parent = nullptr, bool recurse = true) const noexcept;
+
+        /**
+         * @param name Name of the UI widget.
+         * @param parent Parent to start searching from.
+         * @param recurse Also searches indirect descendants of parent if set to true.
+         * @return All UI widgets with the given name.
+         */
+        [[nodiscard]] std::vector<UIWidget*> getWidgetsByName(
+                const std::string& name, const UIWidget* parent = nullptr, bool recurse = true) const noexcept;
+
+        /**
          * @param pred A predicate function that takes an Entity pointer and returns whether it satisfy the conditions.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
