@@ -68,7 +68,7 @@ install(TARGETS corn
         LIBRARY DESTINATION "bin"
         ARCHIVE DESTINATION "lib"
 )
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/include" DESTINATION "include")
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/corn" DESTINATION "include")
 
 configure_file(corn-config.cmake.in corn-config.cmake @ONLY)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/corn-config.cmake" DESTINATION "cmake")
