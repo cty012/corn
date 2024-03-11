@@ -36,7 +36,10 @@ file(GLOB_RECURSE SOURCES
 )
 
 add_library(corn SHARED ${HEADERS} ${SOURCES})
-set_target_properties(corn PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CORN_OUTPUT_DIR}")
+set_target_properties(corn PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CORN_OUTPUT_DIR}"
+        DEBUG_POSTFIX -d
+)
 set(CORN_OUTPUT_PATH $<TARGET_FILE:corn>)
 target_include_directories(corn PRIVATE "${CMAKE_SOURCE_DIR}/include")
 
@@ -57,3 +60,15 @@ endif ()
 if (BUILD_TESTS)
     add_subdirectory("test")
 endif ()
+
+# Install
+set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/dist")
+install(TARGETS corn
+        RUNTIME DESTINATION "bin"
+        LIBRARY DESTINATION "bin"
+        ARCHIVE DESTINATION "lib"
+)
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/include" DESTINATION "include")
+
+configure_file(corn-config.cmake.in corn-config.cmake @ONLY)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/corn-config.cmake" DESTINATION "cmake")

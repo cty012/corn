@@ -35,8 +35,8 @@ function (build_example EXAMPLE_NAME)
     add_custom_target(${EXAMPLE_NAME}_corn ALL
             COMMAND ${CMAKE_COMMAND} -E echo "Copying DLL..."
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            ${CORN_OUTPUT_PATH}
-            ${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}
+                "${CORN_OUTPUT_PATH}"
+                "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}"
     )
     add_dependencies(${EXAMPLE_NAME} ${EXAMPLE_NAME}_corn)
 
@@ -45,12 +45,12 @@ function (build_example EXAMPLE_NAME)
     add_custom_target(${EXAMPLE_NAME}_resources ALL
             COMMAND ${CMAKE_COMMAND} -E echo "Copying resources..."
             COMMAND ${CMAKE_COMMAND} -E make_directory
-                ${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}
+                "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}"
             COMMAND ${CMAKE_COMMAND} -E remove_directory
-                ${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}/resources
+                "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}/resources"
             COMMAND ${CMAKE_COMMAND} -E copy_directory
-                ${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}/resources
-                ${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}/resources
+                "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}/resources"
+                "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}/resources"
             SOURCES ${RESOURCES}
     )
     add_dependencies(${EXAMPLE_NAME} ${EXAMPLE_NAME}_resources)

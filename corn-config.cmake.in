@@ -1,0 +1,36 @@
+# Paths
+set(Corn_ROOT "${CMAKE_CURRENT_LIST_DIR}/..")
+
+set(Corn_INCLUDE_DIRS "${Corn_ROOT}/include")
+set(Corn_RUNTIME_DIR "${Corn_ROOT}/bin")
+if(WIN32)
+    set(Corn_LIBRARIES "${Corn_ROOT}/lib/corn.lib")
+    set(Corn_DYNAMIC_LIBRARY_DEBUG "${Corn_RUNTIME_DIR}/corn-d.dll")
+    set(Corn_DYNAMIC_LIBRARY_RELEASE "${Corn_RUNTIME_DIR}/corn.dll")
+elseif(APPLE)
+    set(Corn_DYNAMIC_LIBRARY_DEBUG "${Corn_RUNTIME_DIR}/libcorn-d.dylib")
+    set(Corn_DYNAMIC_LIBRARY_RELEASE "${Corn_RUNTIME_DIR}/libcorn.dylib")
+else()
+    set(Corn_DYNAMIC_LIBRARY_DEBUG "${Corn_RUNTIME_DIR}/libcorn-d.so")
+    set(Corn_DYNAMIC_LIBRARY_RELEASE "${Corn_RUNTIME_DIR}/libcorn.so")
+endif()
+
+# Provide these variables to the calling project
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(Corn DEFAULT_MSG Corn_LIBRARIES Corn_INCLUDE_DIRS)
+
+if(Corn_FOUND AND NOT TARGET Corn::Corn)
+    add_library(Corn::Corn SHARED IMPORTED)
+    set_target_properties(Corn::Corn PROPERTIES
+            IMPORTED_LOCATION_DEBUG "${Corn_DYNAMIC_LIBRARY_DEBUG}"
+            IMPORTED_LOCATION_RELEASE "${Corn_DYNAMIC_LIBRARY_RELEASE}"
+            INTERFACE_INCLUDE_DIRECTORIES "${Corn_INCLUDE_DIRS}"
+            IMPORTED_IMPLIB "${Corn_LIBRARIES}"
+    )
+
+    if(WIN32)
+        set_target_properties(Corn::Corn PROPERTIES
+                IMPORTED_IMPLIB "${Corn_LIBRARIES}"
+        )
+    endif()
+endif()
