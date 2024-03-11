@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
-project(corn)
+project(corn VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 20)
 set(DEPS_PATH "${CMAKE_SOURCE_DIR}/deps")
@@ -8,6 +8,37 @@ list(APPEND CMAKE_PREFIX_PATH "${DEPS_PATH}")
 option(BUILD_EXAMPLES "Build the example programs in the `examples/` folder." ON)
 option(BUILD_TESTS "Build the test cases in the `test/` folder." OFF)
 
+# Output directories
+set(CORN_OUTPUT_DIR "${CMAKE_BINARY_DIR}/lib")
+set(EXAMPLES_OUTPUT_DIR "${CMAKE_BINARY_DIR}/examples")
+set(TEST_OUTPUT_DIR "${CMAKE_BINARY_DIR}/tests")
+
+# Platform
+if(WIN32)
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(PLATFORM "win64")
+    else()
+        set(PLATFORM "win32")
+    endif()
+elseif(APPLE)
+    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+        set(PLATFORM "macos-arm64")
+    elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+        set(PLATFORM "macos-x64")
+    else()
+        set(PLATFORM "macos")
+    endif()
+elseif(UNIX)
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64")
+        set(PLATFORM "linux-x64")
+    else()
+        set(PLATFORM "linux")
+    endif()
+else()
+    set(PLATFORM "unknown")
+endif()
+
+# Compiler flags
 if (MSVC)
     add_compile_options(/utf-8 /W4 /WX)
     add_compile_options("$<$<CONFIG:Release>:/O2>")
@@ -20,12 +51,10 @@ else ()
     add_compile_options("$<$<CONFIG:Debug>:-g>")
 endif ()
 
-set(CORN_OUTPUT_DIR "${CMAKE_BINARY_DIR}/lib")
-set(EXAMPLES_OUTPUT_DIR "${CMAKE_BINARY_DIR}/examples")
-set(TEST_OUTPUT_DIR "${CMAKE_BINARY_DIR}/tests")
-
+# For static analysis and linting
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Corn target
 file(GLOB_RECURSE HEADERS
         "${CMAKE_SOURCE_DIR}/include/*.h"
         "${CMAKE_SOURCE_DIR}/include/*.cpp"
@@ -62,7 +91,7 @@ if (BUILD_TESTS)
 endif ()
 
 # Install
-set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/dist")
+set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/dist/corn-${PROJECT_VERSION}-${PLATFORM}")
 install(TARGETS corn
         RUNTIME DESTINATION "bin"
         LIBRARY DESTINATION "bin"
