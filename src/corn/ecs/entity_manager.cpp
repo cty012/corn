@@ -28,9 +28,7 @@ namespace corn {
                             this->cameras_.push_back(_args.camera);
                             break;
                         case CameraEventType::REMOVE:
-                            this->cameras_.erase(
-                                    std::remove(this->cameras_.begin(), this->cameras_.end(), _args.camera),
-                                    this->cameras_.end());
+                            std::erase(this->cameras_, _args.camera);
                             break;
                     }
                 });
@@ -74,28 +72,6 @@ namespace corn {
         return *entity;
     }
 
-    void EntityManager::destroyNode(Node* node) noexcept {  // NOLINT
-        if (node == nullptr) return;
-        // Destroy all children
-        for (Node* child : node->children) {
-            this->destroyNode(child);
-        }
-        // Destroy self
-        Entity::EntityID entID = node->ent->id_;
-        delete node->ent;
-        this->nodes_.erase(entID);
-    }
-
-    void EntityManager::destroyEntity(Entity& entity) noexcept {
-        Node* node = &this->nodes_.at(entity.id_);
-        Node* parent = node->parent;
-        this->destroyNode(node);
-        // Removes relation (parent --> node)
-        parent->children.erase(
-                std::remove(parent->children.begin(), parent->children.end(), node),
-                parent->children.end());
-    }
-
     Entity* EntityManager::getEntityByID(Entity::EntityID id) const noexcept {
         if (!this->nodes_.contains(id)) return nullptr;
         return this->nodes_.at(id).ent;
@@ -137,6 +113,17 @@ namespace corn {
         return this->getEntitiesHelper(nullptr, true, 0, parent, recurse);
     }
 
+    void EntityManager::clear() noexcept {
+        // Delete child nodes
+        for (auto& [id, node] : this->nodes_) {
+            delete node.ent;
+        }
+        this->nodes_.clear();
+        // Reset root node
+        this->root_.children.clear();
+        this->root_.dirty = false;
+    }
+
     void EntityManager::tidy() noexcept {
         if (this->root_.dirty) {
             this->root_.dirty = false;
@@ -162,6 +149,27 @@ namespace corn {
                                  else return lTrans->getZOrder() < rTrans->getZOrder();
                              });
         }
+    }
+
+    void EntityManager::destroyNode(Node* node) noexcept {  // NOLINT
+        if (node == nullptr) return;
+        // Destroy all children
+        for (Node* child : node->children) {
+            this->destroyNode(child);
+        }
+        // Destroy self
+        Entity::EntityID entID = node->ent->id_;
+        delete node->ent;
+        this->nodes_.erase(entID);
+    }
+
+    void EntityManager::destroyEntity(Entity& entity) noexcept {
+        Node* node = &this->nodes_.at(entity.id_);
+        Node* parent = node->parent;
+        // Removes relation (parent --> node)
+        std::erase(parent->children, node);
+        // Destroy node itself
+        this->destroyNode(node);
     }
 
     const EntityManager::Node* EntityManager::getNodeFromEntity(const Entity* entity) const {

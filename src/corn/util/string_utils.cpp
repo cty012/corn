@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <cstdio>
+#include <fstream>
+#include <sstream>
 #include <unicode/brkiter.h>
 #include <unicode/uscript.h>
 #include <unicode/utypes.h>
@@ -141,5 +143,16 @@ namespace corn {
 
     void printu8(const std::u8string& str) {
         printf("%s", reinterpret_cast<const char*>(str.c_str()));
+    }
+
+    std::string loadStringFromFile(const std::string& file) {
+        std::ifstream filestream(file);
+        if (!filestream) {
+            throw std::runtime_error("Could not open the file: '" + file + "'");
+        }
+
+        std::stringstream buffer;
+        buffer << filestream.rdbuf();
+        return buffer.str();
     }
 }

@@ -1,5 +1,5 @@
 #include <corn/ui.h>
-#include "etities.h"
+#include "entities.h"
 #include "event_args.h"
 #include "scenes.h"
 #include "systems.h"

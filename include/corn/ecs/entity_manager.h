@@ -150,6 +150,9 @@ namespace corn {
         /// @return A list of cameras components registered in this scene.
         [[nodiscard]] const std::vector<const CCamera*>& getCameras() const noexcept;
 
+        /// @brief Clears all entities.
+        void clear() noexcept;
+
         /// @brief Cleans up all dirty nodes. Auto-called before rendering.
         void tidy() noexcept;
 
