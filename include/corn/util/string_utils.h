@@ -76,4 +76,11 @@ namespace corn {
      * Before calling this function, make sure the console is capable of displaying UTF-8 text.
      */
     void printu8(const std::u8string& str);
+
+    /**
+     * @brief Load a string from a file.
+     * @param file Path to the file.
+     * @return The string loaded.
+     */
+    std::string loadStringFromFile(const std::string& file);
 }
