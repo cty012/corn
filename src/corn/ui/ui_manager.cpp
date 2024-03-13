@@ -54,6 +54,25 @@ namespace corn {
         return this->scene_.getGame();
     }
 
+    UIWidget* UIManager::getWidgetByID(UIWidget::WidgetID id) const noexcept {
+        if (!this->nodes_.contains(id)) return nullptr;
+        return this->nodes_.at(id).widget;
+    }
+
+    UIWidget* UIManager::getWidgetByName(const std::string& name, const UIWidget* parent, bool recurse) const noexcept {
+        std::vector<UIWidget*> result = getWidgetsHelper([&name](const UIWidget* widget) {
+            return widget->name_ == name;
+        }, false, 1, parent, recurse);
+        return result.empty() ? nullptr : result[0];
+    }
+
+    std::vector<UIWidget*>
+    UIManager::getWidgetsByName(const std::string& name, const UIWidget* parent, bool recurse) const noexcept {
+        return getWidgetsHelper([&name](const UIWidget* widget) {
+            return widget->name_ == name;
+        }, false, 0, parent, recurse);
+    }
+
     UIWidget* UIManager::getWidgetThat(
             const std::function<bool(const UIWidget*)>& pred, const UIWidget* parent, bool recurse) const {
 
@@ -73,6 +92,20 @@ namespace corn {
 
     std::vector<UIWidget*> UIManager::getAllActiveWidgets(const UIWidget* parent, bool recurse) const noexcept {
         return this->getWidgetsHelper(nullptr, true, 0, parent, recurse);
+    }
+
+    void UIManager::clear() noexcept {
+        // Reset hovered widgets
+        this->hoveredWidgets_.clear();
+        this->hoveredWidgetSet_.clear();
+        // Delete child nodes
+        for (auto& [id, node] : this->nodes_) {
+            delete node.widget;
+        }
+        this->nodes_.clear();
+        // Reset root node
+        this->root_.children.clear();
+        this->root_.dirty = false;
     }
 
     void UIManager::tidy() noexcept {
@@ -257,6 +290,9 @@ namespace corn {
         for (Node* child : node->children) {
             UIManager::destroyNode(child);
         }
+        // Remove from hovered
+        std::erase(this->hoveredWidgets_, node->widget);
+        this->hoveredWidgetSet_.erase(node->widget);
         // Destroy self
         UIWidget::WidgetID widgetID = node->widget->getID();
         delete node->widget;
@@ -266,11 +302,10 @@ namespace corn {
     void UIManager::destroyWidget(UIWidget& widget) noexcept {
         Node* node = &this->nodes_.at(widget.getID());
         Node* parent = node->parent;
-        this->destroyNode(node);
         // Removes relation (parent --> node)
-        parent->children.erase(
-                std::remove(parent->children.begin(), parent->children.end(), node),
-                parent->children.end());
+        std::erase(parent->children, node);
+        // Destroy node itself
+        this->destroyNode(node);
     }
 
     const UIManager::Node* UIManager::getNodeFromWidget(const UIWidget* widget) const {

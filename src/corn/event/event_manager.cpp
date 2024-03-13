@@ -58,10 +58,9 @@ namespace corn {
     bool EventManager::removePrivateRoom(EventManager* manager) noexcept {
         EventManager& instance = EventManager::privateInstance();
         std::vector<EventManager*>& rooms = instance.privateRooms_;
-        auto newEnd = std::remove(rooms.begin(), rooms.end(), manager);
-        if (newEnd == rooms.end()) return false;
-        rooms.erase(newEnd, rooms.end());
-        return true;
+        size_t original_size = rooms.size();
+        std::erase(rooms, manager);
+        return original_size != rooms.size();
     }
 
     EventManager::ListenerID EventManager::addListener(const std::string &eventType, const Action& listener) noexcept {

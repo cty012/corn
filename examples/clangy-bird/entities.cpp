@@ -2,7 +2,7 @@
 #include <corn/media.h>
 #include "components.h"
 #include "constants.h"
-#include "etities.h"
+#include "entities.h"
 
 corn::Entity* createCamera(corn::EntityManager& entityManager) {
     corn::Entity* camera = &entityManager.createEntity("camera");

@@ -3,7 +3,7 @@
 #include <corn/core.h>
 #include <corn/ecs.h>
 #include <corn/event.h>
-#include "etities.h"
+#include "entities.h"
 
 /// A system for managing wall creation and deletion
 class WallManager : public corn::System {
