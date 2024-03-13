@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <corn/util/string_utils.h>
-#include <utility.h>
+#include "utility.h"
 
 namespace corn::test::string_utils {
     TEST(StringUtils, trim) {
