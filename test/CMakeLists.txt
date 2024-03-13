@@ -7,7 +7,7 @@ file(GLOB_RECURSE TEST_SOURCES "${CMAKE_SOURCE_DIR}/test/*.cpp")
 add_executable(test ${TEST_HEADERS} ${TEST_SOURCES})
 set_target_properties(test PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${TEST_OUTPUT_DIR}")
 target_include_directories(test PRIVATE
-        ${GTEST_INCLUDE_DIRS}
+        "${GTEST_INCLUDE_DIRS}"
         "${CMAKE_SOURCE_DIR}/test/common"
         "${CMAKE_SOURCE_DIR}/include"
 )
@@ -18,8 +18,8 @@ if (NOT ${CORN_OUTPUT_DIR} STREQUAL ${TEST_OUTPUT_DIR})
             TARGET test
             POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                ${CORN_OUTPUT_PATH}
-                ${TEST_OUTPUT_DIR}
+                "${CORN_OUTPUT_PATH}"
+                "${TEST_OUTPUT_DIR}"
             COMMENT "Copied corn DLL to test output directory"
     )
 endif ()

@@ -46,4 +46,35 @@ namespace corn::test {
 
     template <>
     bool VectorsEqual<std::u8string>(const std::vector<std::u8string>& vec1, const std::vector<std::u8string>& vec2);
+
+    template <typename T1, typename T2>
+    bool UnorderedMapsEqual(const std::unordered_map<T1, T2>& map1, const std::unordered_map<T1, T2>& map2) {
+        // Check if sizes are equal
+        EXPECT_EQ_RETURN(map1.size(), map2.size(), false);
+
+        for (const auto& pair : map1) {
+            auto it = map2.find(pair.first);
+            // Check if key exists in map2
+            EXPECT_EQ_RETURN(it == map2.end(), false, (
+                    std::cout << "  Key \"" << pair.first << "\" not found in second map." << std::endl,
+                            false
+            ));
+            // Check if corresponding values are equal
+            EXPECT_EQ_RETURN(pair.second, it->second, (
+                    std::cout << "  Key \"" << pair.first << "\" mismatch:\n    first map: \""
+                              << pair.second << "\"\n" << "    second map: \"" << it->second << "\"" << std::endl,
+                            false
+            ));
+        }
+
+        // Optional: Check for keys in map2 that are not in map1
+        for (const auto& pair : map2) {
+            EXPECT_EQ_RETURN(map1.find(pair.first) == map1.end(), false, (
+                    std::cout << "  Key \"" << pair.first << "\" not found in first map." << std::endl,
+                            false
+            ));
+        }
+
+        return true;
+    }
 }
