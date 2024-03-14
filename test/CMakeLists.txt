@@ -14,12 +14,11 @@ target_include_directories(test PRIVATE
 target_link_libraries(test ${GTEST_BOTH_LIBRARIES} corn)
 
 if (NOT ${CORN_OUTPUT_DIR} STREQUAL ${TEST_OUTPUT_DIR})
-    add_custom_command(
-            TARGET test
-            POST_BUILD
+    add_custom_target(test_corn ALL
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${CORN_OUTPUT_PATH}"
                 "${TEST_OUTPUT_DIR}"
             COMMENT "Copied corn DLL to test output directory"
     )
+    add_dependencies(test test_corn)
 endif ()
