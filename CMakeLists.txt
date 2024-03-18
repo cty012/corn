@@ -1,12 +1,20 @@
 cmake_minimum_required(VERSION 3.22)
+
+# CMake cache variables
+option(BUILD_EXAMPLES "Build the example programs in the `examples/` folder." ON)
+option(BUILD_TESTS "Build the test cases in the `test/` folder." OFF)
+
+if (BUILD_TESTS)
+    enable_testing()
+    set(VCPKG_MANIFEST_FEATURES "${VCPKG_MANIFEST_FEATURES};tests")
+endif ()
+
+# Project settings
 project(corn VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 20)
 set(DEPS_PATH "${CMAKE_SOURCE_DIR}/deps")
 list(APPEND CMAKE_PREFIX_PATH "${DEPS_PATH}")
-
-option(BUILD_EXAMPLES "Build the example programs in the `examples/` folder." ON)
-option(BUILD_TESTS "Build the test cases in the `test/` folder." OFF)
 
 # Output directories
 set(CORN_OUTPUT_DIR "${CMAKE_BINARY_DIR}/lib")

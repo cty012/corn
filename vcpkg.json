@@ -5,5 +5,13 @@
   "dependencies": [
     "sfml",
     "icu"
-  ]
+  ],
+  "features": {
+    "tests": {
+      "description": "Test suites built with Google Test",
+      "dependencies": [
+        "gtest"
+      ]
+    }
+  }
 }

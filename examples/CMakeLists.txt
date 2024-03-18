@@ -32,13 +32,13 @@ function (build_example EXAMPLE_NAME)
     add_dependencies(${EXAMPLE_NAME} examples)
 
     # Copy corn DLL
-    add_custom_target(${EXAMPLE_NAME}_corn ALL
+    add_custom_target(${EXAMPLE_NAME}_dll ALL
             COMMAND ${CMAKE_COMMAND} -E echo "Copying DLL..."
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${CORN_OUTPUT_PATH}"
                 "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}"
     )
-    add_dependencies(${EXAMPLE_NAME} ${EXAMPLE_NAME}_corn)
+    add_dependencies(${EXAMPLE_NAME} ${EXAMPLE_NAME}_dll)
 
     # Copy resources folder
     file(GLOB_RECURSE RESOURCES "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}/resources/*")

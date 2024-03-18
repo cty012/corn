@@ -32,56 +32,49 @@ You will need to replace placeholders with actual values for your setup.
 For `<path_to_vcpkg>`, use the full path where vcpkg is installed on your system.
 
 ### MSVC (Windows):
-1. Install the dependencies using `vcpkg`:
-   ```shell
-   vcpkg install --triplet x64-windows-static-md
-   ```
-2. Build the project with `CMake`:
-   ```shell
-   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static-md
-   cmake --build build --config Release
-   ```
+Build the project with `CMake`:
+```shell
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static-md
+cmake --build build --config Release
+```
 
 ### MinGW-w64 (Windows):
 > **Warning:** ICU might not compile using MinGW. MSVC is recommended on Windows systems.
-1. Install the dependencies using `vcpkg`:
-   ```shell
-   vcpkg install --triplet x64-mingw-static
-   ```
-2. Build the project with `CMake`:
-   ```shell
-   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-static
-   cmake --build build --config Release
-   ```
+
+Build the project with `CMake`:
+```shell
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-mingw-static
+cmake --build build --config Release
+```
 
 ### Clang (macOS):
 1. Ensure `autoconf`, `autoconf-archive`, `automake`, `libtool`, and `pkg-config` are installed (required by some dependencies):
    ```shell
    brew install autoconf autoconf-archive automake libtool pkg-config
    ```
-2. Install the dependencies using `vcpkg`:
-   ```shell
-   vcpkg install --triplet <cpu_arch>-osx-release
-   ```
-   Replace `<cpu_arch>` with `arm64` for Apple Silicon (M1/M2) or `x64` for Intel-based Macs.
-3. Build the project with `CMake`:
+2. Build the project with `CMake`:
    ```shell
    cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=<Cpu_arch>-osx-release
    cmake --build build --config Release
    ```
 
 ### GCC (Linux):
-1. Install SFML 2.6 and ICU using `vcpkg`:
-   ```shell
-   vcpkg install --triplet x64-linux-release
-   ```
-2. Build the project with `CMake`:
-   ```shell
-   cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux-release
-   cmake --build build --config Release
-   ```
+Build the project with `CMake`:
+```shell
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-linux-release
+cmake --build build --config Release
+```
 
 After building, you'll find the compiled dynamic library in the `build` directory.
+
+## Installation
+Install the library by running the following command in the project root:
+```shell
+cmake --install <build_folder>
+```
+This will install the library into the `dist` folder.
+Replace `<build_folder>` with the directory where you built the library.
+For both debug and release builds, repeat the command with the respective build folders.
 
 ## Documentation
 The documentation of this project is generated using [Doxygen](https://www.doxygen.nl/).
