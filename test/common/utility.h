@@ -47,6 +47,41 @@ namespace corn::test {
     template <>
     bool VectorsEqual<std::u8string>(const std::vector<std::u8string>& vec1, const std::vector<std::u8string>& vec2);
 
+    template <typename T>
+    bool MappedVectorsEqual_(const std::vector<T>& vec1, const std::vector<T>& vec2,
+                             const std::function<std::string(const T&)>& func) {
+
+        EXPECT_EQ_RETURN(vec1.size(), vec2.size(), false);
+        bool result = true;
+        for (size_t i = 0; i < vec1.size(); i++) {
+            bool temp = func(vec1[i]) == func(vec2[i]);
+            EXPECT_TRUE(temp);
+            if (!temp) result = false;
+        }
+        EXPECT_TRUE(result);
+        return result;
+    }
+
+    template <typename T>
+    bool MappedVectorsEqual(const std::vector<T>& vec1, const std::vector<T>& vec2,
+                            const std::function<std::string(const T&)>& func) {
+
+        bool result = MappedVectorsEqual_(vec1, vec2, func);
+        if (!result) {
+            std::cout << "  Vector 1: {" << std::endl;
+            for (const T& item: vec1) {
+                std::cout << "    [" << func(item) << "]" << std::endl;
+            }
+            std::cout << std::endl << "  }" << std::endl;
+            std::cout << "  Vector 2: {" << std::endl << "    ";
+            for (const T& item: vec2) {
+                std::cout << "    [" << func(item) << "]" << std::endl;
+            }
+            std::cout << std::endl << "  }" << std::endl;
+        }
+        return result;
+    }
+
     template <typename T1, typename T2>
     bool UnorderedMapsEqual(const std::unordered_map<T1, T2>& map1, const std::unordered_map<T1, T2>& map2) {
         // Check if sizes are equal

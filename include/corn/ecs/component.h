@@ -92,6 +92,20 @@ namespace corn {
         int zOrder_;
     };
 
+    struct CLines : public Component {
+        /// @brief A vector of vertices.
+        std::vector<Vec2> vertices;
+
+        /// @brief thickness of the lines.
+        float thickness;
+
+        /// @brief Whether there is a connection between the last point and the first point.
+        bool closed;
+
+        /// @brief Constructor.
+        CLines(Entity& entity, std::vector<Vec2> vertices, float thickness, bool closed = false) noexcept;
+    };
+
     /**
      * @class CSprite
      * @brief Stores the image of the entity. A 2D entity is only rendered if it has a CSprite Component and a

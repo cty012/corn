@@ -5,6 +5,7 @@
 #include <corn/geometry.h>
 #include <corn/media.h>
 #include <corn/ui.h>
+#include <corn/util/constants.h>
 #include <corn/util/string_utils.h>
 #include "camera_viewport_impl.h"
 #include "font_impl.h"
@@ -193,19 +194,44 @@ namespace corn {
         scaleTransform.scale(cameraScale.x, cameraScale.y);
 
         // Render entities
-        for (Entity* entity: scene->getEntityManager().getActiveEntitiesWith<CTransform2D, CSprite>()) {
+        for (Entity* entity: scene->getEntityManager().getActiveEntitiesWith<CTransform2D>()) {
             auto transform = entity->getComponent<CTransform2D>();
-            auto sprite = entity->getComponent<CSprite>();
-            if (!sprite->active || !sprite->image || !sprite->image->impl_) continue;
 
-            auto [worldLocation, worldRotation] = transform->getWorldTransform();
-            auto [ancX, ancY] = worldLocation - cameraOffset;
-            auto [locX, locY] = sprite->location;
-            sf::Sprite& sfSprite = sprite->image->impl_->sfSprite;
-            sfSprite.setOrigin(-locX, -locY);
-            sfSprite.setPosition(ancX, ancY);
-            sfSprite.setRotation(-worldRotation.get());
-            camera->viewport.impl_->texture.draw(sfSprite, scaleTransform);
+            // Sprite
+            auto sprite = entity->getComponent<CSprite>();
+            if (sprite && sprite->active && sprite->image && sprite->image->impl_) {
+                auto [worldLocation, worldRotation] = transform->getWorldTransform();
+                auto [ancX, ancY] = worldLocation - cameraOffset;
+                auto [locX, locY] = sprite->location;
+                sf::Sprite& sfSprite = sprite->image->impl_->sfSprite;
+                sfSprite.setOrigin(-locX, -locY);
+                sfSprite.setPosition(ancX, ancY);
+                sfSprite.setRotation(-worldRotation.get());
+                camera->viewport.impl_->texture.draw(sfSprite, scaleTransform);
+            }
+
+            // Lines
+            auto lines = entity->getComponent<CLines>();
+            if (lines && lines->active && lines->vertices.size() > 1) {
+                auto [worldLocation, worldRotation] = transform->getWorldTransform();
+                auto [ancX, ancY] = worldLocation - cameraOffset;
+
+                for (size_t i = 0; (lines->closed ? i : i + 1) < lines->vertices.size(); i++) {
+                    auto [startX, startY] = lines->vertices[i];
+                    auto [endX, endY] = lines->vertices[(i + 1) % lines->vertices.size()];
+                    float diffX = endX - startX, diffY = endY - startY;
+                    float length = std::sqrt(diffX * diffX + diffY * diffY);
+                    float angle = std::atan2(diffY, diffX) * 180.0f / (float)PI;
+
+                    sf::RectangleShape line;
+                    line.setSize(sf::Vector2f(length, lines->thickness));
+                    line.setOrigin(0, 0);
+                    line.setPosition(ancX + startX, ancY + startY);
+                    line.setFillColor(sf::Color::Black);
+                    line.setRotation(-worldRotation.get() + angle);
+                    camera->viewport.impl_->texture.draw(line, scaleTransform);
+                }
+            }
         }
         camera->viewport.impl_->texture.display();
 

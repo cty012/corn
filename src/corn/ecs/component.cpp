@@ -66,6 +66,9 @@ namespace corn {
         this->getScene().getEventManager().emit(EventArgsEntityZOrderChange(&this->getEntity()));
     }
 
+    CLines::CLines(Entity& entity, std::vector<Vec2> vertices, float thickness, bool closed) noexcept
+            : Component(entity), vertices(std::move(vertices)), thickness(thickness), closed(closed) {}
+
     CSprite::CSprite(Entity& entity, Image *image, Vec2 location) noexcept
             : Component(entity), image(image), location(location) {}
 
