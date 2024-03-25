@@ -96,6 +96,7 @@ namespace corn {
         void setZOrder(int zOrder) noexcept;
 
         // Other getters & setters
+        // Units: px, %pw, %ph (percentage parent width/height), %nw, %nh (percentage natural width/height)
         [[nodiscard]] const Expression<5>& getX() const noexcept;
         void setX(const std::string& expression);
         [[nodiscard]] const Expression<5>& getY() const noexcept;

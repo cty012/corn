@@ -34,7 +34,7 @@ namespace corn {
     public:
         /**
          * @brief Constructor.
-         * @param startScene Starting scene on the scene stack.
+         * @param startScene Starting scene on the scene stack. Memory managed by the Game class.
          * @param config Game's config data. Uses default values if not provided.
          */
         explicit Game(Scene* startScene, Config config = Config());
