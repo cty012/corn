@@ -88,6 +88,10 @@ target_link_libraries(corn PRIVATE sfml-audio sfml-graphics sfml-network sfml-sy
 find_package(ICU REQUIRED COMPONENTS uc i18n data)
 target_link_libraries(corn PRIVATE ICU::uc ICU::i18n ICU::data)
 
+# Link with earcut
+find_path(EARCUT_HPP_INCLUDE_DIRS "mapbox/earcut.hpp")
+target_include_directories(corn PRIVATE "${EARCUT_HPP_INCLUDE_DIRS}")
+
 # Build examples
 if (BUILD_EXAMPLES)
     add_subdirectory("examples")

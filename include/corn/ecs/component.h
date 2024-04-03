@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <corn/geometry/deg.h>
 #include <corn/geometry/vec2.h>
 #include <corn/geometry/vec3.h>
@@ -96,7 +97,7 @@ namespace corn {
         /// @brief A vector of vertices.
         std::vector<Vec2> vertices;
 
-        /// @brief thickness of the lines.
+        /// @brief Thickness of the edges. If thickness is less than or equal to 0 then fill the polygon.
         float thickness;
 
         /// @brief Whether there is a connection between the last point and the first point.
@@ -104,6 +105,30 @@ namespace corn {
 
         /// @brief Constructor.
         CLines(Entity& entity, std::vector<Vec2> vertices, float thickness, bool closed = false) noexcept;
+    };
+
+    struct CPolygon : public Component {
+        /// @brief Thickness of the edges. If thickness is less than or equal to 0 then fill the polygon.
+        float thickness;
+
+        /// @brief Constructor.
+        CPolygon(Entity& entity, std::vector<std::vector<Vec2>> vertices, float thickness) noexcept;
+
+        /// @brief Getter of the vertices
+        [[nodiscard]] const std::vector<std::vector<Vec2>>& getVertices() const noexcept;
+
+        /// @brief Setter of the vertices
+        void setVertices(std::vector<std::vector<Vec2>> vertices);
+
+        /// @return List of triangles as the result of triangulation.
+        [[nodiscard]] const std::vector<std::array<Vec2, 3>>& getTriangles() const noexcept;
+
+    private:
+        /// @brief First element is the boundary. Subsequent elements are holes.
+        std::vector<std::vector<Vec2>> vertices_;
+
+        /// @brief A list of triangles (result of triangulation)
+        std::vector<std::array<Vec2, 3>> triangles_;
     };
 
     /**

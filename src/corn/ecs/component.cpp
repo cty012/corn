@@ -1,4 +1,4 @@
-#include <array>
+#include <mapbox/earcut.hpp>
 #include <corn/core/scene.h>
 #include <corn/ecs/component.h>
 #include <corn/ecs/entity.h>
@@ -68,6 +68,54 @@ namespace corn {
 
     CLines::CLines(Entity& entity, std::vector<Vec2> vertices, float thickness, bool closed) noexcept
             : Component(entity), vertices(std::move(vertices)), thickness(thickness), closed(closed) {}
+
+    CPolygon::CPolygon(Entity& entity, std::vector<std::vector<Vec2>> vertices, float thickness) noexcept
+            : Component(entity), thickness(thickness) {
+
+        this->setVertices(std::move(vertices));
+    }
+
+    const std::vector<std::vector<Vec2>>& CPolygon::getVertices() const noexcept {
+        return this->vertices_;
+    }
+
+    void CPolygon::setVertices(std::vector<std::vector<Vec2>> vertices) {
+        this->vertices_ = std::move(vertices);
+
+        // Flatten the vertices
+        std::vector<Vec2> flattened;
+        size_t totalSize = 0;
+        for (const std::vector<Vec2>& ring : this->vertices_) {
+            totalSize += ring.size();
+        }
+        flattened.reserve(totalSize);
+        for (const std::vector<Vec2>& ring : this->vertices_) {
+            flattened.insert(flattened.end(), ring.begin(), ring.end());
+        }
+
+        // Triangulation
+        using Point = std::array<float, 2>;
+        std::vector<std::vector<Point>> earcutInput;
+        for (const std::vector<Vec2>& ring : this->vertices_) {
+            std::vector<Point>& back = earcutInput.emplace_back();
+            back.reserve(ring.size());
+            for (const Vec2& coord : ring) {
+                back.push_back({ coord.x, coord.y });
+            }
+        }
+
+        std::vector<size_t> indices = mapbox::earcut<size_t>(earcutInput);
+
+        // Unflatten and store the triangle indices
+        this->triangles_.clear();
+        for (size_t i = 0; i * 3 + 2 < indices.size(); i++) {
+            this->triangles_.push_back({ flattened[indices[i * 3 + 0]], flattened[indices[i * 3 + 1]], flattened[indices[i * 3 + 2]] });
+        }
+    }
+
+    const std::vector<std::array<Vec2, 3>>& CPolygon::getTriangles() const noexcept {
+        return this->triangles_;
+    }
 
     CSprite::CSprite(Entity& entity, Image *image, Vec2 location) noexcept
             : Component(entity), image(image), location(location) {}

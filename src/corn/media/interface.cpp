@@ -1,3 +1,4 @@
+#include <array>
 #include <cmath>
 #include <corn/core.h>
 #include <corn/ecs.h>
@@ -193,6 +194,51 @@ namespace corn {
         sf::Transform scaleTransform;
         scaleTransform.scale(cameraScale.x, cameraScale.y);
 
+        // Helper functions
+        auto drawLines =
+        [&cameraOffset, &camera, &cameraScale, &scaleTransform]
+        (CTransform2D* transform, const std::vector<Vec2>& vertices, float thickness, bool closed) -> void {
+            auto [worldLocation, worldRotation] = transform->getWorldTransform();
+            auto [ancX, ancY] = worldLocation - cameraOffset;
+
+            for (size_t i = 0; (closed ? i : i + 1) < vertices.size(); i++) {
+                auto [startX, startY] = vertices[i];
+                auto [endX, endY] = vertices[(i + 1) % vertices.size()];
+                float diffX = endX - startX, diffY = endY - startY;
+                float length = std::sqrt(diffX * diffX + diffY * diffY);
+                float angle = std::atan2(diffY, diffX) * 180.0f / (float)PI;
+
+                sf::RectangleShape line;
+                line.setSize(sf::Vector2f(length, thickness / cameraScale.norm()));
+                line.setOrigin(0, 0);
+                line.setPosition(ancX + startX, ancY + startY);
+                line.setFillColor(sf::Color::Black);
+                line.setRotation(-worldRotation.get() + angle);
+                camera->viewport.impl_->texture.draw(line, scaleTransform);
+            }
+        };
+
+        auto drawPolygon =
+        [&cameraOffset, &camera, &scaleTransform]
+        (CTransform2D* transform, CPolygon* polygon) -> void {
+            auto [worldLocation, worldRotation] = transform->getWorldTransform();
+            auto [ancX, ancY] = worldLocation - cameraOffset;
+
+            const std::vector<std::array<Vec2, 3>>& triangles = polygon->getTriangles();
+            sf::VertexArray varr(sf::Triangles, triangles.size() * 3);
+            for (size_t i = 0; i < triangles.size(); i++) {
+                for (size_t j = 0; j < 3; j++) {
+                    varr[i * 3 + j].position = sf::Vector2f(ancX + triangles[i][j].x, ancY + triangles[i][j].y);
+                    varr[i * 3 + j].color = sf::Color::Cyan;
+                }
+            }
+
+            sf::Transform rotateTransform;
+            rotateTransform.rotate(-worldRotation.get());
+
+            camera->viewport.impl_->texture.draw(varr, rotateTransform * scaleTransform);
+        };
+
         // Render entities
         for (Entity* entity: scene->getEntityManager().getActiveEntitiesWith<CTransform2D>()) {
             auto transform = entity->getComponent<CTransform2D>();
@@ -210,27 +256,22 @@ namespace corn {
                 camera->viewport.impl_->texture.draw(sfSprite, scaleTransform);
             }
 
+            // Polygon
+            auto polygon = entity->getComponent<CPolygon>();
+            if (polygon && polygon->active && !polygon->getVertices().empty()) {
+                if (polygon->thickness > 0) {
+                    for (const std::vector<Vec2>& arc : polygon->getVertices()) {
+                        drawLines(transform, arc, polygon->thickness, true);
+                    }
+                } else {
+                    drawPolygon(transform, polygon);
+                }
+            }
+
             // Lines
             auto lines = entity->getComponent<CLines>();
             if (lines && lines->active && lines->vertices.size() > 1) {
-                auto [worldLocation, worldRotation] = transform->getWorldTransform();
-                auto [ancX, ancY] = worldLocation - cameraOffset;
-
-                for (size_t i = 0; (lines->closed ? i : i + 1) < lines->vertices.size(); i++) {
-                    auto [startX, startY] = lines->vertices[i];
-                    auto [endX, endY] = lines->vertices[(i + 1) % lines->vertices.size()];
-                    float diffX = endX - startX, diffY = endY - startY;
-                    float length = std::sqrt(diffX * diffX + diffY * diffY);
-                    float angle = std::atan2(diffY, diffX) * 180.0f / (float)PI;
-
-                    sf::RectangleShape line;
-                    line.setSize(sf::Vector2f(length, lines->thickness));
-                    line.setOrigin(0, 0);
-                    line.setPosition(ancX + startX, ancY + startY);
-                    line.setFillColor(sf::Color::Black);
-                    line.setRotation(-worldRotation.get() + angle);
-                    camera->viewport.impl_->texture.draw(line, scaleTransform);
-                }
+                drawLines(transform, lines->vertices, lines->thickness, lines->closed);
             }
         }
         camera->viewport.impl_->texture.display();
