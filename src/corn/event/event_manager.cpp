@@ -35,8 +35,7 @@ namespace corn {
     bool EventManager::addRoom(const std::string& room) noexcept {
         EventManager& instance = EventManager::instance();
         if (instance.rooms_.contains(room)) return false;
-        auto* manager = new EventManager();
-        instance.rooms_[room] = manager;
+        instance.rooms_[room] = new EventManager();
         return true;
     }
 

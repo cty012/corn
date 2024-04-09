@@ -54,6 +54,9 @@ namespace corn {
          */
         void setConfig(Config config);
 
+        /// @return The current size of the window in pixels.
+        [[nodiscard]] Vec2 windowSize() const noexcept;
+
         /**
          * @brief Get the currently active scene (the scene on the top of the scene stack).
          * @return The currently active scene if not empty, otherwise null pointer.

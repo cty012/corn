@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <string>
 #include <utility>
 
@@ -22,7 +23,7 @@ namespace corn {
          * @param path Path to the image file.
          * @throw ResourceLoadFailed If the file cannot be loaded successfully.
          */
-        explicit Image(const std::string& path);
+        explicit Image(const std::filesystem::path& path);
 
         /**
          * @brief Creates an empty image with the provided width, height, and color.
