@@ -26,7 +26,7 @@ corn::Entity* createBird(corn::EntityManager& entityManager) {
     bird->addComponent<corn::CGravity2D>();
     corn::Vec2 bottomRight = corn::Vec2(BIRD_WIDTH * 0.5, BIRD_HEIGHT * 0.5);
     corn::Vec2 topLeft = -bottomRight;
-    bird->addComponent<corn::CAABB>(topLeft, bottomRight);
+    bird->addComponent<corn::CBBox>(topLeft, bottomRight);
     bird->addComponent<corn::CSprite>(
             new corn::Image(BIRD_WIDTH, BIRD_HEIGHT, BIRD_COLOR), topLeft);
     return bird;
@@ -52,13 +52,13 @@ corn::Entity* createWall(corn::EntityManager& entityManager, float x) {
 
     // Components of top wall
     top->addComponent<corn::CTransform2D>(corn::Vec2::ZERO());
-    top->addComponent<corn::CAABB>(corn::Vec2::ZERO(), corn::Vec2(WALL_THICKNESS, topWallSize));
+    top->addComponent<corn::CBBox>(corn::Vec2::ZERO(), corn::Vec2(WALL_THICKNESS, topWallSize));
     top->addComponent<corn::CSprite>(new corn::Image(
             (unsigned int)WALL_THICKNESS, (unsigned int)topWallSize, WALL_COLOR));
 
     // Components of bottom wall
     bottom->addComponent<corn::CTransform2D>(corn::Vec2(0, topWallSize + HOLE_SIZE));
-    bottom->addComponent<corn::CAABB>(corn::Vec2::ZERO(), corn::Vec2(WALL_THICKNESS, bottomWallSize));
+    bottom->addComponent<corn::CBBox>(corn::Vec2::ZERO(), corn::Vec2(WALL_THICKNESS, bottomWallSize));
     bottom->addComponent<corn::CSprite>(new corn::Image(
             (unsigned int)WALL_THICKNESS, (unsigned int)bottomWallSize, WALL_COLOR));
 
@@ -72,13 +72,13 @@ void createCeilAndFloor(corn::EntityManager& entityManager) {
     // Components of ceil
     auto ceilTransform = ceil->addComponent<corn::CTransform2D>(corn::Vec2::ZERO());
     ceilTransform->setZOrder(1);
-    ceil->addComponent<corn::CAABB>(corn::Vec2::ZERO(), corn::Vec2(WIDTH, CEIL_THICKNESS));
+    ceil->addComponent<corn::CBBox>(corn::Vec2::ZERO(), corn::Vec2(WIDTH, CEIL_THICKNESS));
     ceil->addComponent<corn::CSprite>(new corn::Image(WIDTH, CEIL_THICKNESS, CEIL_COLOR));
 
     // Components of floor
     auto floorTransform = floor->addComponent<corn::CTransform2D>(
             corn::Vec2(0, HEIGHT - CEIL_THICKNESS));
     floorTransform->setZOrder(1);
-    floor->addComponent<corn::CAABB>(corn::Vec2::ZERO(), corn::Vec2(WIDTH, CEIL_THICKNESS));
+    floor->addComponent<corn::CBBox>(corn::Vec2::ZERO(), corn::Vec2(WIDTH, CEIL_THICKNESS));
     floor->addComponent<corn::CSprite>(new corn::Image(WIDTH, CEIL_THICKNESS, CEIL_COLOR));
 }

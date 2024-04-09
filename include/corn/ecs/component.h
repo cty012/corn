@@ -93,6 +93,33 @@ namespace corn {
         int zOrder_;
     };
 
+    /**
+     * @class CBBox
+     * @brief Axis-aligned bounding box (BBox), or a rectangular box for collision detection.
+     *
+     * The Vec2 for the corners are relative to the world location of the entity. i.e. <0, 0> would refer to the exact
+     * location of the object. Having an invalid set of top left and bottom right corner will result in no collisions.
+     *
+     * Note that the BBox is not affected by rotation.
+     *
+     * @see Component
+     * @see SCollisionDetection
+     * @see CCollisionResolve
+     */
+    struct CBBox : public Component {
+        /// @brief Location of the top left corner.
+        Vec2 tl;
+
+        /// @brief Location of the bottom right corner.
+        Vec2 br;
+
+        /// @brief Constructor.
+        CBBox(Entity& entity, Vec2 tl, Vec2 br) noexcept;
+
+        /// @return Whether the two AABBs overlap.
+        [[nodiscard]] bool overlapWith(const CBBox& other) const noexcept;
+    };
+
     struct CLines : public Component {
         /// @brief A vector of vertices.
         std::vector<Vec2> vertices;
@@ -129,9 +156,21 @@ namespace corn {
         /// @return List of triangles as the result of triangulation.
         [[nodiscard]] const std::vector<std::array<Vec2, 3>>& getTriangles() const noexcept;
 
+        [[nodiscard]] const std::pair<Vec2, Vec2>& getBBox() const noexcept;
+
+        /**
+         * @param point The target point.
+         * @param countEdges Whether lying on the boundary qualifies as contained.
+         * @return Whether the point is contained inside the polygon.
+         */
+        [[nodiscard]] bool contains(const Vec2& point, bool countEdges) const noexcept;
+
     private:
         /// @brief First element is the boundary. Subsequent elements are holes.
         std::vector<std::vector<Vec2>> vertices_;
+
+        /// @brief The axis-aligned bounding box.
+        std::pair<Vec2, Vec2> bBox;
 
         /// @brief A list of triangles (result of triangulation)
         std::vector<std::array<Vec2, 3>> triangles_;
@@ -208,33 +247,6 @@ namespace corn {
 
         /// @brief Constructor.
         explicit CGravity2D(Entity& entity, float scale = 1.0f) noexcept;
-    };
-
-    /**
-     * @class CAABB
-     * @brief Axis-aligned bounding box (AABB), or a rectangular box for collision detection.
-     *
-     * The Vec2 for the corners are relative to the world location of the entity. i.e. <0, 0> would refer to the exact
-     * location of the object. Having an invalid set of top left and bottom right corner will result in no collisions.
-     *
-     * Note that the AABB is not affected by rotation.
-     *
-     * @see Component
-     * @see SCollisionDetection
-     * @see CCollisionResolve
-     */
-    struct CAABB : public Component {
-        /// @brief Location of the top left corner.
-        Vec2 tl;
-
-        /// @brief Location of the bottom right corner.
-        Vec2 br;
-
-        /// @brief Constructor.
-        CAABB(Entity& entity, Vec2 tl, Vec2 br) noexcept;
-
-        /// @return Whether the two AABBs overlap.
-        [[nodiscard]] bool overlapWith(const CAABB& other) const noexcept;
     };
 
     enum class CameraType { _2D, _3D };

@@ -53,13 +53,13 @@ namespace corn {
     SCollisionDetection::SCollisionDetection(Scene& scene) noexcept : System(scene) {}
 
     void SCollisionDetection::update(float) {
-        std::vector<Entity*> entities = this->getScene().getEntityManager().getActiveEntitiesWith<CTransform2D, CAABB>();
+        std::vector<Entity*> entities = this->getScene().getEntityManager().getActiveEntitiesWith<CTransform2D, CBBox>();
         for (size_t i = 0; i < entities.size(); i++) {
             for (size_t j = i + 1; j < entities.size(); j++) {
-                auto* aabb1 = entities[i]->getComponent<CAABB>();
-                auto* aabb2 = entities[j]->getComponent<CAABB>();
-                if (!aabb1->active || !aabb2->active || !aabb1->overlapWith(*aabb2)) continue;
-                this->getScene().getEventManager().emit(EventArgsCollision(aabb1, aabb2));
+                auto* bBox1 = entities[i]->getComponent<CBBox>();
+                auto* bBox2 = entities[j]->getComponent<CBBox>();
+                if (!bBox1->active || !bBox2->active || !bBox1->overlapWith(*bBox2)) continue;
+                this->getScene().getEventManager().emit(EventArgsCollision(bBox1, bBox2));
             }
         }
     }

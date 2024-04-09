@@ -173,7 +173,7 @@ namespace corn {
         EventArgsScene(SceneOperation op, Scene* scene) noexcept;
     };
 
-    struct CAABB;
+    struct CBBox;
 
     /**
      * @class EventArgsCollision
@@ -183,13 +183,13 @@ namespace corn {
         [[nodiscard]] constexpr const char* type() const noexcept override { return "corn::game::collision"; }
 
         /// @brief First collider component.
-        CAABB* collider1;
+        CBBox* collider1;
 
         /// @brief Second collider component.
-        CAABB* collider2;
+        CBBox* collider2;
 
         /// @brief Constructor.
-        EventArgsCollision(CAABB* collider1, CAABB* collider2) noexcept;
+        EventArgsCollision(CBBox* collider1, CBBox* collider2) noexcept;
     };
 
     class UIWidget;
