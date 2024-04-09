@@ -197,9 +197,10 @@ namespace corn {
         // Helper functions
         auto drawLines =
         [&cameraOffset, &camera, &cameraScale, &scaleTransform]
-        (CTransform2D* transform, const std::vector<Vec2>& vertices, float thickness, bool closed) -> void {
+        (CTransform2D* transform, const std::vector<Vec2>& vertices, float thickness, const Color& color, bool closed) -> void {
             auto [worldLocation, worldRotation] = transform->getWorldTransform();
             auto [ancX, ancY] = worldLocation - cameraOffset;
+            auto [r, g, b, a] = color.getRGBA();
 
             for (size_t i = 0; (closed ? i : i + 1) < vertices.size(); i++) {
                 auto [startX, startY] = vertices[i];
@@ -212,7 +213,7 @@ namespace corn {
                 line.setSize(sf::Vector2f(length, thickness / cameraScale.norm()));
                 line.setOrigin(0, 0);
                 line.setPosition(ancX + startX, ancY + startY);
-                line.setFillColor(sf::Color::Black);
+                line.setFillColor(sf::Color{ r, g, b, a });
                 line.setRotation(-worldRotation.get() + angle);
                 camera->viewport.impl_->texture.draw(line, scaleTransform);
             }
@@ -223,13 +224,14 @@ namespace corn {
         (CTransform2D* transform, CPolygon* polygon) -> void {
             auto [worldLocation, worldRotation] = transform->getWorldTransform();
             auto [ancX, ancY] = worldLocation - cameraOffset;
+            auto [r, g, b, a] = polygon->color.getRGBA();
 
             const std::vector<std::array<Vec2, 3>>& triangles = polygon->getTriangles();
             sf::VertexArray varr(sf::Triangles, triangles.size() * 3);
             for (size_t i = 0; i < triangles.size(); i++) {
                 for (size_t j = 0; j < 3; j++) {
                     varr[i * 3 + j].position = sf::Vector2f(ancX + triangles[i][j].x, ancY + triangles[i][j].y);
-                    varr[i * 3 + j].color = sf::Color::Cyan;
+                    varr[i * 3 + j].color = sf::Color{ r, g, b, a };
                 }
             }
 
@@ -261,7 +263,7 @@ namespace corn {
             if (polygon && polygon->active && !polygon->getVertices().empty()) {
                 if (polygon->thickness > 0) {
                     for (const std::vector<Vec2>& arc : polygon->getVertices()) {
-                        drawLines(transform, arc, polygon->thickness, true);
+                        drawLines(transform, arc, polygon->thickness, polygon->color, true);
                     }
                 } else {
                     drawPolygon(transform, polygon);
@@ -271,7 +273,7 @@ namespace corn {
             // Lines
             auto lines = entity->getComponent<CLines>();
             if (lines && lines->active && lines->vertices.size() > 1) {
-                drawLines(transform, lines->vertices, lines->thickness, lines->closed);
+                drawLines(transform, lines->vertices, lines->thickness, lines->color, lines->closed);
             }
         }
         camera->viewport.impl_->texture.display();

@@ -66,11 +66,11 @@ namespace corn {
         this->getScene().getEventManager().emit(EventArgsEntityZOrderChange(&this->getEntity()));
     }
 
-    CLines::CLines(Entity& entity, std::vector<Vec2> vertices, float thickness, bool closed) noexcept
-            : Component(entity), vertices(std::move(vertices)), thickness(thickness), closed(closed) {}
+    CLines::CLines(Entity& entity, std::vector<Vec2> vertices, float thickness, const Color& color, bool closed) noexcept
+            : Component(entity), vertices(std::move(vertices)), thickness(thickness), color(color), closed(closed) {}
 
-    CPolygon::CPolygon(Entity& entity, std::vector<std::vector<Vec2>> vertices, float thickness) noexcept
-            : Component(entity), thickness(thickness) {
+    CPolygon::CPolygon(Entity& entity, std::vector<std::vector<Vec2>> vertices, float thickness, const Color& color) noexcept
+            : Component(entity), thickness(thickness), color(color) {
 
         this->setVertices(std::move(vertices));
     }

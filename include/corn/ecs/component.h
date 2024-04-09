@@ -100,19 +100,25 @@ namespace corn {
         /// @brief Thickness of the edges. If thickness is less than or equal to 0 then fill the polygon.
         float thickness;
 
+        /// @brief Color of the edges.
+        Color color;
+
         /// @brief Whether there is a connection between the last point and the first point.
         bool closed;
 
         /// @brief Constructor.
-        CLines(Entity& entity, std::vector<Vec2> vertices, float thickness, bool closed = false) noexcept;
+        CLines(Entity& entity, std::vector<Vec2> vertices, float thickness, const Color& color, bool closed = false) noexcept;
     };
 
     struct CPolygon : public Component {
         /// @brief Thickness of the edges. If thickness is less than or equal to 0 then fill the polygon.
         float thickness;
 
+        /// @brief Color of the edges.
+        Color color;
+
         /// @brief Constructor.
-        CPolygon(Entity& entity, std::vector<std::vector<Vec2>> vertices, float thickness) noexcept;
+        CPolygon(Entity& entity, std::vector<std::vector<Vec2>> vertices, float thickness, const Color& color) noexcept;
 
         /// @brief Getter of the vertices
         [[nodiscard]] const std::vector<std::vector<Vec2>>& getVertices() const noexcept;
