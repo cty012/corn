@@ -252,7 +252,7 @@ namespace corn {
 
     CCamera::CCamera(Entity& entity, Vec2 anchor, Color background) noexcept
             : Component(entity), cameraType(CameraType::_2D), background(background), opacity(255),
-            anchor(anchor.vec3(0)) {
+            anchor(anchor.vec3(0)), scale(1.0f) {
 
         this->setViewport("0px", "0px", "100%ww", "100%wh");
         this->setFov("100%vw", "100%vh");
@@ -260,7 +260,8 @@ namespace corn {
     }
 
     CCamera::CCamera(Entity& entity, Vec3 anchor, Color background) noexcept
-            : Component(entity), cameraType(CameraType::_3D), background(background), opacity(255), anchor(anchor) {
+            : Component(entity), cameraType(CameraType::_3D), background(background), opacity(255),
+            anchor(anchor), scale(1.0f) {
 
         this->getScene().getEventManager().emit(EventArgsCamera(CameraEventType::ADD, this));
     }

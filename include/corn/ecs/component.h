@@ -291,6 +291,9 @@ namespace corn {
          */
         Expression<3> fovW, fovH;
 
+        /// @brief Scale of the camera's field of view. Applied after evaluating the expressions.
+        float scale;
+
         /// @brief Constructor for 2D camera.
         CCamera(Entity& entity, Vec2 anchor, Color background = Color::rgb(0, 0, 0, 0)) noexcept;
 

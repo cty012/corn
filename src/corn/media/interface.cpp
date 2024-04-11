@@ -162,8 +162,8 @@ namespace corn {
         // Calculate camera viewport and FOV
         Vec2 viewportSize(camera->viewport.w.calc(1.0f, percentWindowSize.x, percentWindowSize.y),
                           camera->viewport.h.calc(1.0f, percentWindowSize.x, percentWindowSize.y));
-        Vec2 fovSize(camera->fovW.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100),
-                     camera->fovH.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100));
+        Vec2 fovSize(camera->fovW.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale),
+                     camera->fovH.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale));
 
         // Reset the camera viewport
         camera->viewport.impl_->setSize(viewportSize, this->game_.getConfig().antialiasing);
@@ -171,7 +171,7 @@ namespace corn {
         camera->viewport.impl_->texture.clear(sf::Color(r, g, b, a));
 
         // Calculate location of camera
-        Vec2 cameraCenter = camera->getEntity().getComponent<CTransform2D>()->location + camera->anchor.vec2();
+        Vec2 cameraCenter = camera->getEntity().getComponent<CTransform2D>()->getWorldTransform().first + camera->anchor.vec2();
 
         // Return the location and scale
         return { cameraCenter - fovSize * 0.5, { viewportSize.x / fovSize.x, viewportSize.y / fovSize.y } };
