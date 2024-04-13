@@ -1,3 +1,4 @@
+#include <cmath>
 #include <corn/geometry/operations.h>
 #include <corn/geometry/rotation.h>
 #include <corn/geometry/vec2.h>
@@ -35,5 +36,24 @@ namespace corn {
         Quaternion p = { 0, point.x, point.y, point.z };
         Vec4 result = (quaternion * p * quaternion.inv()).val;
         return { result.y, result.z, result.w };  // NOLINT
+    }
+
+    float area(const Vec2& v1, const Vec2& v2, const Vec2& v3) noexcept {
+        return 0.5f * std::abs(v1.x * (v2.y - v3.y) + v2.x * (v3.y - v1.y) + v3.x * (v1.y - v2.y));
+    }
+
+    float area(const Vec3& v1, const Vec3& v2, const Vec3& v3) noexcept {
+        Vec3 ab = v2 - v1;
+        Vec3 ac = v3 - v1;
+        Vec3 crossProduct = cross(ab, ac);
+        return 0.5f * crossProduct.norm();
+    }
+
+    Vec2 centroid(const Vec2& v1, const Vec2& v2, const Vec2& v3) noexcept {
+        return (v1 + v2 + v3) * (1.0f / 3.0f);
+    }
+
+    Vec3 centroid(const Vec3& v1, const Vec3& v2, const Vec3& v3) noexcept {
+        return (v1 + v2 + v3) * (1.0f / 3.0f);
     }
 }

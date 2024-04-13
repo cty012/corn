@@ -165,6 +165,10 @@ namespace corn {
          */
         [[nodiscard]] bool contains(const Vec2& point, bool countEdges) const noexcept;
 
+        [[nodiscard]] float getArea() const noexcept;
+
+        [[nodiscard]] Vec2 getCentroid() const noexcept;
+
     private:
         /// @brief First element is the boundary. Subsequent elements are holes.
         std::vector<std::vector<Vec2>> vertices_;
@@ -172,8 +176,14 @@ namespace corn {
         /// @brief The axis-aligned bounding box.
         std::pair<Vec2, Vec2> bBox;
 
-        /// @brief A list of triangles (result of triangulation)
+        /// @brief A list of triangles (result of triangulation).
         std::vector<std::array<Vec2, 3>> triangles_;
+
+        /// @brief Area of the polygon.
+        float area_;
+
+        /// @brief Centroid of the polygon.
+        Vec2 centroid_;
     };
 
     /**

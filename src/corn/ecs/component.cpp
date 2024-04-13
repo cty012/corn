@@ -87,7 +87,7 @@ namespace corn {
             : Component(entity), vertices(std::move(vertices)), thickness(thickness), color(color), closed(closed) {}
 
     CPolygon::CPolygon(Entity& entity, std::vector<std::vector<Vec2>> vertices, float thickness, const Color& color) noexcept
-            : Component(entity), thickness(thickness), color(color) {
+            : Component(entity), thickness(thickness), color(color), area_(0.0f) {
 
         this->setVertices(std::move(vertices));
     }
@@ -137,6 +137,16 @@ namespace corn {
         for (size_t i = 0; i * 3 + 2 < indices.size(); i++) {
             this->triangles_.push_back({ flattened[indices[i * 3 + 0]], flattened[indices[i * 3 + 1]], flattened[indices[i * 3 + 2]] });
         }
+
+        // Calculate area and centroid
+        this->area_ = 0.0f;
+        this->centroid_ = Vec2::ZERO();
+        for (const auto& [v1, v2, v3] : this->triangles_) {
+            float a = area(v1, v2, v3);
+            this->area_ += a;
+            this->centroid_ += a * centroid(v1, v2, v3);
+        }
+        this->centroid_ *= (1 / this->area_);
     }
 
     const std::vector<std::array<Vec2, 3>>& CPolygon::getTriangles() const noexcept {
@@ -188,6 +198,14 @@ namespace corn {
             float cross3 = (x1 - x3) * (point.y - y3) - (point.x - x3) * (y1 - y3);
             return (cross1 >= 0 && cross2 >= 0 && cross3 >= 0) || (cross1 <= 0 && cross2 <= 0 && cross3 <= 0);
         });
+    }
+
+    float CPolygon::getArea() const noexcept {
+        return this->area_;
+    }
+
+    Vec2 CPolygon::getCentroid() const noexcept {
+        return this->centroid_;
     }
 
     CSprite::CSprite(Entity& entity, Image *image, Vec2 location) noexcept

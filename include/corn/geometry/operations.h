@@ -47,4 +47,36 @@ namespace corn {
     float dist(const Vec& v1, const Vec& v2) noexcept {
         return (v1 - v2).norm();
     }
+
+    /**
+     * @param v1 The first vertex.
+     * @param v2 The second vertex.
+     * @param v3 The third vertex.
+     * @return Area of the triangle in 2D plane.
+     */
+    [[nodiscard]] float area(const Vec2& v1, const Vec2& v2, const Vec2& v3) noexcept;
+
+    /**
+     * @param v1 The first vertex.
+     * @param v2 The second vertex.
+     * @param v3 The third vertex.
+     * @return Area of the triangle in 3D plane.
+     */
+    [[nodiscard]] float area(const Vec3& v1, const Vec3& v2, const Vec3& v3) noexcept;
+
+    /**
+     * @param v1 The first vertex.
+     * @param v2 The second vertex.
+     * @param v3 The third vertex.
+     * @return Centroid of the triangle in 2D plane.
+     */
+    [[nodiscard]] Vec2 centroid(const Vec2& v1, const Vec2& v2, const Vec2& v3) noexcept;
+
+    /**
+     * @param v1 The first vertex.
+     * @param v2 The second vertex.
+     * @param v3 The third vertex.
+     * @return Centroid of the triangle in 3D plane.
+     */
+    [[nodiscard]] Vec3 centroid(const Vec3& v1, const Vec3& v2, const Vec3& v3) noexcept;
 }

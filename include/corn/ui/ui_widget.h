@@ -29,6 +29,17 @@ namespace corn {
     };
 
     /**
+     * @class UIOverflow
+     * @brief Defines the behavior when descendants' geometry exceed the widget's geometry.
+     *
+     * DISPLAY: Display the overflow part.
+     * HIDDEN: Hide the overflow part.
+     */
+    enum class UIOverflow {
+        DISPLAY, HIDDEN,
+    };
+
+    /**
      * @class UIWidget
      * @brief Base class for all UI widgets.
      *
@@ -105,6 +116,9 @@ namespace corn {
         void setW(const std::string& expression);
         [[nodiscard]] const Expression<5>& getH() const noexcept;
         void setH(const std::string& expression);
+
+        [[nodiscard]] UIOverflow getOverflow() const noexcept;
+        void setOverflow(UIOverflow overflow) noexcept;
         [[nodiscard]] const Color& getBackground() const noexcept;
         void setBackground(Color background) noexcept;
         [[nodiscard]] unsigned char getOpacity() const noexcept;
@@ -159,6 +173,9 @@ namespace corn {
 
         /// @brief Whether the four values x, y, w, and h are independent from the parent's geometry.
         std::array<bool, 4> independent_;
+
+        /// @brief The geometric type of the widget. See @UIGeometry for details.
+        UIOverflow overflow_;
 
         /// @brief The background color of the widget.
         Color background_;

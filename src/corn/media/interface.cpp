@@ -291,17 +291,18 @@ namespace corn {
     void Interface::renderUI(UIManager& uiManager) {
         // Calculate window size
         Vec2 windowSize = this->windowSize();
-        sf::View view(sf::FloatRect(0, 0, windowSize.x, windowSize.y));
-        this->impl_->window->setView(view);
 
         // Resolve UI widget location and size
         uiManager.tidy();
         uiManager.calcGeometry(windowSize);
+        // Guaranteed to be from parent to children
         std::vector<UIWidget*> widgets = uiManager.getAllActiveWidgets();
 
-        // Find opacity
+        // Opacity & viewport
         std::unordered_map<const UIWidget*, float> opacities;
+        std::unordered_map<const UIWidget*, std::pair<Vec2, Vec2>> subviewports;
         opacities[nullptr] = 1.0f;
+        subviewports[nullptr] = { { 0, 0 }, { windowSize.x, windowSize.y } };
 
         // Render
         for (UIWidget* widget : widgets) {
@@ -311,6 +312,35 @@ namespace corn {
 
             // Find geometry
             auto [x, y, w, h] = uiManager.getCachedGeometry(widget);  // NOLINT
+
+            // Set view
+            auto [vpul, vpbr] = subviewports[parent];
+            sf::View view({
+                vpul.x,
+                vpul.y,
+                vpbr.x - vpul.x,
+                vpbr.y - vpul.y
+            });
+            view.setViewport({
+                vpul.x / windowSize.x,
+                vpul.y / windowSize.y,
+                (vpbr.x - vpul.x) / windowSize.x,
+                (vpbr.y - vpul.y) / windowSize.y
+            });
+            this->impl_->window->setView(view);
+
+            // Update children viewport
+            switch (widget->getOverflow()) {
+                case UIOverflow::DISPLAY:
+                    break;
+                case UIOverflow::HIDDEN:
+                    vpul.x = std::max(vpul.x, x);
+                    vpul.y = std::max(vpul.y, y);
+                    vpbr.x = std::min(vpbr.x, x + w);
+                    vpbr.y = std::min(vpbr.y, y + h);
+                    break;
+            }
+            subviewports[widget] = { { vpul.x, vpul.y }, { vpbr.x, vpbr.y } };
 
             // Render the background
             sf::RectangleShape boundingRect(sf::Vector2f(w, h));

@@ -64,7 +64,7 @@ namespace corn {
          * @return Pointer to the UI widget created.
          */
         template <WidgetType T, typename... Args>
-        T* createWidget(const std::string& name, const UIWidget* parent, Args&&... args);
+        T& createWidget(const std::string& name, const UIWidget* parent, Args&&... args);
 
         /**
          * @param id ID of the UI widget.
@@ -238,7 +238,7 @@ namespace corn {
     };
 
     template<WidgetType T, typename... Args>
-    T* UIManager::createWidget(const std::string& name, const UIWidget* parent, Args &&... args) {
+    T& UIManager::createWidget(const std::string& name, const UIWidget* parent, Args &&... args) {
         // Verify parent
         Node* parentNode = this->getNodeFromWidget(parent);
 
@@ -254,6 +254,6 @@ namespace corn {
         parentNode->children.push_back(&this->nodes_.at(widget->getID()));
         parentNode->dirty = true;
 
-        return widget;
+        return *widget;
     }
 }
