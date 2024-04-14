@@ -50,7 +50,7 @@ namespace corn {
     bool UIWidget::isActiveInWorld() const noexcept {
         const UIWidget* current = this;
         while (current) {
-            if (!this->active_) return false;
+            if (!current->active_) return false;
             current = current->getParent();
         }
         return true;

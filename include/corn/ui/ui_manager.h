@@ -247,13 +247,15 @@ namespace corn {
         while (this->nodes_.contains(widgetID)) {
             widgetID++;
         }
-        T* widget = new T(widgetID, name, *this, std::forward<Args>(args)...);
 
-        // Create the node
-        this->nodes_.emplace(widget->getID(), Node(widget, parentNode));
-        parentNode->children.push_back(&this->nodes_.at(widget->getID()));
+        // First create the node
+        this->nodes_.emplace(widgetID, Node(nullptr, parentNode));
+        parentNode->children.push_back(&this->nodes_.at(widgetID));
         parentNode->dirty = true;
 
+        // Then create the widget
+        T* widget = new T(widgetID, name, *this, std::forward<Args>(args)...);
+        this->nodes_.at(widgetID).widget = widget;
         return *widget;
     }
 }
