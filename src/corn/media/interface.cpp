@@ -42,6 +42,11 @@ namespace corn {
                 config.title,
                 cornMode2SfStyle(config.mode),
                 contextSettings);
+        if (config.icon) {
+            auto [w, h] = config.icon->getSize();
+            this->impl_->window->setIcon(
+                    (unsigned int)w, (unsigned int)h, config.icon->impl_->image.getPixelsPtr());
+        }
     }
 
     Vec2 Interface::windowSize() const noexcept {
