@@ -62,7 +62,7 @@ namespace corn {
         return original_size != rooms.size();
     }
 
-    EventManager::ListenerID EventManager::addListener(const std::string &eventType, const Action& listener) noexcept {
+    EventManager::ListenerID EventManager::addListener(const std::string& eventType, const Action& listener) noexcept {
         static EventManager::ListenerID listenerId = 0;
         EventManager::ListenerID currentId = listenerId++;
         this->listeners_[eventType].emplace_back(currentId, listener);
@@ -91,7 +91,7 @@ namespace corn {
                 action(args);
             } catch (const std::exception& e) {
                 fprintf(stderr, "Exception occurred when emitting event [%s]: %s\n",
-                        args.type(), e.what());
+                        args.type().c_str(), e.what());
             }
         }
 

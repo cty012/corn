@@ -15,6 +15,7 @@ namespace corn {
             std::vector<std::pair<sf::Text, Color>> contents;
             size_t length;
             Vec2 size;
+            bool precedeWithLineFeed;
 
             Line();
         };

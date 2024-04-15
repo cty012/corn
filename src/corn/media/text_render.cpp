@@ -128,13 +128,14 @@ namespace corn {
                 // Then start a new line
                 currentLine = &this->lines.emplace_back();
                 currentLine->size = { 0.0f, style.size * 1.2f + padding * 2 };
+                currentLine->precedeWithLineFeed = true;
                 continue;
             }
 
-            // If start of new line, skip pure space words
+            // If start of new line (but not preceded by line feed), skip pure space words
             bool notFirstLine = this->lines.size() > 1;
             bool currentLineEmpty = currentLine && currentLine->length == 0 && buffer.empty();
-            if (notFirstLine && currentLineEmpty && isWhitespace(getChar(word))) {
+            if (notFirstLine && currentLineEmpty && !currentLine->precedeWithLineFeed && isWhitespace(getChar(word))) {
                 continue;
             }
 
@@ -158,6 +159,7 @@ namespace corn {
                     start = end;
                     currentLine = &this->lines.emplace_back();
                     currentLine->size = { 0.0f, style.size * 1.2f + padding * 2 };
+                    currentLine->precedeWithLineFeed = false;
                 }
                 // Put the remaining characters in the buffer
                 buffer = std::u8string(start);
@@ -168,6 +170,7 @@ namespace corn {
                 // Wrap to next line and clear buffer
                 currentLine = &this->lines.emplace_back();
                 currentLine->size = { 0.0f, style.size * 1.2f + padding * 2 };
+                currentLine->precedeWithLineFeed = false;
                 buffer.clear();
                 // Stay at current word
                 i--;

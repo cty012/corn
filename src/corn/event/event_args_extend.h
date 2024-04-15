@@ -10,7 +10,7 @@ namespace corn {
      * @brief Emits when the z-order of an entity changes.
      */
     struct EventArgsEntityZOrderChange : public EventArgs {
-        [[nodiscard]] constexpr const char* type() const noexcept override { return "corn::game::ecs::zorder"; }
+        [[nodiscard]] constexpr std::string type() const noexcept override { return "corn::game::ecs::zorder"; }
 
         /// @brief Entity whose z-order changes.
         Entity* entity;
@@ -26,7 +26,7 @@ namespace corn {
      * @brief Emits when the z-order of an entity changes.
      */
     struct EventArgsWidgetZOrderChange : public EventArgs {
-        [[nodiscard]] constexpr const char* type() const noexcept override { return "corn::game::ui::zorder"; }
+        [[nodiscard]] constexpr std::string type() const noexcept override { return "corn::game::ui::zorder"; }
 
         /// @brief Entity whose z-order changes.
         UIWidget* widget;
@@ -43,7 +43,7 @@ namespace corn {
      * @brief Emits when a camera is added to or removed from a scene.
      */
     struct EventArgsCamera : public EventArgs {
-        [[nodiscard]] constexpr const char* type() const noexcept override { return "corn::game::ecs::camera"; }
+        [[nodiscard]] constexpr std::string type() const noexcept override { return "corn::game::ecs::camera"; }
 
         /// @brief Type of the camera event.
         CameraEventType eventType;
