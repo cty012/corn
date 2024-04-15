@@ -33,13 +33,14 @@ namespace corn {
          * @brief Setter for the rich text. Will reset all cached information and recalculate words.
          * @param richText The new rich text.
          */
-        void setRichText(const RichText& richText);
+        void setRichText(const RichText& richText, float padding);
 
         /**
          * @brief Force reset the width of the text.
          * @param width New width of the text. If negative, width limit will be removed.
+         * @param padding The padding above and below the line.
          */
-        void setWidth(float width);
+        void setWidth(float width, float padding);
 
     private:
         /**
@@ -47,18 +48,20 @@ namespace corn {
          * @param segment The segment broken into words.
          * @param style The style of the segment.
          * @param width The width limit.
+         * @param padding The padding above and below each line.
          */
-        void insertSegment(const std::vector<std::u8string>& segment, const TextStyle& style, float width);
+        void insertSegment(const std::vector<std::u8string>& segment, const TextStyle& style, float width, float padding);
 
         /**
          * @brief Helper function. Push the text to the back of the line.
          * @param line The target line to push to.
          * @param str The UTF-8 string to render.
          * @param style The style of the text.
+         * @param padding The padding above and below the line.
          *
          * This function assumes that the current line can fit the text.
          */
-        static void pushTextToLine(TextRenderImpl::Line* line, const std::u8string& str, const TextStyle& style);
+        static void pushTextToLine(TextRenderImpl::Line* line, const std::u8string& str, const TextStyle& style, float padding);
 
         /**
          * @brief Helper function. Inserts as many characters as possible to the given line.
@@ -66,11 +69,12 @@ namespace corn {
          * @param line The target line to push to. Assumed to be empty.
          * @param style The style of the word.
          * @param width The width limit.
+         * @param padding The padding above and below the line.
          * @return Points to the start of the remaining characters.
          *
          * Only use this function if the word is too long to fit in the current
          */
-        static const char8_t* insertCharsToEmptyLine(Line* line, const char8_t* word, const TextStyle& style, float width);
+        static const char8_t* insertCharsToEmptyLine(Line* line, const char8_t* word, const TextStyle& style, float width, float padding);
     };
 
     Vec2 measureTextSize(const std::u8string& str, const TextStyle& style);

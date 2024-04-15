@@ -33,20 +33,20 @@ namespace corn {
         TextRender(const RichText& richText, float width);
 
         /// @brief Getter for the rich text inside.
-        [[nodiscard]] const RichText& getText() const;
+        [[nodiscard]] const RichText& getText() const noexcept;
 
         /// @brief Setter for the rich text inside.
         void setText(const RichText& richText);
 
         /// @return Size of the text area.
-        [[nodiscard]] const Vec2& getSize() const;
+        [[nodiscard]] const Vec2& getSize() const noexcept;
 
         /**
          * @return Natural size of the text area.
          *
          * The natural size of the text is the size of the text if there is no width limit.
          */
-        [[nodiscard]] const Vec2& getNaturalSize() const;
+        [[nodiscard]] const Vec2& getNaturalSize() const noexcept;
 
         /**
          * @brief Set the new width limit of the RichText.
@@ -58,7 +58,16 @@ namespace corn {
         /// @brief Remove any existing width limit.
         void setWidthNoLimit();
 
+        /// @brief Getter for the line padding.
+        [[nodiscard]] float getLinePadding() const noexcept;
+
+        /// @brief Setter for the line padding.
+        void setLinePadding(float linePadding);
+
     private:
+        /// @brief Line padding. Space added to both top and bottom of line.
+        float linePadding_;
+
         /// @brief Pimpl idiom.
         class TextRenderImpl;
         TextRenderImpl* impl_;

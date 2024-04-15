@@ -82,5 +82,13 @@ namespace corn {
          * @return A reference to the rich text itself.
          */
         RichText& addText(const std::u8string& text, TextStyle style) noexcept;
+
+        /**
+         * @brief Appends a segment with the specified text string and text style.
+         * @param text The text string.
+         * @param style The text style.
+         * @return A reference to the rich text itself.
+         */
+        RichText& addText(const std::string& text, TextStyle style) noexcept;
     };
 }

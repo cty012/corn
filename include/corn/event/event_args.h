@@ -18,7 +18,7 @@ namespace corn {
      * @example
      * ```
      * class EventArgsExample : public EventArgs {
-     *     constexpr const char* type() const override { return "example"; }
+     *     const char* type() const override { return "example"; }
      *     int param;
      * };
      * EventManager::instance().addListener("example", [](const EventArgs& args) {
@@ -30,7 +30,7 @@ namespace corn {
      */
     struct EventArgs {
         /// @return Type of the event. Different events must have different types.
-        [[nodiscard]] virtual constexpr const char* type() const noexcept = 0;
+        [[nodiscard]] virtual const char* type() const noexcept = 0;
 
         /// @brief Destructor.
         virtual ~EventArgs();
