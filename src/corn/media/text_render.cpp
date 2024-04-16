@@ -49,11 +49,11 @@ namespace corn {
         }
     }
 
-    TextRender::TextRender(const RichText& richText) : impl_(new TextRenderImpl(richText)), linePadding_(0.0f) {
+    TextRender::TextRender(const RichText& richText) : linePadding_(0.0f), impl_(new TextRenderImpl(richText)) {
         this->setWidthNoLimit();
     }
 
-    TextRender::TextRender(const RichText& richText, float width) : impl_(new TextRenderImpl(richText)), linePadding_(0.0f) {
+    TextRender::TextRender(const RichText& richText, float width) : linePadding_(0.0f), impl_(new TextRenderImpl(richText)) {
         this->setWidth(width);
     }
 
