@@ -6,6 +6,30 @@
 #include <corn/geometry/vec4.h>
 
 namespace corn {
+    Vec2 clamp(const Vec2& minimum, const Vec2& value, const Vec2& maximum) {
+        return {
+            clamp(minimum.x, value.x, maximum.x),
+            clamp(minimum.y, value.y, maximum.y),
+        };
+    }
+
+    Vec3 clamp(const Vec3& minimum, const Vec3& value, const Vec3& maximum) {
+        return {
+            clamp(minimum.x, value.x, maximum.x),
+            clamp(minimum.y, value.y, maximum.y),
+            clamp(minimum.z, value.z, maximum.z),
+        };
+    }
+
+    Vec4 clamp(const Vec4& minimum, const Vec4& value, const Vec4& maximum) {
+        return {
+            clamp(minimum.x, value.x, maximum.x),
+            clamp(minimum.y, value.y, maximum.y),
+            clamp(minimum.z, value.z, maximum.z),
+            clamp(minimum.w, value.w, maximum.w),
+        };
+    }
+
     float dot(const Vec2& lhs, const Vec2& rhs) noexcept {
         return lhs.x * rhs.x + lhs.y * rhs.y;
     }

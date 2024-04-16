@@ -44,7 +44,7 @@ namespace corn {
      * imply that the game actually exits.
      */
     struct EventArgsInputExit : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const noexcept override { return "corn::input::exit"; }
+        [[nodiscard]] std::string type() const noexcept override { return "corn::input::exit"; }
     };
 
     /**
@@ -52,7 +52,7 @@ namespace corn {
      * @brief Emit this event to exit the game.
      */
     struct EventArgsExit : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const noexcept override { return "corn::exit"; }
+        [[nodiscard]] std::string type() const noexcept override { return "corn::exit"; }
     };
 
     /**
@@ -60,7 +60,7 @@ namespace corn {
      * @brief User interacts with the keyboard.
      */
     struct EventArgsKeyboard : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const noexcept override { return "corn::input::keyboard"; }
+        [[nodiscard]] std::string type() const noexcept override { return "corn::input::keyboard"; }
 
         /// @brief The key that the user interacts with.
         Key key;
@@ -90,7 +90,7 @@ namespace corn {
      * @brief User clicks a mouse button.
      */
     struct EventArgsMouseButton : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const noexcept override { return "corn::input::mousebtn"; }
+        [[nodiscard]] std::string type() const noexcept override { return "corn::input::mousebtn"; }
 
         /// @brief The mouse button that the user interacts with.
         Mouse mouse;
@@ -110,7 +110,7 @@ namespace corn {
      * @brief User moves the cursor.
      */
     struct EventArgsMouseMove : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const noexcept override { return "corn::input::mousemv"; }
+        [[nodiscard]] std::string type() const noexcept override { return "corn::input::mousemv"; }
 
         /// @brief Location of the cursor after the movement.
         Vec2 mousePos;
@@ -124,7 +124,7 @@ namespace corn {
      * @brief User scrolls the middle mouse button.
      */
     struct EventArgsMouseScroll : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const noexcept override { return "corn::input::mousesc"; }
+        [[nodiscard]] std::string type() const noexcept override { return "corn::input::mousesc"; }
 
         /// @brief The amount that the user scrolls.
         float value;
@@ -141,7 +141,7 @@ namespace corn {
      * @brief User enters a text.
      */
     struct EventArgsTextEntered : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const noexcept override { return "corn::input::text"; }
+        [[nodiscard]] std::string type() const noexcept override { return "corn::input::text"; }
 
         /// @brief The unicode of the entered character.
         unsigned int unicode;
@@ -161,7 +161,7 @@ namespace corn {
      * @brief Emit this event to replace the currently active scene.
      */
     struct EventArgsScene : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const noexcept override { return "corn::game::scene"; }
+        [[nodiscard]] std::string type() const noexcept override { return "corn::game::scene"; }
 
         /// @brief Method to replace the active scene.
         SceneOperation op;
@@ -180,7 +180,7 @@ namespace corn {
      * @brief Emits when two colliders overlap.
      */
     struct EventArgsCollision : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const noexcept override { return "corn::game::collision"; }
+        [[nodiscard]] std::string type() const noexcept override { return "corn::game::collision"; }
 
         /// @brief First collider component.
         CBBox* collider1;
@@ -199,7 +199,7 @@ namespace corn {
      * @brief Emits when a UI widget is clicked.
      */
     struct EventArgsUIOnClick : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const noexcept override { return "corn::ui::onclick"; }
+        [[nodiscard]] std::string type() const noexcept override { return "corn::ui::onclick"; }
 
         /// @brief The mouse click event that triggers this event.
         EventArgsMouseButton mousebtnEvent;
@@ -216,7 +216,7 @@ namespace corn {
      * @brief Emits when a UI widget is hovered over.
      */
     struct EventArgsUIOnHover : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const noexcept override { return "corn::ui::onhover"; }
+        [[nodiscard]] std::string type() const noexcept override { return "corn::ui::onhover"; }
 
         /// @brief The mouse move event that triggers this event.
         EventArgsMouseMove mousemvEvent;
@@ -233,7 +233,7 @@ namespace corn {
      * @brief Emits when the cursor enters the UI widget's region.
      */
     struct EventArgsUIOnEnter : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const noexcept override { return "corn::ui::onenter"; }
+        [[nodiscard]] std::string type() const noexcept override { return "corn::ui::onenter"; }
 
         /// @brief The mouse move event that triggers this event.
         EventArgsMouseMove mousemvEvent;
@@ -250,7 +250,7 @@ namespace corn {
      * @brief Emits when the cursor exits the UI widget's region.
      */
     struct EventArgsUIOnExit : public EventArgs {
-        [[nodiscard]] constexpr std::string type() const noexcept override { return "corn::ui::onexit"; }
+        [[nodiscard]] std::string type() const noexcept override { return "corn::ui::onexit"; }
 
         /// @brief The mouse move event that triggers this event.
         EventArgsMouseMove mousemvEvent;

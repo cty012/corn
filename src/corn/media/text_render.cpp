@@ -39,12 +39,12 @@ namespace corn {
         if (this->limitWidth) {
             this->size.x = width;
             for (Line& line : this->lines) {
-                this->size.y += line.size.y * 1.2f + padding;
+                this->size.y += line.size.y;
             }
         } else {
             for (Line& line : this->lines) {
                 this->size.x = std::max(this->size.x, line.size.x);
-                this->size.y += line.size.y * 1.2f + padding;
+                this->size.y += line.size.y;
             }
         }
     }
