@@ -56,7 +56,11 @@ namespace corn {
         /// @brief Getter for the widget's type.
         [[nodiscard]] UIType getType() const noexcept;
 
-        /// @brief Getter for the widget's ID.
+        /**
+         * @brief Getter for the widget's ID.
+         *
+         * Note: ID must be a non-zero positive integer.
+         */
         [[nodiscard]] WidgetID getID() const noexcept;
 
         /// @brief Getter for the widget's name.

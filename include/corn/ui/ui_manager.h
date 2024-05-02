@@ -243,8 +243,8 @@ namespace corn {
         Node* parentNode = this->getNodeFromWidget(parent);
 
         // Create the widget
-        static UIWidget::WidgetID widgetID = 0;
-        while (this->nodes_.contains(widgetID)) {
+        static UIWidget::WidgetID widgetID = 1;
+        while (widgetID == 0 || this->nodes_.contains(widgetID)) {  // Avoid ID 0
             widgetID++;
         }
 

@@ -58,8 +58,8 @@ namespace corn {
         Node* parentNode = this->getNodeFromEntity(parent);
 
         // Create the entity
-        static Entity::EntityID entID = 0;
-        while (this->nodes_.contains(entID)) {
+        static Entity::EntityID entID = 1;
+        while (entID == 0 || this->nodes_.contains(entID)) {  // Avoid ID 0
             entID++;
         }
         auto* entity = new Entity(entID++, name, *this);

@@ -56,7 +56,7 @@ namespace corn {
     }
 
     Color Color::parse(const std::string& hexString) {
-        static const std::regex color_regex(R"(#?([a-fA-F0-9]{6})([a-fA-F0-9]{2})?)");
+        static const std::regex color_regex(R"--(#?([a-fA-F0-9]{6})([a-fA-F0-9]{2})?)--");
         std::smatch color_match;
 
         if (!std::regex_match(hexString, color_match, color_regex)) {
