@@ -81,6 +81,12 @@ namespace corn {
     Vec2& operator-=(Vec2& lhs, const Vec2& rhs) noexcept;
 
     /**
+     * @brief In-place multiplication of vec and scalar.
+     * @return Reference to vec.
+     */
+    Vec2& operator*=(Vec2& vec, float scalar) noexcept;
+
+    /**
      * @brief Element-wise in-place multiplication of lhs and rhs.
      * @return Reference to lhs.
      */

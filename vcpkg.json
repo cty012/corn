@@ -4,6 +4,15 @@
   "license": "MIT",
   "dependencies": [
     "sfml",
-    "icu"
-  ]
+    "icu",
+    "earcut-hpp"
+  ],
+  "features": {
+    "tests": {
+      "description": "Test suites built with Google Test",
+      "dependencies": [
+        "gtest"
+      ]
+    }
+  }
 }

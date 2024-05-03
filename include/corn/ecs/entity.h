@@ -33,7 +33,11 @@ namespace corn {
         // EntityManager need access to ctor/dtor
         friend class EntityManager;
 
-        /// @brief Getter for the entity's ID.
+        /**
+         * @brief Getter for the entity's ID.
+         *
+         * Note: ID must be a non-zero positive integer.
+         */
         [[nodiscard]] EntityID getID() const noexcept;
 
         /// @brief Getter for the entity's name.

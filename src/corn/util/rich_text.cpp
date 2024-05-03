@@ -43,4 +43,9 @@ namespace corn {
         this->segments.emplace_back(text, style);
         return *this;
     }
+
+    RichText& RichText::addText(const std::string& text, TextStyle style) noexcept {
+        this->segments.emplace_back(std::u8string((const char8_t*)text.c_str()), style);
+        return *this;
+    }
 }

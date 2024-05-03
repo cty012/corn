@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <corn/geometry/deg.h>
 #include <corn/geometry/vec2.h>
 #include <corn/geometry/vec3.h>
@@ -93,6 +94,99 @@ namespace corn {
     };
 
     /**
+     * @class CBBox
+     * @brief Axis-aligned bounding box (BBox), or a rectangular box for collision detection.
+     *
+     * The Vec2 for the corners are relative to the world location of the entity. i.e. <0, 0> would refer to the exact
+     * location of the object. Having an invalid set of top left and bottom right corner will result in no collisions.
+     *
+     * Note that the BBox is not affected by rotation.
+     *
+     * @see Component
+     * @see SCollisionDetection
+     * @see CCollisionResolve
+     */
+    struct CBBox : public Component {
+        /// @brief Location of the top left corner.
+        Vec2 tl;
+
+        /// @brief Location of the bottom right corner.
+        Vec2 br;
+
+        /// @brief Constructor.
+        CBBox(Entity& entity, Vec2 tl, Vec2 br) noexcept;
+
+        /// @return Whether the two AABBs overlap.
+        [[nodiscard]] bool overlapWith(const CBBox& other) const noexcept;
+    };
+
+    struct CLines : public Component {
+        /// @brief A vector of vertices.
+        std::vector<Vec2> vertices;
+
+        /// @brief Thickness of the edges. If thickness is less than or equal to 0 then fill the polygon.
+        float thickness;
+
+        /// @brief Color of the edges.
+        Color color;
+
+        /// @brief Whether there is a connection between the last point and the first point.
+        bool closed;
+
+        /// @brief Constructor.
+        CLines(Entity& entity, std::vector<Vec2> vertices, float thickness, const Color& color, bool closed = false) noexcept;
+    };
+
+    struct CPolygon : public Component {
+        /// @brief Thickness of the edges. If thickness is less than or equal to 0 then fill the polygon.
+        float thickness;
+
+        /// @brief Color of the edges.
+        Color color;
+
+        /// @brief Constructor.
+        CPolygon(Entity& entity, std::vector<std::vector<Vec2>> vertices, float thickness, const Color& color) noexcept;
+
+        /// @brief Getter of the vertices
+        [[nodiscard]] const std::vector<std::vector<Vec2>>& getVertices() const noexcept;
+
+        /// @brief Setter of the vertices
+        void setVertices(std::vector<std::vector<Vec2>> vertices);
+
+        /// @return List of triangles as the result of triangulation.
+        [[nodiscard]] const std::vector<std::array<Vec2, 3>>& getTriangles() const noexcept;
+
+        [[nodiscard]] const std::pair<Vec2, Vec2>& getBBox() const noexcept;
+
+        /**
+         * @param point The target point.
+         * @param countEdges Whether lying on the boundary qualifies as contained.
+         * @return Whether the point is contained inside the polygon.
+         */
+        [[nodiscard]] bool contains(const Vec2& point, bool countEdges) const noexcept;
+
+        [[nodiscard]] float getArea() const noexcept;
+
+        [[nodiscard]] Vec2 getCentroid() const noexcept;
+
+    private:
+        /// @brief First element is the boundary. Subsequent elements are holes.
+        std::vector<std::vector<Vec2>> vertices_;
+
+        /// @brief The axis-aligned bounding box.
+        std::pair<Vec2, Vec2> bBox;
+
+        /// @brief A list of triangles (result of triangulation).
+        std::vector<std::array<Vec2, 3>> triangles_;
+
+        /// @brief Area of the polygon.
+        float area_;
+
+        /// @brief Centroid of the polygon.
+        Vec2 centroid_;
+    };
+
+    /**
      * @class CSprite
      * @brief Stores the image of the entity. A 2D entity is only rendered if it has a CSprite Component and a
      * CTransform2D Component.
@@ -165,33 +259,6 @@ namespace corn {
         explicit CGravity2D(Entity& entity, float scale = 1.0f) noexcept;
     };
 
-    /**
-     * @class CAABB
-     * @brief Axis-aligned bounding box (AABB), or a rectangular box for collision detection.
-     *
-     * The Vec2 for the corners are relative to the world location of the entity. i.e. <0, 0> would refer to the exact
-     * location of the object. Having an invalid set of top left and bottom right corner will result in no collisions.
-     *
-     * Note that the AABB is not affected by rotation.
-     *
-     * @see Component
-     * @see SCollisionDetection
-     * @see CCollisionResolve
-     */
-    struct CAABB : public Component {
-        /// @brief Location of the top left corner.
-        Vec2 tl;
-
-        /// @brief Location of the bottom right corner.
-        Vec2 br;
-
-        /// @brief Constructor.
-        CAABB(Entity& entity, Vec2 tl, Vec2 br) noexcept;
-
-        /// @return Whether the two AABBs overlap.
-        [[nodiscard]] bool overlapWith(const CAABB& other) const noexcept;
-    };
-
     enum class CameraType { _2D, _3D };
 
     /**
@@ -233,6 +300,9 @@ namespace corn {
          * For detailed usage, see the documentation of @Expression.
          */
         Expression<3> fovW, fovH;
+
+        /// @brief Scale of the camera's field of view. Applied after evaluating the expressions.
+        float scale;
 
         /// @brief Constructor for 2D camera.
         CCamera(Entity& entity, Vec2 anchor, Color background = Color::rgb(0, 0, 0, 0)) noexcept;

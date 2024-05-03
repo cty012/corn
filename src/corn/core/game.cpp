@@ -45,6 +45,10 @@ namespace corn {
         this->interface_->init();
     }
 
+    Vec2 Game::windowSize() const noexcept {
+        return this->interface_->windowSize();
+    }
+
     Scene* Game::getTopScene() const noexcept {
         return this->scenes_.empty() ? nullptr : this->scenes_.top();
     }

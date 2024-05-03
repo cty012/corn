@@ -1,12 +1,20 @@
 cmake_minimum_required(VERSION 3.22)
+
+# CMake cache variables
+option(BUILD_EXAMPLES "Build the example programs in the `examples/` folder." ON)
+option(BUILD_TESTS "Build the test cases in the `test/` folder." OFF)
+
+if (BUILD_TESTS)
+    enable_testing()
+    set(VCPKG_MANIFEST_FEATURES "${VCPKG_MANIFEST_FEATURES};tests")
+endif ()
+
+# Project settings
 project(corn VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 20)
 set(DEPS_PATH "${CMAKE_SOURCE_DIR}/deps")
 list(APPEND CMAKE_PREFIX_PATH "${DEPS_PATH}")
-
-option(BUILD_EXAMPLES "Build the example programs in the `examples/` folder." ON)
-option(BUILD_TESTS "Build the test cases in the `test/` folder." OFF)
 
 # Output directories
 set(CORN_OUTPUT_DIR "${CMAKE_BINARY_DIR}/lib")
@@ -79,6 +87,10 @@ target_link_libraries(corn PRIVATE sfml-audio sfml-graphics sfml-network sfml-sy
 # Link with ICU
 find_package(ICU REQUIRED COMPONENTS uc i18n data)
 target_link_libraries(corn PRIVATE ICU::uc ICU::i18n ICU::data)
+
+# Link with earcut
+find_path(EARCUT_HPP_INCLUDE_DIRS "mapbox/earcut.hpp")
+target_include_directories(corn PRIVATE "${EARCUT_HPP_INCLUDE_DIRS}")
 
 # Build examples
 if (BUILD_EXAMPLES)

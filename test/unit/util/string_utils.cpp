@@ -49,6 +49,9 @@ namespace corn::test::string_utils {
         str = u8"\r\n";
         ans = { u8"\r", u8"\n" };
         VectorsEqual(breakIntoWords(str), ans);
+        str = u8"a  \tb";
+        ans = { u8"a", u8" ", u8" ", u8"\t", u8"b" };
+        VectorsEqual(breakIntoWords(str), ans);
 
         // Pure ASCII
         str = u8"abc defg\v \thij-klm";

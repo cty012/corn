@@ -38,6 +38,27 @@ namespace corn {
         return str.substr(start, end - start + 1);
     }
 
+    // Function to split a string by multiple delimiters
+    std::vector<std::string> split(const std::string& str, const std::string& delimiters) {
+        std::vector<std::string> tokens;
+        std::string token;
+        for (char ch : str) {
+            if (delimiters.find(ch) != std::string::npos) {
+                if (!token.empty()) {
+                    tokens.push_back(token);
+                    token.clear();
+                }
+                tokens.emplace_back(1, ch); // Add the delimiter as a separate token
+            } else {
+                token += ch;
+            }
+        }
+        if (!token.empty()) {
+            tokens.push_back(token);
+        }
+        return tokens;
+    }
+
     std::u8string unicodeToUTF8(unsigned int codepoint) {
         std::u8string result;
 
