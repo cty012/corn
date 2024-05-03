@@ -14,7 +14,7 @@ namespace corn {
     }
 
     void UIImage::setImage(Image* image) noexcept {
-        delete image;
+        delete this->image_;
         this->image_ = image;
     }
 }
