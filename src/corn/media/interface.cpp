@@ -1,3 +1,4 @@
+#include <array>
 #include <cmath>
 #include <corn/core.h>
 #include <corn/ecs.h>
@@ -5,6 +6,7 @@
 #include <corn/geometry.h>
 #include <corn/media.h>
 #include <corn/ui.h>
+#include <corn/util/constants.h>
 #include <corn/util/string_utils.h>
 #include "camera_viewport_impl.h"
 #include "font_impl.h"
@@ -40,6 +42,11 @@ namespace corn {
                 config.title,
                 cornMode2SfStyle(config.mode),
                 contextSettings);
+        if (config.icon) {
+            auto [w, h] = config.icon->getSize();
+            this->impl_->window->setIcon(
+                    (unsigned int)w, (unsigned int)h, config.icon->impl_->image.getPixelsPtr());
+        }
     }
 
     Vec2 Interface::windowSize() const noexcept {
@@ -160,8 +167,8 @@ namespace corn {
         // Calculate camera viewport and FOV
         Vec2 viewportSize(camera->viewport.w.calc(1.0f, percentWindowSize.x, percentWindowSize.y),
                           camera->viewport.h.calc(1.0f, percentWindowSize.x, percentWindowSize.y));
-        Vec2 fovSize(camera->fovW.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100),
-                     camera->fovH.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100));
+        Vec2 fovSize(camera->fovW.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale),
+                     camera->fovH.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale));
 
         // Reset the camera viewport
         camera->viewport.impl_->setSize(viewportSize, this->game_.getConfig().antialiasing);
@@ -169,7 +176,7 @@ namespace corn {
         camera->viewport.impl_->texture.clear(sf::Color(r, g, b, a));
 
         // Calculate location of camera
-        Vec2 cameraCenter = camera->getEntity().getComponent<CTransform2D>()->location + camera->anchor.vec2();
+        Vec2 cameraCenter = camera->getEntity().getComponent<CTransform2D>()->getWorldTransform().first + camera->anchor.vec2();
 
         // Return the location and scale
         return { cameraCenter - fovSize * 0.5, { viewportSize.x / fovSize.x, viewportSize.y / fovSize.y } };
@@ -192,20 +199,87 @@ namespace corn {
         sf::Transform scaleTransform;
         scaleTransform.scale(cameraScale.x, cameraScale.y);
 
-        // Render entities
-        for (Entity* entity: scene->getEntityManager().getActiveEntitiesWith<CTransform2D, CSprite>()) {
-            auto transform = entity->getComponent<CTransform2D>();
-            auto sprite = entity->getComponent<CSprite>();
-            if (!sprite->active || !sprite->image || !sprite->image->impl_) continue;
-
+        // Helper functions
+        auto drawLines =
+        [&cameraOffset, &camera, &cameraScale, &scaleTransform]
+        (CTransform2D* transform, const std::vector<Vec2>& vertices, float thickness, const Color& color, bool closed) -> void {
             auto [worldLocation, worldRotation] = transform->getWorldTransform();
             auto [ancX, ancY] = worldLocation - cameraOffset;
-            auto [locX, locY] = sprite->location;
-            sf::Sprite& sfSprite = sprite->image->impl_->sfSprite;
-            sfSprite.setOrigin(-locX, -locY);
-            sfSprite.setPosition(ancX, ancY);
-            sfSprite.setRotation(-worldRotation.get());
-            camera->viewport.impl_->texture.draw(sfSprite, scaleTransform);
+            auto [r, g, b, a] = color.getRGBA();
+
+            for (size_t i = 0; (closed ? i : i + 1) < vertices.size(); i++) {
+                auto [startX, startY] = vertices[i];
+                auto [endX, endY] = vertices[(i + 1) % vertices.size()];
+                float diffX = endX - startX, diffY = endY - startY;
+                float length = std::sqrt(diffX * diffX + diffY * diffY);
+                float angle = std::atan2(diffY, diffX) * 180.0f / (float)PI;
+
+                sf::RectangleShape line;
+                line.setSize(sf::Vector2f(length, thickness / cameraScale.norm()));
+                line.setOrigin(0, 0);
+                line.setPosition(ancX + startX, ancY + startY);
+                line.setFillColor(sf::Color{ r, g, b, a });
+                line.setRotation(-worldRotation.get() + angle);
+                camera->viewport.impl_->texture.draw(line, scaleTransform);
+            }
+        };
+
+        auto drawPolygon =
+        [&cameraOffset, &camera, &scaleTransform]
+        (CTransform2D* transform, CPolygon* polygon) -> void {
+            auto [worldLocation, worldRotation] = transform->getWorldTransform();
+            auto [ancX, ancY] = worldLocation - cameraOffset;
+            auto [r, g, b, a] = polygon->color.getRGBA();
+
+            const std::vector<std::array<Vec2, 3>>& triangles = polygon->getTriangles();
+            sf::VertexArray varr(sf::Triangles, triangles.size() * 3);
+            for (size_t i = 0; i < triangles.size(); i++) {
+                for (size_t j = 0; j < 3; j++) {
+                    varr[i * 3 + j].position = sf::Vector2f(ancX + triangles[i][j].x, ancY + triangles[i][j].y);
+                    varr[i * 3 + j].color = sf::Color{ r, g, b, a };
+                }
+            }
+
+            sf::Transform rotateTransform;
+            rotateTransform.rotate(-worldRotation.get());
+
+            camera->viewport.impl_->texture.draw(varr, rotateTransform * scaleTransform);
+        };
+
+        // Render entities
+        for (Entity* entity: scene->getEntityManager().getActiveEntitiesWith<CTransform2D>()) {
+            auto transform = entity->getComponent<CTransform2D>();
+
+            // Sprite
+            auto sprite = entity->getComponent<CSprite>();
+            if (sprite && sprite->active && sprite->image && sprite->image->impl_) {
+                auto [worldLocation, worldRotation] = transform->getWorldTransform();
+                auto [ancX, ancY] = worldLocation - cameraOffset;
+                auto [locX, locY] = sprite->location;
+                sf::Sprite& sfSprite = sprite->image->impl_->sfSprite;
+                sfSprite.setOrigin(-locX, -locY);
+                sfSprite.setPosition(ancX, ancY);
+                sfSprite.setRotation(-worldRotation.get());
+                camera->viewport.impl_->texture.draw(sfSprite, scaleTransform);
+            }
+
+            // Polygon
+            auto polygon = entity->getComponent<CPolygon>();
+            if (polygon && polygon->active && !polygon->getVertices().empty()) {
+                if (polygon->thickness > 0) {
+                    for (const std::vector<Vec2>& arc : polygon->getVertices()) {
+                        drawLines(transform, arc, polygon->thickness, polygon->color, true);
+                    }
+                } else {
+                    drawPolygon(transform, polygon);
+                }
+            }
+
+            // Lines
+            auto lines = entity->getComponent<CLines>();
+            if (lines && lines->active && lines->vertices.size() > 1) {
+                drawLines(transform, lines->vertices, lines->thickness, lines->color, lines->closed);
+            }
         }
         camera->viewport.impl_->texture.display();
 
@@ -222,17 +296,18 @@ namespace corn {
     void Interface::renderUI(UIManager& uiManager) {
         // Calculate window size
         Vec2 windowSize = this->windowSize();
-        sf::View view(sf::FloatRect(0, 0, windowSize.x, windowSize.y));
-        this->impl_->window->setView(view);
 
         // Resolve UI widget location and size
         uiManager.tidy();
         uiManager.calcGeometry(windowSize);
+        // Guaranteed to be from parent to children
         std::vector<UIWidget*> widgets = uiManager.getAllActiveWidgets();
 
-        // Find opacity
+        // Opacity & viewport
         std::unordered_map<const UIWidget*, float> opacities;
+        std::unordered_map<const UIWidget*, std::pair<Vec2, Vec2>> subviewports;
         opacities[nullptr] = 1.0f;
+        subviewports[nullptr] = { { 0, 0 }, { windowSize.x, windowSize.y } };
 
         // Render
         for (UIWidget* widget : widgets) {
@@ -242,6 +317,35 @@ namespace corn {
 
             // Find geometry
             auto [x, y, w, h] = uiManager.getCachedGeometry(widget);  // NOLINT
+
+            // Set view
+            auto [vpul, vpbr] = subviewports[parent];
+            sf::View view({
+                vpul.x,
+                vpul.y,
+                vpbr.x - vpul.x,
+                vpbr.y - vpul.y
+            });
+            view.setViewport({
+                vpul.x / windowSize.x,
+                vpul.y / windowSize.y,
+                (vpbr.x - vpul.x) / windowSize.x,
+                (vpbr.y - vpul.y) / windowSize.y
+            });
+            this->impl_->window->setView(view);
+
+            // Update children viewport
+            switch (widget->getOverflow()) {
+                case UIOverflow::DISPLAY:
+                    break;
+                case UIOverflow::HIDDEN:
+                    vpul.x = std::max(vpul.x, x);
+                    vpul.y = std::max(vpul.y, y);
+                    vpbr.x = std::min(vpbr.x, x + w);
+                    vpbr.y = std::min(vpbr.y, y + h);
+                    break;
+            }
+            subviewports[widget] = { { vpul.x, vpul.y }, { vpbr.x, vpbr.y } };
 
             // Render the background
             sf::RectangleShape boundingRect(sf::Vector2f(w, h));
@@ -265,7 +369,7 @@ namespace corn {
                         for (const auto& [text, color] : line.contents) {
                             auto [segR, segG, segB, segA] = color.getRGBA();
                             auto& mutText = const_cast<sf::Text&>(text);
-                            mutText.setPosition(segX, segY);
+                            mutText.setPosition(segX, segY + textRender.getLinePadding());
                             mutText.setFillColor(sf::Color(
                                     segR, segG, segB, (unsigned char) ((float) segA * opacities[widget])));
                             this->impl_->window->draw(text);

@@ -14,10 +14,10 @@ namespace corn {
 
     Image::ImageImpl::~ImageImpl() = default;
 
-    Image::Image(const std::string& path) {
-        std::string msg = "Failed to load image: " + path + ".";
+    Image::Image(const std::filesystem::path& path) {
+        std::string msg = "Failed to load image: " + path.string() + ".";
         sf::Image image = sf::Image();
-        if (!image.loadFromFile(path))
+        if (!image.loadFromFile(path.string()))
             throw ResourceLoadFailed(msg);
         this->impl_ = new ImageImpl(image, msg);
     }

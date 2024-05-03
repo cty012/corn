@@ -31,6 +31,14 @@ namespace corn {
     std::string trim(const std::string& str) noexcept;
 
     /**
+     * @brief Split a string by a list of delimiter characters.
+     * @param str Target string to split.
+     * @param delimiters Delimiter characters.
+     * @return Split string, including the delimiters.
+     */
+    std::vector<std::string> split(const std::string& str, const std::string& delimiters);
+
+    /**
      * @brief Encode a unicode character in UTF-8.
      * @param codepoint The unicode number.
      * @return The encoded UTF-8 string.

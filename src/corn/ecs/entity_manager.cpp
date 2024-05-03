@@ -58,8 +58,8 @@ namespace corn {
         Node* parentNode = this->getNodeFromEntity(parent);
 
         // Create the entity
-        static Entity::EntityID entID = 0;
-        while (this->nodes_.contains(entID)) {
+        static Entity::EntityID entID = 1;
+        while (entID == 0 || this->nodes_.contains(entID)) {  // Avoid ID 0
             entID++;
         }
         auto* entity = new Entity(entID++, name, *this);
@@ -129,10 +129,10 @@ namespace corn {
             this->root_.dirty = false;
             std::stable_sort(this->root_.children.begin(), this->root_.children.end(),
                              [](Node* left, Node* right) {
+                                 if (left == right) return false;
                                  auto lTrans = left->ent->getComponent<CTransform2D>();
                                  auto rTrans = right->ent->getComponent<CTransform2D>();
-                                 if (lTrans == nullptr) return true;
-                                 else if (rTrans == nullptr) return false;
+                                 if (lTrans == nullptr || rTrans == nullptr) return false;
                                  else return lTrans->getZOrder() < rTrans->getZOrder();
                              });
         }
@@ -142,10 +142,10 @@ namespace corn {
             node.dirty = false;
             std::stable_sort(node.children.begin(), node.children.end(),
                              [](Node* left, Node* right) {
+                                 if (left == right) return false;
                                  auto lTrans = left->ent->getComponent<CTransform2D>();
                                  auto rTrans = right->ent->getComponent<CTransform2D>();
-                                 if (lTrans == nullptr) return true;
-                                 else if (rTrans == nullptr) return false;
+                                 if (lTrans == nullptr || rTrans == nullptr) return false;
                                  else return lTrans->getZOrder() < rTrans->getZOrder();
                              });
         }

@@ -7,10 +7,10 @@ namespace corn {
     TextRender::TextRenderImpl::Line::Line() : length(0), size() {}
 
     TextRender::TextRenderImpl::TextRenderImpl(const RichText& richText) : lines(), limitWidth(false) {
-        this->setRichText(richText);
+        this->setRichText(richText, 0.0f);
     }
 
-    void TextRender::TextRenderImpl::setRichText(const RichText& richText) {
+    void TextRender::TextRenderImpl::setRichText(const RichText& richText, float padding) {
         this->original = richText;
         this->words.clear();
         for (const RichText::Segment& segment : richText.segments) {
@@ -20,18 +20,18 @@ namespace corn {
             }
         }
         // Find natural width
-        this->setWidth(-1.0f);
+        this->setWidth(-1.0f, padding);
         this->naturalSize = this->size;
     }
 
-    void TextRender::TextRenderImpl::setWidth(float width) {
+    void TextRender::TextRenderImpl::setWidth(float width, float padding) {
         this->limitWidth = width >= 0;
 
         this->lines.clear();
 
         // Iterate over all words
         for (const auto& [segment, style] : this->words) {
-            this->insertSegment(segment, style, width);
+            this->insertSegment(segment, style, width, padding);
         }
 
         // Find total size
@@ -49,48 +49,63 @@ namespace corn {
         }
     }
 
-    TextRender::TextRender(const RichText& richText) : impl_(new TextRenderImpl(richText)) {
+    TextRender::TextRender(const RichText& richText) : linePadding_(0.0f), impl_(new TextRenderImpl(richText)) {
         this->setWidthNoLimit();
     }
 
-    TextRender::TextRender(const RichText& richText, float width) : impl_(new TextRenderImpl(richText)) {
+    TextRender::TextRender(const RichText& richText, float width) : linePadding_(0.0f), impl_(new TextRenderImpl(richText)) {
         this->setWidth(width);
     }
 
-    const RichText& TextRender::getText() const {
+    const RichText& TextRender::getText() const noexcept {
         return this->impl_->original;
     }
 
     void TextRender::setText(const RichText& richText) {
         bool limitWidth = this->impl_->limitWidth;
         float width = this->impl_->size.x;
-        this->impl_->setRichText(richText);
+        this->impl_->setRichText(richText, this->linePadding_);
         if (limitWidth) {
             this->setWidth(width);
         }
     }
 
-    const Vec2& TextRender::getSize() const {
+    const Vec2& TextRender::getSize() const noexcept {
         return this->impl_->size;
     }
 
-    const Vec2& TextRender::getNaturalSize() const {
+    const Vec2& TextRender::getNaturalSize() const noexcept {
         return this->impl_->naturalSize;
     }
 
     void TextRender::setWidth(float width) {
         width = std::max(width, 0.0f);
         if (this->impl_->limitWidth && this->impl_->size.x == width) return;
-        this->impl_->setWidth(width);
+        this->impl_->setWidth(width, this->linePadding_);
     }
 
     void TextRender::setWidthNoLimit() {
         if (!this->impl_->limitWidth) return;
-        this->impl_->setWidth(-1.0f);
+        this->impl_->setWidth(-1.0f, this->linePadding_);
+    }
+
+    float TextRender::getLinePadding() const noexcept {
+        return this->linePadding_;
+    }
+
+    void TextRender::setLinePadding(float linePadding) {
+        bool limitWidth = this->impl_->limitWidth;
+        float width = this->impl_->size.x;
+        this->linePadding_ = linePadding;
+        if (limitWidth) {
+            this->setWidth(width);
+        } else {
+            this->setWidth(-1.0f);
+        }
     }
 
     void TextRender::TextRenderImpl::insertSegment(
-            const std::vector<std::u8string>& segment, const TextStyle& style, float width) {
+            const std::vector<std::u8string>& segment, const TextStyle& style, float width, float padding) {
 
         // Current last line
         Line* currentLine = this->lines.empty() ? nullptr : &this->lines.back();
@@ -108,16 +123,19 @@ namespace corn {
             // If is line feed character
             if (word[0] == '\n') {
                 // First push the current buffer to end of line
-                corn::TextRender::TextRenderImpl::pushTextToLine(currentLine, buffer, style);
+                corn::TextRender::TextRenderImpl::pushTextToLine(currentLine, buffer, style, padding);
+                buffer = u8"";
                 // Then start a new line
                 currentLine = &this->lines.emplace_back();
+                currentLine->size = { 0.0f, style.size * 1.2f + padding * 2 };
+                currentLine->precedeWithLineFeed = true;
                 continue;
             }
 
-            // If start of new line, skip pure space words
+            // If start of new line (but not preceded by line feed), skip pure space words
             bool notFirstLine = this->lines.size() > 1;
             bool currentLineEmpty = currentLine && currentLine->length == 0 && buffer.empty();
-            if (notFirstLine && currentLineEmpty && isWhitespace(getChar(word))) {
+            if (notFirstLine && currentLineEmpty && !currentLine->precedeWithLineFeed && isWhitespace(getChar(word))) {
                 continue;
             }
 
@@ -135,20 +153,24 @@ namespace corn {
                 while (true) {
                     // Fit as many characters as possible
                     const char8_t* end = corn::TextRender::TextRenderImpl::insertCharsToEmptyLine(
-                            currentLine, start, style, width);
+                            currentLine, start, style, width, padding);
                     if (!*end) break;
                     // Wrap to next line
                     start = end;
                     currentLine = &this->lines.emplace_back();
+                    currentLine->size = { 0.0f, style.size * 1.2f + padding * 2 };
+                    currentLine->precedeWithLineFeed = false;
                 }
                 // Put the remaining characters in the buffer
                 buffer = std::u8string(start);
             } else {
                 // 3. Otherwise, try to fit word in next line
                 // Push original text to the back of the line
-                corn::TextRender::TextRenderImpl::pushTextToLine(currentLine, buffer, style);
+                corn::TextRender::TextRenderImpl::pushTextToLine(currentLine, buffer, style, padding);
                 // Wrap to next line and clear buffer
                 currentLine = &this->lines.emplace_back();
+                currentLine->size = { 0.0f, style.size * 1.2f + padding * 2 };
+                currentLine->precedeWithLineFeed = false;
                 buffer.clear();
                 // Stay at current word
                 i--;
@@ -156,11 +178,11 @@ namespace corn {
         }
 
         // If buffer not empty, push the buffer to the back of the current line
-        corn::TextRender::TextRenderImpl::pushTextToLine(currentLine, buffer, style);
+        corn::TextRender::TextRenderImpl::pushTextToLine(currentLine, buffer, style, padding);
     }
 
     void TextRender::TextRenderImpl::pushTextToLine(
-            TextRenderImpl::Line* line, const std::u8string& str, const TextStyle& style) {
+            TextRenderImpl::Line* line, const std::u8string& str, const TextStyle& style, float padding) {
 
         if (line && !str.empty()) {
             // Construct the text
@@ -180,12 +202,12 @@ namespace corn {
             // Add to total length & size
             line->length += count(str);
             line->size.x = textSize.x + line->size.x;
-            line->size.y = std::max(line->size.y, textSize.y);
+            line->size.y = std::max(line->size.y, textSize.y * 1.2f + padding * 2);
         }
     }
 
     const char8_t* TextRender::TextRenderImpl::insertCharsToEmptyLine(
-            TextRender::TextRenderImpl::Line* line, const char8_t* word, const TextStyle& style, float width) {
+            TextRender::TextRenderImpl::Line* line, const char8_t* word, const TextStyle& style, float width, float padding) {
 
         if (!*word) return word;
 
@@ -207,7 +229,7 @@ namespace corn {
             } else {
                 // If new character cannot fit
                 // Push original text to the back of the line
-                TextRender::TextRenderImpl::pushTextToLine(line, buffer, style);
+                TextRender::TextRenderImpl::pushTextToLine(line, buffer, style, padding);
                 return word;
             }
 

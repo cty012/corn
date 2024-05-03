@@ -94,6 +94,14 @@ namespace corn {
         return lhs;
     }
 
+    Vec4& operator*=(Vec4& vec, float scalar) noexcept {
+        vec.x *= scalar;
+        vec.y *= scalar;
+        vec.z *= scalar;
+        vec.w *= scalar;
+        return vec;
+    }
+
     Vec4& operator*=(Vec4& lhs, const Vec4& rhs) noexcept {
         lhs.x *= rhs.x;
         lhs.y *= rhs.y;

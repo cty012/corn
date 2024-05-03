@@ -23,7 +23,11 @@ namespace corn {
         void setImage(Image* image) noexcept;
 
     private:
-        /// @brief Constructor.
+        /**
+         * @brief Constructor.
+         * @param name Name of the UI widget.
+         * @param image Pointer to an image object allocated on the heap. Memory managed by the UIImage class.
+         */
         UIImage(WidgetID id, std::string name, UIManager& uiManager, Image* image) noexcept;
 
         /// @brief Destructor.

@@ -34,7 +34,7 @@ namespace corn {
     public:
         /**
          * @brief Constructor.
-         * @param startScene Starting scene on the scene stack.
+         * @param startScene Starting scene on the scene stack. Memory managed by the Game class.
          * @param config Game's config data. Uses default values if not provided.
          */
         explicit Game(Scene* startScene, Config config = Config());
@@ -53,6 +53,9 @@ namespace corn {
          * @param config New configuration data to apply to the game.
          */
         void setConfig(Config config);
+
+        /// @return The current size of the window in pixels.
+        [[nodiscard]] Vec2 windowSize() const noexcept;
 
         /**
          * @brief Get the currently active scene (the scene on the top of the scene stack).

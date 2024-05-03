@@ -28,7 +28,7 @@ namespace corn {
         [[nodiscard]] const TextRender& getTextRender() const noexcept;
 
     private:
-        /// @brief Constructor.
+        /// @brief Constructor., const RichText& text, const RichText& text
         UILabel(WidgetID id, std::string name, UIManager& uiManager, const RichText& text) noexcept;
 
         /// @brief The text to be rendered.

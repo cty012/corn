@@ -5,9 +5,9 @@
 
 namespace corn {
     UIWidget::UIWidget(UIType type, WidgetID id, std::string name, UIManager& uiManager) noexcept
-            : type_(type), id_(id), name_(std::move(name)), active_(true), uiManager_(uiManager), geometry_(UIGeometry::DEFAULT),
-            x_(), y_(), w_(), h_(), independent_(), background_(Color::rgb(255, 255, 255, 0)), opacity_(255),
-            zOrder_(0) {
+            : type_(type), id_(id), name_(std::move(name)), active_(true), uiManager_(uiManager),
+            geometry_(UIGeometry::DEFAULT), x_(), y_(), w_(), h_(), independent_(), overflow_(UIOverflow::DISPLAY),
+            background_(Color::rgb(255, 255, 255, 0)), opacity_(255), zOrder_(0) {
 
         this->setX("0px");
         this->setY("0px");
@@ -50,7 +50,7 @@ namespace corn {
     bool UIWidget::isActiveInWorld() const noexcept {
         const UIWidget* current = this;
         while (current) {
-            if (!this->active_) return false;
+            if (!current->active_) return false;
             current = current->getParent();
         }
         return true;
@@ -138,6 +138,14 @@ namespace corn {
         static const std::array<std::string, 5> units = { "px", "%pw", "%ph", "%nw", "%nh" };
         this->h_ = Expression(expression, units);
         this->independent_[3] = expression.find("%p") == std::string::npos;
+    }
+
+    UIOverflow UIWidget::getOverflow() const noexcept {
+        return this->overflow_;
+    }
+
+    void UIWidget::setOverflow(UIOverflow overflow) noexcept {
+        this->overflow_ = overflow;
     }
 
     const Color& UIWidget::getBackground() const noexcept {

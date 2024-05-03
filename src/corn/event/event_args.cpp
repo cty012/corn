@@ -28,7 +28,7 @@ namespace corn {
     EventArgsCamera::EventArgsCamera(CameraEventType eventType, const CCamera* camera) noexcept
             : eventType(eventType), camera(camera) {}
 
-    EventArgsCollision::EventArgsCollision(CAABB* collider1, CAABB* collider2) noexcept
+    EventArgsCollision::EventArgsCollision(CBBox* collider1, CBBox* collider2) noexcept
             : collider1(collider1), collider2(collider2) {}
 
     EventArgsUIOnClick::EventArgsUIOnClick(EventArgsMouseButton mousebtnEvent, UIWidget* target) noexcept

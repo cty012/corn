@@ -64,7 +64,7 @@ namespace corn {
          * @return Pointer to the UI widget created.
          */
         template <WidgetType T, typename... Args>
-        T* createWidget(const std::string& name, const UIWidget* parent, Args&&... args);
+        T& createWidget(const std::string& name, const UIWidget* parent, Args&&... args);
 
         /**
          * @param id ID of the UI widget.
@@ -238,22 +238,24 @@ namespace corn {
     };
 
     template<WidgetType T, typename... Args>
-    T* UIManager::createWidget(const std::string& name, const UIWidget* parent, Args &&... args) {
+    T& UIManager::createWidget(const std::string& name, const UIWidget* parent, Args &&... args) {
         // Verify parent
         Node* parentNode = this->getNodeFromWidget(parent);
 
         // Create the widget
-        static UIWidget::WidgetID widgetID = 0;
-        while (this->nodes_.contains(widgetID)) {
+        static UIWidget::WidgetID widgetID = 1;
+        while (widgetID == 0 || this->nodes_.contains(widgetID)) {  // Avoid ID 0
             widgetID++;
         }
-        T* widget = new T(widgetID, name, *this, std::forward<Args>(args)...);
 
-        // Create the node
-        this->nodes_.emplace(widget->getID(), Node(widget, parentNode));
-        parentNode->children.push_back(&this->nodes_.at(widget->getID()));
+        // First create the node
+        this->nodes_.emplace(widgetID, Node(nullptr, parentNode));
+        parentNode->children.push_back(&this->nodes_.at(widgetID));
         parentNode->dirty = true;
 
-        return widget;
+        // Then create the widget
+        T* widget = new T(widgetID, name, *this, std::forward<Args>(args)...);
+        this->nodes_.at(widgetID).widget = widget;
+        return *widget;
     }
 }
