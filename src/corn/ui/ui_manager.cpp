@@ -154,8 +154,8 @@ namespace corn {
                             widget, false);
                     // Find max of children size
                     for (UIWidget* child : independentChildren) {
-                        nw = std::max(nw, widgetProps[child].nw + widgetProps[child].x);
-                        nh = std::max(nh, widgetProps[child].nh + widgetProps[child].y);
+                        nw = std::max(nw, widgetProps[child].w + widgetProps[child].x);
+                        nh = std::max(nh, widgetProps[child].h + widgetProps[child].y);
                     }
                     break;
                 }
@@ -172,20 +172,23 @@ namespace corn {
                     break;
                 }
             }
-            if (geometry == UIGeometry::INDEPENDENT) {
-                float percNW = nw * 0.01f;
-                float percNH = nh * 0.01f;
-                float x = widget->getX().calc(1.0f, 0.0f, 0.0f, percNW, percNH);
-                float y = widget->getY().calc(1.0f, 0.0f, 0.0f, percNW, percNH);
-                widgetProps[widget] = {
-                        geometry,
-                        x, y, nw, nh, nw, nh,
-                };
-            } else {
-                widgetProps[widget] = {
-                        geometry,
-                        0.0f, 0.0f, nw, nh, 0.0f, 0.0f,
-                };
+
+            switch (geometry) {
+                case UIGeometry::INDEPENDENT: {
+                    float percNW = nw * 0.01f;
+                    float percNH = nh * 0.01f;
+                    float x = widget->getX().calc(1.0f, 0.0f, 0.0f, percNW, percNH);
+                    float y = widget->getY().calc(1.0f, 0.0f, 0.0f, percNW, percNH);
+                    float w = widget->getW().calc(1.0f, 0.0f, 0.0f, percNW, percNH);
+                    float h = widget->getH().calc(1.0f, 0.0f, 0.0f, percNW, percNH);
+                    widgetProps[widget] = { geometry, x, y, nw, nh, w, h };
+                    break;
+                }
+                case UIGeometry::DEPENDENT:
+                case UIGeometry::DEFAULT: {
+                    widgetProps[widget] = { geometry, 0.0f, 0.0f, nw, nh, 0.0f, 0.0f };
+                    break;
+                }
             }
         }
 
@@ -193,18 +196,24 @@ namespace corn {
         for (const UIWidget* widget : widgets) {
             Property& props = widgetProps[widget];
             Property& parentProps = widgetProps[widget->getParent()];
-            if (props.geometry == UIGeometry::INDEPENDENT) {
-                props.x += parentProps.x;
-                props.y += parentProps.y;
-            } else {
-                float percW = parentProps.w * 0.01f;
-                float percH = parentProps.h * 0.01f;
-                float percNW = props.nw * 0.01f;
-                float percNH = props.nh * 0.01f;
-                props.x = widget->getX().calc(1.0f, percW, percH, percNW, percNH) + parentProps.x;
-                props.y = widget->getY().calc(1.0f, percW, percH, percNW, percNH) + parentProps.y;
-                props.w = widget->getW().calc(1.0f, percW, percH, percNW, percNH);
-                props.h = widget->getH().calc(1.0f, percW, percH, percNW, percNH);
+            switch (props.geometry) {
+                case UIGeometry::INDEPENDENT: {
+                    props.x += parentProps.x;
+                    props.y += parentProps.y;
+                    break;
+                }
+                case UIGeometry::DEPENDENT:
+                case UIGeometry::DEFAULT: {
+                    float percW = parentProps.w * 0.01f;
+                    float percH = parentProps.h * 0.01f;
+                    float percNW = props.nw * 0.01f;
+                    float percNH = props.nh * 0.01f;
+                    props.x = widget->getX().calc(1.0f, percW, percH, percNW, percNH) + parentProps.x;
+                    props.y = widget->getY().calc(1.0f, percW, percH, percNW, percNH) + parentProps.y;
+                    props.w = widget->getW().calc(1.0f, percW, percH, percNW, percNH);
+                    props.h = widget->getH().calc(1.0f, percW, percH, percNW, percNH);
+                    break;
+                }
             }
         }
 
