@@ -127,6 +127,8 @@ namespace corn {
         void setBackground(Color background) noexcept;
         [[nodiscard]] unsigned char getOpacity() const noexcept;
         void setOpacity(unsigned char opacity) noexcept;
+        [[nodiscard]] bool isClickable() const noexcept;
+        void setClickable(bool clickable) noexcept;
 
     protected:
         /// @brief Constructor.
@@ -192,5 +194,8 @@ namespace corn {
          * closer to the top.
          */
         int zOrder_;
+
+        /// @brief Whether mouse interactions with it are enabled.
+        bool clickable_;
     };
 }

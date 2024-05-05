@@ -7,7 +7,7 @@ namespace corn {
     UIWidget::UIWidget(UIType type, WidgetID id, std::string name, UIManager& uiManager) noexcept
             : type_(type), id_(id), name_(std::move(name)), active_(true), uiManager_(uiManager),
             geometry_(UIGeometry::DEFAULT), x_(), y_(), w_(), h_(), independent_(), overflow_(UIOverflow::DISPLAY),
-            background_(Color::rgb(255, 255, 255, 0)), opacity_(255), zOrder_(0) {
+            background_(Color::rgb(255, 255, 255, 0)), opacity_(255), zOrder_(0), clickable_(false) {
 
         this->setX("0px");
         this->setY("0px");
@@ -162,5 +162,13 @@ namespace corn {
 
     void UIWidget::setOpacity(unsigned char opacity) noexcept {
         this->opacity_ = opacity;
+    }
+
+    bool UIWidget::isClickable() const noexcept {
+        return this->clickable_;
+    }
+
+    void UIWidget::setClickable(bool clickable) noexcept {
+        this->clickable_ = clickable;
     }
 }

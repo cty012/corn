@@ -240,7 +240,7 @@ namespace corn {
         this->tidy();
         std::vector<UIWidget*> widgets = this->getAllActiveWidgets();
         for (UIWidget* widget : std::ranges::reverse_view(std::views::all(widgets))) {
-            if (this->widgetContains(widget, pos)) return widget;
+            if (widget->isClickable() && this->widgetContains(widget, pos)) return widget;
         }
         return nullptr;
     }
@@ -263,7 +263,7 @@ namespace corn {
         std::vector<UIWidget*> newHoveredWidgets;
         std::unordered_set<UIWidget*> newHoveredWidgetSet;
         for (UIWidget* current = widget; current; current = current->getParent()) {
-            if (this->widgetContains(current, args.mousePos)) {
+            if (current->isClickable() && this->widgetContains(current, args.mousePos)) {
                 newHoveredWidgets.push_back(current);
                 newHoveredWidgetSet.insert(current);
             }
