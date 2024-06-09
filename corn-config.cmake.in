@@ -27,6 +27,7 @@ endif ()
 if(Corn_FOUND AND NOT TARGET Corn::Corn)
     add_library(Corn::Corn SHARED IMPORTED)
     set_target_properties(Corn::Corn PROPERTIES
+            IMPORTED_LOCATION "${Corn_DYNAMIC_LIBRARY_RELEASE}"
             IMPORTED_LOCATION_DEBUG "${Corn_DYNAMIC_LIBRARY_DEBUG}"
             IMPORTED_LOCATION_RELEASE "${Corn_DYNAMIC_LIBRARY_RELEASE}"
             INTERFACE_INCLUDE_DIRECTORIES "${Corn_INCLUDE_DIRS}"
@@ -34,6 +35,7 @@ if(Corn_FOUND AND NOT TARGET Corn::Corn)
 
     if(WIN32)
         set_target_properties(Corn::Corn PROPERTIES
+                IMPORTED_IMPLIB "${Corn_LIBRARIES_RELEASE}"
                 IMPORTED_IMPLIB_DEBUG "${Corn_LIBRARIES_DEBUG}"
                 IMPORTED_IMPLIB_RELEASE "${Corn_LIBRARIES_RELEASE}"
         )
