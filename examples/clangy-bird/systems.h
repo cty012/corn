@@ -22,6 +22,6 @@ public:
     void update(float millis) override;
 
 private:
-    bool hasCollided;
-    corn::EventManager::ListenerID collisionEventID;
+    bool hasCollided_;
+    corn::EventScope eventScope_;
 };

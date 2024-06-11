@@ -11,16 +11,21 @@ namespace corn {
 
     EntityManager::EntityManager(Scene& scene) noexcept : scene_(scene), root_(nullptr, nullptr), nodes_() {
         // Listen to zorder change events
-        this->zOrderEventID_ = this->scene_.getEventManager().addListener(
-                "corn::game::ecs::zorder", [this](const EventArgs& args) {
+        this->eventScope_.addListener(
+                this->scene_.getEventManager(),
+                "corn::game::ecs::zorder",
+                [this](const EventArgs& args) {
                     const auto& _args = dynamic_cast<const EventArgsEntityZOrderChange&>(args);
                     if (!_args.entity) return;
                     Node* node = this->getNodeFromEntity(_args.entity);
                     node->parent->dirty = true;
                 });
+
         // Listen to add/remove camera events
-        this->cameraEventID_ = this->scene_.getEventManager().addListener(
-                "corn::game::ecs::camera", [this](const EventArgs& args) {
+        this->eventScope_.addListener(
+                this->scene_.getEventManager(),
+                "corn::game::ecs::camera",
+                [this](const EventArgs& args) {
                     const auto& _args = dynamic_cast<const EventArgsCamera&>(args);
                     if (!_args.camera || &_args.camera->getEntityManager() != this) return;
                     switch (_args.eventType) {
@@ -35,10 +40,6 @@ namespace corn {
     }
 
     EntityManager::~EntityManager() {
-        // Unregister event listeners
-        this->scene_.getEventManager().removeListener(this->zOrderEventID_);
-        this->scene_.getEventManager().removeListener(this->cameraEventID_);
-
         // Delete entities
         for (auto& [id, node] : this->nodes_) {
             delete node.ent;

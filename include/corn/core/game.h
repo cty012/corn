@@ -4,7 +4,7 @@
 #include <stack>
 #include <unordered_map>
 #include <corn/event/event_args.h>
-#include <corn/event/event_manager.h>
+#include <corn/event/event_scope.h>
 #include <corn/util/config.h>
 #include <corn/util/stopwatch.h>
 
@@ -131,7 +131,6 @@ namespace corn {
         /// @brief Stopwatch for timing between each frame.
         Stopwatch sw_;
 
-        EventManager::ListenerID sceneEventID_;
-        EventManager::ListenerID closeEventID_;
+        EventScope eventScope_;
     };
 }

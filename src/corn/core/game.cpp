@@ -9,12 +9,15 @@ namespace corn {
         this->scenes_.push(startScene);
 
         // Register event listeners
-        this->sceneEventID_ = EventManager::instance().addListener(
-                "corn::game::scene", [this](const EventArgs& args) {
+        this->eventScope_.addListener(
+                "corn::game::scene",
+                [this](const EventArgs& args) {
                     this->sceneEvents_.push(dynamic_cast<const EventArgsScene&>(args));
                 });
-        this->closeEventID_ = EventManager::instance().addListener(
-                "corn::exit", [this](const EventArgs&) {
+
+        this->eventScope_.addListener(
+                "corn::exit",
+                [this](const EventArgs&) {
                     this->active_ = false;
                 });
 
@@ -23,10 +26,6 @@ namespace corn {
     }
 
     Game::~Game() {
-        // Unregister event listeners
-        EventManager::instance().removeListener(this->sceneEventID_);
-        EventManager::instance().removeListener(this->closeEventID_);
-
         // Deallocation
         delete this->interface_;
         this->removeAllScenes();

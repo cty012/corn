@@ -18,17 +18,27 @@ namespace corn {
     UIManager::UIManager(Scene& scene) noexcept
             : scene_(scene), root_(nullptr, nullptr), hoveredWidgets_(), hoveredWidgetSet_() {
 
-        this->mousebtnEventID_ = this->scene_.getEventManager().addListener(
-                "corn::input::mousebtn", [this](const EventArgs& args) {
+        // Listen to mouse click events
+        this->eventScope_.addListener(
+                this->scene_.getEventManager(),
+                "corn::input::mousebtn",
+                [this](const EventArgs& args) {
                     this->onClick(dynamic_cast<const EventArgsMouseButton&>(args));
                 });
-        this->mousemvEventID_ = this->scene_.getEventManager().addListener(
-                "corn::input::mousemv", [this](const EventArgs& args) {
+
+        // Listen to mouse move events
+        this->eventScope_.addListener(
+                this->scene_.getEventManager(),
+                "corn::input::mousemv",
+                [this](const EventArgs& args) {
                     this->onHover(dynamic_cast<const EventArgsMouseMove&>(args));
                 });
+
         // Listen to zorder change events
-        this->zOrderEventID_ = this->scene_.getEventManager().addListener(
-                "corn::game::ui::zorder", [this](const EventArgs& args) {
+        this->eventScope_.addListener(
+                this->scene_.getEventManager(),
+                "corn::game::ui::zorder",
+                [this](const EventArgs& args) {
                     const auto& _args = dynamic_cast<const EventArgsWidgetZOrderChange&>(args);
                     if (!_args.widget) return;
                     Node* node = this->getNodeFromWidget(_args.widget);
@@ -37,9 +47,6 @@ namespace corn {
     }
 
     UIManager::~UIManager() {
-        this->scene_.getEventManager().removeListener(this->mousebtnEventID_);
-        this->scene_.getEventManager().removeListener(this->mousemvEventID_);
-        this->scene_.getEventManager().removeListener(this->zOrderEventID_);
         // Delete UI widgets
         for (auto& [id, node] : this->nodes_) {
             delete node.widget;
