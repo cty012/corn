@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <corn/ecs/entity.h>
-#include <corn/event/event_manager.h>
+#include <corn/event/event_scope.h>
 
 namespace corn {
     struct CCamera;
@@ -210,8 +210,7 @@ namespace corn {
         /// @brief List of camera entities for quick access.
         std::vector<const CCamera*> cameras_;
 
-        EventManager::ListenerID zOrderEventID_;
-        EventManager::ListenerID cameraEventID_;
+        EventScope eventScope_;
     };
 
     template<ComponentType... T>

@@ -4,7 +4,7 @@
 #include <corn/util/exceptions.h>
 
 namespace corn {
-    EventManager::EventManager() : listeners_() {}
+    EventManager::EventManager(std::string name, bool isPublic) : name_(std::move(name)), isPublic_(isPublic) {}
 
     EventManager::~EventManager() {
         for (EventManager* room : this->privateRooms_) {
@@ -16,26 +16,33 @@ namespace corn {
     }
 
     EventManager& EventManager::instance() noexcept {
-        static EventManager instance;
+        static EventManager instance("", true);
         return instance;
+    }
+
+    bool EventManager::hasInstance(const std::string& room) noexcept {
+        if (room.empty()) return true;
+        EventManager& instance = EventManager::instance();
+        return instance.rooms_.contains(room);
     }
 
     EventManager& EventManager::instance(const std::string& room) {
         EventManager& instance = EventManager::instance();
+        if (room.empty()) return instance;
         if (!instance.rooms_.contains(room))
             throw std::invalid_argument("Room \"" + room + "\" does not exist.");
         return *instance.rooms_[room];
     }
 
     EventManager& EventManager::privateInstance() {
-        static EventManager instance;
+        static EventManager instance("", false);
         return instance;
     }
 
     bool EventManager::addRoom(const std::string& room) noexcept {
         EventManager& instance = EventManager::instance();
-        if (instance.rooms_.contains(room)) return false;
-        instance.rooms_[room] = new EventManager();
+        if (room.empty() || instance.rooms_.contains(room)) return false;
+        instance.rooms_[room] = new EventManager(room, true);
         return true;
     }
 
@@ -49,7 +56,7 @@ namespace corn {
 
     EventManager* EventManager::addPrivateRoom() noexcept {
         EventManager& instance = EventManager::privateInstance();
-        auto* manager = new EventManager();
+        auto* manager = new EventManager("", false);
         instance.privateRooms_.push_back(manager);
         return manager;
     }
@@ -58,8 +65,17 @@ namespace corn {
         EventManager& instance = EventManager::privateInstance();
         std::vector<EventManager*>& rooms = instance.privateRooms_;
         size_t original_size = rooms.size();
+        delete manager;
         std::erase(rooms, manager);
         return original_size != rooms.size();
+    }
+
+    const std::string& EventManager::getName() const noexcept {
+        return this->name_;
+    }
+
+    bool EventManager::isPublic() const noexcept {
+        return this->isPublic_;
     }
 
     EventManager::ListenerID EventManager::addListener(const std::string& eventType, const Action& listener) noexcept {

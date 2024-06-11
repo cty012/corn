@@ -21,6 +21,7 @@ namespace corn {
      * type() method of the event argument.
      *
      * @see EventArgs
+     * @see EventScope
      */
     class EventManager {
     public:
@@ -28,7 +29,7 @@ namespace corn {
         using Action = std::function<void(const EventArgs&)>;
 
         /**
-         * @return The multiton root instance.
+         * @return The multiton root instance (or global instance).
          *
          * Events emitted from this instance will propagate to all rooms.
          */
@@ -36,8 +37,16 @@ namespace corn {
 
         /**
          * @param room Identifier of the room.
+         * @return Whether the specified room exist.
+         */
+        [[nodiscard]] static bool hasInstance(const std::string& room) noexcept;
+
+        /**
+         * @param room Identifier of the room.
          * @return An instance for the specified room.
          * @throw std::invalid_argument If the room doesn't exist.
+         *
+         * Will return the global instance if identifier is empty.
          */
         [[nodiscard]] static EventManager& instance(const std::string& room);
 
@@ -45,6 +54,8 @@ namespace corn {
          * @brief Creates a new room.
          * @param room Identifier of the room.
          * @return Whether the room is created successfully.
+         *
+         * Identifier cannot be empty.
          */
         static bool addRoom(const std::string& room) noexcept;
 
@@ -69,6 +80,12 @@ namespace corn {
          * @return Whether the room is removed successfully.
          */
         static bool removePrivateRoom(EventManager* room) noexcept;
+
+        /// @brief Get the name (identifier) of the event manager.
+        [[nodiscard]] const std::string& getName() const noexcept;
+
+        /// @brief Whether the event manager is public.
+        [[nodiscard]] bool isPublic() const noexcept;
 
         /**
          * @brief Adds an event listener and return an unique ID of the event.
@@ -95,7 +112,7 @@ namespace corn {
 
     private:
         /// @brief Constructor.
-        EventManager();
+        EventManager(std::string name, bool isPublic);
 
         /// @brief Destructor.
         ~EventManager();
@@ -105,6 +122,12 @@ namespace corn {
 
         /// @return The root of all private instances.
         [[nodiscard]] static EventManager& privateInstance();
+
+        /// @brief Name (identifier) of the event manager.
+        std::string name_;
+
+        /// @brief Whether the event manager is public.
+        bool isPublic_;
 
         /// @brief Map for storing all event listeners.
         std::unordered_map<std::string, std::vector<std::pair<ListenerID, Action>>> listeners_;

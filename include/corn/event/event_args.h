@@ -27,6 +27,8 @@ namespace corn {
      * });
      * EventManager::instance().emit(EventArgsExample{ 10 });  // prints 10
      * ```
+     *
+     * @see EventManager
      */
     struct EventArgs {
         /// @return Type of the event. Different events must have different types.

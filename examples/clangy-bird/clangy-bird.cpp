@@ -13,11 +13,13 @@ int main() {
     corn::FontManager::instance().load(
             "noto-sans-zh", "resources/fonts/noto-sans-zh/static/NotoSansSC-Regular.ttf");
 
-    corn::Game game(new MainMenuScene(), config);
     corn::EventManager::ListenerID exitEventID = corn::EventManager::instance().addListener(
-            "corn::input::exit", [](const corn::EventArgs&) {
+            "corn::input::exit",
+            [](const corn::EventArgs&) {
                 corn::EventManager::instance().emit(corn::EventArgsExit());
             });
+
+    corn::Game game(new MainMenuScene(), config);
     game.run();
 
     corn::EventManager::instance().removeListener(exitEventID);

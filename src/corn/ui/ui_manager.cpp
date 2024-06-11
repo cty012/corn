@@ -18,17 +18,27 @@ namespace corn {
     UIManager::UIManager(Scene& scene) noexcept
             : scene_(scene), root_(nullptr, nullptr), hoveredWidgets_(), hoveredWidgetSet_() {
 
-        this->mousebtnEventID_ = this->scene_.getEventManager().addListener(
-                "corn::input::mousebtn", [this](const EventArgs& args) {
+        // Listen to mouse click events
+        this->eventScope_.addListener(
+                this->scene_.getEventManager(),
+                "corn::input::mousebtn",
+                [this](const EventArgs& args) {
                     this->onClick(dynamic_cast<const EventArgsMouseButton&>(args));
                 });
-        this->mousemvEventID_ = this->scene_.getEventManager().addListener(
-                "corn::input::mousemv", [this](const EventArgs& args) {
+
+        // Listen to mouse move events
+        this->eventScope_.addListener(
+                this->scene_.getEventManager(),
+                "corn::input::mousemv",
+                [this](const EventArgs& args) {
                     this->onHover(dynamic_cast<const EventArgsMouseMove&>(args));
                 });
+
         // Listen to zorder change events
-        this->zOrderEventID_ = this->scene_.getEventManager().addListener(
-                "corn::game::ui::zorder", [this](const EventArgs& args) {
+        this->eventScope_.addListener(
+                this->scene_.getEventManager(),
+                "corn::game::ui::zorder",
+                [this](const EventArgs& args) {
                     const auto& _args = dynamic_cast<const EventArgsWidgetZOrderChange&>(args);
                     if (!_args.widget) return;
                     Node* node = this->getNodeFromWidget(_args.widget);
@@ -37,9 +47,6 @@ namespace corn {
     }
 
     UIManager::~UIManager() {
-        this->scene_.getEventManager().removeListener(this->mousebtnEventID_);
-        this->scene_.getEventManager().removeListener(this->mousemvEventID_);
-        this->scene_.getEventManager().removeListener(this->zOrderEventID_);
         // Delete UI widgets
         for (auto& [id, node] : this->nodes_) {
             delete node.widget;
@@ -154,8 +161,8 @@ namespace corn {
                             widget, false);
                     // Find max of children size
                     for (UIWidget* child : independentChildren) {
-                        nw = std::max(nw, widgetProps[child].nw + widgetProps[child].x);
-                        nh = std::max(nh, widgetProps[child].nh + widgetProps[child].y);
+                        nw = std::max(nw, widgetProps[child].w + widgetProps[child].x);
+                        nh = std::max(nh, widgetProps[child].h + widgetProps[child].y);
                     }
                     break;
                 }
@@ -172,20 +179,23 @@ namespace corn {
                     break;
                 }
             }
-            if (geometry == UIGeometry::INDEPENDENT) {
-                float percNW = nw * 0.01f;
-                float percNH = nh * 0.01f;
-                float x = widget->getX().calc(1.0f, 0.0f, 0.0f, percNW, percNH);
-                float y = widget->getY().calc(1.0f, 0.0f, 0.0f, percNW, percNH);
-                widgetProps[widget] = {
-                        geometry,
-                        x, y, nw, nh, nw, nh,
-                };
-            } else {
-                widgetProps[widget] = {
-                        geometry,
-                        0.0f, 0.0f, nw, nh, 0.0f, 0.0f,
-                };
+
+            switch (geometry) {
+                case UIGeometry::INDEPENDENT: {
+                    float percNW = nw * 0.01f;
+                    float percNH = nh * 0.01f;
+                    float x = widget->getX().calc(1.0f, 0.0f, 0.0f, percNW, percNH);
+                    float y = widget->getY().calc(1.0f, 0.0f, 0.0f, percNW, percNH);
+                    float w = widget->getW().calc(1.0f, 0.0f, 0.0f, percNW, percNH);
+                    float h = widget->getH().calc(1.0f, 0.0f, 0.0f, percNW, percNH);
+                    widgetProps[widget] = { geometry, x, y, nw, nh, w, h };
+                    break;
+                }
+                case UIGeometry::DEPENDENT:
+                case UIGeometry::DEFAULT: {
+                    widgetProps[widget] = { geometry, 0.0f, 0.0f, nw, nh, 0.0f, 0.0f };
+                    break;
+                }
             }
         }
 
@@ -193,18 +203,24 @@ namespace corn {
         for (const UIWidget* widget : widgets) {
             Property& props = widgetProps[widget];
             Property& parentProps = widgetProps[widget->getParent()];
-            if (props.geometry == UIGeometry::INDEPENDENT) {
-                props.x += parentProps.x;
-                props.y += parentProps.y;
-            } else {
-                float percW = parentProps.w * 0.01f;
-                float percH = parentProps.h * 0.01f;
-                float percNW = props.nw * 0.01f;
-                float percNH = props.nh * 0.01f;
-                props.x = widget->getX().calc(1.0f, percW, percH, percNW, percNH) + parentProps.x;
-                props.y = widget->getY().calc(1.0f, percW, percH, percNW, percNH) + parentProps.y;
-                props.w = widget->getW().calc(1.0f, percW, percH, percNW, percNH);
-                props.h = widget->getH().calc(1.0f, percW, percH, percNW, percNH);
+            switch (props.geometry) {
+                case UIGeometry::INDEPENDENT: {
+                    props.x += parentProps.x;
+                    props.y += parentProps.y;
+                    break;
+                }
+                case UIGeometry::DEPENDENT:
+                case UIGeometry::DEFAULT: {
+                    float percW = parentProps.w * 0.01f;
+                    float percH = parentProps.h * 0.01f;
+                    float percNW = props.nw * 0.01f;
+                    float percNH = props.nh * 0.01f;
+                    props.x = widget->getX().calc(1.0f, percW, percH, percNW, percNH) + parentProps.x;
+                    props.y = widget->getY().calc(1.0f, percW, percH, percNW, percNH) + parentProps.y;
+                    props.w = widget->getW().calc(1.0f, percW, percH, percNW, percNH);
+                    props.h = widget->getH().calc(1.0f, percW, percH, percNW, percNH);
+                    break;
+                }
             }
         }
 
@@ -231,7 +247,7 @@ namespace corn {
         this->tidy();
         std::vector<UIWidget*> widgets = this->getAllActiveWidgets();
         for (UIWidget* widget : std::ranges::reverse_view(std::views::all(widgets))) {
-            if (this->widgetContains(widget, pos)) return widget;
+            if (widget->isClickable() && this->widgetContains(widget, pos)) return widget;
         }
         return nullptr;
     }
@@ -254,7 +270,7 @@ namespace corn {
         std::vector<UIWidget*> newHoveredWidgets;
         std::unordered_set<UIWidget*> newHoveredWidgetSet;
         for (UIWidget* current = widget; current; current = current->getParent()) {
-            if (this->widgetContains(current, args.mousePos)) {
+            if (current->isClickable() && this->widgetContains(current, args.mousePos)) {
                 newHoveredWidgets.push_back(current);
                 newHoveredWidgetSet.insert(current);
             }
