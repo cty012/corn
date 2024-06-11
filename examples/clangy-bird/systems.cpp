@@ -24,23 +24,23 @@ void WallManager::update(float) {
     }
 }
 
-BirdCollisionResolve::BirdCollisionResolve(corn::Scene& scene) : corn::System(scene), hasCollided(false) {
+BirdCollisionResolve::BirdCollisionResolve(corn::Scene& scene) : corn::System(scene), hasCollided_(false) {
     this->setActive(false);
-    this->collisionEventID = this->getScene().getEventManager().addListener(
-            "corn::game::collision", [this](const corn::EventArgs& args) {
+    this->eventScope_.addListener(
+            this->getScene().getEventManager(),
+            "corn::game::collision",
+            [this](const corn::EventArgs& args) {
                 const auto& _args = dynamic_cast<const corn::EventArgsCollision&>(args);
                 this->resolve(_args);
             });
 }
 
-BirdCollisionResolve::~BirdCollisionResolve() {
-    this->getScene().getEventManager().removeListener(this->collisionEventID);
-}
+BirdCollisionResolve::~BirdCollisionResolve() = default;
 
 void BirdCollisionResolve::resolve(const corn::EventArgsCollision& args) {
-    if (this->hasCollided) return;
+    if (this->hasCollided_) return;
     if (args.collider1->getEntity().getName() != "bird" && args.collider2->getEntity().getName() != "bird") return;
-    this->hasCollided = true;
+    this->hasCollided_ = true;
     corn::EventManager::instance().emit(corn::EventArgsScene(
             corn::SceneOperation::REPLACE, new GameScene()));
 }
