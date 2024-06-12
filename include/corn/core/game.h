@@ -100,7 +100,8 @@ namespace corn {
          * handled by the Game class (scene must be on the heap).
          *
          * If the function is called with a POP operation and a valid scene pointer, the scene argument passed to the
-         * function will be deleted.
+         * function will NOT be deleted. If the function is NOT called with POP operation and the scene pointer is null,
+         * nothing will be changed.
          */
         void changeScene(SceneOperation op, Scene* scene) noexcept;
 
