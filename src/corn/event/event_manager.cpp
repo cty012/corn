@@ -101,7 +101,8 @@ namespace corn {
 
     int EventManager::emit(const EventArgs& args, bool propagate) noexcept {  // NOLINT
         if (!this->listeners_.contains(args.type())) return 0;
-        const std::vector<std::pair<ListenerID, Action>>& callbacks = this->listeners_.at(args.type());
+        // Callbacks are copied to avoid changes to them when invoking the actions.
+        std::vector<std::pair<ListenerID, Action>> callbacks = this->listeners_.at(args.type());
         for (const auto& [listenerId, action] : callbacks) {
             try {
                 action(args);

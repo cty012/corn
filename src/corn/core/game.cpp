@@ -59,22 +59,27 @@ namespace corn {
     void Game::changeScene(corn::SceneOperation op, corn::Scene* scene) noexcept {
         switch (op) {
             case SceneOperation::PUSH:  // Add new scene to top
-                scene->game_ = this;
-                this->scenes_.push(scene);
+                if (scene) {
+                    scene->game_ = this;
+                    this->scenes_.push(scene);
+                }
                 break;
             case SceneOperation::POP:  // Remove the top scene
                 this->removeOneScene();
-                delete scene;
                 break;
             case SceneOperation::REPLACE:  // Remove the top scene and add new scene to top
-                this->removeOneScene();
-                scene->game_ = this;
-                this->scenes_.push(scene);
+                if (scene) {
+                    this->removeOneScene();
+                    scene->game_ = this;
+                    this->scenes_.push(scene);
+                }
                 break;
             case SceneOperation::REPLACE_ALL:  // Remove all scenes and add new scene to top
-                this->removeAllScenes();
-                scene->game_ = this;
-                this->scenes_.push(scene);
+                if (scene) {
+                    this->removeAllScenes();
+                    scene->game_ = this;
+                    this->scenes_.push(scene);
+                }
                 break;
         }
     }
