@@ -69,7 +69,10 @@ namespace corn {
                             sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
                             Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
-                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    // Only emit the event to the top scene if not caught by UI
+                    if (!this->game_.getTopScene()->getUIManager().onClick(eventArgs)) {
+                        this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    }
                     break;
                 }
                 case (sf::Event::MouseButtonReleased): {
@@ -77,7 +80,20 @@ namespace corn {
                             sfInput2CornInput(event.mouseButton.button), ButtonEvent::UP,
                             Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
-                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    // Only emit the event to the top scene if not caught by UI
+                    if (!this->game_.getTopScene()->getUIManager().onClick(eventArgs)) {
+                        this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    }
+                    break;
+                }
+                case sf::Event::MouseMoved: {
+                    EventArgsMouseMove eventArgs(
+                            Vec2((float)event.mouseMove.x, (float)event.mouseMove.y));
+                    EventManager::instance().emit(eventArgs);
+                    // Only emit the event to the top scene if not caught by UI
+                    if (!this->game_.getTopScene()->getUIManager().onHover(eventArgs)) {
+                        this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    }
                     break;
                 }
                 case (sf::Event::MouseWheelScrolled): {
@@ -85,14 +101,10 @@ namespace corn {
                             event.mouseWheelScroll.delta,
                             Vec2((float)event.mouseWheelScroll.x, (float)event.mouseWheelScroll.y));
                     EventManager::instance().emit(eventArgs);
-                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
-                    break;
-                }
-                case sf::Event::MouseMoved: {
-                    EventArgsMouseMove eventArgs(
-                            Vec2((float)event.mouseMove.x, (float)event.mouseMove.y));
-                    EventManager::instance().emit(eventArgs);
-                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    // Only emit the event to the top scene if not caught by UI
+                    if (!this->game_.getTopScene()->getUIManager().onScroll(eventArgs)) {
+                        this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    }
                     break;
                 }
                 case (sf::Event::KeyPressed): {

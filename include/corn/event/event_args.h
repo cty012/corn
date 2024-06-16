@@ -263,4 +263,21 @@ namespace corn {
         /// @brief Constructor.
         EventArgsUIOnExit(EventArgsMouseMove mousemvEvent, UIWidget* target) noexcept;
     };
+
+    /**
+     * @class EventArgsUIOnScroll
+     * @brief Emits when a UI widget is hovered when scrolling.
+     */
+    struct EventArgsUIOnScroll : public EventArgs {
+        [[nodiscard]] std::string type() const noexcept override { return "corn::ui::onscroll"; }
+
+        /// @brief The mouse scroll event that triggers this event.
+        EventArgsMouseScroll mousescEvent;
+
+        /// @brief The UI widget hovered when scrolling.
+        UIWidget* target;
+
+        /// @brief Constructor.
+        EventArgsUIOnScroll(EventArgsMouseScroll mousescEvent, UIWidget* target) noexcept;
+    };
 }

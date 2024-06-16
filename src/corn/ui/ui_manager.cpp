@@ -16,35 +16,7 @@ namespace corn {
             : widget(widget), parent(parent), dirty(false) {}
 
     UIManager::UIManager(Scene& scene) noexcept
-            : scene_(scene), root_(nullptr, nullptr), hoveredWidgets_(), hoveredWidgetSet_() {
-
-        // Listen to mouse click events
-        this->eventScope_.addListener(
-                this->scene_.getEventManager(),
-                "corn::input::mousebtn",
-                [this](const EventArgs& args) {
-                    this->onClick(dynamic_cast<const EventArgsMouseButton&>(args));
-                });
-
-        // Listen to mouse move events
-        this->eventScope_.addListener(
-                this->scene_.getEventManager(),
-                "corn::input::mousemv",
-                [this](const EventArgs& args) {
-                    this->onHover(dynamic_cast<const EventArgsMouseMove&>(args));
-                });
-
-        // Listen to zorder change events
-        this->eventScope_.addListener(
-                this->scene_.getEventManager(),
-                "corn::game::ui::zorder",
-                [this](const EventArgs& args) {
-                    const auto& _args = dynamic_cast<const EventArgsWidgetZOrderChange&>(args);
-                    if (!_args.widget) return;
-                    Node* node = this->getNodeFromWidget(_args.widget);
-                    node->parent->dirty = true;
-                });
-    }
+            : scene_(scene), root_(nullptr, nullptr), hoveredWidgets_(), hoveredWidgetSet_() {}
 
     UIManager::~UIManager() {
         // Delete UI widgets
@@ -238,21 +210,7 @@ namespace corn {
         return { node->location.x, node->location.y, node->size.x, node->size.y };
     }
 
-    bool UIManager::widgetContains(const UIWidget* widget, Vec2 pos) const noexcept {
-        auto [x, y, w, h] = this->getCachedGeometry(widget);  // NOLINT
-        return x < pos.x && y < pos.y && x + w > pos.x && y + h > pos.y;
-    }
-
-    UIWidget* UIManager::getTargetWidget(Vec2 pos) noexcept {
-        this->tidy();
-        std::vector<UIWidget*> widgets = this->getAllActiveWidgets();
-        for (UIWidget* widget : std::ranges::reverse_view(std::views::all(widgets))) {
-            if (widget->isClickable() && this->widgetContains(widget, pos)) return widget;
-        }
-        return nullptr;
-    }
-
-    void UIManager::onClick(const EventArgsMouseButton& args) noexcept {
+    bool UIManager::onClick(const EventArgsMouseButton& args) noexcept {
         UIWidget* widget = this->getTargetWidget(args.mousePos);
 
         // Bubble up
@@ -261,16 +219,18 @@ namespace corn {
                 current->getEventManager().emit(EventArgsUIOnClick(args, widget));
             }
         }
+
+        return widget != nullptr;
     }
 
-    void UIManager::onHover(const EventArgsMouseMove& args) noexcept {
+    bool UIManager::onHover(const EventArgsMouseMove& args) noexcept {
         UIWidget* widget = this->getTargetWidget(args.mousePos);
 
         // Bubble up
         std::vector<UIWidget*> newHoveredWidgets;
         std::unordered_set<UIWidget*> newHoveredWidgetSet;
         for (UIWidget* current = widget; current; current = current->getParent()) {
-            if (current->isClickable() && this->widgetContains(current, args.mousePos)) {
+            if (current->isInteractable() && this->widgetContains(current, args.mousePos)) {
                 newHoveredWidgets.push_back(current);
                 newHoveredWidgetSet.insert(current);
             }
@@ -298,6 +258,35 @@ namespace corn {
         // Update hovered widgets
         this->hoveredWidgets_ = std::move(newHoveredWidgets);
         this->hoveredWidgetSet_ = std::move(newHoveredWidgetSet);
+
+        return !this->hoveredWidgets_.empty();
+    }
+
+    bool UIManager::onScroll(const EventArgsMouseScroll& args) noexcept {
+        UIWidget* widget = this->getTargetWidget(args.mousePos);
+
+        // Bubble up
+        for (UIWidget* current = widget; current; current = current->getParent()) {
+            if (current->isInteractable() && this->widgetContains(current, args.mousePos)) {
+                current->getEventManager().emit(EventArgsUIOnScroll(args, widget));
+            }
+        }
+
+        return widget;
+    }
+
+    bool UIManager::widgetContains(const UIWidget* widget, Vec2 pos) const noexcept {
+        auto [x, y, w, h] = this->getCachedGeometry(widget);  // NOLINT
+        return x < pos.x && y < pos.y && x + w > pos.x && y + h > pos.y;
+    }
+
+    UIWidget* UIManager::getTargetWidget(Vec2 pos) noexcept {
+        this->tidy();
+        std::vector<UIWidget*> widgets = this->getAllActiveWidgets();
+        for (UIWidget* widget : std::ranges::reverse_view(std::views::all(widgets))) {
+            if (widget->isInteractable() && this->widgetContains(widget, pos)) return widget;
+        }
+        return nullptr;
     }
 
     void UIManager::destroyNode(Node* node) noexcept {

@@ -11,6 +11,7 @@
 namespace corn {
     struct EventArgsMouseButton;
     struct EventArgsMouseMove;
+    struct EventArgsMouseScroll;
     struct Vec4;
 
     template <typename T>
@@ -143,6 +144,39 @@ namespace corn {
          */
         Vec4 getCachedGeometry(const UIWidget* widget) const noexcept;
 
+        /**
+         * @brief Propagates the mouse-click event to relevant UI widgets.
+         * @param args Event to be propagated.
+         * @return Whether a UI widget is clicked.
+         *
+         * The event will first be emitted to the widget returned by the getTargetWidget function. Then, it is
+         * propagated to its parent, who will receive the event if and only if it contains this location. Regardless of
+         * the result, it continues to propagate to its parent until it reaches the root node.
+         */
+        bool onClick(const EventArgsMouseButton& args) noexcept;
+
+        /**
+         * @brief Propagates the mouse-hover, mouse-enter, and mouse-exit events to relevant UI widgets.
+         * @param args Event to be propagated.
+         * @return Whether a UI widget is hovered.
+         *
+         * The event will first be emitted to the widget returned by the getTargetWidget function. Then, it is
+         * propagated to its parent, who will receive the event if and only if it contains this location. Regardless of
+         * the result, it continues to propagate to its parent until it reaches the root node.
+         */
+        bool onHover(const EventArgsMouseMove& args) noexcept;
+
+        /**
+         * @brief Propagates the mouse-scroll events to relevant UI widgets.
+         * @param args Event to be propagated.
+         * @return Whether a UI widget is hovered over when scrolling occurs.
+         *
+         * The event will first be emitted to the widget returned by the getTargetWidget function. Then, it is
+         * propagated to its parent, who will receive the event if and only if it contains this location. Regardless of
+         * the result, it continues to propagate to its parent until it reaches the root node.
+         */
+        bool onScroll(const EventArgsMouseScroll& args) noexcept;
+
     private:
         /**
          * @param widget The target UI widget.
@@ -159,26 +193,6 @@ namespace corn {
          * along the z-axis.
          */
         UIWidget* getTargetWidget(Vec2 pos) noexcept;
-
-        /**
-         * @brief Propagates the mouse-click event to relevant UI widgets.
-         * @param args Event to be propagated.
-         *
-         * The event will first be emitted to the widget returned by the getTargetWidget function. Then, it is
-         * propagated to its parent, who will receive the event if and only if it contains this location. Regardless of
-         * the result, it continues to propagate to its parent until it reaches the root node.
-         */
-        void onClick(const EventArgsMouseButton& args) noexcept;
-
-        /**
-         * @brief Propagates the mouse-hover, mouse-enter, and mouse-exit events to relevant UI widgets.
-         * @param args Event to be propagated.
-         *
-         * The event will first be emitted to the widget returned by the getTargetWidget function. Then, it is
-         * propagated to its parent, who will receive the event if and only if it contains this location. Regardless of
-         * the result, it continues to propagate to its parent until it reaches the root node.
-         */
-        void onHover(const EventArgsMouseMove& args) noexcept;
 
         /**
          * @brief Helper to UIManager::destroyWidget.
