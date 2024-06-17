@@ -70,6 +70,14 @@ namespace corn::impl::expression {
                 }
             },
             {
+                "num", [](const std::string& input, const std::vector<bool>& operands) -> bool {
+                    if (operands.size() != 1) {
+                        throw ExpressionSyntaxError(input, "Function `num` takes one operand.");
+                    }
+                    return false;
+                }
+            },
+            {
                 "min", [](const std::string& input, const std::vector<bool>& operands) -> bool {
                     if (operands.empty()) {
                         throw ExpressionSyntaxError(input, "Function `min` takes at least one operand.");
@@ -107,6 +115,11 @@ namespace corn::impl::expression {
             {
                 "eval", [](const std::vector<Value>& operands) -> Value {
                     return operands[0];
+                }
+            },
+            {
+                "num", [](const std::vector<Value>& operands) -> Value {
+                    return { operands[0].val, false };
                 }
             },
             {

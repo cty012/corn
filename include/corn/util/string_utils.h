@@ -1,7 +1,9 @@
 #pragma once
 
 #include <array>
+#include <filesystem>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace corn {
@@ -90,5 +92,13 @@ namespace corn {
      * @param file Path to the file.
      * @return The string loaded.
      */
-    std::string loadStringFromFile(const std::string& file);
+    std::string loadStringFromFile(const std::filesystem::path& file);
+
+    /**
+     * @brief Replace the `${key}` placeholders with corresponding value given in the dictionary.
+     * @param fstring String format with placeholders.
+     * @param dictionary Key-value pairs for replacing.
+     * @return The formatted string.
+     */
+    std::string format(const std::string& fstring, const std::unordered_map<std::string, std::string>& dictionary);
 }
