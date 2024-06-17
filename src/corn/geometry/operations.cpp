@@ -1,4 +1,5 @@
 #include <cmath>
+#include <format>
 #include <corn/geometry/operations.h>
 #include <corn/geometry/rotation.h>
 #include <corn/geometry/vec2.h>
@@ -6,6 +7,18 @@
 #include <corn/geometry/vec4.h>
 
 namespace corn {
+    std::string toString(const Vec2& vec) {
+        return std::format("<{}, {}>", vec.x, vec.y);
+    }
+
+    std::string toString(const Vec3& vec) {
+        return std::format("<{}, {}, {}>", vec.x, vec.y, vec.z);
+    }
+
+    std::string toString(const Vec4& vec) {
+        return std::format("<{}, {}, {}, {}>", vec.x, vec.y, vec.z, vec.w);
+    }
+
     Vec2 clamp(const Vec2& minimum, const Vec2& value, const Vec2& maximum) {
         return {
             clamp(minimum.x, value.x, maximum.x),

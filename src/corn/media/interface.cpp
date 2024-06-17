@@ -268,9 +268,11 @@ namespace corn {
                 auto [worldLocation, worldRotation] = transform->getWorldTransform();
                 auto [ancX, ancY] = worldLocation - cameraOffset;
                 auto [locX, locY] = sprite->location;
+                auto [scaleX, scaleY] = sprite->image->impl_->scale;
                 sf::Sprite& sfSprite = sprite->image->impl_->sfSprite;
                 sfSprite.setOrigin(-locX, -locY);
                 sfSprite.setPosition(ancX, ancY);
+                sfSprite.setScale(scaleX, scaleY);
                 sfSprite.setRotation(-worldRotation.get());
                 camera->viewport.impl_->texture.draw(sfSprite, scaleTransform);
             }
@@ -401,7 +403,7 @@ namespace corn {
                     sfSprite.setPosition(x, y);
                     // Scale image
                     Vec2 size = image->getSize();
-                    Vec2 totalScale = image->impl_->scale * Vec2(size.x ? w / size.x : 1, size.y ? h / size.y : 1);
+                    Vec2 totalScale = image->impl_->scale * Vec2(size.x != 0.0f ? w / size.x : 1, size.y != 0.0f ? h / size.y : 1);
                     // Draw the image on the screen
                     sfSprite.setScale(totalScale.x, totalScale.y);
                     this->impl_->window->draw(sfSprite);
