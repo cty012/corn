@@ -243,19 +243,21 @@ namespace corn {
             auto [ancX, ancY] = worldLocation - cameraOffset;
             auto [r, g, b, a] = polygon->color.getRGBA();
 
+            sf::Transform rotateTransform;
+            rotateTransform.rotate(-worldRotation.get());
+
             const std::vector<std::array<Vec2, 3>>& triangles = polygon->getTriangles();
             sf::VertexArray varr(sf::Triangles, triangles.size() * 3);
             for (size_t i = 0; i < triangles.size(); i++) {
                 for (size_t j = 0; j < 3; j++) {
-                    varr[i * 3 + j].position = sf::Vector2f(ancX + triangles[i][j].x, ancY + triangles[i][j].y);
+                    varr[i * 3 + j].position =
+                            sf::Vector2f(ancX, ancY) +
+                            rotateTransform.transformPoint(sf::Vector2f(triangles[i][j].x, triangles[i][j].y));
                     varr[i * 3 + j].color = sf::Color{ r, g, b, a };
                 }
             }
 
-            sf::Transform rotateTransform;
-            rotateTransform.rotate(-worldRotation.get());
-
-            camera->viewport.impl_->texture.draw(varr, rotateTransform * scaleTransform);
+            camera->viewport.impl_->texture.draw(varr, scaleTransform);
         };
 
         // Render entities
