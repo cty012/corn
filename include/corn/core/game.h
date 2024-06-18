@@ -63,8 +63,11 @@ namespace corn {
          */
         [[nodiscard]] Scene* getTopScene() const noexcept;
 
-        /// @return An unordered map indicating which keys are currently pressed down.
-        [[nodiscard]] const std::unordered_map<Key, bool>& getKeyPressed() const noexcept;
+        /**
+         * @param key The target key.
+         * @return Whether the key is currently pressed down.
+         */
+        [[nodiscard]] bool isPressed(Key key) const noexcept;
 
         /**
          * @brief Launch the game.
