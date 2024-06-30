@@ -99,7 +99,7 @@ namespace corn {
         return result;
     }
 
-    int EventManager::emit(const EventArgs& args, bool propagate) noexcept {  // NOLINT
+    int EventManager::emit(const EventArgs& args) noexcept {
         if (!this->listeners_.contains(args.type())) return 0;
         // Callbacks are copied to avoid changes to them when invoking the actions.
         std::vector<std::pair<ListenerID, Action>> callbacks = this->listeners_.at(args.type());
@@ -112,13 +112,17 @@ namespace corn {
             }
         }
 
-        // Propagate to sub-rooms
-        if (propagate) {
-            for (auto& [roomName, room]: this->rooms_) {
-                room->emit(args, true);
-            }
+        return (int)callbacks.size();
+    }
+
+    int EventManager::broadcast(const EventArgs& args) noexcept {
+        int count = 0;
+
+        // Propagate to all public rooms
+        for (auto& [roomName, room]: EventManager::instance().rooms_) {
+            count += room->emit(args);
         }
 
-        return (int)callbacks.size();
+        return count;
     }
 }

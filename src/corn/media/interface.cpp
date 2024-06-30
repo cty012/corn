@@ -80,9 +80,13 @@ namespace corn {
                             sfInput2CornInput(event.mouseButton.button), ButtonEvent::UP,
                             Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
-                    // Only emit the event to the top scene if not caught by UI
+                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    // Only emit the world event if not caught by UI
                     if (!this->game_.getTopScene()->getUIManager().onClick(eventArgs)) {
-                        this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                        EventArgsWorldMouseButton worldEventArgs(
+                                sfInput2CornInput(event.mouseButton.button), ButtonEvent::UP,
+                                Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
                     }
                     break;
                 }
@@ -90,9 +94,12 @@ namespace corn {
                     EventArgsMouseMove eventArgs(
                             Vec2((float)event.mouseMove.x, (float)event.mouseMove.y));
                     EventManager::instance().emit(eventArgs);
-                    // Only emit the event to the top scene if not caught by UI
+                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    // Only emit the world event if not caught by UI
                     if (!this->game_.getTopScene()->getUIManager().onHover(eventArgs)) {
-                        this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                        EventArgsWorldMouseMove worldEventArgs(
+                                Vec2((float)event.mouseMove.x, (float)event.mouseMove.y));
+                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
                     }
                     break;
                 }
@@ -101,9 +108,13 @@ namespace corn {
                             event.mouseWheelScroll.delta,
                             Vec2((float)event.mouseWheelScroll.x, (float)event.mouseWheelScroll.y));
                     EventManager::instance().emit(eventArgs);
-                    // Only emit the event to the top scene if not caught by UI
+                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    // Only emit the world event if not caught by UI
                     if (!this->game_.getTopScene()->getUIManager().onScroll(eventArgs)) {
-                        this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                        EventArgsWorldMouseScroll worldEventArgs(
+                                event.mouseWheelScroll.delta,
+                                Vec2((float)event.mouseWheelScroll.x, (float)event.mouseWheelScroll.y));
+                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
                     }
                     break;
                 }
@@ -118,6 +129,14 @@ namespace corn {
                             Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
                     this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    // Only emit the world event if not caught by UI
+                    if (!this->game_.getTopScene()->getUIManager().onKeyboard(eventArgs)) {
+                        EventArgsWorldKeyboard worldEventArgs(
+                                key, ButtonEvent::DOWN,
+                                (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
+                                Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
+                    }
                     break;
                 }
                 case (sf::Event::KeyReleased): {
@@ -131,6 +150,14 @@ namespace corn {
                             Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
                     this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    // Only emit the world event if not caught by UI
+                    if (!this->game_.getTopScene()->getUIManager().onKeyboard(eventArgs)) {
+                        EventArgsWorldKeyboard worldEventArgs(
+                                key, ButtonEvent::UP,
+                                (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
+                                Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
+                    }
                     break;
                 }
                 case (sf::Event::TextEntered): {
@@ -138,6 +165,7 @@ namespace corn {
                             event.text.unicode, unicodeToUTF8(event.text.unicode));
                     EventManager::instance().emit(eventArgs);
                     this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    this->game_.getTopScene()->getUIManager().onTextEntered(eventArgs);
                     break;
                 }
                 default:

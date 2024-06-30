@@ -4,16 +4,13 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <corn/event/event_args.h>
 #include <corn/event/event_scope.h>
 #include <corn/geometry/vec2.h>
+#include <corn/geometry/vec4.h>
 #include <corn/ui/ui_widget.h>
 
 namespace corn {
-    struct EventArgsMouseButton;
-    struct EventArgsMouseMove;
-    struct EventArgsMouseScroll;
-    struct Vec4;
-
     template <typename T>
     concept WidgetType = std::derived_from<T, UIWidget>;
 
@@ -98,7 +95,8 @@ namespace corn {
          * @param pred A predicate function that takes an Entity pointer and returns whether it satisfy the conditions.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
-         * @return The first Entity that satisfy the conditions given by filter. Null pointer if it doesn't exist.
+         * @return The first Entity that satisfy the conditions given by the predicate function, or null pointer if it
+         *         doesn't exist.
          */
         UIWidget* getWidgetThat(
                 const std::function<bool(const UIWidget*)>& pred, const UIWidget* parent = nullptr, bool recurse = true) const;
@@ -107,7 +105,7 @@ namespace corn {
          * @param pred A predicate function that takes an Entity pointer and returns whether it satisfy the conditions.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
-         * @return All Entities that satisfy the conditions given by filter.
+         * @return All Entities that satisfy the conditions given by the predicate function.
          */
         std::vector<UIWidget*> getWidgetsThat(
                 const std::function<bool(const UIWidget*)>& pred, const UIWidget* parent = nullptr, bool recurse = true) const;
@@ -144,6 +142,24 @@ namespace corn {
          */
         Vec4 getCachedGeometry(const UIWidget* widget) const noexcept;
 
+        /// @return Get the currently focused widget. The focused widget will catch text events.
+        UIWidget* getFocusedWidget() const noexcept;
+
+        /**
+         * @brief Change the focused widget. The focused widget will catch text events.
+         * @param widget The widget to focus on.
+         */
+        void setFocusedWidget(UIWidget* widget) noexcept;
+
+        /**
+         * @brief Propagates the keyboard event to relevant UI widgets.
+         * @param args Event to be propagated.
+         * @return Whether a UI widget catches the keyboard event.
+         *
+         * The event will be emitted to all widgets that are keyboard-interactable.
+         */
+        bool onKeyboard(const EventArgsKeyboard& args) noexcept;
+
         /**
          * @brief Propagates the mouse-click event to relevant UI widgets.
          * @param args Event to be propagated.
@@ -176,6 +192,15 @@ namespace corn {
          * the result, it continues to propagate to its parent until it reaches the root node.
          */
         bool onScroll(const EventArgsMouseScroll& args) noexcept;
+
+        /**
+         * @brief Propagates the text-entered event to relevant UI widgets.
+         * @param args Event to be propagated.
+         * @return Whether a UI widget catches the text-entered event.
+         *
+         * The event will be emitted to the currently focused widget.
+         */
+        bool onTextEntered(const EventArgsTextEntered& args) noexcept;
 
     private:
         /**
@@ -247,6 +272,7 @@ namespace corn {
 
         EventScope eventScope_;
 
+        UIWidget* focusedWidget_;
         std::vector<UIWidget*> hoveredWidgets_;
         std::unordered_set<UIWidget*> hoveredWidgetSet_;
     };

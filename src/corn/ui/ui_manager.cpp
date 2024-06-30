@@ -7,7 +7,6 @@
 #include <corn/ui/ui_image.h>
 #include <corn/ui/ui_label.h>
 #include <corn/ui/ui_manager.h>
-#include <corn/util/exceptions.h>
 #include "../event/event_args_extend.h"
 #include "../media/text_render_impl.h"
 
@@ -16,7 +15,7 @@ namespace corn {
             : widget(widget), parent(parent), dirty(false) {}
 
     UIManager::UIManager(Scene& scene) noexcept
-            : scene_(scene), root_(nullptr, nullptr), hoveredWidgets_(), hoveredWidgetSet_() {}
+            : scene_(scene), root_(nullptr, nullptr), focusedWidget_(nullptr), hoveredWidgets_(), hoveredWidgetSet_() {}
 
     UIManager::~UIManager() {
         // Delete UI widgets
@@ -210,6 +209,28 @@ namespace corn {
         return { node->location.x, node->location.y, node->size.x, node->size.y };
     }
 
+    UIWidget* UIManager::getFocusedWidget() const noexcept {
+        return this->focusedWidget_;
+    }
+
+    void UIManager::setFocusedWidget(UIWidget* widget) noexcept {
+        if (!widget || &widget->getUIManager() == this) {
+            this->focusedWidget_ = widget;
+        }
+    }
+
+    bool UIManager::onKeyboard(const EventArgsKeyboard& args) noexcept {
+        bool found = false;
+        for (auto& [widgetID, node] : this->nodes_) {
+            UIWidget* widget = node.widget;
+            if (widget && widget->isActiveInWorld() && widget->isKeyboardInteractable()) {
+                widget->getEventManager().emit(EventArgsUIKeyboard(args));
+                found = true;
+            }
+        }
+        return found;
+    }
+
     bool UIManager::onClick(const EventArgsMouseButton& args) noexcept {
         UIWidget* widget = this->getTargetWidget(args.mousePos);
 
@@ -230,7 +251,7 @@ namespace corn {
         std::vector<UIWidget*> newHoveredWidgets;
         std::unordered_set<UIWidget*> newHoveredWidgetSet;
         for (UIWidget* current = widget; current; current = current->getParent()) {
-            if (current->isInteractable() && this->widgetContains(current, args.mousePos)) {
+            if (current->isMouseInteractable() && this->widgetContains(current, args.mousePos)) {
                 newHoveredWidgets.push_back(current);
                 newHoveredWidgetSet.insert(current);
             }
@@ -267,12 +288,18 @@ namespace corn {
 
         // Bubble up
         for (UIWidget* current = widget; current; current = current->getParent()) {
-            if (current->isInteractable() && this->widgetContains(current, args.mousePos)) {
+            if (current->isMouseInteractable() && this->widgetContains(current, args.mousePos)) {
                 current->getEventManager().emit(EventArgsUIOnScroll(args, widget));
             }
         }
 
         return widget;
+    }
+
+    bool UIManager::onTextEntered(const EventArgsTextEntered& args) noexcept {
+        if (!this->focusedWidget_) return false;
+        this->focusedWidget_->getEventManager().emit(args);
+        return true;
     }
 
     bool UIManager::widgetContains(const UIWidget* widget, Vec2 pos) const noexcept {
@@ -284,7 +311,7 @@ namespace corn {
         this->tidy();
         std::vector<UIWidget*> widgets = this->getAllActiveWidgets();
         for (UIWidget* widget : std::ranges::reverse_view(std::views::all(widgets))) {
-            if (widget->isInteractable() && this->widgetContains(widget, pos)) return widget;
+            if (widget->isMouseInteractable() && this->widgetContains(widget, pos)) return widget;
         }
         return nullptr;
     }

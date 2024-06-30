@@ -127,8 +127,10 @@ namespace corn {
         void setBackground(Color background) noexcept;
         [[nodiscard]] unsigned char getOpacity() const noexcept;
         void setOpacity(unsigned char opacity) noexcept;
-        [[nodiscard]] bool isInteractable() const noexcept;
-        void setInteractable(bool interactable) noexcept;
+        [[nodiscard]] bool isKeyboardInteractable() const noexcept;
+        void setKeyboardInteractable(bool interactable) noexcept;
+        [[nodiscard]] bool isMouseInteractable() const noexcept;
+        void setMouseInteractable(bool interactable) noexcept;
 
     protected:
         /// @brief Constructor.
@@ -195,7 +197,10 @@ namespace corn {
          */
         int zOrder_;
 
+        /// @brief Whether keyboard interactions with it are enabled.
+        bool keyboardInteractable_;
+
         /// @brief Whether mouse interactions with it are enabled.
-        bool interactable_;
+        bool mouseInteractable_;
     };
 }
