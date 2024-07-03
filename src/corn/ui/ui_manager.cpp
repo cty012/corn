@@ -235,9 +235,25 @@ namespace corn {
         UIWidget* widget = this->getTargetWidget(args.mousePos);
 
         // Bubble up
+        UIWidget* newFocus = nullptr;
         for (UIWidget* current = widget; current; current = current->getParent()) {
-            if (this->widgetContains(current, args.mousePos)) {
+            if (current->isMouseInteractable() && this->widgetContains(current, args.mousePos)) {
                 current->getEventManager().emit(EventArgsUIOnClick(args, widget));
+                if (!newFocus) {
+                    newFocus = current;
+                }
+            }
+        }
+
+        // Change focus
+        if (newFocus != this->focusedWidget_) {
+            UIWidget* oldFocus = this->focusedWidget_;
+            this->focusedWidget_ = newFocus;
+            if (oldFocus) {
+                oldFocus->getEventManager().emit(EventArgsUIOnUnfocus(args, oldFocus));
+            }
+            if (newFocus) {
+                newFocus->getEventManager().emit(EventArgsUIOnFocus(args, newFocus));
             }
         }
 

@@ -59,4 +59,10 @@ namespace corn {
 
     EventArgsUIOnScroll::EventArgsUIOnScroll(EventArgsMouseScroll mousescEvent, UIWidget* target) noexcept
             : mousescEvent(std::move(mousescEvent)), target(target) {}
+
+    EventArgsUIOnFocus::EventArgsUIOnFocus(EventArgsMouseButton mousebtnEvent, UIWidget* target) noexcept
+            : mousebtnEvent(std::move(mousebtnEvent)), target(target) {}
+
+    EventArgsUIOnUnfocus::EventArgsUIOnUnfocus(EventArgsMouseButton mousebtnEvent, UIWidget* target) noexcept
+            : mousebtnEvent(std::move(mousebtnEvent)), target(target) {}
 }

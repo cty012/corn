@@ -143,7 +143,7 @@ namespace corn {
         Vec4 getCachedGeometry(const UIWidget* widget) const noexcept;
 
         /// @return Get the currently focused widget. The focused widget will catch text events.
-        UIWidget* getFocusedWidget() const noexcept;
+        [[nodiscard]] UIWidget* getFocusedWidget() const noexcept;
 
         /**
          * @brief Change the focused widget. The focused widget will catch text events.

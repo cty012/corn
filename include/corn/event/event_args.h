@@ -288,7 +288,7 @@ namespace corn {
         EventArgsKeyboard keyboardEvent;
 
         /// @brief Constructor.
-        EventArgsUIKeyboard(EventArgsKeyboard keyboardEvent) noexcept;
+        explicit EventArgsUIKeyboard(EventArgsKeyboard keyboardEvent) noexcept;
     };
 
     /**
@@ -374,5 +374,39 @@ namespace corn {
 
         /// @brief Constructor.
         EventArgsUIOnScroll(EventArgsMouseScroll mousescEvent, UIWidget* target) noexcept;
+    };
+
+    /**
+     * @class EventArgsUIOnFocus
+     * @brief Emits when a UI widget is focused.
+     */
+    struct EventArgsUIOnFocus : public EventArgs {
+        [[nodiscard]] std::string type() const noexcept override { return "corn::ui::onfocus"; }
+
+        /// @brief The mouse button event that triggers this event.
+        EventArgsMouseButton mousebtnEvent;
+
+        /// @brief The UI widget being focused.
+        UIWidget* target;
+
+        /// @brief Constructor.
+        EventArgsUIOnFocus(EventArgsMouseButton mousebtnEvent, UIWidget* target) noexcept;
+    };
+
+    /**
+     * @class EventArgsUIOnUnfocus
+     * @brief Emits when a UI widget is unfocused.
+     */
+    struct EventArgsUIOnUnfocus : public EventArgs {
+        [[nodiscard]] std::string type() const noexcept override { return "corn::ui::onunfocus"; }
+
+        /// @brief The mouse button event that triggers this event.
+        EventArgsMouseButton mousebtnEvent;
+
+        /// @brief The UI widget being unfocused.
+        UIWidget* target;
+
+        /// @brief Constructor.
+        EventArgsUIOnUnfocus(EventArgsMouseButton mousebtnEvent, UIWidget* target) noexcept;
     };
 }
