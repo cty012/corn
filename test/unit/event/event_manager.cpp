@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <corn/event/event_manager.h>
-#include "dummy_event_arg.h"
+#include "event_args_dummy.h"
 
 namespace corn::test::event_manager {
-    TEST(EventManager, room) {
+    TEST(EventManager, room_management) {
         // Singleton
         EventManager& singleton = EventManager::instance();
         EXPECT_EQ(&EventManager::instance(), &singleton);
@@ -22,6 +22,7 @@ namespace corn::test::event_manager {
         EXPECT_ANY_THROW((void)EventManager::instance("does-not-exist"));
         EventManager::removeRoom("room1");
         EXPECT_NO_THROW(EventManager::removeRoom("room1"));
+        EXPECT_ANY_THROW((void)EventManager::instance("room1"));
         EventManager::removeRoom("room2");
 
         // Private room
@@ -31,7 +32,7 @@ namespace corn::test::event_manager {
         EXPECT_NO_THROW(EventManager::removePrivateRoom(nullptr));
     }
 
-    TEST(EventManager, emit) {
+    TEST(EventManager, emit_and_listen) {
         // Setup
         EventManager::addRoom("emit1");
         EventManager& publicRoom = EventManager::instance("emit1");
