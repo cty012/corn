@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <string>
 #include <type_traits>
 
 namespace corn {
@@ -15,6 +16,24 @@ namespace corn {
 
     template <typename Vec>
     concept VectorType = std::is_same_v<Vec, Vec2> || std::is_same_v<Vec, Vec3> || std::is_same_v<Vec, Vec4>;
+
+    /**
+     * @param vec The vector.
+     * @return The string representation of the vector.
+     */
+    std::string toString(const Vec2& vec);
+
+    /**
+     * @param vec The vector.
+     * @return The string representation of the vector.
+     */
+    std::string toString(const Vec3& vec);
+
+    /**
+     * @param vec The vector.
+     * @return The string representation of the vector.
+     */
+    std::string toString(const Vec4& vec);
 
     /**
      * @tparam T Numeric type. Can be int, size_t, or float.

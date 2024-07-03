@@ -101,7 +101,8 @@ namespace corn {
          * @param pred A predicate function that takes an entity pointer and returns whether it satisfy the conditions.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
-         * @return The first entity that satisfy the conditions given by filter, or null pointer if it doesn't exist.
+         * @return The first entity that satisfy the conditions given by the predicate function, or null pointer if it
+         *         doesn't exist.
          */
         [[nodiscard]] Entity* getEntityThat(
                 const std::function<bool(const Entity*)>& pred, const Entity* parent = nullptr, bool recurse = true) const;
@@ -110,7 +111,7 @@ namespace corn {
          * @param pred A predicate function that takes an entity pointer and returns whether it satisfy the conditions.
          * @param parent Parent to start searching from.
          * @param recurse Also searches indirect descendants of parent if set to true.
-         * @return All entities that satisfy the conditions given by filter.
+         * @return All entities that satisfy the conditions given by the predicate function.
          */
         [[nodiscard]] std::vector<Entity*> getEntitiesThat(
                 const std::function<bool(const Entity*)>& pred, const Entity* parent = nullptr, bool recurse = true) const;

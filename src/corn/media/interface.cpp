@@ -69,7 +69,10 @@ namespace corn {
                             sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
                             Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
-                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    // Only emit the event to the top scene if not caught by UI
+                    if (!this->game_.getTopScene()->getUIManager().onClick(eventArgs)) {
+                        this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    }
                     break;
                 }
                 case (sf::Event::MouseButtonReleased): {
@@ -78,6 +81,26 @@ namespace corn {
                             Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
                     this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    // Only emit the world event if not caught by UI
+                    if (!this->game_.getTopScene()->getUIManager().onClick(eventArgs)) {
+                        EventArgsWorldMouseButton worldEventArgs(
+                                sfInput2CornInput(event.mouseButton.button), ButtonEvent::UP,
+                                Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
+                    }
+                    break;
+                }
+                case sf::Event::MouseMoved: {
+                    EventArgsMouseMove eventArgs(
+                            Vec2((float)event.mouseMove.x, (float)event.mouseMove.y));
+                    EventManager::instance().emit(eventArgs);
+                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    // Only emit the world event if not caught by UI
+                    if (!this->game_.getTopScene()->getUIManager().onHover(eventArgs)) {
+                        EventArgsWorldMouseMove worldEventArgs(
+                                Vec2((float)event.mouseMove.x, (float)event.mouseMove.y));
+                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
+                    }
                     break;
                 }
                 case (sf::Event::MouseWheelScrolled): {
@@ -86,13 +109,13 @@ namespace corn {
                             Vec2((float)event.mouseWheelScroll.x, (float)event.mouseWheelScroll.y));
                     EventManager::instance().emit(eventArgs);
                     this->game_.getTopScene()->getEventManager().emit(eventArgs);
-                    break;
-                }
-                case sf::Event::MouseMoved: {
-                    EventArgsMouseMove eventArgs(
-                            Vec2((float)event.mouseMove.x, (float)event.mouseMove.y));
-                    EventManager::instance().emit(eventArgs);
-                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    // Only emit the world event if not caught by UI
+                    if (!this->game_.getTopScene()->getUIManager().onScroll(eventArgs)) {
+                        EventArgsWorldMouseScroll worldEventArgs(
+                                event.mouseWheelScroll.delta,
+                                Vec2((float)event.mouseWheelScroll.x, (float)event.mouseWheelScroll.y));
+                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
+                    }
                     break;
                 }
                 case (sf::Event::KeyPressed): {
@@ -106,6 +129,14 @@ namespace corn {
                             Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
                     this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    // Only emit the world event if not caught by UI
+                    if (!this->game_.getTopScene()->getUIManager().onKeyboard(eventArgs)) {
+                        EventArgsWorldKeyboard worldEventArgs(
+                                key, ButtonEvent::DOWN,
+                                (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
+                                Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
+                    }
                     break;
                 }
                 case (sf::Event::KeyReleased): {
@@ -119,6 +150,14 @@ namespace corn {
                             Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
                     this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    // Only emit the world event if not caught by UI
+                    if (!this->game_.getTopScene()->getUIManager().onKeyboard(eventArgs)) {
+                        EventArgsWorldKeyboard worldEventArgs(
+                                key, ButtonEvent::UP,
+                                (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
+                                Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
+                    }
                     break;
                 }
                 case (sf::Event::TextEntered): {
@@ -126,6 +165,7 @@ namespace corn {
                             event.text.unicode, unicodeToUTF8(event.text.unicode));
                     EventManager::instance().emit(eventArgs);
                     this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                    this->game_.getTopScene()->getUIManager().onTextEntered(eventArgs);
                     break;
                 }
                 default:
@@ -231,19 +271,21 @@ namespace corn {
             auto [ancX, ancY] = worldLocation - cameraOffset;
             auto [r, g, b, a] = polygon->color.getRGBA();
 
+            sf::Transform rotateTransform;
+            rotateTransform.rotate(-worldRotation.get());
+
             const std::vector<std::array<Vec2, 3>>& triangles = polygon->getTriangles();
             sf::VertexArray varr(sf::Triangles, triangles.size() * 3);
             for (size_t i = 0; i < triangles.size(); i++) {
                 for (size_t j = 0; j < 3; j++) {
-                    varr[i * 3 + j].position = sf::Vector2f(ancX + triangles[i][j].x, ancY + triangles[i][j].y);
+                    varr[i * 3 + j].position =
+                            sf::Vector2f(ancX, ancY) +
+                            rotateTransform.transformPoint(sf::Vector2f(triangles[i][j].x, triangles[i][j].y));
                     varr[i * 3 + j].color = sf::Color{ r, g, b, a };
                 }
             }
 
-            sf::Transform rotateTransform;
-            rotateTransform.rotate(-worldRotation.get());
-
-            camera->viewport.impl_->texture.draw(varr, rotateTransform * scaleTransform);
+            camera->viewport.impl_->texture.draw(varr, scaleTransform);
         };
 
         // Render entities
@@ -256,9 +298,11 @@ namespace corn {
                 auto [worldLocation, worldRotation] = transform->getWorldTransform();
                 auto [ancX, ancY] = worldLocation - cameraOffset;
                 auto [locX, locY] = sprite->location;
+                auto [scaleX, scaleY] = sprite->image->impl_->scale;
                 sf::Sprite& sfSprite = sprite->image->impl_->sfSprite;
                 sfSprite.setOrigin(-locX, -locY);
                 sfSprite.setPosition(ancX, ancY);
+                sfSprite.setScale(scaleX, scaleY);
                 sfSprite.setRotation(-worldRotation.get());
                 camera->viewport.impl_->texture.draw(sfSprite, scaleTransform);
             }
@@ -389,7 +433,7 @@ namespace corn {
                     sfSprite.setPosition(x, y);
                     // Scale image
                     Vec2 size = image->getSize();
-                    Vec2 totalScale = image->impl_->scale * Vec2(size.x ? w / size.x : 1, size.y ? h / size.y : 1);
+                    Vec2 totalScale = image->impl_->scale * Vec2(size.x != 0.0f ? w / size.x : 1, size.y != 0.0f ? h / size.y : 1);
                     // Draw the image on the screen
                     sfSprite.setScale(totalScale.x, totalScale.y);
                     this->impl_->window->draw(sfSprite);

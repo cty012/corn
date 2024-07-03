@@ -52,8 +52,8 @@ namespace corn {
         return this->scenes_.empty() ? nullptr : this->scenes_.top();
     }
 
-    const std::unordered_map<Key, bool>& Game::getKeyPressed() const noexcept {
-        return this->keyPressed_;
+    bool Game::isPressed(Key key) const noexcept {
+        return this->keyPressed_.contains(key) && this->keyPressed_.at(key);
     }
 
     void Game::changeScene(corn::SceneOperation op, corn::Scene* scene) noexcept {
