@@ -1,7 +1,9 @@
 #pragma once
 
+#include <format>
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <gtest/gtest.h>
 
@@ -11,6 +13,9 @@
 
 #define EXPECT_EQ_RETURN(val1, val2, ret_val) EXPECT_BINARY_RETURN(EXPECT_EQ, val1, val2, ret_val)
 #define EXPECT_FLOAT_EQ_RETURN(val1, val2, ret_val) EXPECT_BINARY_RETURN(EXPECT_FLOAT_EQ, val1, val2, ret_val)
+
+#define EXPECT_EQ_MSG_RETURN(val1, val2, msg, ret_val) \
+    EXPECT_EQ_RETURN(val1, val2, (printf("%s\n", msg.c_str()), ret_val))
 
 namespace corn::test {
     template <typename T>
@@ -30,16 +35,18 @@ namespace corn::test {
     bool VectorsEqual(const std::vector<T>& vec1, const std::vector<T>& vec2) {
         bool result = VectorsEqual_(vec1, vec2);
         if (!result) {
-            std::cout << "  Vector 1: {" << std::endl;
+            printf("Vector 1: {\n");
             for (const T& item: vec1) {
-                std::cout << "    [" << item << "]" << std::endl;
+                std::string msg = std::format("  [{}]\n", item);
+                printf("%s\n", msg.c_str());
             }
-            std::cout << std::endl << "  }" << std::endl;
-            std::cout << "  Vector 2: {" << std::endl << "    ";
+            printf("}\n");
+            printf("Vector 2: {\n");
             for (const T& item: vec2) {
-                std::cout << "    [" << item << "]" << std::endl;
+                std::string msg = std::format("  [{}]\n", item);
+                printf("%s\n", msg.c_str());
             }
-            std::cout << std::endl << "  }" << std::endl;
+            printf("}\n");
         }
         return result;
     }
@@ -68,46 +75,46 @@ namespace corn::test {
 
         bool result = MappedVectorsEqual_(vec1, vec2, func);
         if (!result) {
-            std::cout << "  Vector 1: {" << std::endl;
+            printf("Vector 1: {\n");
             for (const T& item: vec1) {
-                std::cout << "    [" << func(item) << "]" << std::endl;
+                std::string msg = std::format("  [{}]\n", func(item));
+                printf("%s\n", msg.c_str());
             }
-            std::cout << std::endl << "  }" << std::endl;
-            std::cout << "  Vector 2: {" << std::endl << "    ";
+            printf("}\n");
+            printf("Vector 2: {\n");
             for (const T& item: vec2) {
-                std::cout << "    [" << func(item) << "]" << std::endl;
+                std::string msg = std::format("  [{}]\n", func(item));
+                printf("%s\n", msg.c_str());
             }
-            std::cout << std::endl << "  }" << std::endl;
+            printf("}\n");
         }
         return result;
     }
 
     template <typename T1, typename T2>
     bool UnorderedMapsEqual(const std::unordered_map<T1, T2>& map1, const std::unordered_map<T1, T2>& map2) {
-        // Check if sizes are equal
-        EXPECT_EQ_RETURN(map1.size(), map2.size(), false);
-
         for (const auto& pair : map1) {
             auto it = map2.find(pair.first);
             // Check if key exists in map2
-            EXPECT_EQ_RETURN(it == map2.end(), false, (
-                    std::cout << "  Key \"" << pair.first << "\" not found in second map." << std::endl,
-                            false
-            ));
+            EXPECT_EQ_MSG_RETURN(
+                    it == map2.end(), false,
+                    std::format("Key \"{}\" not found in second map.\n", pair.first), false);
             // Check if corresponding values are equal
-            EXPECT_EQ_RETURN(pair.second, it->second, (
-                    std::cout << "  Key \"" << pair.first << "\" mismatch:\n    first map: \""
-                              << pair.second << "\"\n" << "    second map: \"" << it->second << "\"" << std::endl,
-                            false
-            ));
+            EXPECT_EQ_MSG_RETURN(
+                    pair.second, it->second,
+                    std::format(
+                            "Key \"{}\" mismatch:\n"
+                            "  first map: \"{}\"\n"
+                            "  second map: \"{}\"\n",
+                            pair.first, pair.second, it->second),
+                    false);
         }
 
         // Optional: Check for keys in map2 that are not in map1
         for (const auto& pair : map2) {
-            EXPECT_EQ_RETURN(map1.find(pair.first) == map1.end(), false, (
-                    std::cout << "  Key \"" << pair.first << "\" not found in first map." << std::endl,
-                            false
-            ));
+            EXPECT_EQ_MSG_RETURN(
+                    map1.find(pair.first) == map1.end(), false,
+                    std::format("Key \"{}\" not found in first map.\n", pair.first), false);
         }
 
         return true;

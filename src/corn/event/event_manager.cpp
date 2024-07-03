@@ -118,6 +118,9 @@ namespace corn {
     int EventManager::broadcast(const EventArgs& args) noexcept {
         int count = 0;
 
+        // Emit to root room
+        EventManager::instance().emit(args);
+
         // Propagate to all public rooms
         for (auto& [roomName, room]: EventManager::instance().rooms_) {
             count += room->emit(args);
