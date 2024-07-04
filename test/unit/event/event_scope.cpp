@@ -2,7 +2,7 @@
 #include <corn/event/event_scope.h>
 #include "event_args_dummy.h"
 
-namespace corn::test {
+namespace corn::test::event_scope {
     TEST(EventScope, raii) {
         bool listenerStillExist;
 

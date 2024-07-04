@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <corn/geometry/vec4.h>
 
-namespace corn::test {
+namespace corn::test::vec4 {
     TEST(Vec4, default_ctor) {
         Vec4 v;
         EXPECT_FLOAT_EQ(v.x, 0.0f);
