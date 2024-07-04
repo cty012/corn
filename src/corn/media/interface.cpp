@@ -69,9 +69,13 @@ namespace corn {
                             sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
                             Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
+                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     // Only emit the event to the top scene if not caught by UI
                     if (!this->game_.getTopScene()->getUIManager().onClick(eventArgs)) {
-                        this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                        EventArgsWorldMouseButton worldEventArgs(
+                                sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
+                                Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
                     }
                     break;
                 }
