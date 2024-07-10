@@ -125,6 +125,7 @@ namespace corn {
             float nw = 0.0f, nh = 0.0f;
             switch (widget->getType()) {
                 case UIType::PANEL: {
+                    // Avoid the recursion overhead in getNaturalGeometry
                     std::vector<UIWidget*> independentChildren = this->getWidgetsThat(
                             [&widgetProps](const UIWidget* widget) {
                                 return widget->isActive() && widgetProps.at(widget).geometry == UIGeometry::INDEPENDENT;
@@ -137,16 +138,10 @@ namespace corn {
                     }
                     break;
                 }
-                case UIType::LABEL: {
-                    Vec2 nsize = dynamic_cast<const UILabel*>(widget)->getTextRender().getNaturalSize();
-                    nw = nsize.x;
-                    nh = nsize.y;
-                    break;
-                }
-                case UIType::IMAGE: {
-                    Vec2 nsize = dynamic_cast<const UIImage*>(widget)->getImage()->getSize();
-                    nw = (float)nsize.x;
-                    nh = (float)nsize.y;
+                default: {
+                    Vec2 naturalSize = widget->getNaturalSize();
+                    nw = naturalSize.x;
+                    nh = naturalSize.y;
                     break;
                 }
             }
