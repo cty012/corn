@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <corn/ecs/entity.h>
 #include <corn/geometry/deg.h>
 #include <corn/geometry/vec2.h>
 #include <corn/geometry/vec3.h>
@@ -9,7 +10,6 @@
 #include <corn/util/expression.h>
 
 namespace corn {
-    class Entity;
     class EntityManager;
     class Game;
     class Image;
@@ -49,8 +49,11 @@ namespace corn {
         [[nodiscard]] const Game* getGame() const noexcept;
 
     private:
-        /// @brief The entity that owns this component.
-        Entity& entity;
+        /// @brief The entity manager that contains the owner of this component.
+        EntityManager& entityManager_;
+
+        /// @brief The ID of the entity that owns this component.
+        Entity::EntityID entityID_;
     };
 
     /**

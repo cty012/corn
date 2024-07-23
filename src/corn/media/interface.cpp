@@ -417,7 +417,7 @@ namespace corn {
                         for (const auto& [text, color] : line.contents) {
                             auto [segR, segG, segB, segA] = color.getRGBA();
                             auto& mutText = const_cast<sf::Text&>(text);
-                            mutText.setPosition(segX, segY + textRender.getLinePadding());
+                            mutText.setPosition(std::round(segX), std::round(segY + textRender.getLinePadding()));
                             mutText.setFillColor(sf::Color(
                                     segR, segG, segB, (unsigned char) ((float) segA * opacities[widget])));
                             this->impl_->window->draw(text);

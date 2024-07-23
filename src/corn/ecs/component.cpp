@@ -8,24 +8,25 @@
 #include "../event/event_args_extend.h"
 
 namespace corn {
-    Component::Component(Entity& entity) noexcept : active(true), entity(entity) {}
+    Component::Component(Entity& entity) noexcept
+            : active(true), entityManager_(entity.getEntityManager()), entityID_(entity.getID()) {}
 
     Component::~Component() = default;
 
     Entity& Component::getEntity() const noexcept {
-        return this->entity;
+        return *this->entityManager_.getEntityByID(this->entityID_);
     }
 
     EntityManager& Component::getEntityManager() const noexcept {
-        return this->entity.getEntityManager();
+        return this->entityManager_;
     }
 
     Scene& Component::getScene() const noexcept {
-        return this->entity.getScene();
+        return this->entityManager_.getScene();
     }
 
     const Game* Component::getGame() const noexcept {
-        return this->entity.getGame();
+        return this->entityManager_.getGame();
     }
 
     CTransform2D::CTransform2D(Entity &entity, Vec2 location, Deg rotation) noexcept
