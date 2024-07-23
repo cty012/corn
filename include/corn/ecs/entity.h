@@ -9,6 +9,7 @@
 
 namespace corn {
     struct Component;
+    class EntityManager;
     class Game;
     class Scene;
 

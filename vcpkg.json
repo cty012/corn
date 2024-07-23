@@ -4,6 +4,9 @@
   "license": "MIT",
   "dependencies": [
     "sfml",
+    "bgfx",
+    "glfw3",
+    "freetype",
     "icu",
     "earcut-hpp"
   ],

@@ -69,9 +69,13 @@ namespace corn {
                             sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
                             Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
+                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     // Only emit the event to the top scene if not caught by UI
                     if (!this->game_.getTopScene()->getUIManager().onClick(eventArgs)) {
-                        this->game_.getTopScene()->getEventManager().emit(eventArgs);
+                        EventArgsWorldMouseButton worldEventArgs(
+                                sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
+                                Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
                     }
                     break;
                 }
@@ -413,7 +417,7 @@ namespace corn {
                         for (const auto& [text, color] : line.contents) {
                             auto [segR, segG, segB, segA] = color.getRGBA();
                             auto& mutText = const_cast<sf::Text&>(text);
-                            mutText.setPosition(segX, segY + textRender.getLinePadding());
+                            mutText.setPosition(std::round(segX), std::round(segY + textRender.getLinePadding()));
                             mutText.setFillColor(sf::Color(
                                     segR, segG, segB, (unsigned char) ((float) segA * opacities[widget])));
                             this->impl_->window->draw(text);

@@ -4,6 +4,7 @@
 #include <string>
 #include <corn/util/color.h>
 #include <corn/util/expression.h>
+#include <corn/geometry/vec2.h>
 
 namespace corn {
     class EventManager;
@@ -120,6 +121,7 @@ namespace corn {
         void setW(const std::string& expression);
         [[nodiscard]] const Expression<5>& getH() const noexcept;
         void setH(const std::string& expression);
+        [[nodiscard]] virtual Vec2 getNaturalSize() const noexcept;
 
         [[nodiscard]] UIOverflow getOverflow() const noexcept;
         void setOverflow(UIOverflow overflow) noexcept;

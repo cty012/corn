@@ -17,6 +17,8 @@ namespace corn {
         // UIManager need access to ctor/dtor
         friend class UIManager;
 
+        [[nodiscard]] Vec2 getNaturalSize() const noexcept override;
+
         /// @brief Getter for the rich text.
         [[nodiscard]] const RichText& getText() const noexcept;
 

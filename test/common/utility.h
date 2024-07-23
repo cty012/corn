@@ -7,6 +7,12 @@
 #include <vector>
 #include <gtest/gtest.h>
 
+#define EXPECT_VEC2_EQ(v1, v2) EXPECT_EQ(v1.x, v2.x); EXPECT_EQ(v1.y, v2.y)
+
+#define EXPECT_VEC3_EQ(v1, v2) EXPECT_EQ(v1.x, v2.x); EXPECT_EQ(v1.y, v2.y); EXPECT_EQ(v1.z, v2.z)
+
+#define EXPECT_VEC4_EQ(v1, v2) EXPECT_EQ(v1.x, v2.x); EXPECT_EQ(v1.y, v2.y); EXPECT_EQ(v1.z, v2.z); EXPECT_EQ(v1.w, v2.w)
+
 #define EXPECT_BINARY_RETURN(binary_function, val1, val2, ret_val) do { \
         binary_function(val1, val2); if (val1 != val2) return ret_val;  \
     } while (0)

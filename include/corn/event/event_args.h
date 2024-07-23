@@ -383,14 +383,11 @@ namespace corn {
     struct EventArgsUIOnFocus : public EventArgs {
         [[nodiscard]] std::string type() const noexcept override { return "corn::ui::onfocus"; }
 
-        /// @brief The mouse button event that triggers this event.
-        EventArgsMouseButton mousebtnEvent;
-
         /// @brief The UI widget being focused.
         UIWidget* target;
 
         /// @brief Constructor.
-        EventArgsUIOnFocus(EventArgsMouseButton mousebtnEvent, UIWidget* target) noexcept;
+        explicit EventArgsUIOnFocus(UIWidget* target) noexcept;
     };
 
     /**
@@ -400,13 +397,10 @@ namespace corn {
     struct EventArgsUIOnUnfocus : public EventArgs {
         [[nodiscard]] std::string type() const noexcept override { return "corn::ui::onunfocus"; }
 
-        /// @brief The mouse button event that triggers this event.
-        EventArgsMouseButton mousebtnEvent;
-
         /// @brief The UI widget being unfocused.
         UIWidget* target;
 
         /// @brief Constructor.
-        EventArgsUIOnUnfocus(EventArgsMouseButton mousebtnEvent, UIWidget* target) noexcept;
+        explicit EventArgsUIOnUnfocus(UIWidget* target) noexcept;
     };
 }

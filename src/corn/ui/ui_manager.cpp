@@ -125,6 +125,7 @@ namespace corn {
             float nw = 0.0f, nh = 0.0f;
             switch (widget->getType()) {
                 case UIType::PANEL: {
+                    // Avoid the recursion overhead in getNaturalGeometry
                     std::vector<UIWidget*> independentChildren = this->getWidgetsThat(
                             [&widgetProps](const UIWidget* widget) {
                                 return widget->isActive() && widgetProps.at(widget).geometry == UIGeometry::INDEPENDENT;
@@ -137,16 +138,10 @@ namespace corn {
                     }
                     break;
                 }
-                case UIType::LABEL: {
-                    Vec2 nsize = dynamic_cast<const UILabel*>(widget)->getTextRender().getNaturalSize();
-                    nw = nsize.x;
-                    nh = nsize.y;
-                    break;
-                }
-                case UIType::IMAGE: {
-                    Vec2 nsize = dynamic_cast<const UIImage*>(widget)->getImage()->getSize();
-                    nw = (float)nsize.x;
-                    nh = (float)nsize.y;
+                default: {
+                    Vec2 naturalSize = widget->getNaturalSize();
+                    nw = naturalSize.x;
+                    nh = naturalSize.y;
                     break;
                 }
             }
@@ -214,8 +209,16 @@ namespace corn {
     }
 
     void UIManager::setFocusedWidget(UIWidget* widget) noexcept {
-        if (!widget || &widget->getUIManager() == this) {
+        if (widget && &widget->getUIManager() != this) return;
+        if (widget != this->focusedWidget_) {
+            UIWidget* oldFocus = this->focusedWidget_;
             this->focusedWidget_ = widget;
+            if (oldFocus) {
+                oldFocus->getEventManager().emit(EventArgsUIOnUnfocus(oldFocus));
+            }
+            if (widget) {
+                widget->getEventManager().emit(EventArgsUIOnFocus(widget));
+            }
         }
     }
 
@@ -246,16 +249,7 @@ namespace corn {
         }
 
         // Change focus
-        if (newFocus != this->focusedWidget_) {
-            UIWidget* oldFocus = this->focusedWidget_;
-            this->focusedWidget_ = newFocus;
-            if (oldFocus) {
-                oldFocus->getEventManager().emit(EventArgsUIOnUnfocus(args, oldFocus));
-            }
-            if (newFocus) {
-                newFocus->getEventManager().emit(EventArgsUIOnFocus(args, newFocus));
-            }
-        }
+        this->setFocusedWidget(newFocus);
 
         return widget != nullptr;
     }
