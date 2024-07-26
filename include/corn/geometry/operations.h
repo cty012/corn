@@ -10,6 +10,7 @@ namespace corn {
     struct Vec2;
     struct Vec3;
     struct Vec4;
+    class Polygon;
 
     template <typename T>
     concept Num = std::is_same_v<T, int> || std::is_same_v<T, size_t> || std::is_same_v<T, float>;
@@ -141,4 +142,44 @@ namespace corn {
      * @return Centroid of the triangle in 3D plane.
      */
     [[nodiscard]] Vec3 centroid(const Vec3& v1, const Vec3& v2, const Vec3& v3) noexcept;
+
+    // Polygon operations
+    /**
+     * @param polygon1 The first polygon.
+     * @param polygon2 The second polygon.
+     * @return The union of the two polygons.
+     */
+    [[nodiscard]] std::vector<Polygon> polygonUnion(const Polygon& polygon1, const Polygon& polygon2) noexcept;
+
+    /**
+     * @param polygons The list of polygons.
+     * @return The union of the list of polygons.
+     */
+    [[nodiscard]] std::vector<Polygon> polygonUnion(const std::vector<Polygon>& polygons) noexcept;
+
+    /**
+     * @param polygon1 The first polygon.
+     * @param polygon2 The second polygon.
+     * @return The intersection of the two polygons.
+     */
+    [[nodiscard]] std::vector<Polygon> polygonIntersection(const Polygon& polygon1, const Polygon& polygon2) noexcept;
+
+    /**
+     * @param polygons The list of polygons.
+     * @return The intersection of the list of polygons.
+     */
+    [[nodiscard]] std::vector<Polygon> polygonIntersection(const std::vector<Polygon>& polygons) noexcept;
+
+    /**
+     * @param polygon1 The first polygon.
+     * @param polygon2 The second polygon.
+     * @return The difference of the two polygons (first minus second).
+     */
+    [[nodiscard]] std::vector<Polygon> polygonDifference(const Polygon& polygon1, const Polygon& polygon2) noexcept;
+
+    /**
+     * @param points The set of points.
+     * @return The convex hull of the set of points.
+     */
+    [[nodiscard]] Polygon convexHull(const std::vector<Vec2>& points) noexcept;
 }

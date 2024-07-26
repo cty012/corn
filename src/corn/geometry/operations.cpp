@@ -1,12 +1,20 @@
 #include <cmath>
 #include <format>
+#include <boost/geometry.hpp>
 #include <corn/geometry/operations.h>
+#include <corn/geometry/polygon.h>
 #include <corn/geometry/rotation.h>
 #include <corn/geometry/vec2.h>
 #include <corn/geometry/vec3.h>
 #include <corn/geometry/vec4.h>
+#include "polygon_helper.h"
 
 namespace corn {
+    namespace bg = boost::geometry;
+    using point_t = bg::model::d2::point_xy<float>;
+    using polygon_t = bg::model::polygon<point_t>;
+    using ring_t = bg::model::ring<point_t>;
+
     std::string toString(const Vec2& vec) {
         return std::format("<{}, {}>", vec.x, vec.y);
     }
@@ -92,5 +100,187 @@ namespace corn {
 
     Vec3 centroid(const Vec3& v1, const Vec3& v2, const Vec3& v3) noexcept {
         return (v1 + v2 + v3) * (1.0f / 3.0f);
+    }
+
+    std::vector<Polygon> polygonUnion(const Polygon& polygon1, const Polygon& polygon2) noexcept {
+        std::vector<Polygon> result;
+        polygon_t bg_polygon1, bg_polygon2;
+        std::vector<polygon_t> bg_result;
+
+        // Convert to Boost polygons
+        toBoostPolygon(bg_polygon1, polygon1.getVertices(), polygon1.getHoles());
+        toBoostPolygon(bg_polygon2, polygon2.getVertices(), polygon2.getHoles());
+
+        // Union
+        bg::union_(bg_polygon1, bg_polygon2, bg_result);
+
+        // Convert back to Polygon
+        for (const auto& bg_polygon : bg_result) {
+            std::vector<Vec2> vertices;
+            std::vector<std::vector<Vec2>> holes;
+            fromBoostPolygon(vertices, holes, bg_polygon);
+            result.emplace_back(vertices, holes);
+        }
+
+        return result;
+    }
+
+    std::vector<Polygon> polygonUnion(const std::vector<Polygon>& polygons) noexcept {
+        std::vector<Polygon> result;
+        std::vector<polygon_t> bg_polygons;
+        std::vector<polygon_t> bg_result;
+
+        // Convert to Boost polygons
+        for (const auto& polygon : polygons) {
+            toBoostPolygon(bg_polygons.emplace_back(), polygon.getVertices(), polygon.getHoles());
+        }
+
+        // Union
+        for (const polygon_t& bg_polygon : bg_polygons) {
+            polygon_t current = bg_polygon;
+
+            // Union the bg_polygon with every polygon in the result
+            std::vector<bool> removeIndex(bg_result.size());
+            for (size_t i = 0; i < bg_result.size(); i++) {
+                std::vector<polygon_t> tempResult;
+                bg::union_(current, bg_result[i], tempResult);
+                removeIndex[i] = (tempResult.size() == 1);
+                if (removeIndex[i]) {
+                    current = tempResult[0];
+                }
+            }
+
+            // Remove the polygons that were unioned
+            std::erase_if(bg_result, [&](const polygon_t& bg_polygon) {
+                return removeIndex[&bg_polygon - &bg_result[0]];
+            });
+
+            // Add the unioned polygon
+            bg_result.push_back(current);
+        }
+
+        // Convert back to Polygon
+        for (const auto& bg_polygon : bg_result) {
+            std::vector<Vec2> vertices;
+            std::vector<std::vector<Vec2>> holes;
+            fromBoostPolygon(vertices, holes, bg_polygon);
+            result.emplace_back(vertices, holes);
+        }
+
+        return result;
+    }
+
+    std::vector<Polygon> polygonIntersection(const Polygon& polygon1, const Polygon& polygon2) noexcept {
+        std::vector<Polygon> result;
+        polygon_t bg_polygon1, bg_polygon2;
+        std::vector<polygon_t> bg_result;
+
+        // Convert to Boost polygons
+        toBoostPolygon(bg_polygon1, polygon1.getVertices(), polygon1.getHoles());
+        toBoostPolygon(bg_polygon2, polygon2.getVertices(), polygon2.getHoles());
+
+        // Intersection
+        bg::intersection(bg_polygon1, bg_polygon2, bg_result);
+
+        // Convert back to Polygon
+        for (const auto& bg_polygon : bg_result) {
+            std::vector<Vec2> vertices;
+            std::vector<std::vector<Vec2>> holes;
+            fromBoostPolygon(vertices, holes, bg_polygon);
+            result.emplace_back(vertices, holes);
+        }
+
+        return result;
+    }
+
+    std::vector<Polygon> polygonIntersection(const std::vector<Polygon>& polygons) noexcept {
+        std::vector<Polygon> result;
+        std::vector<polygon_t> bg_polygons;
+        std::vector<polygon_t> bg_result;
+
+        // Convert to Boost polygons
+        for (size_t i = 0; i < polygons.size(); i++) {
+            // Add first polygon to bg_result
+            polygon_t& next = (i == 0) ? bg_result.emplace_back() : bg_polygons.emplace_back();
+            toBoostPolygon(next, polygons[i].getVertices(), polygons[i].getHoles());
+        }
+
+        // Intersection
+        for (const polygon_t& bg_polygon : bg_polygons) {
+            // If there are no polygons in the result then intersection is empty
+            if (bg_result.empty()) {
+                return result;
+            }
+
+            std::vector<polygon_t> newResult;
+
+            // Intersect the bg_polygon with every piece in the result
+            for (const polygon_t& piece : bg_result) {
+                std::vector<polygon_t> tempResult;
+                bg::intersection(bg_polygon, piece, tempResult);
+                // And collect the results as a single list
+                newResult.insert(newResult.end(), tempResult.begin(), tempResult.end());
+            }
+
+            // Update the new result
+            bg_result = std::move(newResult);
+        }
+
+        // Convert back to Polygon
+        for (const auto& bg_polygon : bg_result) {
+            std::vector<Vec2> vertices;
+            std::vector<std::vector<Vec2>> holes;
+            fromBoostPolygon(vertices, holes, bg_polygon);
+            result.emplace_back(vertices, holes);
+        }
+
+        return result;
+    }
+
+    std::vector<Polygon> polygonDifference(const Polygon& polygon1, const Polygon& polygon2) noexcept {
+        std::vector<Polygon> result;
+        polygon_t bg_polygon1, bg_polygon2;
+        std::vector<polygon_t> bg_result;
+
+        // Convert to Boost polygons
+        toBoostPolygon(bg_polygon1, polygon1.getVertices(), polygon1.getHoles());
+        toBoostPolygon(bg_polygon2, polygon2.getVertices(), polygon2.getHoles());
+
+        // Difference
+        bg::difference(bg_polygon1, bg_polygon2, bg_result);
+
+        // Convert back to Polygon
+        for (const auto& bg_polygon : bg_result) {
+            std::vector<Vec2> vertices;
+            std::vector<std::vector<Vec2>> holes;
+            fromBoostPolygon(vertices, holes, bg_polygon);
+            result.emplace_back(vertices, holes);
+        }
+
+        return result;
+    }
+
+    Polygon convexHull(const std::vector<Vec2>& points) noexcept {
+        if (points.size() < 3) {
+            return {};
+        }
+
+        polygon_t bg_polygon;
+        bg::model::multi_point<point_t> bg_points;
+        std::vector<Vec2> vertices;
+        std::vector<std::vector<Vec2>> holes;
+
+        // Convert the points to Boost points
+        for (const Vec2& point : points) {
+            bg::append(bg_points, point_t(point.x, point.y));
+        }
+
+        // Find convex hull
+        bg::convex_hull(bg_points, bg_polygon);
+
+        // Convert back to Polygon
+        fromBoostPolygon(vertices, holes, bg_polygon);
+
+        return { vertices, holes };
     }
 }

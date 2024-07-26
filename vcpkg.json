@@ -8,6 +8,7 @@
     "glfw3",
     "freetype",
     "icu",
+    "boost-geometry",
     "earcut-hpp"
   ],
   "features": {
