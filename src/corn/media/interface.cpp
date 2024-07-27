@@ -270,15 +270,15 @@ namespace corn {
 
         auto drawPolygon =
         [&cameraOffset, &camera, &scaleTransform]
-        (CTransform2D* transform, CPolygon* polygon) -> void {
+        (CTransform2D* transform, CPolygon* cPolygon) -> void {
             auto [worldLocation, worldRotation] = transform->getWorldTransform();
             auto [ancX, ancY] = worldLocation - cameraOffset;
-            auto [r, g, b, a] = polygon->color.getRGBA();
+            auto [r, g, b, a] = cPolygon->color.getRGBA();
 
             sf::Transform rotateTransform;
             rotateTransform.rotate(-worldRotation.get());
 
-            const std::vector<std::array<Vec2, 3>>& triangles = polygon->getTriangles();
+            const std::vector<std::array<Vec2, 3>>& triangles = cPolygon->polygon.getTriangles();
             sf::VertexArray varr(sf::Triangles, triangles.size() * 3);
             for (size_t i = 0; i < triangles.size(); i++) {
                 for (size_t j = 0; j < 3; j++) {
@@ -312,14 +312,21 @@ namespace corn {
             }
 
             // Polygon
-            auto polygon = entity->getComponent<CPolygon>();
-            if (polygon && polygon->active && !polygon->getVertices().empty()) {
-                if (polygon->thickness > 0) {
-                    for (const std::vector<Vec2>& arc : polygon->getVertices()) {
-                        drawLines(transform, arc, polygon->thickness, polygon->color, true);
+            auto cPolygon = entity->getComponent<CPolygon>();
+            if (cPolygon) {
+                const Polygon& polygon = cPolygon->polygon;
+                PolygonType polygonType = polygon.getType();
+                if (cPolygon->active && polygonType != PolygonType::INVALID &&
+                    polygonType != PolygonType::EMPTY) {
+                    if (cPolygon->thickness > 0) {
+                        drawLines(transform, polygon.getVertices(), cPolygon->thickness, cPolygon->color,
+                                  true);
+                        for (const std::vector<Vec2>& hole: polygon.getHoles()) {
+                            drawLines(transform, hole, cPolygon->thickness, cPolygon->color, true);
+                        }
+                    } else {
+                        drawPolygon(transform, cPolygon);
                     }
-                } else {
-                    drawPolygon(transform, polygon);
                 }
             }
 

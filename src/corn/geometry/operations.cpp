@@ -27,6 +27,30 @@ namespace corn {
         return std::format("<{}, {}, {}, {}>", vec.x, vec.y, vec.z, vec.w);
     }
 
+    Vec2 min(const Vec2& v1, const Vec2& v2) {
+        return { std::min(v1.x, v2.x), std::min(v1.y, v2.y) };
+    }
+
+    Vec2 max(const Vec2& v1, const Vec2& v2) {
+        return { std::max(v1.x, v2.x), std::max(v1.y, v2.y) };
+    }
+
+    Vec3 min(const Vec3& v1, const Vec3& v2) {
+        return { std::min(v1.x, v2.x), std::min(v1.y, v2.y), std::min(v1.z, v2.z) };
+    }
+
+    Vec3 max(const Vec3& v1, const Vec3& v2) {
+        return { std::max(v1.x, v2.x), std::max(v1.y, v2.y), std::max(v1.z, v2.z) };
+    }
+
+    Vec4 min(const Vec4& v1, const Vec4& v2) {
+        return { std::min(v1.x, v2.x), std::min(v1.y, v2.y), std::min(v1.z, v2.z), std::min(v1.w, v2.w) };
+    }
+
+    Vec4 max(const Vec4& v1, const Vec4& v2) {
+        return { std::max(v1.x, v2.x), std::max(v1.y, v2.y), std::max(v1.z, v2.z), std::max(v1.w, v2.w) };
+    }
+
     Vec2 clamp(const Vec2& minimum, const Vec2& value, const Vec2& maximum) {
         return {
             clamp(minimum.x, value.x, maximum.x),
@@ -63,6 +87,10 @@ namespace corn {
         return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w;
     }
 
+    float cross(const Vec2& v1, const Vec2& v2) noexcept {
+        return v1.x * v2.y - v1.y * v2.x;
+    }
+
     Vec3 cross(const Vec3& v1, const Vec3& v2) noexcept {
         return {
             v1.y * v2.z - v2.y * v1.z,
@@ -83,22 +111,22 @@ namespace corn {
         return { result.y, result.z, result.w };  // NOLINT
     }
 
-    float area(const Vec2& v1, const Vec2& v2, const Vec2& v3) noexcept {
+    float triangleArea(const Vec2& v1, const Vec2& v2, const Vec2& v3) noexcept {
         return 0.5f * std::abs(v1.x * (v2.y - v3.y) + v2.x * (v3.y - v1.y) + v3.x * (v1.y - v2.y));
     }
 
-    float area(const Vec3& v1, const Vec3& v2, const Vec3& v3) noexcept {
+    float triangleArea(const Vec3& v1, const Vec3& v2, const Vec3& v3) noexcept {
         Vec3 ab = v2 - v1;
         Vec3 ac = v3 - v1;
         Vec3 crossProduct = cross(ab, ac);
         return 0.5f * crossProduct.norm();
     }
 
-    Vec2 centroid(const Vec2& v1, const Vec2& v2, const Vec2& v3) noexcept {
+    Vec2 triangleCentroid(const Vec2& v1, const Vec2& v2, const Vec2& v3) noexcept {
         return (v1 + v2 + v3) * (1.0f / 3.0f);
     }
 
-    Vec3 centroid(const Vec3& v1, const Vec3& v2, const Vec3& v3) noexcept {
+    Vec3 triangleCentroid(const Vec3& v1, const Vec3& v2, const Vec3& v3) noexcept {
         return (v1 + v2 + v3) * (1.0f / 3.0f);
     }
 
@@ -282,5 +310,30 @@ namespace corn {
         fromBoostPolygon(vertices, holes, bg_polygon);
 
         return { vertices, holes };
+    }
+
+    Polygon polygonSweep(const Polygon& polygon, const Vec2& displacement) {
+        const std::vector<std::array<Vec2, 3>>& triangulation = polygon.getTriangles();
+        std::vector<Polygon> sweptTriangles;
+        sweptTriangles.reserve(triangulation.size());
+
+        // Step 1: Sweep each triangle
+        // The swept region of a triangle is the convex hull of the vertices before and after the displacement
+        for (const auto& triangle : triangulation) {
+            std::vector<Vec2> vertices = {
+                triangle[0], triangle[1], triangle[2],
+                triangle[0] + displacement, triangle[1] + displacement, triangle[2] + displacement,
+            };
+            sweptTriangles.push_back(convexHull(vertices));
+        }
+
+        // Step 2: Union the swept triangles
+        // Note that the result must be a single polygon
+        std::vector<Polygon> result = polygonUnion(sweptTriangles);
+        if (result.size() != 1) {
+            throw std::logic_error("Sweep resulted in multiple polygons");
+        }
+
+        return result[0];
     }
 }
