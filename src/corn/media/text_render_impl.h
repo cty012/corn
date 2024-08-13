@@ -84,7 +84,7 @@ namespace corn {
 
     void setTextFont(sf::Text& text, const Font* font);
 
-    void setTextSize(sf::Text& text, unsigned int size);
+    void setTextSize(sf::Text& text, float size);
 
     void setTextVariant(sf::Text& text, FontVariant variant);
 }
