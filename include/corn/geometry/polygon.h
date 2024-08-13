@@ -90,9 +90,16 @@ namespace corn {
          */
         [[nodiscard]] bool contains(const Vec2& point, bool edgeInclusive) const;
 
+        /**
+         * @brief Translated the polygon by the displacement vector.
+         * @param displacement The displacement vector.
+         */
+        void translate(const Vec2& displacement) noexcept;
+
         // Getters
         [[nodiscard]] PolygonType getType() const;
         [[nodiscard]] const Vec2& getCentroid() const;
+        [[nodiscard]] float getArea() const;
         [[nodiscard]] const std::pair<Vec2, Vec2>& getBBox() const;
         [[nodiscard]] const std::vector<std::array<Vec2, 3>>& getTriangles() const;
 

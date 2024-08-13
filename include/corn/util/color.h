@@ -2,6 +2,7 @@
 
 #include <string>
 #include <tuple>
+#include <corn/geometry/deg.h>
 
 namespace corn {
     /**
@@ -12,6 +13,8 @@ namespace corn {
     public:
         using RGB = std::tuple<unsigned char, unsigned char, unsigned char>;
         using RGBA = std::tuple<unsigned char, unsigned char, unsigned char, unsigned char>;
+        using HSL = std::tuple<Deg, float, float>;
+        using HSLA = std::tuple<Deg, float, float, unsigned char>;
 
         /// @brief Useful colors.
         /// @{
@@ -28,17 +31,29 @@ namespace corn {
         /// @brief Construct color from R, G, B (and A) values.
         static Color rgb(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255) noexcept;
 
-        /// @brief Construct from a 3-tuple representing RGB value.
-        static Color rgb(const RGB& rgbValue) noexcept;
+        /// @brief Construct from a 3-tuple representing RGB values.
+        static Color rgb(const RGB& rgbValues) noexcept;
 
-        /// @brief Construct from a 4-tuple representing RGBA value.
-        static Color rgb(const RGBA& rgbValue) noexcept;
+        /// @brief Construct from a 4-tuple representing RGBA values.
+        static Color rgb(const RGBA& rgbaValues) noexcept;
 
-        /// @brief Get the RGB value as a tuple.
+        /// @brief Construct from a 3-tuple representing HSL values.
+        static Color hsl(const HSL& hslValues) noexcept;
+
+        /// @brief Construct from a 4-tuple representing HSLA values.
+        static Color hsl(const HSLA& hslaValues) noexcept;
+
+        /// @brief Get the RGB values as a tuple.
         [[nodiscard]] RGB getRGB() const noexcept;
 
-        /// @brief Get the RGBA value as a tuple.
+        /// @brief Get the RGBA values as a tuple.
         [[nodiscard]] RGBA getRGBA() const noexcept;
+
+        /// @brief Get the HSL values as a tuple.
+        [[nodiscard]] HSL getHSL() const noexcept;
+
+        /// @brief Get the HSLA values as a tuple.
+        [[nodiscard]] HSLA getHSLA() const noexcept;
 
         /**
          * @brief Parse the color from a RGB(A) hex string.

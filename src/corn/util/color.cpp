@@ -37,13 +37,68 @@ namespace corn {
         return { r, g, b, a };
     }
 
-    Color Color::rgb(const Color::RGB& rgbValue) noexcept {
-        auto [r, g, b] = rgbValue;
+    Color Color::rgb(const Color::RGB& rgbValues) noexcept {
+        auto [r, g, b] = rgbValues;
         return { r, g, b, 255 };
     }
 
-    Color Color::rgb(const Color::RGBA &rgbValue) noexcept {
-        auto [r, g, b, a] = rgbValue;
+    Color Color::rgb(const Color::RGBA &rgbaValues) noexcept {
+        auto [r, g, b, a] = rgbaValues;
+        return { r, g, b, a };
+    }
+
+    Color Color::hsl(const HSL& hslValues) noexcept {
+        auto [h, s, l] = hslValues;
+        return Color::hsl({ h, s, l, 255 });
+    }
+
+    Color Color::hsl(const HSLA& hslaValues) noexcept {
+        auto [h_, s, l, a] = hslaValues;
+
+        // Validate input
+        if (s < 0.0f) {
+            s = 0.0f;
+        } else if (s > 100.0f) {
+            s = 100.0f;
+        }
+        if (l < 0.0f) {
+            l = 0.0f;
+        } else if (l > 100.0f) {
+            l = 100.0f;
+        }
+
+        // Normalize
+        float h = h_.get();
+        s *= 0.01f;
+        l *= 0.01f;
+
+        // Chroma, hue prime, X, and m
+        float c = (1 - std::abs(2 * l - 1)) * s;
+        float hp = h / 60.0f;
+        float x = c * (1 - std::abs(std::fmod(hp, 2.0f) - 1));
+        float m = l - c * 0.5f;
+
+        // RGB intermediate values
+        float r_, g_, b_;
+        if (hp >= 0 && hp < 1) {
+            std::tie(r_, g_, b_) = std::make_tuple(c, x, 0);
+        } else if (hp >= 1 && hp < 2) {
+            std::tie(r_, g_, b_) = std::make_tuple(x, c, 0);
+        } else if (hp >= 2 && hp < 3) {
+            std::tie(r_, g_, b_) = std::make_tuple(0, c, x);
+        } else if (hp >= 3 && hp < 4) {
+            std::tie(r_, g_, b_) = std::make_tuple(0, x, c);
+        } else if (hp >= 4 && hp < 5) {
+            std::tie(r_, g_, b_) = std::make_tuple(x, 0, c);
+        } else {
+            std::tie(r_, g_, b_) = std::make_tuple(c, 0, x);
+        }
+
+        // RGB
+        auto r = (unsigned char)((r_ + m) * 255.0f);
+        auto g = (unsigned char)((g_ + m) * 255.0f);
+        auto b = (unsigned char)((b_ + m) * 255.0f);
+
         return { r, g, b, a };
     }
 
@@ -53,6 +108,42 @@ namespace corn {
 
     Color::RGBA Color::getRGBA() const noexcept {
         return { this->r_, this->g_, this->b_, this->a_ };
+    }
+
+    Color::HSL Color::getHSL() const noexcept {
+        float r = (float)this->r_ / 255.0f;
+        float g = (float)this->g_ / 255.0f;
+        float b = (float)this->b_ / 255.0f;
+
+        // Chroma, hue prime, and X
+        float cmax = std::max(r, std::max(g, b));
+        float cmin = std::min(r, std::min(g, b));
+        float c = cmax - cmin;
+        float hp;
+        if (c == 0) {
+            hp = 0;
+        } else if (cmax == r) {
+            hp = std::fmod((g - b) / c, 6.0f);
+        } else if (cmax == g) {
+            hp = (b - r) / c + 2;
+        } else {
+            hp = (r - g) / c + 4;
+        }
+
+        // HSL
+        float h = hp * 60;
+        if (h < 0) {
+            h += 360;
+        }
+        float l = (cmax + cmin) * 0.5f;
+        float s = c == 0 ? 0 : c / (1 - std::abs(2 * l - 1));
+
+        return { Deg(h), s * 100.0f, l * 100.0f };
+    }
+
+    Color::HSLA Color::getHSLA() const noexcept {
+        auto [h, s, l] = this->getHSL();
+        return { h, s, l, this->a_ };
     }
 
     Color Color::parse(const std::string& hexString) {

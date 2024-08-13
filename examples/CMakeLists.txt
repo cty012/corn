@@ -5,8 +5,8 @@ add_custom_target(examples
 
 # Build examples
 function (build_example EXAMPLE_NAME)
-    file(GLOB EXAMPLE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}/*.h")
-    file(GLOB EXAMPLE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}/*.cpp")
+    file(GLOB_RECURSE EXAMPLE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}/*.h")
+    file(GLOB_RECURSE EXAMPLE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}/*.cpp")
 
     add_executable(${EXAMPLE_NAME} ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
 
@@ -57,3 +57,4 @@ function (build_example EXAMPLE_NAME)
 endfunction ()
 
 build_example("clangy-bird")
+build_example("cleaning-robot")

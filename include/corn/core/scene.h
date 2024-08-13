@@ -86,6 +86,31 @@ namespace corn {
         T* addSystem(Args&&... args);
 
         /**
+         * @brief Retrieves a system with the given type.
+         * @tparam T Type of the system. Must derive from System class.
+         * @return Pointer to the system retrieved, or null pointer if not found.
+         */
+        template <SystemType T>
+        T* getSystem();
+
+        /**
+         * @brief Retrieves all systems with the given type.
+         * @tparam T Type of the system. Must derive from System class.
+         * @return List of the systems retrieved.
+         */
+        template <SystemType T>
+        std::vector<T*> getSystems();
+
+        /**
+         * @brief Removes a system from the scene.
+         * @tparam T Type of the system. Must derive from System class.
+         * @param system Pointer to the system to remove.
+         * @return Whether the system is removed.
+         */
+        template <SystemType T>
+        bool removeSystem(T* system);
+
+        /**
          * @brief Calls the update methods of all ACTIVE systems added to the scene.
          * @param millis Number of milliseconds elapsed.
          *
@@ -118,5 +143,38 @@ namespace corn {
         T* system = new T(*this, std::forward<Args>(args)...);
         this->systems_.push_back(system);
         return system;
+    }
+
+    template <SystemType T>
+    T* Scene::getSystem() {
+        for (System* system : this->systems_) {
+            if (T* t = dynamic_cast<T*>(system)) {
+                return t;
+            }
+        }
+        return nullptr;
+    }
+
+    template <SystemType T>
+    std::vector<T*> Scene::getSystems() {
+        std::vector<T*> systems;
+        for (System* system : this->systems_) {
+            if (T* t = dynamic_cast<T*>(system)) {
+                systems.push_back(t);
+            }
+        }
+        return systems;
+    }
+
+    template <SystemType T>
+    bool Scene::removeSystem(T* system) {
+        for (auto it = this->systems_.begin(); it != this->systems_.end(); ++it) {
+            if (*it == system) {
+                this->systems_.erase(it);
+                delete system;
+                return true;
+            }
+        }
+        return false;
     }
 }

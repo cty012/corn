@@ -6,6 +6,7 @@ namespace corn {
     Game::Game(Scene* startScene, Config config)
             : active_(false), config_(std::move(config)), scenes_(), keyPressed_(), sw_() {
 
+        startScene->game_ = this;
         this->scenes_.push(startScene);
 
         // Register event listeners

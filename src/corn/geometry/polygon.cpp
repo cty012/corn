@@ -130,6 +130,32 @@ namespace corn {
                 });
     }
 
+    void Polygon::translate(const Vec2& displacement) noexcept {
+        // Translate the vertices
+        for (Vec2& vertex : this->vertices_) {
+            vertex += displacement;
+        }
+        for (std::vector<Vec2>& hole : this->holes_) {
+            for (Vec2& vertex : hole) {
+                vertex += displacement;
+            }
+        }
+
+        // Translate the centroid and bounding box
+        this->centroid_ += displacement;
+        this->bbox_.first += displacement;
+        this->bbox_.second += displacement;
+
+        // Translate the triangles
+        if (!this->trianglesDirty_) {
+            for (std::array<Vec2, 3>& triangle: this->triangles_) {
+                for (Vec2& vertex: triangle) {
+                    vertex += displacement;
+                }
+            }
+        }
+    }
+
     PolygonType Polygon::getType() const {
         if (this->typeDirty_) {
             this->calcType();
@@ -142,6 +168,13 @@ namespace corn {
             this->calcCentroidAndArea();
         }
         return this->centroid_;
+    }
+
+    float Polygon::getArea() const {
+        if (this->centroidAndAreaDirty_) {
+            this->calcCentroidAndArea();
+        }
+        return this->area_;
     }
 
     const std::pair<Vec2, Vec2>& Polygon::getBBox() const {

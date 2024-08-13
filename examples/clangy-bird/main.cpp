@@ -5,24 +5,31 @@
 #include "constants.h"
 
 int main() {
+    // Config
     corn::Config config;
     config.title = "Clangy Bird";
     config.width = WIDTH;
     config.height = HEIGHT;
     config.antialiasing = 4;
+
+    // Fonts
     corn::FontManager::instance().load(
             "noto-sans-zh", "resources/fonts/noto-sans-zh/static/NotoSansSC-Regular.ttf");
 
-    corn::EventManager::ListenerID exitEventID = corn::EventManager::instance().addListener(
+    // Events
+    corn::EventScope eventScope;
+    eventScope.addListener(
             "corn::input::exit",
             [](const corn::EventArgs&) {
                 corn::EventManager::instance().emit(corn::EventArgsExit());
             });
 
+    // Game
     corn::Game game(new MainMenuScene(), config);
     game.run();
 
-    corn::EventManager::instance().removeListener(exitEventID);
+    // Release resources
     corn::FontManager::instance().unload("noto-sans-zh");
+
     return 0;
 }

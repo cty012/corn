@@ -10,7 +10,7 @@ namespace corn {
             polygon_t& polygon,
             const std::vector<Vec2>& vertices, const std::vector<std::vector<Vec2>>& holes) {
 
-        polygon.clear();
+        bg::clear(polygon);
 
         // Outer ring
         for (const Vec2& vertex : vertices) {
@@ -25,6 +25,9 @@ namespace corn {
             }
             polygon.inners().push_back(holeRing);
         }
+
+        // Orient and close the rings
+        bg::correct(polygon);
     }
 
     void toEarcutPolygon(
@@ -62,12 +65,15 @@ namespace corn {
         for (const auto& point : polygon.outer()) {
             vertices.emplace_back(point.x(), point.y());
         }
+        vertices.pop_back();  // Remove the last point, which is the same as the first
+
         for (const auto& hole : polygon.inners()) {
             holes.emplace_back();
             holes.back().reserve(hole.size());
             for (const auto& point : hole) {
                 holes.back().emplace_back(point.x(), point.y());
             }
+            holes.back().pop_back();  // Remove the last point, which is the same as the first
         }
     }
 

@@ -142,8 +142,13 @@ namespace corn {
         // Union
         bg::union_(bg_polygon1, bg_polygon2, bg_result);
 
-        // Convert back to Polygon
-        for (const auto& bg_polygon : bg_result) {
+        // Convert back to Polygon type
+        for (polygon_t& bg_polygon : bg_result) {
+            // Simplify the polygon
+//            polygon_t bg_polygon_simplified;
+            bg::correct(bg_polygon);
+//            bg::simplify(bg_polygon, bg_polygon_simplified, 0.0001f);
+
             std::vector<Vec2> vertices;
             std::vector<std::vector<Vec2>> holes;
             fromBoostPolygon(vertices, holes, bg_polygon);
@@ -175,12 +180,15 @@ namespace corn {
                 removeIndex[i] = (tempResult.size() == 1);
                 if (removeIndex[i]) {
                     current = tempResult[0];
+                    bg::correct(current);
+//                    bg::simplify(tempResult[0], current, 0.0001f);
                 }
             }
 
             // Remove the polygons that were unioned
-            std::erase_if(bg_result, [&](const polygon_t& bg_polygon) {
-                return removeIndex[&bg_polygon - &bg_result[0]];
+            size_t i = 0;
+            std::erase_if(bg_result, [&](const polygon_t&) {
+                return removeIndex[i++];
             });
 
             // Add the unioned polygon
@@ -188,7 +196,9 @@ namespace corn {
         }
 
         // Convert back to Polygon
-        for (const auto& bg_polygon : bg_result) {
+        for (polygon_t& bg_polygon : bg_result) {
+            bg::correct(bg_polygon);
+
             std::vector<Vec2> vertices;
             std::vector<std::vector<Vec2>> holes;
             fromBoostPolygon(vertices, holes, bg_polygon);
@@ -331,7 +341,18 @@ namespace corn {
         // Note that the result must be a single polygon
         std::vector<Polygon> result = polygonUnion(sweptTriangles);
         if (result.size() != 1) {
-            throw std::logic_error("Sweep resulted in multiple polygons");
+            // throw std::logic_error("Sweep resulted in multiple polygons");
+            // If not a single polygon, return the largest one
+            size_t i = 0;
+            float maxArea = 0.0f;
+            for (size_t j = 0; j < result.size(); j++) {
+                float area = result[j].getArea();
+                if (area > maxArea) {
+                    i = j;
+                    maxArea = area;
+                }
+            }
+            return result[i];
         }
 
         return result[0];
