@@ -50,6 +50,12 @@ namespace corn {
          */
         void render(Scene* scene);
 
+        /**
+         * @brief Renders the debug overlay at a corner of the window.
+         * @param fps The current frames per second.
+         */
+        void renderDebugOverlay(size_t fps);
+
         /// @brief Flushes all changes.
         void update();
 

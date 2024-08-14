@@ -199,6 +199,22 @@ namespace corn {
         this->impl_->window->setView(this->impl_->window->getDefaultView());
     }
 
+    void Interface::renderDebugOverlay(size_t fps) {
+        // Render dark background in the top left corner
+        sf::RectangleShape overlay(sf::Vector2f(100, 30));
+        overlay.setFillColor(sf::Color(0, 0, 0, 200));
+        this->impl_->window->draw(overlay);
+
+        // Render FPS text
+        sf::Text text;
+        text.setFont(FontManager::instance().getDefault()->sffont);
+        text.setString("FPS: " + std::to_string(fps));
+        text.setCharacterSize(15);
+        text.setFillColor(sf::Color::White);
+        text.setPosition(10, 6);
+        this->impl_->window->draw(text);
+    }
+
     void Interface::update() {
         this->impl_->window->display();
     }

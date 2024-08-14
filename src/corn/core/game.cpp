@@ -4,7 +4,7 @@
 
 namespace corn {
     Game::Game(Scene* startScene, Config config)
-            : active_(false), config_(std::move(config)), scenes_(), keyPressed_(), sw_() {
+            : active_(false), config_(std::move(config)), scenes_(), keyPressed_(), sw_(), debugOverlayEnabled_(false) {
 
         startScene->game_ = this;
         this->scenes_.push(startScene);
@@ -43,6 +43,10 @@ namespace corn {
     void Game::setConfig(Config config) {
         this->config_ = std::move(config);
         this->interface_->init();
+    }
+
+    void Game::setDebugOverlay(bool debugOverlayEnabled) noexcept {
+        this->debugOverlayEnabled_ = debugOverlayEnabled;
     }
 
     Vec2 Game::windowSize() const noexcept {
@@ -113,11 +117,30 @@ namespace corn {
         this->active_ = true;
         this->sw_.clear();  // Just in case
         this->sw_.play();
+
+        bool debugDataAvailable = false;
+        float debugDataRefreshRate = 500.0f;
+        float debugDataRefreshProgress = 0.0f;
+
+        // FPS data
+        size_t nFrames = 0;
+        size_t fps = 0;
+
         while (this->active_ && !this->scenes_.empty()) {
             // Get millis
             float millis = this->sw_.millis();
             this->sw_.clear();
             this->sw_.play();
+
+            // Update debug data
+            debugDataRefreshProgress += millis;
+            nFrames++;
+            if (debugDataRefreshProgress >= debugDataRefreshRate) {
+                debugDataAvailable = true;
+                fps = (size_t)std::round((float)nFrames / debugDataRefreshProgress * 1000.0f);
+                debugDataRefreshProgress = 0.0f;
+                nFrames = 0;
+            }
 
             // Update scene
             this->scenes_.top()->update(millis);
@@ -125,6 +148,9 @@ namespace corn {
             // Update interface
             this->interface_->handleUserInput();
             this->interface_->render(this->scenes_.top());
+            if (this->debugOverlayEnabled_ && debugDataAvailable) {
+                this->interface_->renderDebugOverlay(fps);
+            }
             this->interface_->update();
 
             // Update scene stack

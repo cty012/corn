@@ -54,6 +54,12 @@ namespace corn {
          */
         void setConfig(Config config);
 
+        /**
+         * @brief Set whether to display the debug overlay in a corner of the window.
+         * @param debugOverlayEnabled Whether to display the debug overlay.
+         */
+        void setDebugOverlay(bool debugOverlayEnabled) noexcept;
+
         /// @return The current size of the window in pixels.
         [[nodiscard]] Vec2 windowSize() const noexcept;
 
@@ -134,6 +140,9 @@ namespace corn {
 
         /// @brief Stopwatch for timing between each frame.
         Stopwatch sw_;
+
+        /// @brief Whether to display the debug overlay.
+        bool debugOverlayEnabled_;
 
         EventScope eventScope_;
     };
