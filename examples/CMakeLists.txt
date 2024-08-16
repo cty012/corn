@@ -18,11 +18,11 @@ function (build_example EXAMPLE_NAME)
         endif ()
     elseif (APPLE)
         set_target_properties(${EXAMPLE_NAME} PROPERTIES
-                BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "@executable_path"
+                INSTALL_RPATH "@loader_path"
         )
     elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
         set_target_properties(${EXAMPLE_NAME} PROPERTIES
-                BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "$ORIGIN"
+                INSTALL_RPATH "$ORIGIN"
         )
     endif ()
 
@@ -31,14 +31,16 @@ function (build_example EXAMPLE_NAME)
     target_link_libraries(${EXAMPLE_NAME} corn)
     add_dependencies(${EXAMPLE_NAME} examples)
 
-    # Copy corn DLL
-    add_custom_target(${EXAMPLE_NAME}_dll ALL
-            COMMAND ${CMAKE_COMMAND} -E echo "Copying DLL..."
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    # Copy corn DLL (only on Windows, due to lack of rpath)
+    if (WIN32)
+        add_custom_target(${EXAMPLE_NAME}_dll ALL
+                COMMAND ${CMAKE_COMMAND} -E echo "Copying DLL..."
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${CORN_OUTPUT_PATH}"
                 "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}"
-    )
-    add_dependencies(${EXAMPLE_NAME} ${EXAMPLE_NAME}_dll)
+        )
+        add_dependencies(${EXAMPLE_NAME} ${EXAMPLE_NAME}_dll)
+    endif ()
 
     # Copy resources folder
     file(GLOB_RECURSE RESOURCES "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}/resources/*")

@@ -6,7 +6,6 @@ option(BUILD_TESTS "Build the test cases in the `test/` folder." OFF)
 
 if (BUILD_TESTS)
     enable_testing()
-    set(VCPKG_MANIFEST_FEATURES "${VCPKG_MANIFEST_FEATURES};tests")
 endif ()
 
 # Project settings
@@ -47,9 +46,12 @@ else ()
 endif ()
 
 # Compiler flags
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
 if (MSVC)
     add_compile_options(/utf-8 /W4 /WX)
-    add_compile_options("$<$<CONFIG:Release>:/O2>")
+    add_compile_options("$<$<CONFIG:Release>:/Ox>")
     add_compile_options("$<$<CONFIG:Debug>:/Zi>")
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
@@ -79,22 +81,31 @@ set_target_properties(corn PROPERTIES
 )
 set(CORN_OUTPUT_PATH $<TARGET_FILE:corn>)
 target_include_directories(corn PRIVATE "${CMAKE_SOURCE_DIR}/include")
+if (APPLE)
+    set_target_properties(${EXAMPLE_NAME} PROPERTIES
+            INSTALL_RPATH "@loader_path"
+    )
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set_target_properties(${EXAMPLE_NAME} PROPERTIES
+            INSTALL_RPATH "$ORIGIN"
+    )
+endif ()
 
 # Link with SFML
-find_package(SFML 2.6 COMPONENTS audio graphics network system window CONFIG REQUIRED)
-target_link_libraries(corn PRIVATE sfml-audio sfml-graphics sfml-network sfml-system sfml-window)
+find_package(SFML 2.6 COMPONENTS graphics window audio network system CONFIG REQUIRED)
+target_link_libraries(corn PRIVATE sfml-graphics sfml-window sfml-audio sfml-network sfml-system)
 
 # Link with ICU
 find_package(ICU REQUIRED COMPONENTS uc i18n data)
 target_link_libraries(corn PRIVATE ICU::uc ICU::i18n ICU::data)
 
 # Link with Boost::Geometry
-find_package(Boost REQUIRED COMPONENTS geometry)
-target_link_libraries(corn PRIVATE Boost::geometry)
+find_package(Boost REQUIRED)
+target_link_libraries(corn PRIVATE boost::boost)
 
 # Link with earcut
-find_path(EARCUT_HPP_INCLUDE_DIRS "mapbox/earcut.hpp")
-target_include_directories(corn PRIVATE "${EARCUT_HPP_INCLUDE_DIRS}")
+find_package(earcut_hpp REQUIRED)
+target_link_libraries(corn PRIVATE earcut_hpp::earcut_hpp)
 
 # Build examples
 if (BUILD_EXAMPLES)
