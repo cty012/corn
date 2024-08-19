@@ -10,12 +10,14 @@
 # Dependencies
 deps/
 vcpkg_installed/
+conan/
 
 # Build
 build/
 cmake-build-*/
 out/
 dist/
+CMakeUserPresets.json
 
 # Others
 .DS_Store

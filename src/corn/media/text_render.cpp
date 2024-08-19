@@ -4,7 +4,7 @@
 #include "text_render_impl.h"
 
 namespace corn {
-    TextRender::TextRenderImpl::Line::Line() : length(0), size() {}
+    TextRender::TextRenderImpl::Line::Line() : length(0), size(), precedeWithLineFeed(false) {}
 
     TextRender::TextRenderImpl::TextRenderImpl(const RichText& richText) : lines(), limitWidth(false) {
         this->setRichText(richText, 0.0f);
@@ -188,7 +188,7 @@ namespace corn {
             // Construct the text
             sf::Text text;
             setTextFont(text, style.font);
-            setTextSize(text, (unsigned int) style.size);
+            setTextSize(text, style.size);
             setTextVariant(text, style.variant);
             setTextString(text, str);
 
@@ -242,7 +242,7 @@ namespace corn {
     Vec2 measureTextSize(const std::u8string& str, const TextStyle& style) {
         sf::Text text;
         setTextFont(text, style.font);
-        setTextSize(text, (unsigned int) style.size);
+        setTextSize(text, style.size);
         setTextVariant(text, style.variant);
         setTextString(text, str);
         sf::Rect<float> newBounds = text.getLocalBounds();
@@ -257,8 +257,8 @@ namespace corn {
         text.setFont(font->sffont);
     }
 
-    void setTextSize(sf::Text& text, unsigned int size) {
-        text.setCharacterSize(size);
+    void setTextSize(sf::Text& text, float size) {
+        text.setCharacterSize((unsigned int)std::round(size));
     }
 
     void setTextVariant(sf::Text& text, FontVariant variant) {

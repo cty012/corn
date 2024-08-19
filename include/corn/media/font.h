@@ -37,7 +37,7 @@ namespace corn {
 
         /**
          * @brief Loads a font file into the font manager.
-         * @param name Name of the font in the font manager.
+         * @param name Name of the font in the font manager. Must not be empty.
          * @param path Path to the font file.
          * @return Whether the font is successfully loaded.
          */
@@ -45,7 +45,7 @@ namespace corn {
 
         /**
          * @brief Loads a font file asynchronously into the font manager.
-         * @param name Name of the font in the font manager.
+         * @param name Name of the font in the font manager. Must not be empty.
          * @param path Path to the font file.
          */
         void preload(const std::string& name, const std::string& path);
@@ -63,7 +63,17 @@ namespace corn {
          * @param name Name of the font.
          * @return Pointer to the font object if loaded, otherwise null pointer.
          */
-        const Font* get(const std::string& name) const noexcept;
+        [[nodiscard]] const Font* get(const std::string& name) const noexcept;
+
+        /// @return Pointer to the default font object.
+        [[nodiscard]] const Font* getDefault() const noexcept;
+
+        /**
+         * @brief Set the default font.
+         * @param name Name of the font.
+         * @return Whether the font is successfully set as default.
+         */
+        bool setDefault(const std::string& name) noexcept;
 
     private:
         /// @brief Constructor.
@@ -78,10 +88,15 @@ namespace corn {
         /// @brief Stores all fonts.
         std::unordered_map<std::string, Font*> fonts_;
 
+        /// @brief The name of the default font.
+        mutable std::string defaultFont_;
+
         /// @brief Stores all futures of fonts that are still loading.
         mutable std::unordered_map<std::string, std::future<bool>> futures_;
 
         /// @brief Mutexes for multithreading.
-        mutable std::mutex mutex_, mutexFonts_, mutexFutures_;
+        mutable std::mutex mutex_;  // General purpose
+        mutable std::mutex mutexFonts_;  // For fonts_
+        mutable std::mutex mutexFutures_;  // For futures_
     };
 }

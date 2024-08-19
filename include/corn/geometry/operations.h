@@ -10,6 +10,7 @@ namespace corn {
     struct Vec2;
     struct Vec3;
     struct Vec4;
+    class Polygon;
 
     template <typename T>
     concept Num = std::is_same_v<T, int> || std::is_same_v<T, size_t> || std::is_same_v<T, float>;
@@ -34,6 +35,48 @@ namespace corn {
      * @return The string representation of the vector.
      */
     std::string toString(const Vec4& vec);
+
+    /**
+     * @param v1 The first vector.
+     * @param v2 The second vector.
+     * @return The vector formed by the minimum value in both x and y directions.
+     */
+    Vec2 min(const Vec2& v1, const Vec2& v2);
+
+    /**
+     * @param v1 The first vector.
+     * @param v2 The second vector.
+     * @return The vector formed by the maximum value in both x and y directions.
+     */
+    Vec2 max(const Vec2& v1, const Vec2& v2);
+
+    /**
+     * @param v1 The first vector.
+     * @param v2 The second vector.
+     * @return The vector formed by the minimum value in all x, y, and z directions.
+     */
+    Vec3 min(const Vec3& v1, const Vec3& v2);
+
+    /**
+     * @param v1 The first vector.
+     * @param v2 The second vector.
+     * @return The vector formed by the maximum value in all x, y, and z directions.
+     */
+    Vec3 max(const Vec3& v1, const Vec3& v2);
+
+    /**
+     * @param v1 The first vector.
+     * @param v2 The second vector.
+     * @return The vector formed by the minimum value in all x, y, z, and w directions.
+     */
+    Vec4 min(const Vec4& v1, const Vec4& v2);
+
+    /**
+     * @param v1 The first vector.
+     * @param v2 The second vector.
+     * @return The vector formed by the maximum value in all x, y, z, and w directions.
+     */
+    Vec4 max(const Vec4& v1, const Vec4& v2);
 
     /**
      * @tparam T Numeric type. Can be int, size_t, or float.
@@ -85,6 +128,13 @@ namespace corn {
     [[nodiscard]] float dot(const Vec4& lhs, const Vec4& rhs) noexcept;
 
     /**
+     * @param v1 First 2D vector.
+     * @param v2 Second 2D vector.
+     * @return Cross product of the two vectors.
+     */
+    [[nodiscard]] float cross(const Vec2& v1, const Vec2& v2) noexcept;
+
+    /**
      * @param v1 First 3D vector.
      * @param v2 Second 3D vector.
      * @return Cross product of the two vectors.
@@ -116,7 +166,7 @@ namespace corn {
      * @param v3 The third vertex.
      * @return Area of the triangle in 2D plane.
      */
-    [[nodiscard]] float area(const Vec2& v1, const Vec2& v2, const Vec2& v3) noexcept;
+    [[nodiscard]] float triangleArea(const Vec2& v1, const Vec2& v2, const Vec2& v3) noexcept;
 
     /**
      * @param v1 The first vertex.
@@ -124,7 +174,7 @@ namespace corn {
      * @param v3 The third vertex.
      * @return Area of the triangle in 3D plane.
      */
-    [[nodiscard]] float area(const Vec3& v1, const Vec3& v2, const Vec3& v3) noexcept;
+    [[nodiscard]] float triangleArea(const Vec3& v1, const Vec3& v2, const Vec3& v3) noexcept;
 
     /**
      * @param v1 The first vertex.
@@ -132,7 +182,7 @@ namespace corn {
      * @param v3 The third vertex.
      * @return Centroid of the triangle in 2D plane.
      */
-    [[nodiscard]] Vec2 centroid(const Vec2& v1, const Vec2& v2, const Vec2& v3) noexcept;
+    [[nodiscard]] Vec2 triangleCentroid(const Vec2& v1, const Vec2& v2, const Vec2& v3) noexcept;
 
     /**
      * @param v1 The first vertex.
@@ -140,5 +190,52 @@ namespace corn {
      * @param v3 The third vertex.
      * @return Centroid of the triangle in 3D plane.
      */
-    [[nodiscard]] Vec3 centroid(const Vec3& v1, const Vec3& v2, const Vec3& v3) noexcept;
+    [[nodiscard]] Vec3 triangleCentroid(const Vec3& v1, const Vec3& v2, const Vec3& v3) noexcept;
+
+    // Polygon operations
+    /**
+     * @param polygon1 The first polygon.
+     * @param polygon2 The second polygon.
+     * @return The union of the two polygons.
+     */
+    [[nodiscard]] std::vector<Polygon> polygonUnion(const Polygon& polygon1, const Polygon& polygon2) noexcept;
+
+    /**
+     * @param polygons The list of polygons.
+     * @return The union of the list of polygons.
+     */
+    [[nodiscard]] std::vector<Polygon> polygonUnion(const std::vector<Polygon>& polygons) noexcept;
+
+    /**
+     * @param polygon1 The first polygon.
+     * @param polygon2 The second polygon.
+     * @return The intersection of the two polygons.
+     */
+    [[nodiscard]] std::vector<Polygon> polygonIntersection(const Polygon& polygon1, const Polygon& polygon2) noexcept;
+
+    /**
+     * @param polygons The list of polygons.
+     * @return The intersection of the list of polygons.
+     */
+    [[nodiscard]] std::vector<Polygon> polygonIntersection(const std::vector<Polygon>& polygons) noexcept;
+
+    /**
+     * @param polygon1 The first polygon.
+     * @param polygon2 The second polygon.
+     * @return The difference of the two polygons (first minus second).
+     */
+    [[nodiscard]] std::vector<Polygon> polygonDifference(const Polygon& polygon1, const Polygon& polygon2) noexcept;
+
+    /**
+     * @param points The set of points.
+     * @return The convex hull of the set of points.
+     */
+    [[nodiscard]] Polygon convexHull(const std::vector<Vec2>& points) noexcept;
+
+    /**
+     * @param polygon The polygon.
+     * @param displacement The displacement vector.
+     * @return The polygon swept by the displacement vector.
+     */
+    [[nodiscard]] Polygon polygonSweep(const Polygon& polygon, const Vec2& displacement);
 }

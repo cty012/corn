@@ -22,6 +22,8 @@ namespace corn {
     }
 
     bool FontManager::load(const std::string& name, const std::string& path) {
+        if (name.empty()) return false;
+
         // Preload
         this->preload(name, path);
         std::lock_guard<std::mutex> lock(this->mutex_);
@@ -42,6 +44,8 @@ namespace corn {
     }
 
     void FontManager::preload(const std::string& name, const std::string& path) {
+        if (name.empty()) return;
+
         std::lock_guard<std::mutex> lock(this->mutex_);
         std::lock_guard<std::mutex> lockFutures(this->mutexFutures_);
 
@@ -84,5 +88,55 @@ namespace corn {
             return nullptr;
         }
         return this->fonts_.at(name);
+    }
+
+    const Font* FontManager::getDefault() const noexcept {
+        std::lock_guard<std::mutex> lock(this->mutex_);
+
+        // If default font is set
+        if (!this->defaultFont_.empty()) {
+            std::lock_guard<std::mutex> lockFonts(this->mutexFonts_);
+
+            // Check if it is loaded
+            if (this->fonts_.contains(this->defaultFont_)) {
+                const Font* target = this->fonts_.at(this->defaultFont_);
+                if (target->state == FontState::LOADED) {
+                    return target;
+                }
+            }
+
+            // Otherwise remove the default font
+            this->defaultFont_ = "";
+        }
+
+        // If default font is not set
+        std::lock_guard<std::mutex> lockFonts(this->mutexFonts_);
+
+        // Find the first loaded font
+        for (auto& [name, font] : this->fonts_) {
+            if (font->state == FontState::LOADED) {
+                this->defaultFont_ = name;
+                return font;
+            }
+        }
+
+        // If no font is loaded
+        return nullptr;
+    }
+
+    bool FontManager::setDefault(const std::string& name) noexcept {
+        std::lock_guard<std::mutex> lock(this->mutex_);
+        std::lock_guard<std::mutex> lockFonts(this->mutexFonts_);
+
+        // Check if font is loaded
+        if (this->fonts_.contains(name)) {
+            const Font* font = this->fonts_.at(name);
+            if (font->state == FontState::LOADED) {
+                this->defaultFont_ = name;
+                return true;
+            }
+        }
+
+        return false;
     }
 }

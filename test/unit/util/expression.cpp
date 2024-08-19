@@ -114,6 +114,21 @@ namespace corn::test::expression {
         EXPECT_FLOAT_EQ(pureFloat2.value.val, 0.2f);
         EXPECT_EQ(pureFloat2.value.hasUnit, false);
 
+        Token sciNotation("2.5e-1");
+        EXPECT_EQ(sciNotation.type, TokenType::VALUE);
+        EXPECT_EQ(sciNotation.name, "");
+        EXPECT_FLOAT_EQ(sciNotation.value.val, 0.25f);
+        EXPECT_EQ(sciNotation.value.hasUnit, false);
+
+        Token sciNotationWithUnit("2.5e-1px");
+        EXPECT_EQ(sciNotationWithUnit.type, TokenType::VALUE);
+        EXPECT_EQ(sciNotationWithUnit.name, "px");
+        EXPECT_FLOAT_EQ(sciNotationWithUnit.value.val, 0.25f);
+        EXPECT_EQ(sciNotationWithUnit.value.hasUnit, true);
+
+        Token sciNotationWithoutNumber("e-1");
+        EXPECT_EQ(sciNotationWithoutNumber.type, TokenType::INVALID);
+
         Token pxValue(".25px");
         EXPECT_EQ(pxValue.type, TokenType::VALUE);
         EXPECT_EQ(pxValue.name, "px");
@@ -184,6 +199,10 @@ namespace corn::test::expression {
 
         // Numbers with multiple decimal points
         EXPECT_THROW(tokenize("10.5.3", unitIdx), ExpressionParseFailed);
+
+        // Scientific notation
+        EXPECT_NO_THROW(result = tokenize("max(2.5e-1px, 0.03e2px)", unitIdx));
+        TestTokenVectorsEqual(result, constructTokenVector("max", "(", "2.5e-1px", ",", "0.03e2px", ")"));
     }
 
     TEST(Expression, convert_to_postfix) {
@@ -227,6 +246,11 @@ namespace corn::test::expression {
         EXPECT_FLOAT_EQ(result.calc(1.0f, -1.0f, 0.0f), 0.0f);
         EXPECT_FLOAT_EQ(result.calc(1.0f, 1.1f, 0.0f), 110.0f);
         EXPECT_FLOAT_EQ(result.calc(1.0f, 10.0f, 0.0f), 720.0f);
+
+        // Scientific notation
+        EXPECT_NO_THROW(result = Expression("max(2.5e-1%w, 0.03e2%h)", units));
+        EXPECT_FLOAT_EQ(result.calc(1.0f, 1.0f, 1.0f), 3.0f);
+        EXPECT_FLOAT_EQ(result.calc(1.0f, 1.0f, 0.0f), 0.25f);
 
         // Unary operators not supported
         EXPECT_THROW(Expression("-10px", units), ExpressionParseFailed);

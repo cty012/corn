@@ -199,6 +199,22 @@ namespace corn {
         this->impl_->window->setView(this->impl_->window->getDefaultView());
     }
 
+    void Interface::renderDebugOverlay(size_t fps) {
+        // Render dark background in the top left corner
+        sf::RectangleShape overlay(sf::Vector2f(100, 30));
+        overlay.setFillColor(sf::Color(0, 0, 0, 200));
+        this->impl_->window->draw(overlay);
+
+        // Render FPS text
+        sf::Text text;
+        text.setFont(FontManager::instance().getDefault()->sffont);
+        text.setString("FPS: " + std::to_string(fps));
+        text.setCharacterSize(15);
+        text.setFillColor(sf::Color::White);
+        text.setPosition(10, 6);
+        this->impl_->window->draw(text);
+    }
+
     void Interface::update() {
         this->impl_->window->display();
     }
@@ -270,15 +286,15 @@ namespace corn {
 
         auto drawPolygon =
         [&cameraOffset, &camera, &scaleTransform]
-        (CTransform2D* transform, CPolygon* polygon) -> void {
+        (CTransform2D* transform, CPolygon* cPolygon) -> void {
             auto [worldLocation, worldRotation] = transform->getWorldTransform();
             auto [ancX, ancY] = worldLocation - cameraOffset;
-            auto [r, g, b, a] = polygon->color.getRGBA();
+            auto [r, g, b, a] = cPolygon->color.getRGBA();
 
             sf::Transform rotateTransform;
             rotateTransform.rotate(-worldRotation.get());
 
-            const std::vector<std::array<Vec2, 3>>& triangles = polygon->getTriangles();
+            const std::vector<std::array<Vec2, 3>>& triangles = cPolygon->polygon.getTriangles();
             sf::VertexArray varr(sf::Triangles, triangles.size() * 3);
             for (size_t i = 0; i < triangles.size(); i++) {
                 for (size_t j = 0; j < 3; j++) {
@@ -312,14 +328,21 @@ namespace corn {
             }
 
             // Polygon
-            auto polygon = entity->getComponent<CPolygon>();
-            if (polygon && polygon->active && !polygon->getVertices().empty()) {
-                if (polygon->thickness > 0) {
-                    for (const std::vector<Vec2>& arc : polygon->getVertices()) {
-                        drawLines(transform, arc, polygon->thickness, polygon->color, true);
+            auto cPolygon = entity->getComponent<CPolygon>();
+            if (cPolygon) {
+                const Polygon& polygon = cPolygon->polygon;
+                PolygonType polygonType = polygon.getType();
+                if (cPolygon->active && polygonType != PolygonType::INVALID &&
+                    polygonType != PolygonType::EMPTY) {
+                    if (cPolygon->thickness > 0) {
+                        drawLines(transform, polygon.getVertices(), cPolygon->thickness, cPolygon->color,
+                                  true);
+                        for (const std::vector<Vec2>& hole: polygon.getHoles()) {
+                            drawLines(transform, hole, cPolygon->thickness, cPolygon->color, true);
+                        }
+                    } else {
+                        drawPolygon(transform, cPolygon);
                     }
-                } else {
-                    drawPolygon(transform, polygon);
                 }
             }
 

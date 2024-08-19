@@ -5,24 +5,14 @@ add_custom_target(examples
 
 # Build examples
 function (build_example EXAMPLE_NAME)
-    file(GLOB EXAMPLE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}/*.h")
-    file(GLOB EXAMPLE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}/*.cpp")
+    file(GLOB_RECURSE EXAMPLE_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}/*.h")
+    file(GLOB_RECURSE EXAMPLE_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}/*.cpp")
 
     add_executable(${EXAMPLE_NAME} ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
 
-    if (WIN32)
-        if (MSVC)
-            set_target_properties(${EXAMPLE_NAME} PROPERTIES
-                    LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:CONSOLE"  # /SUBSYSTEM:WINDOWS
-            )
-        endif ()
-    elseif (APPLE)
+    if (MSVC)
         set_target_properties(${EXAMPLE_NAME} PROPERTIES
-                BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "@executable_path"
-        )
-    elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        set_target_properties(${EXAMPLE_NAME} PROPERTIES
-                BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "$ORIGIN"
+                LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:CONSOLE"  # /SUBSYSTEM:WINDOWS
         )
     endif ()
 
@@ -31,14 +21,16 @@ function (build_example EXAMPLE_NAME)
     target_link_libraries(${EXAMPLE_NAME} corn)
     add_dependencies(${EXAMPLE_NAME} examples)
 
-    # Copy corn DLL
-    add_custom_target(${EXAMPLE_NAME}_dll ALL
-            COMMAND ${CMAKE_COMMAND} -E echo "Copying DLL..."
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    # Copy corn DLL (only on Windows, due to lack of rpath)
+    if (WIN32)
+        add_custom_target(${EXAMPLE_NAME}_dll ALL
+                COMMAND ${CMAKE_COMMAND} -E echo "Copying DLL..."
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${CORN_OUTPUT_PATH}"
                 "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}"
-    )
-    add_dependencies(${EXAMPLE_NAME} ${EXAMPLE_NAME}_dll)
+        )
+        add_dependencies(${EXAMPLE_NAME} ${EXAMPLE_NAME}_dll)
+    endif ()
 
     # Copy resources folder
     file(GLOB_RECURSE RESOURCES "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}/resources/*")
@@ -57,3 +49,4 @@ function (build_example EXAMPLE_NAME)
 endfunction ()
 
 build_example("clangy-bird")
+build_example("cleaning-robot")
