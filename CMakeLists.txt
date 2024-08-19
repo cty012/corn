@@ -15,6 +15,12 @@ set(CMAKE_CXX_STANDARD 20)
 set(DEPS_PATH "${CMAKE_SOURCE_DIR}/deps")
 list(APPEND CMAKE_PREFIX_PATH "${DEPS_PATH}")
 
+if (APPLE)
+    set(CMAKE_INSTALL_RPATH "@loader_path;@loader_path/../lib;@loader_path/../lib/external;@loader_path/../Frameworks")
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(CMAKE_INSTALL_RPATH "$ORIGIN;$ORIGIN/../lib;$ORIGIN/../lib/external;$ORIGIN/../Frameworks")
+endif ()
+
 # Output directories
 set(CORN_OUTPUT_DIR "${CMAKE_BINARY_DIR}/lib")
 set(EXAMPLES_OUTPUT_DIR "${CMAKE_BINARY_DIR}/examples")
@@ -81,18 +87,9 @@ set_target_properties(corn PROPERTIES
 )
 set(CORN_OUTPUT_PATH $<TARGET_FILE:corn>)
 target_include_directories(corn PRIVATE "${CMAKE_SOURCE_DIR}/include")
-if (APPLE)
-    set_target_properties(${EXAMPLE_NAME} PROPERTIES
-            INSTALL_RPATH "@loader_path"
-    )
-elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    set_target_properties(${EXAMPLE_NAME} PROPERTIES
-            INSTALL_RPATH "$ORIGIN"
-    )
-endif ()
 
 # Link with SFML
-find_package(SFML 2.6 COMPONENTS graphics window audio network system CONFIG REQUIRED)
+find_package(SFML COMPONENTS graphics window audio network system CONFIG REQUIRED)
 target_link_libraries(corn PRIVATE sfml-graphics sfml-window sfml-audio sfml-network sfml-system)
 
 # Link with ICU
@@ -128,3 +125,5 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/corn" DESTINATION "include")
 
 configure_file(corn-config.cmake.in corn-config.cmake @ONLY)
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/corn-config.cmake" DESTINATION "cmake")
+
+install(FILES "${CMAKE_SOURCE_DIR}/LICENSE" DESTINATION ".")

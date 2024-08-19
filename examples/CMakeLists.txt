@@ -10,19 +10,9 @@ function (build_example EXAMPLE_NAME)
 
     add_executable(${EXAMPLE_NAME} ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
 
-    if (WIN32)
-        if (MSVC)
-            set_target_properties(${EXAMPLE_NAME} PROPERTIES
-                    LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:CONSOLE"  # /SUBSYSTEM:WINDOWS
-            )
-        endif ()
-    elseif (APPLE)
+    if (MSVC)
         set_target_properties(${EXAMPLE_NAME} PROPERTIES
-                INSTALL_RPATH "@loader_path"
-        )
-    elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        set_target_properties(${EXAMPLE_NAME} PROPERTIES
-                INSTALL_RPATH "$ORIGIN"
+                LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:CONSOLE"  # /SUBSYSTEM:WINDOWS
         )
     endif ()
 
