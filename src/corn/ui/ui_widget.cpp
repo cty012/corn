@@ -7,7 +7,8 @@ namespace corn {
     UIWidget::UIWidget(UIType type, WidgetID id, std::string name, UIManager& uiManager) noexcept
             : type_(type), id_(id), name_(std::move(name)), active_(true), uiManager_(uiManager),
             geometry_(UIGeometry::DEFAULT), x_(), y_(), w_(), h_(), independent_(), overflow_(UIOverflow::DISPLAY),
-            background_(Color::rgb(255, 255, 255, 0)), opacity_(255), zOrder_(0), clickable_(false) {
+            background_(Color::rgb(255, 255, 255, 0)), opacity_(255), zOrder_(0),
+            keyboardInteractable_(false), mouseInteractable_(false) {
 
         this->setX("0px");
         this->setY("0px");
@@ -140,6 +141,27 @@ namespace corn {
         this->independent_[3] = expression.find("%p") == std::string::npos;
     }
 
+    Vec2 UIWidget::getNaturalSize() const noexcept {
+        float nw = 0.0f, nh = 0.0f;
+        std::vector<UIWidget*> independentChildren = this->getUIManager().getWidgetsThat(
+                [](const UIWidget* widget) {
+                    return widget->isActive() && widget->getActualGeometry() == UIGeometry::INDEPENDENT;
+                },
+                this, false);
+        // Find max of children size
+        for (UIWidget* child : independentChildren) {
+            auto [cnw, cnh] = child->getNaturalSize() * 0.01f;
+            float cx = child->x_.calc(1.0f, 0.0f, 0.0f, cnw, cnh);
+            float cy = child->y_.calc(1.0f, 0.0f, 0.0f, cnw, cnh);
+            float cw = child->w_.calc(1.0f, 0.0f, 0.0f, cnw, cnh);
+            float ch = child->h_.calc(1.0f, 0.0f, 0.0f, cnw, cnh);
+            nw = std::max(nw, cx + cw);
+            nh = std::max(nh, cy + ch);
+        }
+
+        return { nw, nh };
+    }
+
     UIOverflow UIWidget::getOverflow() const noexcept {
         return this->overflow_;
     }
@@ -164,11 +186,19 @@ namespace corn {
         this->opacity_ = opacity;
     }
 
-    bool UIWidget::isClickable() const noexcept {
-        return this->clickable_;
+    bool UIWidget::isKeyboardInteractable() const noexcept {
+        return this->keyboardInteractable_;
     }
 
-    void UIWidget::setClickable(bool clickable) noexcept {
-        this->clickable_ = clickable;
+    void UIWidget::setKeyboardInteractable(bool interactable) noexcept {
+        this->keyboardInteractable_ = interactable;
+    }
+
+    bool UIWidget::isMouseInteractable() const noexcept {
+        return this->mouseInteractable_;
+    }
+
+    void UIWidget::setMouseInteractable(bool interactable) noexcept {
+        this->mouseInteractable_ = interactable;
     }
 }

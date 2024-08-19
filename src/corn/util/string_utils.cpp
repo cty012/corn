@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <fstream>
 #include <sstream>
+#include <regex>
 #include <unicode/brkiter.h>
 #include <unicode/uscript.h>
 #include <unicode/utypes.h>
@@ -166,14 +167,27 @@ namespace corn {
         printf("%s", reinterpret_cast<const char*>(str.c_str()));
     }
 
-    std::string loadStringFromFile(const std::string& file) {
+    std::string loadStringFromFile(const std::filesystem::path& file) {
         std::ifstream filestream(file);
         if (!filestream) {
-            throw std::runtime_error("Could not open the file: '" + file + "'");
+            throw std::runtime_error("Could not open the file: '" + file.string() + "'");
         }
 
         std::stringstream buffer;
         buffer << filestream.rdbuf();
         return buffer.str();
+    }
+
+    std::string format(const std::string& fstring, const std::unordered_map<std::string, std::string>& dictionary) {
+        std::string result = fstring;
+        for (const auto& pair : dictionary) {
+            // Create a regex pattern to find the placeholder in the format string
+            std::string pattern = "\\$\\{" + pair.first + "\\}";
+            std::regex re(pattern);
+
+            // Replace all occurrences of the placeholder with the value from the dictionary
+            result = std::regex_replace(result, re, pair.second);
+        }
+        return result;
     }
 }

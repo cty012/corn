@@ -3,10 +3,10 @@
 #include <utility>
 
 namespace corn {
-    TextStyle::TextStyle(const Font* font, size_t size) noexcept
+    TextStyle::TextStyle(const Font* font, float size) noexcept
             : font(font), size(size), color(Color::WHITE()), variant(FontVariant::REGULAR) {}
 
-    TextStyle::TextStyle(const Font* font, size_t size, const Color& color, FontVariant variant) noexcept
+    TextStyle::TextStyle(const Font* font, float size, const Color& color, FontVariant variant) noexcept
             : font(font), size(size), color(color), variant(variant) {}
 
     TextStyle TextStyle::setFont(const Font* newFont) const noexcept {
@@ -15,7 +15,7 @@ namespace corn {
         return style;
     }
 
-    TextStyle TextStyle::setSize(size_t newSize) const noexcept {
+    TextStyle TextStyle::setSize(float newSize) const noexcept {
         TextStyle style = *this;
         style.size = newSize;
         return style;

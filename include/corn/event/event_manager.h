@@ -105,10 +105,17 @@ namespace corn {
         /**
          * @brief Emits an event with the given argument. Calls all listeners with the same event type.
          * @param args Contains all information about the event.
-         * @param propagate Whether the event will propagate to sub-rooms.
          * @return The number of listeners being called.
          */
-        int emit(const EventArgs& args, bool propagate = false) noexcept;
+        int emit(const EventArgs& args) noexcept;
+
+        /**
+         * @brief Emits an event with the given argument. Calls all listeners with the same event type. Event is
+         *        received by all public rooms.
+         * @param args Contains all information about the event.
+         * @return The number of listeners being called.
+         */
+        static int broadcast(const EventArgs& args) noexcept;
 
     private:
         /// @brief Constructor.

@@ -6,7 +6,7 @@
 #include "text_manager.h"
 
 void underlineOnHover(corn::UILabel& label) {
-    label.setClickable(true);
+    label.setMouseInteractable(true);
     label.getEventManager().addListener(
             "corn::ui::onenter",
             [&label](const corn::EventArgs&) {

@@ -17,7 +17,7 @@ namespace corn {
         const Font* font;
 
         /// @brief Size of the text segment.
-        size_t size;
+        float size;
 
         /// @brief Color of the text segment.
         Color color;
@@ -26,16 +26,16 @@ namespace corn {
         FontVariant variant;
 
         /// @brief Simple constructor.
-        TextStyle(const Font* font, size_t size) noexcept;
+        TextStyle(const Font* font, float size) noexcept;
 
         /// @brief Complete constructor.
-        TextStyle(const Font* font, size_t size, const Color& color, FontVariant variant) noexcept;
+        TextStyle(const Font* font, float size, const Color& color, FontVariant variant) noexcept;
 
         /// @return A NEW TextStyle object with the updated font.
         [[nodiscard]] TextStyle setFont(const Font* newFont) const noexcept;
 
         /// @return A NEW TextStyle object with the updated size.
-        [[nodiscard]] TextStyle setSize(size_t newSize) const noexcept;
+        [[nodiscard]] TextStyle setSize(float newSize) const noexcept;
 
         /// @return A NEW TextStyle object with the updated color.
         [[nodiscard]] TextStyle setColor(const Color& newColor) const noexcept;

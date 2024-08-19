@@ -1,4 +1,5 @@
 #include <mapbox/earcut.hpp>
+#include <utility>
 #include <corn/core/scene.h>
 #include <corn/ecs/component.h>
 #include <corn/ecs/entity.h>
@@ -8,24 +9,25 @@
 #include "../event/event_args_extend.h"
 
 namespace corn {
-    Component::Component(Entity& entity) noexcept : active(true), entity(entity) {}
+    Component::Component(Entity& entity) noexcept
+            : active(true), entityManager_(entity.getEntityManager()), entityID_(entity.getID()) {}
 
     Component::~Component() = default;
 
     Entity& Component::getEntity() const noexcept {
-        return this->entity;
+        return *this->entityManager_.getEntityByID(this->entityID_);
     }
 
     EntityManager& Component::getEntityManager() const noexcept {
-        return this->entity.getEntityManager();
+        return this->entityManager_;
     }
 
     Scene& Component::getScene() const noexcept {
-        return this->entity.getScene();
+        return this->entityManager_.getScene();
     }
 
     const Game* Component::getGame() const noexcept {
-        return this->entity.getGame();
+        return this->entityManager_.getGame();
     }
 
     CTransform2D::CTransform2D(Entity &entity, Vec2 location, Deg rotation) noexcept
@@ -86,127 +88,8 @@ namespace corn {
     CLines::CLines(Entity& entity, std::vector<Vec2> vertices, float thickness, const Color& color, bool closed) noexcept
             : Component(entity), vertices(std::move(vertices)), thickness(thickness), color(color), closed(closed) {}
 
-    CPolygon::CPolygon(Entity& entity, std::vector<std::vector<Vec2>> vertices, float thickness, const Color& color) noexcept
-            : Component(entity), thickness(thickness), color(color), area_(0.0f) {
-
-        this->setVertices(std::move(vertices));
-    }
-
-    const std::vector<std::vector<Vec2>>& CPolygon::getVertices() const noexcept {
-        return this->vertices_;
-    }
-
-    void CPolygon::setVertices(std::vector<std::vector<Vec2>> vertices) {
-        this->vertices_ = std::move(vertices);
-
-        // Flatten the vertices
-        std::vector<Vec2> flattened;
-        size_t totalSize = 0;
-        for (const std::vector<Vec2>& ring : this->vertices_) {
-            totalSize += ring.size();
-        }
-        flattened.reserve(totalSize);
-        for (const std::vector<Vec2>& ring : this->vertices_) {
-            flattened.insert(flattened.end(), ring.begin(), ring.end());
-        }
-
-        // Find BBox
-        this->bBox.first = this->bBox.second = flattened.empty() ? Vec2::ZERO() : flattened[0];
-        for (const Vec2& point : flattened) {
-            this->bBox.first.x = std::min(this->bBox.first.x, point.x);
-            this->bBox.first.y = std::min(this->bBox.first.y, point.y);
-            this->bBox.second.x = std::max(this->bBox.second.x, point.x);
-            this->bBox.second.y = std::max(this->bBox.second.y, point.y);
-        }
-
-        // Triangulation
-        using Point = std::array<float, 2>;
-        std::vector<std::vector<Point>> earcutInput;
-        for (const std::vector<Vec2>& ring : this->vertices_) {
-            std::vector<Point>& back = earcutInput.emplace_back();
-            back.reserve(ring.size());
-            for (const Vec2& coord : ring) {
-                back.push_back({ coord.x, coord.y });
-            }
-        }
-
-        std::vector<size_t> indices = mapbox::earcut<size_t>(earcutInput);
-
-        // Unflatten and store the triangle indices
-        this->triangles_.clear();
-        for (size_t i = 0; i * 3 + 2 < indices.size(); i++) {
-            this->triangles_.push_back({ flattened[indices[i * 3 + 0]], flattened[indices[i * 3 + 1]], flattened[indices[i * 3 + 2]] });
-        }
-
-        // Calculate area and centroid
-        this->area_ = 0.0f;
-        this->centroid_ = Vec2::ZERO();
-        for (const auto& [v1, v2, v3] : this->triangles_) {
-            float a = area(v1, v2, v3);
-            this->area_ += a;
-            this->centroid_ += a * centroid(v1, v2, v3);
-        }
-        this->centroid_ *= (1 / this->area_);
-    }
-
-    const std::vector<std::array<Vec2, 3>>& CPolygon::getTriangles() const noexcept {
-        return this->triangles_;
-    }
-
-    const std::pair<Vec2, Vec2>& CPolygon::getBBox() const noexcept {
-        return this->bBox;
-    }
-
-    bool CPolygon::contains(const Vec2& point, bool countEdges) const noexcept {
-        if (this->vertices_.empty()) {
-            return false;
-        }
-
-        // First check if it is in the bounding box
-        const auto& [tl, br] = this->bBox;
-        if (tl.x > point.x || tl.y > point.y || br.x < point.x || br.y < point.y) {
-            return false;
-        }
-
-        // If so, first check if it is on the boundary
-        for (size_t i = 0; i < this->vertices_.size(); i++) {
-            if (this->vertices_[i].size() < 2) continue;
-            for (size_t j = 0; j < this->vertices_[i].size(); j++) {
-                auto [x1, y1] = this->vertices_[i][j];
-                auto [x2, y2] = this->vertices_[i][(j + 1) % this->vertices_.size()];
-                // Linearity check
-                bool isCollinear = x1 * (y2 - point.y) + x2 * (point.y - y1) + point.x * (y1 - y2) == 0;
-                // Between check
-                bool xIsBetween = (std::min(x1, x2) <= point.x) && (point.x <= std::max(x1, x2));
-                bool yIsBetween = (std::min(y1, y2) <= point.y) && (point.y <= std::max(y1, y2));
-                if (isCollinear && xIsBetween && yIsBetween) {
-                    return countEdges;
-                }
-            }
-        }
-
-        // Then check if it is inside/on the polygon
-        return std::any_of(
-                this->triangles_.begin(), this->triangles_.end(),
-                [&point](const std::array<Vec2, 3>& triangle) {
-            const auto& [p1, p2, p3] = triangle;
-            auto [x1, y1] = p1;
-            auto [x2, y2] = p2;
-            auto [x3, y3] = p3;
-            float cross1 = (x2 - x1) * (point.y - y1) - (point.x - x1) * (y2 - y1);
-            float cross2 = (x3 - x2) * (point.y - y2) - (point.x - x2) * (y3 - y2);
-            float cross3 = (x1 - x3) * (point.y - y3) - (point.x - x3) * (y1 - y3);
-            return (cross1 >= 0 && cross2 >= 0 && cross3 >= 0) || (cross1 <= 0 && cross2 <= 0 && cross3 <= 0);
-        });
-    }
-
-    float CPolygon::getArea() const noexcept {
-        return this->area_;
-    }
-
-    Vec2 CPolygon::getCentroid() const noexcept {
-        return this->centroid_;
-    }
+    CPolygon::CPolygon(Entity& entity, Polygon polygon, float thickness, const Color& color) noexcept
+            : Component(entity), polygon(std::move(polygon)), thickness(thickness), color(color) {}
 
     CSprite::CSprite(Entity& entity, Image *image, Vec2 location) noexcept
             : Component(entity), image(image), location(location) {}

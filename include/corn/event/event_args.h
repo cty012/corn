@@ -88,6 +88,36 @@ namespace corn {
     };
 
     /**
+     * @class EventArgsWorldKeyboard
+     * @brief User interacts with the keyboard and is not caught by UI.
+     */
+    struct EventArgsWorldKeyboard : public EventArgs {
+        [[nodiscard]] std::string type() const noexcept override { return "corn::world::keyboard"; }
+
+        /// @brief The key that the user interacts with.
+        Key key;
+
+        /// @brief The type of the interaction.
+        ButtonEvent status;
+
+        /**
+         * @brief Status of the modifier keys.
+         *
+         * modifiers & (1 << 3): SYS key
+         * modifiers & (1 << 2): CTRL key
+         * modifiers & (1 << 1): ALT key
+         * modifiers & (1 << 0): SHIFT key
+         */
+        unsigned char modifiers;
+
+        /// @brief Location of the mouse.
+        Vec2 mousePos;
+
+        /// @brief Constructor.
+        EventArgsWorldKeyboard(Key key, ButtonEvent status, unsigned char modifiers, const Vec2& mousePos) noexcept;
+    };
+
+    /**
      * @class EventArgsMouseButton
      * @brief User clicks a mouse button.
      */
@@ -108,6 +138,26 @@ namespace corn {
     };
 
     /**
+     * @class EventArgsWorldMouseButton
+     * @brief User clicks a mouse button and is not caught by the UI.
+     */
+    struct EventArgsWorldMouseButton : public EventArgs {
+        [[nodiscard]] std::string type() const noexcept override { return "corn::world::mousebtn"; }
+
+        /// @brief The mouse button that the user interacts with.
+        Mouse mouse;
+
+        /// @brief The type of the interaction.
+        ButtonEvent status;
+
+        /// @brief Location of the mouse.
+        Vec2 mousePos;
+
+        /// @brief Constructor.
+        EventArgsWorldMouseButton(Mouse mouse, ButtonEvent status, const Vec2& mousePos) noexcept;
+    };
+
+    /**
      * @class EventArgsMouseMove
      * @brief User moves the cursor.
      */
@@ -119,6 +169,20 @@ namespace corn {
 
         /// @brief Constructor.
         explicit EventArgsMouseMove(const Vec2& mousePos) noexcept;
+    };
+
+    /**
+     * @class EventArgsWorldMouseMove
+     * @brief User moves the cursor and is not caught by the UI.
+     */
+    struct EventArgsWorldMouseMove : public EventArgs {
+        [[nodiscard]] std::string type() const noexcept override { return "corn::world::mousemv"; }
+
+        /// @brief Location of the cursor after the movement.
+        Vec2 mousePos;
+
+        /// @brief Constructor.
+        explicit EventArgsWorldMouseMove(const Vec2& mousePos) noexcept;
     };
 
     /**
@@ -136,6 +200,23 @@ namespace corn {
 
         /// @brief Constructor.
         EventArgsMouseScroll(float value, const Vec2& mousePos) noexcept;
+    };
+
+    /**
+     * @class EventArgsWorldMouseScroll
+     * @brief User scrolls the middle mouse button and is not caught by the UI.
+     */
+    struct EventArgsWorldMouseScroll : public EventArgs {
+        [[nodiscard]] std::string type() const noexcept override { return "corn::world::mousesc"; }
+
+        /// @brief The amount that the user scrolls.
+        float value;
+
+        /// @brief Location of the mouse.
+        Vec2 mousePos;
+
+        /// @brief Constructor.
+        EventArgsWorldMouseScroll(float value, const Vec2& mousePos) noexcept;
     };
 
     /**
@@ -195,6 +276,20 @@ namespace corn {
     };
 
     class UIWidget;
+
+    /**
+     * @class EventArgsUIKeyboard
+     * @brief Emits when a UI widget catches a keyboard event.
+     */
+    struct EventArgsUIKeyboard : public EventArgs {
+        [[nodiscard]] std::string type() const noexcept override { return "corn::ui::keyboard"; }
+
+        /// @brief The mouse click event that triggers this event.
+        EventArgsKeyboard keyboardEvent;
+
+        /// @brief Constructor.
+        explicit EventArgsUIKeyboard(EventArgsKeyboard keyboardEvent) noexcept;
+    };
 
     /**
      * @class EventArgsUIOnClick
@@ -262,5 +357,50 @@ namespace corn {
 
         /// @brief Constructor.
         EventArgsUIOnExit(EventArgsMouseMove mousemvEvent, UIWidget* target) noexcept;
+    };
+
+    /**
+     * @class EventArgsUIOnScroll
+     * @brief Emits when a UI widget is hovered when scrolling.
+     */
+    struct EventArgsUIOnScroll : public EventArgs {
+        [[nodiscard]] std::string type() const noexcept override { return "corn::ui::onscroll"; }
+
+        /// @brief The mouse scroll event that triggers this event.
+        EventArgsMouseScroll mousescEvent;
+
+        /// @brief The UI widget hovered when scrolling.
+        UIWidget* target;
+
+        /// @brief Constructor.
+        EventArgsUIOnScroll(EventArgsMouseScroll mousescEvent, UIWidget* target) noexcept;
+    };
+
+    /**
+     * @class EventArgsUIOnFocus
+     * @brief Emits when a UI widget is focused.
+     */
+    struct EventArgsUIOnFocus : public EventArgs {
+        [[nodiscard]] std::string type() const noexcept override { return "corn::ui::onfocus"; }
+
+        /// @brief The UI widget being focused.
+        UIWidget* target;
+
+        /// @brief Constructor.
+        explicit EventArgsUIOnFocus(UIWidget* target) noexcept;
+    };
+
+    /**
+     * @class EventArgsUIOnUnfocus
+     * @brief Emits when a UI widget is unfocused.
+     */
+    struct EventArgsUIOnUnfocus : public EventArgs {
+        [[nodiscard]] std::string type() const noexcept override { return "corn::ui::onunfocus"; }
+
+        /// @brief The UI widget being unfocused.
+        UIWidget* target;
+
+        /// @brief Constructor.
+        explicit EventArgsUIOnUnfocus(UIWidget* target) noexcept;
     };
 }

@@ -4,6 +4,7 @@
 #include <string>
 #include <corn/util/color.h>
 #include <corn/util/expression.h>
+#include <corn/geometry/vec2.h>
 
 namespace corn {
     class EventManager;
@@ -120,6 +121,7 @@ namespace corn {
         void setW(const std::string& expression);
         [[nodiscard]] const Expression<5>& getH() const noexcept;
         void setH(const std::string& expression);
+        [[nodiscard]] virtual Vec2 getNaturalSize() const noexcept;
 
         [[nodiscard]] UIOverflow getOverflow() const noexcept;
         void setOverflow(UIOverflow overflow) noexcept;
@@ -127,8 +129,10 @@ namespace corn {
         void setBackground(Color background) noexcept;
         [[nodiscard]] unsigned char getOpacity() const noexcept;
         void setOpacity(unsigned char opacity) noexcept;
-        [[nodiscard]] bool isClickable() const noexcept;
-        void setClickable(bool clickable) noexcept;
+        [[nodiscard]] bool isKeyboardInteractable() const noexcept;
+        void setKeyboardInteractable(bool interactable) noexcept;
+        [[nodiscard]] bool isMouseInteractable() const noexcept;
+        void setMouseInteractable(bool interactable) noexcept;
 
     protected:
         /// @brief Constructor.
@@ -195,7 +199,10 @@ namespace corn {
          */
         int zOrder_;
 
+        /// @brief Whether keyboard interactions with it are enabled.
+        bool keyboardInteractable_;
+
         /// @brief Whether mouse interactions with it are enabled.
-        bool clickable_;
+        bool mouseInteractable_;
     };
 }

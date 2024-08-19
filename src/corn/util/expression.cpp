@@ -17,6 +17,14 @@ namespace corn::impl::expression {
 
         // Move i past the end of the expression to parse the final token
         for (size_t i = 0; i <= input.size(); i++) {
+            // Skip if at the middle of scientific notation
+            if (i >= 2 && i < input.size() &&
+                (input[i - 2] == '.' || isdigit(input[i - 2])) &&
+                (input[i - 1] == 'e' || input[i - 1] == 'E') &&
+                (input[i] == '+' || input[i] == '-')) {
+                continue;
+            }
+
             // Check if end of string or is an operator
             if (i == input.size() || reservedTokens.contains(input[i]) ||
                 operatorsCheck.contains(input[i])) {

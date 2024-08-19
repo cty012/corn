@@ -1,7 +1,9 @@
 #pragma once
 
 #include <array>
+#include <corn/ecs/entity.h>
 #include <corn/geometry/deg.h>
+#include <corn/geometry/polygon.h>
 #include <corn/geometry/vec2.h>
 #include <corn/geometry/vec3.h>
 #include <corn/media/camera_viewport.h>
@@ -9,7 +11,6 @@
 #include <corn/util/expression.h>
 
 namespace corn {
-    class Entity;
     class EntityManager;
     class Game;
     class Image;
@@ -49,8 +50,11 @@ namespace corn {
         [[nodiscard]] const Game* getGame() const noexcept;
 
     private:
-        /// @brief The entity that owns this component.
-        Entity& entity;
+        /// @brief The entity manager that contains the owner of this component.
+        EntityManager& entityManager_;
+
+        /// @brief The ID of the entity that owns this component.
+        Entity::EntityID entityID_;
     };
 
     /**
@@ -138,6 +142,8 @@ namespace corn {
     };
 
     struct CPolygon : public Component {
+        Polygon polygon;
+
         /// @brief Thickness of the edges. If thickness is less than or equal to 0 then fill the polygon.
         float thickness;
 
@@ -145,45 +151,7 @@ namespace corn {
         Color color;
 
         /// @brief Constructor.
-        CPolygon(Entity& entity, std::vector<std::vector<Vec2>> vertices, float thickness, const Color& color) noexcept;
-
-        /// @brief Getter of the vertices
-        [[nodiscard]] const std::vector<std::vector<Vec2>>& getVertices() const noexcept;
-
-        /// @brief Setter of the vertices
-        void setVertices(std::vector<std::vector<Vec2>> vertices);
-
-        /// @return List of triangles as the result of triangulation.
-        [[nodiscard]] const std::vector<std::array<Vec2, 3>>& getTriangles() const noexcept;
-
-        [[nodiscard]] const std::pair<Vec2, Vec2>& getBBox() const noexcept;
-
-        /**
-         * @param point The target point.
-         * @param countEdges Whether lying on the boundary qualifies as contained.
-         * @return Whether the point is contained inside the polygon.
-         */
-        [[nodiscard]] bool contains(const Vec2& point, bool countEdges) const noexcept;
-
-        [[nodiscard]] float getArea() const noexcept;
-
-        [[nodiscard]] Vec2 getCentroid() const noexcept;
-
-    private:
-        /// @brief First element is the boundary. Subsequent elements are holes.
-        std::vector<std::vector<Vec2>> vertices_;
-
-        /// @brief The axis-aligned bounding box.
-        std::pair<Vec2, Vec2> bBox;
-
-        /// @brief A list of triangles (result of triangulation).
-        std::vector<std::array<Vec2, 3>> triangles_;
-
-        /// @brief Area of the polygon.
-        float area_;
-
-        /// @brief Centroid of the polygon.
-        Vec2 centroid_;
+        CPolygon(Entity& entity, Polygon polygon, float thickness, const Color& color) noexcept;
     };
 
     /**
