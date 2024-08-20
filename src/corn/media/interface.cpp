@@ -375,6 +375,19 @@ namespace corn {
                     // Render
                     float segX = x, segY = y;
                     for (TextRenderImpl::Line& line : textRender.impl_->lines) {
+                        // alignment
+                        switch (textRender.getTextAlign()) {
+                            case TextAlign::LEFT:
+                                segX = x;
+                                break;
+                            case TextAlign::CENTER:
+                                segX = x + (w - line.size.x) / 2;
+                                break;
+                            case TextAlign::RIGHT:
+                                segX = x + w - line.size.x;
+                                break;
+                        }
+
                         for (const auto& [text, color] : line.contents) {
                             auto [segR, segG, segB, segA] = color.getRGBA();
                             auto& mutText = const_cast<sf::Text&>(text);

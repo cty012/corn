@@ -111,10 +111,24 @@ namespace corn {
         auto [worldLocation, worldRotation] = cTransform.getWorldTransform();
         auto [ancX, ancY] = worldLocation - cameraOffset;
         Vec2 location(cText.getX(), cText.getY());
+        auto [w, h] = cText.textRender.getSize();
 
         // Render
         float segX = location.x, segY = location.y;
         for (TextRenderImpl::Line& line : cText.textRender.impl_->lines) {
+            // alignment
+            switch (cText.textRender.getTextAlign()) {
+                case TextAlign::LEFT:
+                    segX = location.x;
+                    break;
+                case TextAlign::CENTER:
+                    segX = location.x + (w - line.size.x) / 2;
+                    break;
+                case TextAlign::RIGHT:
+                    segX = location.x + w - line.size.x;
+                    break;
+            }
+
             for (const auto& [text, color] : line.contents) {
                 auto& mutText = const_cast<sf::Text&>(text);
                 float locX = segX;
