@@ -7,8 +7,10 @@
 #include <corn/geometry/vec2.h>
 #include <corn/geometry/vec3.h>
 #include <corn/media/camera_viewport.h>
+#include <corn/media/text_render.h>
 #include <corn/util/color.h>
 #include <corn/util/expression.h>
+#include <corn/util/rich_text.h>
 
 namespace corn {
     class EntityManager;
@@ -175,6 +177,31 @@ namespace corn {
 
         /// @brief Destructor.
         ~CSprite() override;
+    };
+
+    struct CText : public Component {
+        /// @brief Rich text render buffer.
+        TextRender textRender;
+
+        /// @brief Constructor.
+        CText(Entity& entity, const TextRender& textRender) noexcept;
+
+        /// @brief Constructor.
+        CText(Entity& entity, const TextRender& textRender, const std::string& x, const std::string& y) noexcept;
+
+        // Getters & Setters
+        [[nodiscard]] float getX() const noexcept;
+        void setX(const std::string& x) noexcept;
+        [[nodiscard]] float getY() const noexcept;
+        void setY(const std::string& y) noexcept;
+
+    private:
+        /**
+         * @brief Location of the top left corner of the text.
+         *
+         * Units: px (pixels), %w (percentage of text width), %h (percentage of the text height).
+         */
+        Expression<3> x_, y_;
     };
 
     /**

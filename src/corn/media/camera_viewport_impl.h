@@ -5,7 +5,7 @@
 namespace corn {
     struct Vec2;
 
-    class CameraViewport::CameraViewportImpl {
+    class CameraViewportImpl {
     public:
         CameraViewportImpl() noexcept;
 

@@ -98,6 +98,38 @@ namespace corn {
         delete this->image;
     }
 
+    CText::CText(Entity& entity, const TextRender& textRender) noexcept : Component(entity), textRender(textRender) {
+        this->setX("0px");
+        this->setY("0px");
+    }
+
+    CText::CText(Entity& entity, const TextRender& textRender, const std::string& x, const std::string& y) noexcept
+            : Component(entity), textRender(textRender) {
+
+        this->setX(x);
+        this->setY(y);
+    }
+
+    float CText::getX() const noexcept {
+        Vec2 percSize = this->textRender.getSize() * 0.01f;
+        return this->x_.calc(1.0f, percSize.x, percSize.y);
+    }
+
+    void CText::setX(const std::string& x) noexcept {
+        static const std::array<std::string, 3> units = { "px", "%w", "%h" };
+        this->x_ = Expression(x, units);
+    }
+
+    float CText::getY() const noexcept {
+        Vec2 percSize = this->textRender.getSize() * 0.01f;
+        return this->y_.calc(1.0f, percSize.x, percSize.y);
+    }
+
+    void CText::setY(const std::string& y) noexcept {
+        static const std::array<std::string, 3> units = { "px", "%w", "%h" };
+        this->y_ = Expression(y, units);
+    }
+
     CMovement2D::CMovement2D(Entity& entity, Vec2 velocity, float angularVelocity) noexcept
             : Component(entity), velocity(velocity), angularVelocity(angularVelocity) {}
 

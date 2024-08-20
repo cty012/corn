@@ -3,6 +3,7 @@
 namespace corn {
     struct Vec2;
     struct RichText;
+    class TextRenderImpl;
 
     /**
      * @class TextRender
@@ -17,8 +18,6 @@ namespace corn {
      */
     class TextRender {
     public:
-        friend class Interface;
-
         /**
          * @brief Constructor.
          * @param richText Rich text to wrap around.
@@ -64,12 +63,11 @@ namespace corn {
         /// @brief Setter for the line padding.
         void setLinePadding(float linePadding);
 
+        /// @brief Pimpl idiom.
+        TextRenderImpl* impl_;
+
     private:
         /// @brief Line padding. Space added to both top and bottom of line.
         float linePadding_;
-
-        /// @brief Pimpl idiom.
-        class TextRenderImpl;
-        TextRenderImpl* impl_;
     };
 }
