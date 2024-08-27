@@ -81,17 +81,17 @@ namespace corn {
         // RGB intermediate values
         float r_, g_, b_;
         if (hp >= 0 && hp < 1) {
-            std::tie(r_, g_, b_) = std::make_tuple(c, x, 0);
+            std::tie(r_, g_, b_) = std::make_tuple(c, x, 0.0f);
         } else if (hp >= 1 && hp < 2) {
-            std::tie(r_, g_, b_) = std::make_tuple(x, c, 0);
+            std::tie(r_, g_, b_) = std::make_tuple(x, c, 0.0f);
         } else if (hp >= 2 && hp < 3) {
-            std::tie(r_, g_, b_) = std::make_tuple(0, c, x);
+            std::tie(r_, g_, b_) = std::make_tuple(0.0f, c, x);
         } else if (hp >= 3 && hp < 4) {
-            std::tie(r_, g_, b_) = std::make_tuple(0, x, c);
+            std::tie(r_, g_, b_) = std::make_tuple(0.0f, x, c);
         } else if (hp >= 4 && hp < 5) {
-            std::tie(r_, g_, b_) = std::make_tuple(x, 0, c);
+            std::tie(r_, g_, b_) = std::make_tuple(x, 0.0f, c);
         } else {
-            std::tie(r_, g_, b_) = std::make_tuple(c, 0, x);
+            std::tie(r_, g_, b_) = std::make_tuple(c, 0.0f, x);
         }
 
         // RGB
