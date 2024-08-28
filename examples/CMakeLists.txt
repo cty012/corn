@@ -11,12 +11,22 @@ function (build_example EXAMPLE_NAME)
     add_executable(${EXAMPLE_NAME} ${EXAMPLE_HEADERS} ${EXAMPLE_SOURCES})
 
     if (MSVC)
-        set_target_properties(${EXAMPLE_NAME} PROPERTIES
-                LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:CONSOLE"  # /SUBSYSTEM:WINDOWS
-        )
+        if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+            set_target_properties(${EXAMPLE_NAME} PROPERTIES
+                    LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:CONSOLE"
+            )
+        else ()
+            set_target_properties(${EXAMPLE_NAME} PROPERTIES
+                    LINK_FLAGS "/ENTRY:mainCRTStartup /SUBSYSTEM:WINDOWS"
+            )
+        endif ()
     endif ()
 
-    set_target_properties(${EXAMPLE_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}")
+    set_target_properties(${EXAMPLE_NAME} PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}"
+            RUNTIME_OUTPUT_DIRECTORY_DEBUG "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}"
+            RUNTIME_OUTPUT_DIRECTORY_RELEASE "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}"
+    )
     target_include_directories(${EXAMPLE_NAME} PRIVATE "${CMAKE_SOURCE_DIR}/include")
     target_link_libraries(${EXAMPLE_NAME} corn)
     add_dependencies(${EXAMPLE_NAME} examples)
@@ -25,9 +35,11 @@ function (build_example EXAMPLE_NAME)
     if (WIN32)
         add_custom_target(${EXAMPLE_NAME}_dll ALL
                 COMMAND ${CMAKE_COMMAND} -E echo "Copying DLL..."
+                COMMAND ${CMAKE_COMMAND} -E make_directory
+                    "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}"
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${CORN_OUTPUT_PATH}"
-                "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}"
+                    "${CORN_OUTPUT_PATH}"
+                    "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}"
         )
         add_dependencies(${EXAMPLE_NAME} ${EXAMPLE_NAME}_dll)
     endif ()

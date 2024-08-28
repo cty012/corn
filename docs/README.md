@@ -15,6 +15,7 @@ It's designed to be easy to use and efficient, allowing developers to create hig
 - MSVC (Windows) / MinGW-w64 13.1.0 (Windows) / Clang (macOS) / GCC (Linux)
 - (Optional) [CMake](https://cmake.org/): Only if building from the source. Make sure it is in PATH.
 - (Optional) [Conan](https://conan.io/): Only if building from the source. Make sure it is in PATH.
+- (Optional) [Python 3.7+](https://www.python.org/): Only if building from the source. Make sure it is in PATH.
 - (Optional) [Simple and Fast Multimedia Library (SFML) 2.6](https://www.sfml-dev.org/): Only if building from the source (installed in vcpkg).
 - (Optional) [International Components for Unicode (ICU)](https://icu.unicode.org/): Only if building from the source (installed in vcpkg).
 - (Optional) [Earcut](https://github.com/mapbox/earcut.hpp): Only if building from the source (installed in vcpkg).
@@ -66,6 +67,7 @@ cd docs && doxygen
 ## Acknowledgments
 - [CMake](https://cmake.org/) - Licensed under [3-Clause BSD License](https://cmake.org/licensing/)
 - [Conan](https://conan.io/) - Licensed under [MIT License](https://github.com/conan-io/conan/blob/develop2/LICENSE.md)
+- [Python](https://www.python.org/) - Licensed under [Python Software Foundation License](https://docs.python.org/3/license.html)
 - [SFML](https://www.sfml-dev.org/) - Licensed under [zlib/libpng License](https://www.sfml-dev.org/license.php)
 - [ICU](https://icu.unicode.org/) - Licensed under [ICU License](https://www.unicode.org/copyright.html#License)
 - [Earcut](https://github.com/mapbox/earcut.hpp) - Licensed under [ISC License](https://github.com/mapbox/earcut.hpp/blob/master/LICENSE)

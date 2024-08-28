@@ -17,7 +17,7 @@ corn::Entity* createRobot(
     robot->addComponent<corn::CMovement2D>();
 
     // Polygon
-    robot->addComponent<corn::CPolygon>(polygon, 0, color);
+    robot->addComponent<corn::CPolygon>(polygon, 0.0f, color);
 
     return robot;
 }

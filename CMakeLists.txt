@@ -52,9 +52,9 @@ else ()
 endif ()
 
 # Compiler flags
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-endif()
+#if(CMAKE_BUILD_TYPE STREQUAL "Release")
+#    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+#endif()
 if (MSVC)
     add_compile_options(/utf-8 /W4 /WX)
     add_compile_options("$<$<CONFIG:Release>:/Ox>")
@@ -83,6 +83,8 @@ file(GLOB_RECURSE SOURCES
 add_library(corn SHARED ${HEADERS} ${SOURCES})
 set_target_properties(corn PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CORN_OUTPUT_DIR}"
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CORN_OUTPUT_DIR}"
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CORN_OUTPUT_DIR}"
         DEBUG_POSTFIX -d
 )
 set(CORN_OUTPUT_PATH $<TARGET_FILE:corn>)
