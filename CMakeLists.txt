@@ -6,6 +6,7 @@ option(BUILD_TESTS "Build the test cases in the `test/` folder." OFF)
 
 if (BUILD_TESTS)
     enable_testing()
+    set(VCPKG_MANIFEST_FEATURES "${VCPKG_MANIFEST_FEATURES};tests")
 endif ()
 
 # Project settings
@@ -99,12 +100,12 @@ find_package(ICU REQUIRED COMPONENTS uc i18n data)
 target_link_libraries(corn PRIVATE ICU::uc ICU::i18n ICU::data)
 
 # Link with Boost::Geometry
-find_package(Boost REQUIRED)
-target_link_libraries(corn PRIVATE boost::boost)
+find_package(Boost REQUIRED COMPONENTS geometry)
+target_link_libraries(corn PRIVATE Boost::geometry)
 
 # Link with earcut
-find_package(earcut_hpp REQUIRED)
-target_link_libraries(corn PRIVATE earcut_hpp::earcut_hpp)
+find_path(EARCUT_HPP_INCLUDE_DIRS "mapbox/earcut.hpp")
+target_include_directories(corn PRIVATE "${EARCUT_HPP_INCLUDE_DIRS}")
 
 # Build examples
 if (BUILD_EXAMPLES)
