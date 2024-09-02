@@ -3,6 +3,7 @@
 #include <concepts>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 namespace corn {
     struct Deg;
