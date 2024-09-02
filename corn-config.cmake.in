@@ -4,45 +4,37 @@ set(Corn_ROOT "${CMAKE_CURRENT_LIST_DIR}/..")
 set(Corn_RUNTIME_DIR "${Corn_ROOT}/bin")
 set(Corn_INCLUDE_DIR "${Corn_ROOT}/include")
 set(Corn_LIB_DIR "${Corn_ROOT}/lib")
-set(Corn_EXTERNAL_LIB_DIR "${Corn_ROOT}/lib/external")
 
-set(corn_SFML_LIBNAMES "graphics;window;audio;network;system")
-
+# Provide these variables to the calling project
+include(FindPackageHandleStandardArgs)
 if (WIN32)
     set(Corn_DYNAMIC_LIBRARY_DEBUG "${Corn_RUNTIME_DIR}/corn-d.dll")
     set(Corn_DYNAMIC_LIBRARY_RELEASE "${Corn_RUNTIME_DIR}/corn.dll")
     set(Corn_IMPORT_LIBRARY_DEBUG "${Corn_ROOT}/lib/corn-d.lib")
     set(Corn_IMPORT_LIBRARY_RELEASE "${Corn_ROOT}/lib/corn.lib")
-    set(Corn_EXTERNAL_LIBRARIES_DEBUG "")
-    set(Corn_EXTERNAL_LIBRARIES_RELEASE "")
-    foreach (lib_name IN LISTS corn_SFML_LIBNAMES)
-        list(APPEND Corn_EXTERNAL_LIBRARIES_DEBUG "${Corn_EXTERNAL_LIB_DIR}/sfml-${lib_name}-d.2.6.dll")
-        list(APPEND Corn_EXTERNAL_LIBRARIES_RELEASE "${Corn_EXTERNAL_LIB_DIR}/sfml-${lib_name}.2.6.dll")
-    endforeach ()
+    find_package_handle_standard_args(Corn DEFAULT_MSG
+            Corn_DYNAMIC_LIBRARY_DEBUG
+            Corn_DYNAMIC_LIBRARY_RELEASE
+            Corn_IMPORT_LIBRARY_DEBUG
+            Corn_IMPORT_LIBRARY_RELEASE
+            Corn_INCLUDE_DIR
+    )
 elseif (APPLE)
     set(Corn_DYNAMIC_LIBRARY_DEBUG "${Corn_RUNTIME_DIR}/libcorn-d.dylib")
     set(Corn_DYNAMIC_LIBRARY_RELEASE "${Corn_RUNTIME_DIR}/libcorn.dylib")
-    set(Corn_EXTERNAL_LIBRARIES_DEBUG "")
-    set(Corn_EXTERNAL_LIBRARIES_RELEASE "")
-    foreach (lib_name IN LISTS corn_SFML_LIBNAMES)
-        list(APPEND Corn_EXTERNAL_LIBRARIES_DEBUG "${Corn_EXTERNAL_LIB_DIR}/libsfml-${lib_name}-d.2.6.dylib")
-        list(APPEND Corn_EXTERNAL_LIBRARIES_RELEASE "${Corn_EXTERNAL_LIB_DIR}/libsfml-${lib_name}.2.6.dylib")
-    endforeach ()
+    find_package_handle_standard_args(Corn DEFAULT_MSG
+            Corn_DYNAMIC_LIBRARY_DEBUG
+            Corn_DYNAMIC_LIBRARY_RELEASE
+            Corn_INCLUDE_DIR
+    )
 else ()
     set(Corn_DYNAMIC_LIBRARY_DEBUG "${Corn_RUNTIME_DIR}/libcorn-d.so")
     set(Corn_DYNAMIC_LIBRARY_RELEASE "${Corn_RUNTIME_DIR}/libcorn.so")
-    foreach (lib_name IN LISTS corn_SFML_LIBNAMES)
-        list(APPEND Corn_EXTERNAL_LIBRARIES_DEBUG "${Corn_EXTERNAL_LIB_DIR}/libsfml-${lib_name}-d.2.6.so")
-        list(APPEND Corn_EXTERNAL_LIBRARIES_RELEASE "${Corn_EXTERNAL_LIB_DIR}/libsfml-${lib_name}.2.6.so")
-    endforeach ()
-endif ()
-
-# Provide these variables to the calling project
-include(FindPackageHandleStandardArgs)
-if (WIN32)
-    find_package_handle_standard_args(Corn DEFAULT_MSG Corn_LIBRARIES_DEBUG Corn_LIBRARIES_RELEASE Corn_INCLUDE_DIR)
-else ()
-    find_package_handle_standard_args(Corn DEFAULT_MSG Corn_INCLUDE_DIR)
+    find_package_handle_standard_args(Corn DEFAULT_MSG
+            Corn_DYNAMIC_LIBRARY_DEBUG
+            Corn_DYNAMIC_LIBRARY_RELEASE
+            Corn_INCLUDE_DIR
+    )
 endif ()
 
 if(Corn_FOUND AND NOT TARGET Corn::Corn)
@@ -57,16 +49,14 @@ if(Corn_FOUND AND NOT TARGET Corn::Corn)
     if (WIN32)
         set_target_properties(Corn::Corn PROPERTIES
                 IMPORTED_IMPLIB "${Corn_LIBRARIES_RELEASE}"
-                IMPORTED_IMPLIB_DEBUG "${Corn_LIBRARIES_DEBUG}"
-                IMPORTED_IMPLIB_RELEASE "${Corn_LIBRARIES_RELEASE}"
+                IMPORTED_IMPLIB_DEBUG "${Corn_IMPORT_LIBRARY_DEBUG}"
+                IMPORTED_IMPLIB_RELEASE "${Corn_IMPORT_LIBRARY_RELEASE}"
         )
     endif ()
 
     if (CMAKE_BUILD_TYPE STREQUAL "Debug")
         set(Corn_DYNAMIC_LIBRARY "${Corn_DYNAMIC_LIBRARY_DEBUG}")
-        set(Corn_EXTERNAL_LIBRARIES "${Corn_EXTERNAL_LIBRARIES_DEBUG}")
     else ()
         set(Corn_DYNAMIC_LIBRARY "${Corn_DYNAMIC_LIBRARY_RELEASE}")
-        set(Corn_EXTERNAL_LIBRARIES "${Corn_EXTERNAL_LIBRARIES_RELEASE}")
     endif ()
 endif()

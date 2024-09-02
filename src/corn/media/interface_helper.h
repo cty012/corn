@@ -1,9 +1,35 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <corn/ecs/component.h>
+#include <corn/event/input.h>
+#include <corn/geometry/vec2.h>
 #include <corn/media/interface.h>
+#include <corn/util/config.h>
 
 namespace corn {
+    // Draw components
+    void draw(
+            const CCamera& cCamera,
+            const CTransform2D& cTransform, const CSprite& cSprite,
+            const Vec2& cameraOffset, const Vec2& cameraScale, const sf::Transform& scaleTransform);
+
+    void draw(
+            const CCamera& cCamera,
+            const CTransform2D& cTransform, const CLines& cLines,
+            const Vec2& cameraOffset, const Vec2& cameraScale, const sf::Transform& scaleTransform);
+
+    void draw(
+            const CCamera& cCamera,
+            const CTransform2D& cTransform, const CPolygon& cPolygon,
+            const Vec2& cameraOffset, const Vec2& cameraScale, const sf::Transform& scaleTransform);
+
+    void draw(
+            const CCamera& cCamera,
+            const CTransform2D& cTransform, const CText& cText,
+            const Vec2& cameraOffset, const Vec2& cameraScale, const sf::Transform& scaleTransform);
+
+    // Inline functions
     inline DisplayMode sfStyle2CornMode(int style) {
         return style & 0b1000 ? DisplayMode::FULLSCREEN : DisplayMode::WINDOWED;
     }

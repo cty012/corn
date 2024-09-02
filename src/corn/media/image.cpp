@@ -4,7 +4,7 @@
 #include "image_impl.h"
 
 namespace corn {
-    Image::ImageImpl::ImageImpl(const sf::Image& image, const std::string& errorMsg)
+    ImageImpl::ImageImpl(const sf::Image& image, const std::string& errorMsg)
             : image(image), width(image.getSize().x), height(image.getSize().y), scale(1.0f, 1.0f), texture() {
 
         if (!this->texture.loadFromImage(image))
@@ -12,7 +12,7 @@ namespace corn {
         this->sfSprite = sf::Sprite(this->texture);
     }
 
-    Image::ImageImpl::~ImageImpl() = default;
+    ImageImpl::~ImageImpl() = default;
 
     Image::Image(const std::filesystem::path& path) {
         std::string msg = "Failed to load image: " + path.string() + ".";

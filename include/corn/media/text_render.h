@@ -3,6 +3,17 @@
 namespace corn {
     struct Vec2;
     struct RichText;
+    class TextRenderImpl;
+
+    /**
+     * @enum TextAlign
+     * @brief Text alignment.
+     */
+    enum class TextAlign {
+        LEFT,
+        CENTER,
+        RIGHT
+    };
 
     /**
      * @class TextRender
@@ -17,8 +28,6 @@ namespace corn {
      */
     class TextRender {
     public:
-        friend class Interface;
-
         /**
          * @brief Constructor.
          * @param richText Rich text to wrap around.
@@ -30,7 +39,7 @@ namespace corn {
          * @param richText Rich text to wrap around.
          * @param width Width of the text area. If text exceeds this width, it should auto wrap at white spaces.
          */
-        TextRender(const RichText& richText, float width);
+        TextRender(const RichText& richText, float width, TextAlign textAlign);
 
         /// @brief Getter for the rich text inside.
         [[nodiscard]] const RichText& getText() const noexcept;
@@ -58,18 +67,20 @@ namespace corn {
         /// @brief Remove any existing width limit.
         void setWidthNoLimit();
 
-        /// @brief Getter for the line padding.
+        // Getter & Setter
         [[nodiscard]] float getLinePadding() const noexcept;
-
-        /// @brief Setter for the line padding.
         void setLinePadding(float linePadding);
+        [[nodiscard]] TextAlign getTextAlign() const noexcept;
+        void setTextAlign(TextAlign textAlign);
+
+        /// @brief Pimpl idiom.
+        TextRenderImpl* impl_;
 
     private:
         /// @brief Line padding. Space added to both top and bottom of line.
         float linePadding_;
 
-        /// @brief Pimpl idiom.
-        class TextRenderImpl;
-        TextRenderImpl* impl_;
+        /// @brief Text alignment.
+        TextAlign textAlign_;
     };
 }

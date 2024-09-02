@@ -6,6 +6,7 @@ option(BUILD_TESTS "Build the test cases in the `test/` folder." OFF)
 
 if (BUILD_TESTS)
     enable_testing()
+    set(VCPKG_MANIFEST_FEATURES "${VCPKG_MANIFEST_FEATURES};tests")
 endif ()
 
 # Project settings
@@ -52,9 +53,9 @@ else ()
 endif ()
 
 # Compiler flags
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-endif()
+#if(CMAKE_BUILD_TYPE STREQUAL "Release")
+#    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+#endif()
 if (MSVC)
     add_compile_options(/utf-8 /W4 /WX)
     add_compile_options("$<$<CONFIG:Release>:/Ox>")
@@ -83,6 +84,8 @@ file(GLOB_RECURSE SOURCES
 add_library(corn SHARED ${HEADERS} ${SOURCES})
 set_target_properties(corn PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CORN_OUTPUT_DIR}"
+        RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CORN_OUTPUT_DIR}"
+        RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CORN_OUTPUT_DIR}"
         DEBUG_POSTFIX -d
 )
 set(CORN_OUTPUT_PATH $<TARGET_FILE:corn>)
@@ -97,12 +100,12 @@ find_package(ICU REQUIRED COMPONENTS uc i18n data)
 target_link_libraries(corn PRIVATE ICU::uc ICU::i18n ICU::data)
 
 # Link with Boost::Geometry
-find_package(Boost REQUIRED)
-target_link_libraries(corn PRIVATE boost::boost)
+find_package(Boost REQUIRED COMPONENTS geometry)
+target_link_libraries(corn PRIVATE Boost::geometry)
 
 # Link with earcut
-find_package(earcut_hpp REQUIRED)
-target_link_libraries(corn PRIVATE earcut_hpp::earcut_hpp)
+find_path(EARCUT_HPP_INCLUDE_DIRS "mapbox/earcut.hpp")
+target_include_directories(corn PRIVATE "${EARCUT_HPP_INCLUDE_DIRS}")
 
 # Build examples
 if (BUILD_EXAMPLES)

@@ -12,7 +12,7 @@ corn::Entity* createSweepRegion(
     sweepRegion->addComponent<corn::CTransform2D>(corn::Vec2::ZERO())->setZOrder(-1);
 
     // Polygon
-    sweepRegion->addComponent<corn::CPolygon>(corn::Polygon(), 0, color);
+    sweepRegion->addComponent<corn::CPolygon>(corn::Polygon(), 0.0f, color);
 
     return sweepRegion;
 }
