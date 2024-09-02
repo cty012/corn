@@ -9,7 +9,7 @@
 #include <corn/util/rich_text.h>
 
 namespace corn {
-    class TextRender::TextRenderImpl {
+    class TextRenderImpl {
     public:
         struct Line {
             std::vector<std::pair<sf::Text, Color>> contents;

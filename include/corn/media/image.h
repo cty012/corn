@@ -7,6 +7,7 @@
 namespace corn {
     struct Vec2;
     class Color;
+    class ImageImpl;
 
     /**
      * @class Image
@@ -16,8 +17,6 @@ namespace corn {
      */
     class Image {
     public:
-        friend class Interface;
-
         /**
          * @brief Loads an image from the path.
          * @param path Path to the image file.
@@ -54,9 +53,7 @@ namespace corn {
          */
         void resize(float width, float height);
 
-    private:
         /// @brief Pimpl idiom.
-        class ImageImpl;
         ImageImpl* impl_;
     };
 }

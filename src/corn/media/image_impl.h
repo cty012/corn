@@ -5,7 +5,7 @@
 #include <corn/geometry/vec2.h>
 
 namespace corn {
-    class Image::ImageImpl {
+    class ImageImpl {
     public:
         /// @brief Stores the actual image data.
         sf::Image image;

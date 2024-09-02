@@ -259,55 +259,6 @@ namespace corn {
         sf::Transform scaleTransform;
         scaleTransform.scale(cameraScale.x, cameraScale.y);
 
-        // Helper functions
-        auto drawLines =
-        [&cameraOffset, &camera, &cameraScale, &scaleTransform]
-        (CTransform2D* transform, const std::vector<Vec2>& vertices, float thickness, const Color& color, bool closed) -> void {
-            auto [worldLocation, worldRotation] = transform->getWorldTransform();
-            auto [ancX, ancY] = worldLocation - cameraOffset;
-            auto [r, g, b, a] = color.getRGBA();
-
-            for (size_t i = 0; (closed ? i : i + 1) < vertices.size(); i++) {
-                auto [startX, startY] = vertices[i];
-                auto [endX, endY] = vertices[(i + 1) % vertices.size()];
-                float diffX = endX - startX, diffY = endY - startY;
-                float length = std::sqrt(diffX * diffX + diffY * diffY);
-                float angle = std::atan2(diffY, diffX) * 180.0f / (float)PI;
-
-                sf::RectangleShape line;
-                line.setSize(sf::Vector2f(length, thickness / cameraScale.norm()));
-                line.setOrigin(0, 0);
-                line.setPosition(ancX + startX, ancY + startY);
-                line.setFillColor(sf::Color{ r, g, b, a });
-                line.setRotation(-worldRotation.get() + angle);
-                camera->viewport.impl_->texture.draw(line, scaleTransform);
-            }
-        };
-
-        auto drawPolygon =
-        [&cameraOffset, &camera, &scaleTransform]
-        (CTransform2D* transform, CPolygon* cPolygon) -> void {
-            auto [worldLocation, worldRotation] = transform->getWorldTransform();
-            auto [ancX, ancY] = worldLocation - cameraOffset;
-            auto [r, g, b, a] = cPolygon->color.getRGBA();
-
-            sf::Transform rotateTransform;
-            rotateTransform.rotate(-worldRotation.get());
-
-            const std::vector<std::array<Vec2, 3>>& triangles = cPolygon->polygon.getTriangles();
-            sf::VertexArray varr(sf::Triangles, triangles.size() * 3);
-            for (size_t i = 0; i < triangles.size(); i++) {
-                for (size_t j = 0; j < 3; j++) {
-                    varr[i * 3 + j].position =
-                            sf::Vector2f(ancX, ancY) +
-                            rotateTransform.transformPoint(sf::Vector2f(triangles[i][j].x, triangles[i][j].y));
-                    varr[i * 3 + j].color = sf::Color{ r, g, b, a };
-                }
-            }
-
-            camera->viewport.impl_->texture.draw(varr, scaleTransform);
-        };
-
         // Render entities
         for (Entity* entity: scene->getEntityManager().getActiveEntitiesWith<CTransform2D>()) {
             auto transform = entity->getComponent<CTransform2D>();
@@ -315,41 +266,28 @@ namespace corn {
             // Sprite
             auto sprite = entity->getComponent<CSprite>();
             if (sprite && sprite->active && sprite->image && sprite->image->impl_) {
-                auto [worldLocation, worldRotation] = transform->getWorldTransform();
-                auto [ancX, ancY] = worldLocation - cameraOffset;
-                auto [locX, locY] = sprite->location;
-                auto [scaleX, scaleY] = sprite->image->impl_->scale;
-                sf::Sprite& sfSprite = sprite->image->impl_->sfSprite;
-                sfSprite.setOrigin(-locX, -locY);
-                sfSprite.setPosition(ancX, ancY);
-                sfSprite.setScale(scaleX, scaleY);
-                sfSprite.setRotation(-worldRotation.get());
-                camera->viewport.impl_->texture.draw(sfSprite, scaleTransform);
-            }
-
-            // Polygon
-            auto cPolygon = entity->getComponent<CPolygon>();
-            if (cPolygon) {
-                const Polygon& polygon = cPolygon->polygon;
-                PolygonType polygonType = polygon.getType();
-                if (cPolygon->active && polygonType != PolygonType::INVALID &&
-                    polygonType != PolygonType::EMPTY) {
-                    if (cPolygon->thickness > 0) {
-                        drawLines(transform, polygon.getVertices(), cPolygon->thickness, cPolygon->color,
-                                  true);
-                        for (const std::vector<Vec2>& hole: polygon.getHoles()) {
-                            drawLines(transform, hole, cPolygon->thickness, cPolygon->color, true);
-                        }
-                    } else {
-                        drawPolygon(transform, cPolygon);
-                    }
-                }
+                draw(*camera, *transform, *sprite, cameraOffset, cameraScale, scaleTransform);
             }
 
             // Lines
             auto lines = entity->getComponent<CLines>();
             if (lines && lines->active && lines->vertices.size() > 1) {
-                drawLines(transform, lines->vertices, lines->thickness, lines->color, lines->closed);
+                draw(*camera, *transform, *lines, cameraOffset, cameraScale, scaleTransform);
+            }
+
+            // Polygon
+            auto cPolygon = entity->getComponent<CPolygon>();
+            if (cPolygon && cPolygon->active) {
+                PolygonType polygonType = cPolygon->polygon.getType();
+                if (polygonType != PolygonType::INVALID && polygonType != PolygonType::EMPTY) {
+                    draw(*camera, *transform, *cPolygon, cameraOffset, cameraScale, scaleTransform);
+                }
+            }
+
+            // Text
+            auto text = entity->getComponent<CText>();
+            if (text && text->active) {
+                draw(*camera, *transform, *text, cameraOffset, cameraScale, scaleTransform);
             }
         }
         camera->viewport.impl_->texture.display();
@@ -436,7 +374,20 @@ namespace corn {
                     textRender.setWidth(std::round(w));
                     // Render
                     float segX = x, segY = y;
-                    for (TextRender::TextRenderImpl::Line& line : textRender.impl_->lines) {
+                    for (TextRenderImpl::Line& line : textRender.impl_->lines) {
+                        // alignment
+                        switch (textRender.getTextAlign()) {
+                            case TextAlign::LEFT:
+                                segX = x;
+                                break;
+                            case TextAlign::CENTER:
+                                segX = x + (w - line.size.x) / 2;
+                                break;
+                            case TextAlign::RIGHT:
+                                segX = x + w - line.size.x;
+                                break;
+                        }
+
                         for (const auto& [text, color] : line.contents) {
                             auto [segR, segG, segB, segA] = color.getRGBA();
                             auto& mutText = const_cast<sf::Text&>(text);

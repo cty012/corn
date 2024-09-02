@@ -14,7 +14,7 @@ It's designed to be easy to use and efficient, allowing developers to create hig
 ## Prerequisites
 - MSVC (Windows) / MinGW-w64 13.1.0 (Windows) / Clang (macOS) / GCC (Linux)
 - (Optional) [CMake](https://cmake.org/): Only if building from the source. Make sure it is in PATH.
-- (Optional) [Conan](https://conan.io/): Only if building from the source. Make sure it is in PATH.
+- (Optional) [vcpkg](https://vcpkg.io/): Only if building from the source. Make sure it is in PATH.
 - (Optional) [Simple and Fast Multimedia Library (SFML) 2.6](https://www.sfml-dev.org/): Only if building from the source (installed in vcpkg).
 - (Optional) [International Components for Unicode (ICU)](https://icu.unicode.org/): Only if building from the source (installed in vcpkg).
 - (Optional) [Earcut](https://github.com/mapbox/earcut.hpp): Only if building from the source (installed in vcpkg).
@@ -29,22 +29,40 @@ cd corn
 ```
 
 ### Prerequisites
-Ensure you have `CMake` and `Conan` installed and added to your PATH.
-Check their respective websites for installation and setup instructions.
-
-MacOS users may need to install the following packages required by Conan:
-```shell
-brew install autoconf autoconf-archive automake libtool pkg-config
-```
+Ensure you have `CMake` and `vcpkg` installed and added to your PATH.
+Replace `<path_to_vcpkg>` with the full path where vcpkg is installed on your system.
 
 ### Build Instructions
-Run the following command, replacing `<profile>` with your own Conan profile:
 
-```shell
-conan install . -pr=<profile> -of=conan/<profile> -b=missing
-cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=conan/<profile>/conan_toolchain.cmake
-cmake --build build --config Release
-```
+1. **Common step for all platforms:**
+
+   Start by running the following command, replacing `<triplet>` with the appropriate target triplet for your platform (explained below):
+
+    ```shell
+    cmake -B build -DCMAKE_TOOLCHAIN_FILE=<path_to_vcpkg>/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=<triplet>
+    cmake --build build --config Release
+    ```
+
+2. **Platform-specific instructions:**
+   - **MSVC (Windows):**
+
+     Use the triplet `x64-windows-static-md`.
+
+   - **MinGW-w64 (Windows):**
+     > **Warning:** ICU might not compile using MinGW. MSVC is recommended on Windows systems.
+
+     Use the triplet `x64-mingw-static`.
+   - **Clang (macOS):**
+
+     First, install the following dependencies before running cmake:
+     ```shell
+     brew install autoconf autoconf-archive automake libtool pkg-config
+     ```
+
+     Then, determine your Mac's CPU architecture. You can use uname -m in the terminal. It will return arm64 for Apple Silicon (like M1/M2 chips) or x86_64 for Intel-based Macs.
+     If your CPU architecture is Apple Silicon then use `arm64-osx-release` as the triplet. If it is Intel then use `x64-osx-release`.
+
+   - **GCC (Linux):** Use the triplet `x64-linux-release`.
 
 After building, the compiled dynamic library will be available in the `build` directory.
 
@@ -65,7 +83,7 @@ cd docs && doxygen
 
 ## Acknowledgments
 - [CMake](https://cmake.org/) - Licensed under [3-Clause BSD License](https://cmake.org/licensing/)
-- [Conan](https://conan.io/) - Licensed under [MIT License](https://github.com/conan-io/conan/blob/develop2/LICENSE.md)
+- [vcpkg](https://vcpkg.io/) - Licensed under [MIT License](https://github.com/microsoft/vcpkg/blob/master/LICENSE.txt)
 - [SFML](https://www.sfml-dev.org/) - Licensed under [zlib/libpng License](https://www.sfml-dev.org/license.php)
 - [ICU](https://icu.unicode.org/) - Licensed under [ICU License](https://www.unicode.org/copyright.html#License)
 - [Earcut](https://github.com/mapbox/earcut.hpp) - Licensed under [ISC License](https://github.com/mapbox/earcut.hpp/blob/master/LICENSE)
