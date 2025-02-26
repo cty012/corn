@@ -6,7 +6,6 @@
 #include <corn/geometry.h>
 #include <corn/media.h>
 #include <corn/ui.h>
-#include <corn/util/constants.h>
 #include <corn/util/string_utils.h>
 #include "camera_viewport_impl.h"
 #include "font_impl.h"
@@ -37,11 +36,13 @@ namespace corn {
         const Config& config = this->game_.getConfig();
         sf::ContextSettings contextSettings;
         contextSettings.antialiasingLevel = config.antialiasing;
+
         this->impl_->window->create(
                 sf::VideoMode((int)config.width, (int)config.height),
                 config.title,
                 cornMode2SfStyle(config.mode),
                 contextSettings);
+
         if (config.icon) {
             auto [w, h] = config.icon->getSize();
             this->impl_->window->setIcon(
