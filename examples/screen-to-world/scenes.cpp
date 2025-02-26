@@ -13,7 +13,7 @@ MainScene::MainScene() : corn::Scene() {
             // Create chess-like pattern
             createBlock(
                     this->getEntityManager(),
-                    corn::Vec2(i * 100, j * 100),
+                    corn::Vec2(static_cast<float>(i) * 100.0f, static_cast<float>(j) * 100.0f),
                     100,
                     (i + j) % 2 == 0 ? corn::Color::WHITE() : corn::Color::parse("#8080ff"));
         }

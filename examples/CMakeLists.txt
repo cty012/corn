@@ -46,7 +46,7 @@ function (build_example EXAMPLE_NAME)
 
     # Copy resources folder (if any)
     file(GLOB_RECURSE RESOURCES "${EXAMPLES_OUTPUT_DIR}/${EXAMPLE_NAME}/resources/*")
-    if (RESOURCES)
+    if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${EXAMPLE_NAME}/resources")
         add_custom_target(${EXAMPLE_NAME}_resources ALL
                 COMMAND ${CMAKE_COMMAND} -E echo "Copying resources..."
                 COMMAND ${CMAKE_COMMAND} -E make_directory
