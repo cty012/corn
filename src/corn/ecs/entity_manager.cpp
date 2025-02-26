@@ -235,9 +235,10 @@ namespace corn {
     const std::vector<const CCamera*>& EntityManager::getCameras() const noexcept {
         return this->cameras_;
     }
-
+#ifdef _MSC_VER  // MSVC
 #pragma warning(push)
 #pragma warning(disable : 4702)  // Unreachable code
+#endif
 
     bool EntityManager::screenToWorldPosition(const Vec2& screenPosition, Vec2& worldPosition) const noexcept {
         if (this->cameras_.empty()) return false;
@@ -271,5 +272,7 @@ namespace corn {
         return false;
     }
 
+#ifdef _MSC_VER  // MSVC
 #pragma warning(pop)
+#endif
 }
