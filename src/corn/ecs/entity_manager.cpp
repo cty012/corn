@@ -236,13 +236,16 @@ namespace corn {
         return this->cameras_;
     }
 
+#pragma warning(push)
+#pragma warning(disable : 4702)  // Unreachable code
+
     bool EntityManager::screenToWorldPosition(const Vec2& screenPosition, Vec2& worldPosition) const noexcept {
         if (this->cameras_.empty()) return false;
 
         Vec2 percentWindowSize = this->getGame()->windowSize() * 0.01f;
 
-        // Calculate the viewport and fow of each camera, in reverse order
-        for (const CCamera* camera : this->cameras_ | std::views::reverse) {
+        // Calculate the viewport and fov of each camera, in reverse order
+        for (const CCamera* camera : this->cameras_ | std::views::reverse) {  // MSVC falsely detects unreachable code
             Vec2 viewportPos(camera->viewport.x.calc(1.0f, percentWindowSize.x, percentWindowSize.y),
                              camera->viewport.y.calc(1.0f, percentWindowSize.x, percentWindowSize.y));
             Vec2 viewportSize(camera->viewport.w.calc(1.0f, percentWindowSize.x, percentWindowSize.y),
@@ -267,4 +270,6 @@ namespace corn {
         // No camera contains the screen position
         return false;
     }
+
+#pragma warning(pop)
 }
