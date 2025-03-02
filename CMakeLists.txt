@@ -92,7 +92,7 @@ set(CORN_OUTPUT_PATH $<TARGET_FILE:corn>)
 target_include_directories(corn PRIVATE "${CMAKE_SOURCE_DIR}/include")
 
 # Link with SFML
-find_package(SFML COMPONENTS graphics window audio network system CONFIG REQUIRED)
+find_package(SFML 2.6 COMPONENTS graphics window audio network system CONFIG REQUIRED)
 target_link_libraries(corn PRIVATE sfml-graphics sfml-window sfml-audio sfml-network sfml-system)
 
 # Link with ICU
@@ -100,7 +100,7 @@ find_package(ICU REQUIRED COMPONENTS uc i18n data)
 target_link_libraries(corn PRIVATE ICU::uc ICU::i18n ICU::data)
 
 # Link with Boost::Geometry
-find_package(Boost REQUIRED COMPONENTS geometry)
+find_package(Boost CONFIG REQUIRED geometry)
 target_link_libraries(corn PRIVATE Boost::geometry)
 
 # Link with earcut
