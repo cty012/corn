@@ -99,6 +99,10 @@ target_link_libraries(corn PRIVATE sfml-graphics sfml-window sfml-audio sfml-net
 find_package(ICU REQUIRED COMPONENTS uc i18n data)
 target_link_libraries(corn PRIVATE ICU::uc ICU::i18n ICU::data)
 
+# Link with NanoSVG
+find_package(NanoSVG CONFIG REQUIRED)
+target_link_libraries(corn PRIVATE NanoSVG::nanosvg NanoSVG::nanosvgrast)
+
 # Link with Boost::Geometry
 find_package(Boost CONFIG REQUIRED geometry)
 target_link_libraries(corn PRIVATE Boost::geometry)

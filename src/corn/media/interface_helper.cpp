@@ -18,10 +18,18 @@ namespace corn {
         auto [scaleX, scaleY] = cSprite.image->impl_->scale;
         sf::Sprite& sfSprite = cSprite.image->impl_->sfSprite;
         sfSprite.setOrigin(-locX, -locY);
-        sfSprite.setPosition(ancX, ancY);
-        sfSprite.setScale(scaleX, scaleY);
+        sfSprite.setPosition(scaleTransform.transformPoint(sf::Vector2f(ancX, ancY)));
+        if (cSprite.image->impl_->type == ImageType::SVG) {
+            // SVGs are scaled during rasterization
+            sf::Vector2f newScale = scaleTransform.transformPoint(sf::Vector2f(1.0f, 1.0f));
+            cSprite.image->impl_->rasterize(Vec2(newScale.x, newScale.y), true);
+            sfSprite.setScale(sf::Vector2f(1.0f, 1.0f));
+        } else {
+            sf::Vector2f newScale = scaleTransform.transformPoint(sf::Vector2f(scaleX, scaleY));
+            sfSprite.setScale(newScale);
+        }
         sfSprite.setRotation(-worldRotation.get());
-        cCamera.viewport.impl_->texture.draw(sfSprite, scaleTransform);
+        cCamera.viewport.impl_->texture.draw(sfSprite);
     }
 
     void drawLines(
