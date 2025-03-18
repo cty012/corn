@@ -412,9 +412,19 @@ namespace corn {
                     sfSprite.setPosition(x, y);
                     // Scale image
                     Vec2 size = image->getSize();
-                    Vec2 totalScale = image->impl_->scale * Vec2(size.x != 0.0f ? w / size.x : 1, size.y != 0.0f ? h / size.y : 1);
+                    Vec2 totalScale = Vec2(size.x != 0.0f ? w / size.x : 1, size.y != 0.0f ? h / size.y : 1);
+                    switch (image->impl_->type) {
+                        case ImageType::SVG:
+                            image->impl_->rasterize(totalScale, true);
+                            break;
+                        case ImageType::PNG:
+                        case ImageType::JPEG:
+                        case ImageType::UNKNOWN:
+                            // Scale to fit the widget
+                            sfSprite.setScale(totalScale.x, totalScale.y);
+                            break;
+                    }
                     // Draw the image on the screen
-                    sfSprite.setScale(totalScale.x, totalScale.y);
                     this->impl_->window->draw(sfSprite);
                     break;
                 }
