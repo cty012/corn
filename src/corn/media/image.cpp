@@ -146,8 +146,8 @@ namespace corn {
             return false;
         }
 
-        unsigned int actualWidth = static_cast<unsigned int>(std::ceil(this->svgImage->width * this->scale.x * extraScale.x));
-        unsigned int actualHeight = static_cast<unsigned int>(std::ceil(this->svgImage->height * this->scale.y * extraScale.y));
+        auto actualWidth = static_cast<unsigned int>(std::ceil(this->svgImage->width * this->scale.x * extraScale.x));
+        auto actualHeight = static_cast<unsigned int>(std::ceil(this->svgImage->height * this->scale.y * extraScale.y));
 
         // Check if the image is already rasterized and cached
         if (useCache && this->image.getSize().x == actualWidth && this->image.getSize().y == actualHeight) {
@@ -166,7 +166,7 @@ namespace corn {
         nsvgRasterizeXY(
             rast, this->svgImage, 0, 0,
             this->scale.x * extraScale.x, this->scale.y * extraScale.y,
-            buffer.data(), actualWidth, actualHeight, actualWidth * 4);
+            buffer.data(), (int)actualWidth, (int)actualHeight, (int)actualWidth * 4);
 
         // Load the buffer into an SFML image
         this->image.create(actualWidth, actualHeight, buffer.data());

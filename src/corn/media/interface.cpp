@@ -407,25 +407,27 @@ namespace corn {
                     const auto* uiImage = dynamic_cast<const UIImage*>(widget);
                     const Image* image = uiImage->getImage();
                     if (!image || !image->impl_) break;
-                    sf::Sprite& sfSprite = image->impl_->sfSprite;
-                    sfSprite.setOrigin(0, 0);
-                    sfSprite.setPosition(x, y);
                     // Scale image
                     Vec2 size = image->getSize();
                     Vec2 totalScale = Vec2(size.x != 0.0f ? w / size.x : 1, size.y != 0.0f ? h / size.y : 1);
                     switch (image->impl_->type) {
-                        case ImageType::SVG:
+                        case ImageType::SVG: {
                             image->impl_->rasterize(totalScale, true);
+                            image->impl_->sfSprite.setOrigin(0, 0);
+                            image->impl_->sfSprite.setPosition(x, y);
                             break;
+                        }
                         case ImageType::PNG:
                         case ImageType::JPEG:
-                        case ImageType::UNKNOWN:
+                        case ImageType::UNKNOWN: {
                             // Scale to fit the widget
-                            sfSprite.setScale(totalScale.x, totalScale.y);
+                            image->impl_->sfSprite.setOrigin(0, 0);
+                            image->impl_->sfSprite.setPosition(x, y);
+                            image->impl_->sfSprite.setScale(totalScale.x, totalScale.y);
                             break;
+                        }
                     }
-                    // Draw the image on the screen
-                    this->impl_->window->draw(sfSprite);
+                    this->impl_->window->draw(image->impl_->sfSprite);
                     break;
                 }
             }
