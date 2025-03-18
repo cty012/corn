@@ -29,15 +29,32 @@ namespace corn {
         }
 
         // SVG Check: Look for '<svg' in the first 1024 bytes
-        file.seekg(0);
-        std::array<char, 1024> buffer{};
-        file.read(buffer.data(), buffer.size());
-        std::string content(buffer.data(), file.gcount());
-        std::ranges::transform(content, content.begin(), [](unsigned char c) {
-            return std::tolower(c);
-        });
-        if (content.find("<svg") != std::string::npos) {
-            return ImageType::SVG;
+        file.clear();
+        file.seekg(0, std::ios::beg);
+        size_t chunkSize = 1024;  // Read in chunks of 1KB
+        std::string chunk(chunkSize + 3, '\0');  // +3 to avoid "<svg" splitting across chunks
+        size_t totalRead = 0;
+
+        while (file && totalRead < 1024 * 1024) {  // Limit to 1MB
+            file.read(chunk.data(), static_cast<long long>(chunkSize + 3));
+            auto bytesRead = static_cast<size_t>(file.gcount());
+            totalRead += bytesRead;
+            // Create a buffer from the read chunk and convert to lowercase.
+            std::string buffer = chunk.substr(0, bytesRead);
+            std::transform(buffer.begin(), buffer.end(), buffer.begin(),
+                           [](unsigned char c) { return std::tolower(c); });
+            if (buffer.find("<svg") != std::string::npos) {
+                return ImageType::SVG;
+            }
+
+            // If we haven't reached EOF, rewind by 3 bytes to ensure tags split across chunks aren't missed.
+            if (!file.eof()) {
+                std::streampos pos = file.tellg();
+                if (pos >= std::streampos(3)) {
+                    file.seekg(-3, std::ios::cur);
+                    totalRead -= 3;  // Adjust our counter since we're re-reading these bytes.
+                }
+            }
         }
 
         return ImageType::UNKNOWN;
