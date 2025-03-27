@@ -1,9 +1,10 @@
 #include <algorithm>
+#include <ranges>
 #include <stack>
+#include <corn/core/game.h>
 #include <corn/core/scene.h>
 #include <corn/ecs/component.h>
 #include <corn/ecs/entity_manager.h>
-#include <corn/util/exceptions.h>
 #include "../event/event_args_extend.h"
 
 namespace corn {
@@ -234,4 +235,44 @@ namespace corn {
     const std::vector<const CCamera*>& EntityManager::getCameras() const noexcept {
         return this->cameras_;
     }
+#ifdef _MSC_VER  // MSVC
+#pragma warning(push)
+#pragma warning(disable : 4702)  // Unreachable code
+#endif
+
+    bool EntityManager::screenToWorldPosition(const Vec2& screenPosition, Vec2& worldPosition) const noexcept {
+        if (this->cameras_.empty()) return false;
+
+        Vec2 percentWindowSize = this->getGame()->windowSize() * 0.01f;
+
+        // Calculate the viewport and fov of each camera, in reverse order
+        for (const CCamera* camera : this->cameras_ | std::views::reverse) {  // MSVC falsely detects unreachable code
+            Vec2 viewportPos(camera->viewport.x.calc(1.0f, percentWindowSize.x, percentWindowSize.y),
+                             camera->viewport.y.calc(1.0f, percentWindowSize.x, percentWindowSize.y));
+            Vec2 viewportSize(camera->viewport.w.calc(1.0f, percentWindowSize.x, percentWindowSize.y),
+                              camera->viewport.h.calc(1.0f, percentWindowSize.x, percentWindowSize.y));
+
+            // Check if the screen position is within the camera's viewport
+            if (screenPosition.x < viewportPos.x || screenPosition.x > viewportPos.x + viewportSize.x ||
+                screenPosition.y < viewportPos.y || screenPosition.y > viewportPos.y + viewportSize.y) {
+                return false;
+            }
+
+            // Calculate the world position
+            Vec2 cameraCenter = camera->getEntity().getComponent<CTransform2D>()->getWorldTransform().first +
+                                camera->anchor.vec2();
+            Vec2 fovSize(camera->fovW.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale),
+                         camera->fovH.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale));
+            Vec2 scale(fovSize.x / viewportSize.x, fovSize.y / viewportSize.y);
+            worldPosition = cameraCenter - fovSize * 0.5 + (screenPosition - viewportPos) * scale;
+            return true;
+        }
+
+        // No camera contains the screen position
+        return false;
+    }
+
+#ifdef _MSC_VER  // MSVC
+#pragma warning(pop)
+#endif
 }

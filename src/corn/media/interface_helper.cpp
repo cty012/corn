@@ -16,12 +16,23 @@ namespace corn {
         auto [ancX, ancY] = worldLocation - cameraOffset;
         auto [locX, locY] = cSprite.location;
         auto [scaleX, scaleY] = cSprite.image->impl_->scale;
-        sf::Sprite& sfSprite = cSprite.image->impl_->sfSprite;
-        sfSprite.setOrigin(-locX, -locY);
-        sfSprite.setPosition(ancX, ancY);
-        sfSprite.setScale(scaleX, scaleY);
-        sfSprite.setRotation(-worldRotation.get());
-        cCamera.viewport.impl_->texture.draw(sfSprite, scaleTransform);
+        if (cSprite.image->impl_->type == ImageType::SVG) {
+            // SVGs are scaled during rasterization
+            sf::Vector2f newScale = scaleTransform.transformPoint(sf::Vector2f(1.0f, 1.0f));
+            sf::Sprite& sfSprite = cSprite.image->impl_->sfSprite;
+            cSprite.image->impl_->rasterize(Vec2(newScale.x, newScale.y), true);
+            sfSprite.setOrigin(scaleTransform.transformPoint(sf::Vector2f(-locX, -locY)));
+            sfSprite.setPosition(scaleTransform.transformPoint(sf::Vector2f(ancX, ancY)));
+            sfSprite.setScale(sf::Vector2f(1.0f, 1.0f));
+        } else {
+            sf::Vector2f newScale = scaleTransform.transformPoint(sf::Vector2f(scaleX, scaleY));
+            sf::Sprite& sfSprite = cSprite.image->impl_->sfSprite;
+            sfSprite.setOrigin(scaleTransform.transformPoint(sf::Vector2f(-locX, -locY)));
+            sfSprite.setPosition(scaleTransform.transformPoint(sf::Vector2f(ancX, ancY)));
+            sfSprite.setScale(newScale);
+        }
+        cSprite.image->impl_->sfSprite.setRotation(-worldRotation.get());
+        cCamera.viewport.impl_->texture.draw(cSprite.image->impl_->sfSprite);
     }
 
     void drawLines(

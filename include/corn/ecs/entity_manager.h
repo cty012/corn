@@ -6,6 +6,7 @@
 #include <vector>
 #include <corn/ecs/entity.h>
 #include <corn/event/event_scope.h>
+#include <corn/geometry/vec2.h>
 
 namespace corn {
     struct CCamera;
@@ -150,6 +151,14 @@ namespace corn {
 
         /// @return A list of cameras components registered in this scene.
         [[nodiscard]] const std::vector<const CCamera*>& getCameras() const noexcept;
+
+        /**
+         * @brief Converts the provided screen position to world position.
+         * @param screenPosition Input screen position.
+         * @param worldPosition Output world position.
+         * @return Whether the conversion is successful.
+         */
+        [[nodiscard]] bool screenToWorldPosition(const Vec2& screenPosition, Vec2& worldPosition) const noexcept;
 
         /// @brief Clears all entities.
         void clear() noexcept;

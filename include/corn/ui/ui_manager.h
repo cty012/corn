@@ -137,7 +137,7 @@ namespace corn {
         void calcGeometry(Vec2 windowSize);
 
         /**
-         * @param target The target UI widget.
+         * @param widget The target UI widget.
          * @return The cached value indicating the x location (left), y location (top), width, and height of the target.
          */
         Vec4 getCachedGeometry(const UIWidget* widget) const noexcept;

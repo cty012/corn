@@ -8,6 +8,7 @@
     "glfw3",
     "freetype",
     "icu",
+    "nanosvg",
     "boost-geometry",
     "earcut-hpp"
   ],
@@ -18,5 +19,12 @@
         "gtest"
       ]
     }
-  }
+  },
+  "builtin-baseline": "efb1e7436979a30c4d3e5ab2375fd8e2e461d541",
+  "overrides": [
+    {
+      "name": "sfml",
+      "version": "2.6.2"
+    }
+  ]
 }

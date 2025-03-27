@@ -1,17 +1,31 @@
 #pragma once
 
+#include <filesystem>
+#include <nanosvg.h>
 #include <SFML/Graphics.hpp>
-#include <corn/media/image.h>
 #include <corn/geometry/vec2.h>
 
 namespace corn {
+    enum class ImageType { PNG, JPEG, SVG, UNKNOWN };
+
+    ImageType detectImageType(const std::filesystem::path& path);
+
     class ImageImpl {
     public:
+        /// @brief Path to the image file.
+        std::filesystem::path path;
+
+        /// @brief Type of the image (PNG, JPEG, SVG, etc.)
+        ImageType type;
+
         /// @brief Stores the actual image data.
         sf::Image image;
 
-        /// @brief Original width and height of the image.
-        unsigned int width, height;
+        /// @brief SVG content as a string (if applicable).
+        std::string svgContent;
+
+        /// @brief Pointer to the SVG image (if applicable).
+        NSVGimage* svgImage;
 
         /// @brief Scale of the image.
         Vec2 scale;
@@ -24,12 +38,30 @@ namespace corn {
 
         /**
          * @brief Constructor.
-         * @param image The SFML image to wrap around.
-         * @param errorMsg Message to display if failed to create texture and sprite.
+         * @param path Path to the image file.
          */
-        ImageImpl(const sf::Image& image, const std::string& errorMsg);
+        explicit ImageImpl(const std::filesystem::path& path);
+
+        /**
+         * @brief Constructor.
+         * @param width Width of the image.
+         * @param height Height of the image.
+         * @param color Color of the image (RGBA).
+         */
+        ImageImpl(unsigned int width, unsigned int height, Color color);
 
         /// @brief Destructor.
         ~ImageImpl();
+
+        ImageImpl(const ImageImpl& other);
+        ImageImpl& operator=(const ImageImpl& other);
+
+        /// @return Original width of the image.
+        float getWidth() const;
+
+        /// @return Original height of the image.
+        float getHeight() const;
+
+        bool rasterize(Vec2 extraScale = Vec2(1.0f, 1.0f), bool useCache = false);
     };
 }

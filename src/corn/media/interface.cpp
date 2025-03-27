@@ -6,7 +6,6 @@
 #include <corn/geometry.h>
 #include <corn/media.h>
 #include <corn/ui.h>
-#include <corn/util/constants.h>
 #include <corn/util/string_utils.h>
 #include "camera_viewport_impl.h"
 #include "font_impl.h"
@@ -37,11 +36,13 @@ namespace corn {
         const Config& config = this->game_.getConfig();
         sf::ContextSettings contextSettings;
         contextSettings.antialiasingLevel = config.antialiasing;
+
         this->impl_->window->create(
                 sf::VideoMode((int)config.width, (int)config.height),
                 config.title,
                 cornMode2SfStyle(config.mode),
                 contextSettings);
+
         if (config.icon) {
             auto [w, h] = config.icon->getSize();
             this->impl_->window->setIcon(
@@ -406,15 +407,27 @@ namespace corn {
                     const auto* uiImage = dynamic_cast<const UIImage*>(widget);
                     const Image* image = uiImage->getImage();
                     if (!image || !image->impl_) break;
-                    sf::Sprite& sfSprite = image->impl_->sfSprite;
-                    sfSprite.setOrigin(0, 0);
-                    sfSprite.setPosition(x, y);
                     // Scale image
                     Vec2 size = image->getSize();
-                    Vec2 totalScale = image->impl_->scale * Vec2(size.x != 0.0f ? w / size.x : 1, size.y != 0.0f ? h / size.y : 1);
-                    // Draw the image on the screen
-                    sfSprite.setScale(totalScale.x, totalScale.y);
-                    this->impl_->window->draw(sfSprite);
+                    Vec2 totalScale = Vec2(size.x != 0.0f ? w / size.x : 1, size.y != 0.0f ? h / size.y : 1);
+                    switch (image->impl_->type) {
+                        case ImageType::SVG: {
+                            image->impl_->rasterize(totalScale, true);
+                            image->impl_->sfSprite.setOrigin(0, 0);
+                            image->impl_->sfSprite.setPosition(x, y);
+                            break;
+                        }
+                        case ImageType::PNG:
+                        case ImageType::JPEG:
+                        case ImageType::UNKNOWN: {
+                            // Scale to fit the widget
+                            image->impl_->sfSprite.setOrigin(0, 0);
+                            image->impl_->sfSprite.setPosition(x, y);
+                            image->impl_->sfSprite.setScale(totalScale.x, totalScale.y);
+                            break;
+                        }
+                    }
+                    this->impl_->window->draw(image->impl_->sfSprite);
                     break;
                 }
             }

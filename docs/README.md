@@ -82,9 +82,11 @@ cd docs && doxygen
 ```
 
 ## Acknowledgments
-- [CMake](https://cmake.org/) - Licensed under [3-Clause BSD License](https://cmake.org/licensing/)
+- [CMake](https://cmake.org/) - Licensed under [BSD 3-Clause License](https://cmake.org/licensing/)
 - [vcpkg](https://vcpkg.io/) - Licensed under [MIT License](https://github.com/microsoft/vcpkg/blob/master/LICENSE.txt)
 - [SFML](https://www.sfml-dev.org/) - Licensed under [zlib/libpng License](https://www.sfml-dev.org/license.php)
 - [ICU](https://icu.unicode.org/) - Licensed under [ICU License](https://www.unicode.org/copyright.html#License)
+- [NanoSVG](https://github.com/memononen/nanosvg) - Licensed under [zlib/libpng License](https://github.com/memononen/nanosvg/blob/master/LICENSE.txt)
+- [Boost Geometry](https://github.com/boostorg/geometry) - Licensed under [Boost Software License 1.0](https://github.com/boostorg/geometry/blob/develop/LICENSE_1_0.txt)
 - [Earcut](https://github.com/mapbox/earcut.hpp) - Licensed under [ISC License](https://github.com/mapbox/earcut.hpp/blob/master/LICENSE)
 - [GoogleTest](https://google.github.io/googletest) - Licensed under [BSD 3-Clause License](https://github.com/google/googletest/blob/main/LICENSE)
