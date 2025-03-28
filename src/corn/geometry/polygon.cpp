@@ -20,7 +20,7 @@ namespace corn {
         this->area_ = 0.0f;
     }
 
-    Polygon::Polygon(const std::vector<Vec2>& vertices) noexcept : vertices_(vertices), type_(PolygonType::EMPTY) {
+    Polygon::Polygon(const std::vector<Vec2f>& vertices) noexcept : vertices_(vertices), type_(PolygonType::EMPTY) {
         this->typeDirty_ = true;
         this->centroidAndAreaDirty_ = true;
         this->bboxDirty_ = true;
@@ -28,7 +28,7 @@ namespace corn {
         this->area_ = 0.0f;
     }
 
-    Polygon::Polygon(const std::vector<Vec2>& vertices, const std::vector<std::vector<Vec2>>& holes) noexcept
+    Polygon::Polygon(const std::vector<Vec2f>& vertices, const std::vector<std::vector<Vec2f>>& holes) noexcept
             : vertices_(vertices), holes_(holes), type_(PolygonType::EMPTY) {
 
         this->typeDirty_ = true;
@@ -38,38 +38,38 @@ namespace corn {
         this->area_ = 0.0f;
     }
 
-    Polygon Polygon::createTriangle(const corn::Vec2& v1, const corn::Vec2& v2, const corn::Vec2& v3) noexcept {
+    Polygon Polygon::createTriangle(const corn::Vec2f& v1, const corn::Vec2f& v2, const corn::Vec2f& v3) noexcept {
         return Polygon({ v1, v2, v3 });
     }
 
-    Polygon Polygon::createRectangle(const Vec2& topLeft, float width, float height) noexcept {
+    Polygon Polygon::createRectangle(const Vec2f& topLeft, float width, float height) noexcept {
         return Polygon({
             topLeft,
-            topLeft + Vec2(width, 0),
-            topLeft + Vec2(width, height),
-            topLeft + Vec2(0, height)
+            topLeft + Vec2f(width, 0),
+            topLeft + Vec2f(width, height),
+            topLeft + Vec2f(0, height)
         });
     }
 
-    Polygon Polygon::createCircle(const Vec2& center, float radius, size_t segments) noexcept {
-        std::vector<Vec2> vertices;
+    Polygon Polygon::createCircle(const Vec2f& center, float radius, size_t segments) noexcept {
+        std::vector<Vec2f> vertices;
         vertices.reserve(segments);
         for (size_t i = 0; i < segments; i++) {
             Deg angle = 360.0f * (float)i / (float)segments;
-            vertices.push_back(center + radius * Vec2(angle.cos(), angle.sin()));
+            vertices.push_back(center + radius * Vec2f(angle.cos(), angle.sin()));
         }
         return Polygon(vertices);
     }
 
-    const std::vector<Vec2>& Polygon::getVertices() const noexcept {
+    const std::vector<Vec2f>& Polygon::getVertices() const noexcept {
         return this->vertices_;
     }
 
-    const std::vector<std::vector<Vec2>>& Polygon::getHoles() const noexcept {
+    const std::vector<std::vector<Vec2f>>& Polygon::getHoles() const noexcept {
         return this->holes_;
     }
 
-    void Polygon::setVertices(const std::vector<Vec2>& vertices, const std::vector<std::vector<Vec2>>& holes) {
+    void Polygon::setVertices(const std::vector<Vec2f>& vertices, const std::vector<std::vector<Vec2f>>& holes) {
         this->vertices_ = vertices;
         this->holes_ = holes;
         this->typeDirty_ = true;
@@ -79,7 +79,7 @@ namespace corn {
         this->area_ = 0.0f;
     }
 
-    bool Polygon::contains(const corn::Vec2& point, bool edgeInclusive) const {
+    bool Polygon::contains(const corn::Vec2f& point, bool edgeInclusive) const {
         if (this->vertices_.empty()) {
             return false;
         }
@@ -91,12 +91,14 @@ namespace corn {
         }
 
         // If so, first check if it is on the boundary
-        std::function<bool(const Vec2&, const std::vector<Vec2>&)> pointIsOnRing =
-                [](const Vec2& point, const std::vector<Vec2>& ring) {
+        std::function<bool(const Vec2f&, const std::vector<Vec2f>&)> pointIsOnRing =
+                [](const Vec2f& point, const std::vector<Vec2f>& ring) {
                     if (ring.size() < 2) return false;
                     for (size_t i = 0; i < ring.size(); i++) {
-                        auto [x1, y1] = ring[i];
-                        auto [x2, y2] = ring[(i + 1) % ring.size()];
+                        float x1 = ring[i].x;
+                        float y1 = ring[i].y;
+                        float x2 = ring[(i + 1) % ring.size()].x;
+                        float y2 = ring[(i + 1) % ring.size()].y;
                         // Linearity check
                         bool isCollinear = x1 * (y2 - point.y) + x2 * (point.y - y1) + point.x * (y1 - y2) == 0;
                         // Between check
@@ -111,17 +113,17 @@ namespace corn {
         if (pointIsOnRing(point, this->vertices_)) {
             return edgeInclusive;
         }
-        for (const std::vector<Vec2>& ring : this->holes_) {
+        for (const std::vector<Vec2f>& ring : this->holes_) {
             if (pointIsOnRing(point, ring)) {
                 return edgeInclusive;
             }
         }
 
         // Then check if it is inside/on the polygon
-        const std::vector<std::array<Vec2, 3>>& triangles = this->getTriangles();
+        const std::vector<std::array<Vec2f, 3>>& triangles = this->getTriangles();
         return std::any_of(
                 triangles.begin(), triangles.end(),
-                [&point](const std::array<Vec2, 3>& triangle) {
+                [&point](const std::array<Vec2f, 3>& triangle) {
                     const auto& [v1, v2, v3] = triangle;
                     float c1 = cross(v2 - v1, point - v1);
                     float c2 = cross(v3 - v2, point - v2);
@@ -130,13 +132,13 @@ namespace corn {
                 });
     }
 
-    void Polygon::translate(const Vec2& displacement) noexcept {
+    void Polygon::translate(const Vec2f& displacement) noexcept {
         // Translate the vertices
-        for (Vec2& vertex : this->vertices_) {
+        for (Vec2f& vertex : this->vertices_) {
             vertex += displacement;
         }
-        for (std::vector<Vec2>& hole : this->holes_) {
-            for (Vec2& vertex : hole) {
+        for (std::vector<Vec2f>& hole : this->holes_) {
+            for (Vec2f& vertex : hole) {
                 vertex += displacement;
             }
         }
@@ -148,8 +150,8 @@ namespace corn {
 
         // Translate the triangles
         if (!this->trianglesDirty_) {
-            for (std::array<Vec2, 3>& triangle: this->triangles_) {
-                for (Vec2& vertex: triangle) {
+            for (std::array<Vec2f, 3>& triangle: this->triangles_) {
+                for (Vec2f& vertex: triangle) {
                     vertex += displacement;
                 }
             }
@@ -163,7 +165,7 @@ namespace corn {
         return this->type_;
     }
 
-    const Vec2& Polygon::getCentroid() const {
+    const Vec2f& Polygon::getCentroid() const {
         if (this->centroidAndAreaDirty_) {
             this->calcCentroidAndArea();
         }
@@ -177,14 +179,14 @@ namespace corn {
         return this->area_;
     }
 
-    const std::pair<Vec2, Vec2>& Polygon::getBBox() const {
+    const std::pair<Vec2f, Vec2f>& Polygon::getBBox() const {
         if (this->bboxDirty_) {
             this->calcBBox();
         }
         return this->bbox_;
     }
 
-    const std::vector<std::array<Vec2, 3>>& Polygon::getTriangles() const {
+    const std::vector<std::array<Vec2f, 3>>& Polygon::getTriangles() const {
         if (this->trianglesDirty_) {
             this->triangulate();
         }
@@ -212,8 +214,6 @@ namespace corn {
     }
 
     void Polygon::calcCentroidAndArea() const {
-        this->centroid_ = {0, 0};
-
         // Skip if the polygon is invalid
         if (this->getType() == PolygonType::INVALID) {
             this->centroidAndAreaDirty_ = false;
@@ -222,7 +222,7 @@ namespace corn {
 
         // Reset
         this->area_ = 0.0f;
-        this->centroid_ = corn::Vec2(0, 0);
+        this->centroid_ = Vec2f::ZERO();
 
         // Skip if the polygon is empty
         if (this->getType() == PolygonType::EMPTY) {
@@ -242,30 +242,22 @@ namespace corn {
     }
 
     void Polygon::calcBBox() const {
-        this->bbox_ = {Vec2(0, 0), Vec2(0, 0)};
-
-        // Skip if the polygon is invalid
-        if (this->getType() == PolygonType::INVALID) {
-            this->bboxDirty_ = false;
-            return;
-        }
-
-        // Skip if the polygon is empty
-        if (this->getType() == PolygonType::EMPTY) {
-            this->bbox_ = {Vec2::ZERO(), Vec2::ZERO()};
+        // Skip if the polygon is invalid/empty
+        if (this->getType() == PolygonType::INVALID || this->getType() == PolygonType::EMPTY) {
+            this->bbox_ = { Vec2f::ZERO(), Vec2f::ZERO() };
             this->bboxDirty_ = false;
             return;
         }
 
         // Reset
         this->bbox_ = {
-                Vec2(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity()),
-                Vec2(-std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity())
+                Vec2f(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity()),
+                Vec2f(-std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity())
         };
 
         // Calculate the bounding box
-        for (const std::array<Vec2, 3>& triangle : this->getTriangles()) {
-            for (const Vec2& v : triangle) {
+        for (const std::array<Vec2f, 3>& triangle : this->getTriangles()) {
+            for (const Vec2f& v : triangle) {
                 this->bbox_.first = min(this->bbox_.first, v);
                 this->bbox_.second = max(this->bbox_.second, v);
             }
@@ -297,9 +289,9 @@ namespace corn {
         for (size_t i = 0; i + 2 < indices.size(); i += 3) {
             size_t i1 = indices[i], i2 = indices[i+1], i3 = indices[i+2];
             this->triangles_.push_back({
-                Vec2(flattenedPolygon[i1][0], flattenedPolygon[i1][1]),
-                Vec2(flattenedPolygon[i2][0], flattenedPolygon[i2][1]),
-                Vec2(flattenedPolygon[i3][0], flattenedPolygon[i3][1])
+                Vec2f(flattenedPolygon[i1][0], flattenedPolygon[i1][1]),
+                Vec2f(flattenedPolygon[i2][0], flattenedPolygon[i2][1]),
+                Vec2f(flattenedPolygon[i3][0], flattenedPolygon[i3][1])
             });
         }
 

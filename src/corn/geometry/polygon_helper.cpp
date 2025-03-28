@@ -8,19 +8,19 @@ namespace corn {
 
     void toBoostPolygon(
             polygon_t& polygon,
-            const std::vector<Vec2>& vertices, const std::vector<std::vector<Vec2>>& holes) {
+            const std::vector<Vec2f>& vertices, const std::vector<std::vector<Vec2f>>& holes) {
 
         bg::clear(polygon);
 
         // Outer ring
-        for (const Vec2& vertex : vertices) {
+        for (const Vec2f& vertex : vertices) {
             bg::append(polygon.outer(), point_t(vertex.x, vertex.y));
         }
 
         // Holes
-        for (const std::vector<Vec2>& hole : holes) {
+        for (const std::vector<Vec2f>& hole : holes) {
             ring_t holeRing;
-            for (const Vec2& vertex : hole) {
+            for (const Vec2f& vertex : hole) {
                 bg::append(holeRing, point_t(vertex.x, vertex.y));
             }
             polygon.inners().push_back(holeRing);
@@ -32,7 +32,7 @@ namespace corn {
 
     void toEarcutPolygon(
             std::vector<std::vector<std::array<float, 2>>>& polygon, std::vector<std::array<float, 2>>& flattenedPolygon,
-            const std::vector<Vec2>& vertices, const std::vector<std::vector<Vec2>>& holes) {
+            const std::vector<Vec2f>& vertices, const std::vector<std::vector<Vec2f>>& holes) {
 
         polygon.clear();
         flattenedPolygon.clear();
@@ -54,7 +54,7 @@ namespace corn {
     }
 
     void fromBoostPolygon(
-            std::vector<Vec2>& vertices, std::vector<std::vector<Vec2>>& holes,
+            std::vector<Vec2f>& vertices, std::vector<std::vector<Vec2f>>& holes,
             const polygon_t& polygon) {
 
         vertices.clear();
@@ -78,7 +78,7 @@ namespace corn {
     }
 
     void fromEarcutPolygon(
-            std::vector<Vec2>& vertices, std::vector<std::vector<Vec2>>& holes,
+            std::vector<Vec2f>& vertices, std::vector<std::vector<Vec2f>>& holes,
             const std::vector<std::vector<std::array<float, 2>>>& polygon) {
 
         vertices.clear();

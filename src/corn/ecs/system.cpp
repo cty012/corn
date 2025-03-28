@@ -46,7 +46,7 @@ namespace corn {
             auto gravity2D = entity->getComponent<CGravity2D>();
             if (!movement->active || !gravity2D->active) continue;
             movement->addWorldVelocityOffset(
-                    Vec2(0, this->g * gravity2D->scale * (millis / 1000.0f)));
+                    Vec2f(0, this->g * gravity2D->scale * (millis / 1000.0f)));
         }
     }
 

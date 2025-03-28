@@ -3,7 +3,7 @@
 #include <array>
 #include <vector>
 #include <boost/geometry.hpp>
-#include <corn/geometry/vec2.h>
+#include <corn/geometry/vec.h>
 
 namespace corn {
     /**
@@ -14,7 +14,7 @@ namespace corn {
      */
     void toBoostPolygon(
             boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<float>>& polygon,
-            const std::vector<Vec2>& vertices, const std::vector<std::vector<Vec2>>& holes);
+            const std::vector<Vec2f>& vertices, const std::vector<std::vector<Vec2f>>& holes);
 
     /**
      * @brief Convert a Boost polygon to a polygon.
@@ -23,7 +23,7 @@ namespace corn {
      * @param polygon The Boost polygon.
      */
     void fromBoostPolygon(
-            std::vector<Vec2>& vertices, std::vector<std::vector<Vec2>>& holes,
+            std::vector<Vec2f>& vertices, std::vector<std::vector<Vec2f>>& holes,
             const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<float>>& polygon);
 
     /**
@@ -35,7 +35,7 @@ namespace corn {
      */
     void toEarcutPolygon(
             std::vector<std::vector<std::array<float, 2>>>& polygon, std::vector<std::array<float, 2>>& flattenedPolygon,
-            const std::vector<Vec2>& vertices, const std::vector<std::vector<Vec2>>& holes);
+            const std::vector<Vec2f>& vertices, const std::vector<std::vector<Vec2f>>& holes);
 
     /**
      * @brief Convert an Earcut polygon to a polygon.
@@ -44,6 +44,6 @@ namespace corn {
      * @param polygon The Earcut polygon.
      */
     void fromEarcutPolygon(
-            std::vector<Vec2>& vertices, std::vector<std::vector<Vec2>>& holes,
+            std::vector<Vec2f>& vertices, std::vector<std::vector<Vec2f>>& holes,
             const std::vector<std::vector<std::array<float, 2>>>& polygon);
 }

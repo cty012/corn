@@ -4,8 +4,7 @@
 #include <corn/ecs/entity.h>
 #include <corn/geometry/deg.h>
 #include <corn/geometry/polygon.h>
-#include <corn/geometry/vec2.h>
-#include <corn/geometry/vec3.h>
+#include <corn/geometry/vec.h>
 #include <corn/media/camera_viewport.h>
 #include <corn/media/text_render.h>
 #include <corn/util/color.h>
@@ -68,22 +67,22 @@ namespace corn {
      */
     struct CTransform2D : public Component {
         /// @brief Location of the entity in its parent's reference frame.
-        Vec2 location;
+        Vec2f location;
 
         /// @brief Rotation of the entity in its parent's reference frame.
         Deg rotation;
 
         /// @brief Constructor.
-        CTransform2D(Entity& entity, Vec2 location, Deg rotation = Deg()) noexcept;
+        CTransform2D(Entity& entity, Vec2f location, Deg rotation = Deg()) noexcept;
 
         /// @return The transform in the world's reference frame.
-        [[nodiscard]] std::pair<Vec2, Deg> getWorldTransform() const noexcept;
+        [[nodiscard]] std::pair<Vec2f, Deg> getWorldTransform() const noexcept;
 
         /// @brief Set the location of the entity in the world's reference frame.
-        void setWorldLocation(Vec2 worldLocation) noexcept;
+        void setWorldLocation(Vec2f worldLocation) noexcept;
 
         /// @brief Adds an offset to the location of the entity in the world's reference frame.
-        void addWorldLocationOffset(Vec2 offset) noexcept;
+        void addWorldLocationOffset(Vec2f offset) noexcept;
 
         /// @brief Getter of the z-order of the entity.
         [[nodiscard]] int getZOrder() const noexcept;
@@ -114,13 +113,13 @@ namespace corn {
      */
     struct CBBox : public Component {
         /// @brief Location of the top left corner.
-        Vec2 tl;
+        Vec2f tl;
 
         /// @brief Location of the bottom right corner.
-        Vec2 br;
+        Vec2f br;
 
         /// @brief Constructor.
-        CBBox(Entity& entity, Vec2 tl, Vec2 br) noexcept;
+        CBBox(Entity& entity, Vec2f tl, Vec2f br) noexcept;
 
         /// @return Whether the two AABBs overlap.
         [[nodiscard]] bool overlapWith(const CBBox& other) const noexcept;
@@ -128,7 +127,7 @@ namespace corn {
 
     struct CLines : public Component {
         /// @brief A vector of vertices.
-        std::vector<Vec2> vertices;
+        std::vector<Vec2f> vertices;
 
         /// @brief Thickness of the edges. If thickness is less than or equal to 0 then fill the polygon.
         float thickness;
@@ -140,7 +139,7 @@ namespace corn {
         bool closed;
 
         /// @brief Constructor.
-        CLines(Entity& entity, std::vector<Vec2> vertices, float thickness, const Color& color, bool closed = false) noexcept;
+        CLines(Entity& entity, std::vector<Vec2f> vertices, float thickness, const Color& color, bool closed = false) noexcept;
     };
 
     struct CPolygon : public Component {
@@ -170,10 +169,10 @@ namespace corn {
         Image* image;
 
         /// @brief Location of the top left corner of the image.
-        Vec2 location;
+        Vec2f location;
 
         /// @brief Constructor.
-        CSprite(Entity& entity, Image* image, Vec2 location = Vec2::ZERO()) noexcept;
+        CSprite(Entity& entity, Image* image, Vec2f location = Vec2f::ZERO()) noexcept;
 
         /// @brief Destructor.
         ~CSprite() override;
@@ -217,7 +216,7 @@ namespace corn {
          *
          * Unit: pixel/second
          */
-        Vec2 velocity;
+        Vec2f velocity;
 
         /**
          * @brief Angular velocity of the entity in its parent's reference frame.
@@ -227,16 +226,16 @@ namespace corn {
         float angularVelocity;
 
         /// @brief Constructor.
-        explicit CMovement2D(Entity& entity, Vec2 velocity = Vec2::ZERO(), float angularVelocity = 0.0f) noexcept;
+        explicit CMovement2D(Entity& entity, Vec2f velocity = Vec2f::ZERO(), float angularVelocity = 0.0f) noexcept;
 
         /// @return The velocities in the world's reference frame.
-        [[nodiscard]] std::pair<Vec2, float> getWorldMovement() const noexcept;
+        [[nodiscard]] std::pair<Vec2f, float> getWorldMovement() const noexcept;
 
         /// @brief Set the linear velocity of the entity in the world's reference frame.
-        void setWorldVelocity(Vec2 worldVelocity) noexcept;
+        void setWorldVelocity(Vec2f worldVelocity) noexcept;
 
         /// @brief Adds an offset to the linear velocity of the entity in the world's reference frame.
-        void addWorldVelocityOffset(Vec2 offset) noexcept;
+        void addWorldVelocityOffset(Vec2f offset) noexcept;
     };
 
     /**
@@ -279,7 +278,7 @@ namespace corn {
          * The rotation stored in the transform component is applied to the anchor, and then the result is added to the
          * location stored in the transform component. The result will be the center of the Camera.
          */
-        Vec3 anchor;
+        Vec3f anchor;
 
         /// @brief Viewport of the camera.
         CameraViewport viewport;
@@ -300,10 +299,10 @@ namespace corn {
         float scale;
 
         /// @brief Constructor for 2D camera.
-        CCamera(Entity& entity, Vec2 anchor, Color background = Color::rgb(0, 0, 0, 0)) noexcept;
+        CCamera(Entity& entity, Vec2f anchor, Color background = Color::rgb(0, 0, 0, 0)) noexcept;
 
         /// @brief Constructor for 3D camera.
-        CCamera(Entity& entity, Vec3 anchor, Color background = Color::rgb(0, 0, 0, 0)) noexcept;
+        CCamera(Entity& entity, Vec3f anchor, Color background = Color::rgb(0, 0, 0, 0)) noexcept;
 
         /// @brief Destructor.
         ~CCamera() override;

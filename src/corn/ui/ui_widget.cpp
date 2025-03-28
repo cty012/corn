@@ -141,7 +141,7 @@ namespace corn {
         this->independent_[3] = expression.find("%p") == std::string::npos;
     }
 
-    Vec2 UIWidget::getNaturalSize() const noexcept {
+    Vec2f UIWidget::getNaturalSize() const noexcept {
         float nw = 0.0f, nh = 0.0f;
         std::vector<UIWidget*> independentChildren = this->getUIManager().getWidgetsThat(
                 [](const UIWidget* widget) {
@@ -150,16 +150,16 @@ namespace corn {
                 this, false);
         // Find max of children size
         for (UIWidget* child : independentChildren) {
-            auto [cnw, cnh] = child->getNaturalSize() * 0.01f;
-            float cx = child->x_.calc(1.0f, 0.0f, 0.0f, cnw, cnh);
-            float cy = child->y_.calc(1.0f, 0.0f, 0.0f, cnw, cnh);
-            float cw = child->w_.calc(1.0f, 0.0f, 0.0f, cnw, cnh);
-            float ch = child->h_.calc(1.0f, 0.0f, 0.0f, cnw, cnh);
+            Vec2f cn = child->getNaturalSize() * 0.01f;
+            float cx = child->x_.calc(1.0f, 0.0f, 0.0f, cn.x, cn.y);
+            float cy = child->y_.calc(1.0f, 0.0f, 0.0f, cn.x, cn.y);
+            float cw = child->w_.calc(1.0f, 0.0f, 0.0f, cn.x, cn.y);
+            float ch = child->h_.calc(1.0f, 0.0f, 0.0f, cn.x, cn.y);
             nw = std::max(nw, cx + cw);
             nh = std::max(nh, cy + ch);
         }
 
-        return { nw, nh };
+        return Vec2f(nw, nh);
     }
 
     UIOverflow UIWidget::getOverflow() const noexcept {

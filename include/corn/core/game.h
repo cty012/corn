@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <corn/event/event_args.h>
 #include <corn/event/event_scope.h>
+#include <corn/geometry/vec.h>
 #include <corn/util/config.h>
 #include <corn/util/stopwatch.h>
 
@@ -61,7 +62,7 @@ namespace corn {
         void setDebugOverlay(bool debugOverlayEnabled) noexcept;
 
         /// @return The current size of the window in pixels.
-        [[nodiscard]] Vec2 windowSize() const noexcept;
+        [[nodiscard]] Vec2f windowSize() const noexcept;
 
         /**
          * @brief Get the currently active scene (the scene on the top of the scene stack).

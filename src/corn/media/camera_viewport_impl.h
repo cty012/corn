@@ -1,10 +1,9 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include <corn/geometry/vec.h>
 
 namespace corn {
-    struct Vec2;
-
     class CameraViewportImpl {
     public:
         CameraViewportImpl() noexcept;
@@ -17,7 +16,7 @@ namespace corn {
          *
          * The texture is only recreated when the new size doesn't match with the old size.
          */
-        bool setSize(const Vec2& size, int antialiasing);
+        bool setSize(const Vec2f& size, int antialiasing);
 
         sf::RenderTexture texture;
     };

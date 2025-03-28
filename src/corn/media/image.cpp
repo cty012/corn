@@ -158,7 +158,7 @@ namespace corn {
         }
     }
 
-    bool ImageImpl::rasterize(Vec2 extraScale, bool useCache) {
+    bool ImageImpl::rasterize(Vec2f extraScale, bool useCache) {
         if (this->type != ImageType::SVG || this->svgImage == nullptr) {
             return false;
         }
@@ -234,22 +234,22 @@ namespace corn {
         return *this;
     }
 
-    std::pair<unsigned int, unsigned int> Image::getOriginalSize() const noexcept {
-        return { static_cast<unsigned int>(this->impl_->getWidth()), static_cast<unsigned int>(this->impl_->getHeight()) };
+    Vec2f Image::getOriginalSize() const noexcept {
+        return Vec2f(this->impl_->getWidth(), this->impl_->getHeight());
     }
 
-    Vec2 Image::getSize() const noexcept {
+    Vec2f Image::getSize() const noexcept {
         switch (this->impl_->type) {
             case ImageType::SVG:
-                return Vec2(this->impl_->getWidth(), this->impl_->getHeight()) * this->impl_->scale.x;
+                return Vec2f(this->impl_->getWidth(), this->impl_->getHeight()) * this->impl_->scale.x;
             default:
-                return Vec2(this->impl_->getWidth(), this->impl_->getHeight()) * this->impl_->scale;
+                return Vec2f(this->impl_->getWidth(), this->impl_->getHeight()) * this->impl_->scale;
         }
     }
 
     void Image::resize(float width, float height) {
         if (this->impl_ == nullptr) return;
-        this->impl_->scale = Vec2(width / this->impl_->getWidth(), height / this->impl_->getHeight());
+        this->impl_->scale = Vec2f(width / this->impl_->getWidth(), height / this->impl_->getHeight());
         if (this->impl_->type == ImageType::SVG) {
             this->impl_->rasterize();
         }

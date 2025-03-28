@@ -35,7 +35,7 @@ namespace corn {
         }
 
         // Find total size
-        this->size = Vec2::ZERO();
+        this->size = Vec2f::ZERO();
         if (this->limitWidth) {
             this->size.x = width;
             for (Line& line : this->lines) {
@@ -72,7 +72,7 @@ namespace corn {
                 buffer = u8"";
                 // Then start a new line
                 currentLine = &this->lines.emplace_back();
-                currentLine->size = { 0.0f, style.size * 1.2f + padding * 2 };
+                currentLine->size = Vec2f(0.0f, style.size * 1.2f + padding * 2);
                 currentLine->precedeWithLineFeed = true;
                 continue;
             }
@@ -85,7 +85,7 @@ namespace corn {
             }
 
             // Measure width and height
-            Vec2 newSize = measureTextSize(buffer + word, style);
+            Vec2f newSize = measureTextSize(buffer + word, style);
 
             // Check if the word can fit
             if (currentLine && (!this->limitWidth || newSize.x + currentLine->size.x <= width)) {
@@ -103,7 +103,7 @@ namespace corn {
                     // Wrap to next line
                     start = end;
                     currentLine = &this->lines.emplace_back();
-                    currentLine->size = { 0.0f, style.size * 1.2f + padding * 2 };
+                    currentLine->size = Vec2f(0.0f, style.size * 1.2f + padding * 2);
                     currentLine->precedeWithLineFeed = false;
                 }
                 // Put the remaining characters in the buffer
@@ -114,7 +114,7 @@ namespace corn {
                 TextRenderImpl::pushTextToLine(currentLine, buffer, style, padding);
                 // Wrap to next line and clear buffer
                 currentLine = &this->lines.emplace_back();
-                currentLine->size = { 0.0f, style.size * 1.2f + padding * 2 };
+                currentLine->size = Vec2f(0.0f, style.size * 1.2f + padding * 2);
                 currentLine->precedeWithLineFeed = false;
                 buffer.clear();
                 // Stay at current word
@@ -142,7 +142,7 @@ namespace corn {
 
             // Measure width and height
             sf::Rect<float> bounds = text.getLocalBounds();
-            Vec2 textSize = { bounds.width, bounds.height };
+            Vec2f textSize(bounds.width, bounds.height);
 
             // Add to total length & size
             line->length += count(str);
@@ -165,7 +165,7 @@ namespace corn {
             std::u8string nextChar = getChar(word);
 
             // Measure width and height
-            Vec2 newSize = measureTextSize(buffer + nextChar, style);
+            Vec2f newSize = measureTextSize(buffer + nextChar, style);
 
             if (firstChar || newSize.x <= width) {
                 // If new character can fit
@@ -209,11 +209,11 @@ namespace corn {
         }
     }
 
-    const Vec2& TextRender::getSize() const noexcept {
+    const Vec2f& TextRender::getSize() const noexcept {
         return this->impl_->size;
     }
 
-    const Vec2& TextRender::getNaturalSize() const noexcept {
+    const Vec2f& TextRender::getNaturalSize() const noexcept {
         return this->impl_->naturalSize;
     }
 
@@ -251,14 +251,14 @@ namespace corn {
         this->textAlign_ = textAlign;
     }
 
-    Vec2 measureTextSize(const std::u8string& str, const TextStyle& style) {
+    Vec2f measureTextSize(const std::u8string& str, const TextStyle& style) {
         sf::Text text;
         setTextFont(text, style.font);
         setTextSize(text, style.size);
         setTextVariant(text, style.variant);
         setTextString(text, str);
         sf::Rect<float> newBounds = text.getLocalBounds();
-        return { newBounds.width, newBounds.height };
+        return Vec2f(newBounds.width, newBounds.height);
     }
 
     void setTextString(sf::Text& text, const std::u8string& str) {

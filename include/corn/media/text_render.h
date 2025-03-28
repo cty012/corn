@@ -1,7 +1,8 @@
 #pragma once
 
+#include <corn/geometry/vec.h>
+
 namespace corn {
-    struct Vec2;
     struct RichText;
     class TextRenderImpl;
 
@@ -48,14 +49,14 @@ namespace corn {
         void setText(const RichText& richText);
 
         /// @return Size of the text area.
-        [[nodiscard]] const Vec2& getSize() const noexcept;
+        [[nodiscard]] const Vec2f& getSize() const noexcept;
 
         /**
          * @return Natural size of the text area.
          *
          * The natural size of the text is the size of the text if there is no width limit.
          */
-        [[nodiscard]] const Vec2& getNaturalSize() const noexcept;
+        [[nodiscard]] const Vec2f& getNaturalSize() const noexcept;
 
         /**
          * @brief Set the new width limit of the RichText.

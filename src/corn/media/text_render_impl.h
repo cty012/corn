@@ -4,7 +4,7 @@
 #include <utility>
 #include <vector>
 #include <SFML/Graphics.hpp>
-#include <corn/geometry/vec2.h>
+#include <corn/geometry/vec.h>
 #include <corn/util/color.h>
 #include <corn/util/rich_text.h>
 
@@ -14,7 +14,7 @@ namespace corn {
         struct Line {
             std::vector<std::pair<sf::Text, Color>> contents;
             size_t length;
-            Vec2 size;
+            Vec2f size;
             bool precedeWithLineFeed;
 
             Line();
@@ -24,8 +24,8 @@ namespace corn {
         std::vector<std::pair<std::vector<std::u8string>, TextStyle>> words;
         std::vector<Line> lines;
         bool limitWidth;
-        Vec2 naturalSize;
-        Vec2 size;
+        Vec2f naturalSize;
+        Vec2f size;
 
         /// @brief Constructor.
         explicit TextRenderImpl(const RichText& richText);
@@ -78,7 +78,7 @@ namespace corn {
         static const char8_t* insertCharsToEmptyLine(Line* line, const char8_t* word, const TextStyle& style, float width, float padding);
     };
 
-    Vec2 measureTextSize(const std::u8string& str, const TextStyle& style);
+    Vec2f measureTextSize(const std::u8string& str, const TextStyle& style);
 
     void setTextString(sf::Text& text, const std::u8string& str);
 

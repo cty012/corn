@@ -1,23 +1,23 @@
 #include <corn/geometry/rotation.h>
-#include <corn/geometry/vec3.h>
+#include <corn/geometry/vec.h>
 
 namespace corn {
     Quaternion EulerAngles::quat() const noexcept {
-        return Quaternion(this->yaw, Vec3::UNIT_Y())
-            * Quaternion(this->pitch, Vec3::UNIT_X())
-            * Quaternion(this->roll, Vec3::UNIT_Z());
+        return Quaternion(this->yaw, Vec3f::UNIT_Y())
+            * Quaternion(this->pitch, Vec3f::UNIT_X())
+            * Quaternion(this->roll, Vec3f::UNIT_Z());
     }
 
-    Quaternion::Quaternion(Vec4 val) noexcept : val(val) {}
+    Quaternion::Quaternion(Vec4f val) noexcept : val(val) {}
 
     Quaternion::Quaternion(float a, float b, float c, float d) noexcept : val(a, b, c, d) {}
 
-    Quaternion::Quaternion(const Deg& theta, const Vec3& axis) noexcept {
-        Vec3 normalizedAxis = axis.normalize();
+    Quaternion::Quaternion(const Deg& theta, const Vec3f& axis) noexcept {
+        Vec3f normalizedAxis = axis.normalize();
         Deg temp = theta * 0.5;
         float a = temp.cos();
         float a_ = temp.sin();
-        val = { a, a_ * normalizedAxis.x, a_ * normalizedAxis.y, a_ * normalizedAxis.z };
+        this->val = Vec4f(a, a_ * normalizedAxis.x, a_ * normalizedAxis.y, a_ * normalizedAxis.z);
     }
 
     float Quaternion::norm() const noexcept {

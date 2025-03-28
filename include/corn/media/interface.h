@@ -31,7 +31,7 @@ namespace corn {
         void init();
 
         /// @return The current size of the window in pixels.
-        [[nodiscard]] Vec2 windowSize() const noexcept;
+        [[nodiscard]] Vec2f windowSize() const noexcept;
 
         /**
          * @brief Handles user keyboard, mouse, and other inputs and emits a global event.
@@ -65,7 +65,7 @@ namespace corn {
          * @return The transformation (offset and scale) that defines how to transform coordinates from the world's
          * reference frame to camera's reference frame.
          */
-        [[nodiscard]] std::pair<Vec2, Vec2> getCameraTransformation(const CCamera* camera) const;
+        [[nodiscard]] std::pair<Vec2f, Vec2f> getCameraTransformation(const CCamera* camera) const;
 
         /**
          * @brief Render the view of the camera onto a temporary texture.

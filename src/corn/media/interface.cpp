@@ -44,15 +44,15 @@ namespace corn {
                 contextSettings);
 
         if (config.icon) {
-            auto [w, h] = config.icon->getSize();
+            Vec2f size = config.icon->getSize();
             this->impl_->window->setIcon(
-                    (unsigned int)w, (unsigned int)h, config.icon->impl_->image.getPixelsPtr());
+                    (unsigned int)size.x, (unsigned int)size.y, config.icon->impl_->image.getPixelsPtr());
         }
     }
 
-    Vec2 Interface::windowSize() const noexcept {
+    Vec2f Interface::windowSize() const noexcept {
         sf::Vector2u size = this->impl_->window->getSize();
-        return {(float)size.x, (float)size.y};
+        return Vec2f {(float)size.x, (float)size.y};
     }
 
     void Interface::handleUserInput() const {
@@ -68,14 +68,14 @@ namespace corn {
                 case (sf::Event::MouseButtonPressed): {
                     EventArgsMouseButton eventArgs(
                             sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
-                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                            Vec2f(event.mouseButton.x, event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
                     this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     // Only emit the event to the top scene if not caught by UI
                     if (!this->game_.getTopScene()->getUIManager().onClick(eventArgs)) {
                         EventArgsWorldMouseButton worldEventArgs(
                                 sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
-                                Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                                Vec2f(event.mouseButton.x, event.mouseButton.y));
                         this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
                     }
                     break;
@@ -83,27 +83,27 @@ namespace corn {
                 case (sf::Event::MouseButtonReleased): {
                     EventArgsMouseButton eventArgs(
                             sfInput2CornInput(event.mouseButton.button), ButtonEvent::UP,
-                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                            Vec2f(event.mouseButton.x, event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
                     this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     // Only emit the world event if not caught by UI
                     if (!this->game_.getTopScene()->getUIManager().onClick(eventArgs)) {
                         EventArgsWorldMouseButton worldEventArgs(
                                 sfInput2CornInput(event.mouseButton.button), ButtonEvent::UP,
-                                Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                                Vec2f(event.mouseButton.x, event.mouseButton.y));
                         this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
                     }
                     break;
                 }
                 case sf::Event::MouseMoved: {
                     EventArgsMouseMove eventArgs(
-                            Vec2((float)event.mouseMove.x, (float)event.mouseMove.y));
+                            Vec2f(event.mouseMove.x, event.mouseMove.y));
                     EventManager::instance().emit(eventArgs);
                     this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     // Only emit the world event if not caught by UI
                     if (!this->game_.getTopScene()->getUIManager().onHover(eventArgs)) {
                         EventArgsWorldMouseMove worldEventArgs(
-                                Vec2((float)event.mouseMove.x, (float)event.mouseMove.y));
+                                Vec2f(event.mouseMove.x, event.mouseMove.y));
                         this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
                     }
                     break;
@@ -111,14 +111,14 @@ namespace corn {
                 case (sf::Event::MouseWheelScrolled): {
                     EventArgsMouseScroll eventArgs(
                             event.mouseWheelScroll.delta,
-                            Vec2((float)event.mouseWheelScroll.x, (float)event.mouseWheelScroll.y));
+                            Vec2f(event.mouseWheelScroll.x, event.mouseWheelScroll.y));
                     EventManager::instance().emit(eventArgs);
                     this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     // Only emit the world event if not caught by UI
                     if (!this->game_.getTopScene()->getUIManager().onScroll(eventArgs)) {
                         EventArgsWorldMouseScroll worldEventArgs(
                                 event.mouseWheelScroll.delta,
-                                Vec2((float)event.mouseWheelScroll.x, (float)event.mouseWheelScroll.y));
+                                Vec2f(event.mouseWheelScroll.x, event.mouseWheelScroll.y));
                         this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
                     }
                     break;
@@ -131,7 +131,7 @@ namespace corn {
                     EventArgsKeyboard eventArgs(
                             key, ButtonEvent::DOWN,
                             (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
-                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                            Vec2f(event.mouseButton.x, event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
                     this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     // Only emit the world event if not caught by UI
@@ -139,7 +139,7 @@ namespace corn {
                         EventArgsWorldKeyboard worldEventArgs(
                                 key, ButtonEvent::DOWN,
                                 (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
-                                Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                                Vec2f(event.mouseButton.x, event.mouseButton.y));
                         this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
                     }
                     break;
@@ -152,7 +152,7 @@ namespace corn {
                     EventArgsKeyboard eventArgs(
                             key, ButtonEvent::UP,
                             (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
-                            Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                            Vec2f(event.mouseButton.x, event.mouseButton.y));
                     EventManager::instance().emit(eventArgs);
                     this->game_.getTopScene()->getEventManager().emit(eventArgs);
                     // Only emit the world event if not caught by UI
@@ -160,7 +160,7 @@ namespace corn {
                         EventArgsWorldKeyboard worldEventArgs(
                                 key, ButtonEvent::UP,
                                 (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
-                                Vec2((float)event.mouseButton.x, (float)event.mouseButton.y));
+                                Vec2f(event.mouseButton.x, event.mouseButton.y));
                         this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
                     }
                     break;
@@ -220,15 +220,15 @@ namespace corn {
         this->impl_->window->display();
     }
 
-    std::pair<Vec2, Vec2> Interface::getCameraTransformation(const CCamera* camera) const {
+    std::pair<Vec2f, Vec2f> Interface::getCameraTransformation(const CCamera* camera) const {
         // Calculate window size
-        Vec2 windowSize = this->windowSize();
-        Vec2 percentWindowSize = windowSize * 0.01f;
+        Vec2f windowSize = this->windowSize();
+        Vec2f percentWindowSize = windowSize * 0.01f;
 
         // Calculate camera viewport and FOV
-        Vec2 viewportSize(camera->viewport.w.calc(1.0f, percentWindowSize.x, percentWindowSize.y),
+        Vec2f viewportSize(camera->viewport.w.calc(1.0f, percentWindowSize.x, percentWindowSize.y),
                           camera->viewport.h.calc(1.0f, percentWindowSize.x, percentWindowSize.y));
-        Vec2 fovSize(camera->fovW.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale),
+        Vec2f fovSize(camera->fovW.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale),
                      camera->fovH.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale));
 
         // Reset the camera viewport
@@ -237,16 +237,16 @@ namespace corn {
         camera->viewport.impl_->texture.clear(sf::Color(r, g, b, a));
 
         // Calculate location of camera
-        Vec2 cameraCenter = camera->getEntity().getComponent<CTransform2D>()->getWorldTransform().first + camera->anchor.vec2();
+        Vec2f cameraCenter = camera->getEntity().getComponent<CTransform2D>()->getWorldTransform().first + camera->anchor.to<2>();
 
         // Return the location and scale
-        return { cameraCenter - fovSize * 0.5, { viewportSize.x / fovSize.x, viewportSize.y / fovSize.y } };
+        return { cameraCenter - fovSize * 0.5, Vec2f(viewportSize.x / fovSize.x, viewportSize.y / fovSize.y) };
     }
 
     void Interface::renderCamera(Scene* scene, const CCamera* camera) {
         // Calculate window size
-        Vec2 windowSize = this->windowSize();
-        Vec2 percentWindowSize = windowSize * 0.01f;
+        Vec2f windowSize = this->windowSize();
+        Vec2f percentWindowSize = windowSize * 0.01f;
 
         // Check if camera is active
         if (!camera->active) return;
@@ -305,7 +305,7 @@ namespace corn {
 
     void Interface::renderUI(UIManager& uiManager) {
         // Calculate window size
-        Vec2 windowSize = this->windowSize();
+        Vec2f windowSize = this->windowSize();
 
         // Resolve UI widget location and size
         uiManager.tidy();
@@ -315,9 +315,9 @@ namespace corn {
 
         // Opacity & viewport
         std::unordered_map<const UIWidget*, float> opacities;
-        std::unordered_map<const UIWidget*, std::pair<Vec2, Vec2>> subviewports;
+        std::unordered_map<const UIWidget*, std::pair<Vec2f, Vec2f>> subviewports;
         opacities[nullptr] = 1.0f;
-        subviewports[nullptr] = { { 0, 0 }, { windowSize.x, windowSize.y } };
+        subviewports[nullptr] = { Vec2f::ZERO(), windowSize };
 
         // Render
         for (UIWidget* widget : widgets) {
@@ -326,7 +326,11 @@ namespace corn {
             opacities[widget] = opacities[parent] * (float)widget->getOpacity() / 255.0f;
 
             // Find geometry
-            auto [x, y, w, h] = uiManager.getCachedGeometry(widget);  // NOLINT
+            Vec4f widgetGeometry = uiManager.getCachedGeometry(widget);
+            float x = widgetGeometry[0];
+            float y = widgetGeometry[1];
+            float w = widgetGeometry[2];
+            float h = widgetGeometry[3];
 
             // Set view
             auto [vpul, vpbr] = subviewports[parent];
@@ -355,7 +359,7 @@ namespace corn {
                     vpbr.y = std::min(vpbr.y, y + h);
                     break;
             }
-            subviewports[widget] = { { vpul.x, vpul.y }, { vpbr.x, vpbr.y } };
+            subviewports[widget] = { vpul, vpbr };
 
             // Render the background
             sf::RectangleShape boundingRect(sf::Vector2f(w, h));
@@ -408,8 +412,8 @@ namespace corn {
                     const Image* image = uiImage->getImage();
                     if (!image || !image->impl_) break;
                     // Scale image
-                    Vec2 size = image->getSize();
-                    Vec2 totalScale = Vec2(size.x != 0.0f ? w / size.x : 1, size.y != 0.0f ? h / size.y : 1);
+                    Vec2f size = image->getSize();
+                    Vec2f totalScale(size.x != 0.0f ? w / size.x : 1, size.y != 0.0f ? h / size.y : 1);
                     switch (image->impl_->type) {
                         case ImageType::SVG: {
                             image->impl_->rasterize(totalScale, true);

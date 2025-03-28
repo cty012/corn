@@ -6,24 +6,24 @@
 
 MainScene::MainScene() : corn::Scene() {
     // Camera
-    this->cameraID_ = createCamera(this->getEntityManager(), corn::Vec2(0, 0)).getID();
+    this->cameraID_ = createCamera(this->getEntityManager(), corn::Vec2f::ZERO()).getID();
 
     for (int i = -10; i <= 10; i++) {
         for (int j = -10; j <= 10; j++) {
             // Create chess-like pattern
             createBlock(
                     this->getEntityManager(),
-                    corn::Vec2(static_cast<float>(i) * 100.0f, static_cast<float>(j) * 100.0f),
+                    corn::Vec2f(static_cast<float>(i) * 100.0f, static_cast<float>(j) * 100.0f),
                     100,
                     (i + j) % 2 == 0 ? corn::Color::WHITE() : corn::Color::parse("#8080ff"));
         }
     }
 
     // Central block
-    createBlock(this->getEntityManager(), corn::Vec2(-10, -10), 20, corn::Color::parse("#ff0000"));
+    createBlock(this->getEntityManager(), corn::Vec2f(-10, -10), 20, corn::Color::parse("#ff0000"));
 
     // Movable block
-    this->movableBlockID_ = createBlock(this->getEntityManager(), corn::Vec2(-10, -10), 20, corn::Color::parse("#00ff00")).getID();
+    this->movableBlockID_ = createBlock(this->getEntityManager(), corn::Vec2f(-10, -10), 20, corn::Color::parse("#00ff00")).getID();
     this->getEntityManager().getEntityByID(this->movableBlockID_)->getComponent<corn::CSprite>()->active = false;
 
     // Events
@@ -38,16 +38,16 @@ MainScene::MainScene() : corn::Scene() {
 
                 switch (_args.key) {
                     case corn::Key::W:
-                        this->move({ 0, -this->speed_ });
+                        this->move(corn::Vec2f(0, -this->speed_));
                         break;
                     case corn::Key::A:
-                        this->move({ -this->speed_, 0 });
+                        this->move(corn::Vec2f(-this->speed_, 0));
                         break;
                     case corn::Key::S:
-                        this->move({ 0, this->speed_ });
+                        this->move(corn::Vec2f(0, this->speed_));
                         break;
                     case corn::Key::D:
-                        this->move({ this->speed_, 0 });
+                        this->move(corn::Vec2f(this->speed_, 0));
                         break;
                     case corn::Key::Q:
                         this->rotate(this->angularSpeed_);
@@ -75,17 +75,17 @@ MainScene::MainScene() : corn::Scene() {
                     return;
                 }
 
-                corn::Vec2 worldPos;
+                corn::Vec2f worldPos;
                 bool found = this->getEntityManager().screenToWorldPosition(_args.mousePos, worldPos);
                 if (found) {
                     corn::Entity* movableBlock = this->getEntityManager().getEntityByID(this->movableBlockID_);
-                    movableBlock->getComponent<corn::CTransform2D>()->setWorldLocation(worldPos - corn::Vec2(10, 10));
+                    movableBlock->getComponent<corn::CTransform2D>()->setWorldLocation(worldPos - corn::Vec2f(10, 10));
                     movableBlock->getComponent<corn::CSprite>()->active = true;
                 }
             });
 }
 
-void MainScene::move(const corn::Vec2& displacement) {
+void MainScene::move(const corn::Vec2f& displacement) {
     this->getEntityManager().getEntityByID(this->cameraID_)
             ->getComponent<corn::CTransform2D>()->location += displacement;
 }

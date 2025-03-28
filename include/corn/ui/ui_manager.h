@@ -1,13 +1,13 @@
 #pragma once
 
 #include <functional>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
 #include <corn/event/event_args.h>
 #include <corn/event/event_scope.h>
-#include <corn/geometry/vec2.h>
-#include <corn/geometry/vec4.h>
+#include <corn/geometry/vec.h>
 #include <corn/ui/ui_widget.h>
 
 namespace corn {
@@ -30,8 +30,8 @@ namespace corn {
             UIWidget* widget;                      ///< Widget stored in the node
             Node* parent;                          ///< Parent node
             std::vector<Node*> children;           ///< Child nodes
-            Vec2 location;                         ///< Cached location of the widget
-            Vec2 size;                             ///< Cached size of the widget
+            Vec2f location;                         ///< Cached location of the widget
+            Vec2f size;                             ///< Cached size of the widget
             /**
              * @brief Whether the node's children are sorted by their z-order (small to large)
              *
@@ -134,13 +134,13 @@ namespace corn {
          * @brief Calculate and cache the locations and sizes of all widgets.
          * @param windowSize Size of the window
          */
-        void calcGeometry(Vec2 windowSize);
+        void calcGeometry(Vec2f windowSize);
 
         /**
          * @param widget The target UI widget.
          * @return The cached value indicating the x location (left), y location (top), width, and height of the target.
          */
-        Vec4 getCachedGeometry(const UIWidget* widget) const noexcept;
+        Vec4f getCachedGeometry(const UIWidget* widget) const noexcept;
 
         /// @return Get the currently focused widget. The focused widget will catch text events.
         [[nodiscard]] UIWidget* getFocusedWidget() const noexcept;
@@ -208,7 +208,7 @@ namespace corn {
          * @param pos A location on the screen.
          * @return Whether the location is inside the target widget.
          */
-        bool widgetContains(const UIWidget* widget, Vec2 pos) const noexcept;
+        bool widgetContains(const UIWidget* widget, Vec2f pos) const noexcept;
 
         /**
          * @param pos A location on the screen.
@@ -217,7 +217,7 @@ namespace corn {
          * Since there can be multiple widgets containing the same location, we only consider the widget on the top
          * along the z-axis.
          */
-        UIWidget* getTargetWidget(Vec2 pos) noexcept;
+        UIWidget* getTargetWidget(Vec2f pos) noexcept;
 
         /**
          * @brief Helper to UIManager::destroyWidget.

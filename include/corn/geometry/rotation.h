@@ -1,10 +1,9 @@
 #pragma once
 
 #include <corn/geometry/deg.h>
-#include <corn/geometry/vec4.h>
+#include <corn/geometry/vec.h>
 
 namespace corn {
-    struct Vec3;
     struct Quaternion;
 
     /**
@@ -46,16 +45,16 @@ namespace corn {
      * @see EulerAngles
      */
     struct Quaternion {
-        Vec4 val;
+        Vec<float, 4> val;
 
         /// @brief Construct from Vec4.
-        Quaternion(Vec4 val) noexcept;  // NOLINT
+        Quaternion(Vec<float, 4> val) noexcept;  // NOLINT
 
         /// @brief Construct from the four components.
         Quaternion(float a, float b, float c, float d) noexcept;
 
         /// @brief Construct from rotation around an axis.
-        Quaternion(const Deg& theta, const Vec3& axis) noexcept;
+        Quaternion(const Deg& theta, const Vec<float, 3>& axis) noexcept;
 
         /// @return 2-norm of the quaternion.
         [[nodiscard]] float norm() const noexcept;
