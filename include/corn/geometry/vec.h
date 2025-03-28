@@ -45,13 +45,13 @@ namespace corn {
 
     // Mixin for other dimensions (N = 1 or N > 4)
     struct HasNoXYZW {
-        template <typename T, int N>
+        template <typename T, size_t N>
         requires(Numeric<T> && (N == 1 || N > 4))
         explicit HasNoXYZW(std::array<T, N>&) noexcept {}
     };
 
     // Select correct mixin
-    template <typename T, int N>
+    template <typename T, size_t N>
     using VecMixin = std::conditional_t<
             N == 2, HasXY<T>,
             std::conditional_t<
@@ -66,7 +66,7 @@ namespace corn {
      * @tparam T Numeric type. Can be any arithmetic type.
      * @tparam N Dimension of the vector. Must be a positive integer.
      */
-    template <typename T, int N>
+    template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
     struct Vec : VecMixin<T, N> {
         /// @brief Constructor.
@@ -152,7 +152,7 @@ namespace corn {
          * @brief Get the dimension of the vector.
          * @return Dimension of the vector.
          */
-        [[nodiscard]] static constexpr int dim() noexcept {
+        [[nodiscard]] static constexpr size_t dim() noexcept {
             return N;
         }
 
@@ -160,7 +160,7 @@ namespace corn {
          * @param index Index of the element to access.
          * @return Reference to the element at the given index.
          */
-        [[nodiscard]] T& operator[](int index) noexcept {
+        [[nodiscard]] T& operator[](size_t index) noexcept {
             return this->data_[index];
         }
 
@@ -168,7 +168,7 @@ namespace corn {
          * @param index Index of the element to access.
          * @return Reference to the element at the given index.
          */
-        [[nodiscard]] const T& operator[](int index) const noexcept {
+        [[nodiscard]] const T& operator[](size_t index) const noexcept {
             return this->data_[index];
         }
 
@@ -176,7 +176,7 @@ namespace corn {
          * @param index Index of the element to access.
          * @return Reference to the element at the given index.
          */
-        [[nodiscard]] T& at(int index) noexcept {
+        [[nodiscard]] T& at(size_t index) noexcept {
             return this->data_.at(index);
         }
 
@@ -184,7 +184,7 @@ namespace corn {
          * @param index Index of the element to access.
          * @return Reference to the element at the given index.
          */
-        [[nodiscard]] const T& at(int index) const noexcept {
+        [[nodiscard]] const T& at(size_t index) const noexcept {
             return this->data_.at(index);
         }
 
@@ -194,11 +194,11 @@ namespace corn {
          * @tparam M Dimension of the new vector.
          * @return Converted vector.
          */
-        template <typename U, int M>
+        template <typename U, size_t M>
         requires(Numeric<U> && M > 0)
         [[nodiscard]] Vec<U, M> to() const noexcept {
             Vec<U, M> result;
-            for (int i = 0; i < std::min(N, M); i++) {
+            for (size_t i = 0; i < std::min(N, M); i++) {
                 result[i] = static_cast<U>(this->data_[i]);
             }
             return result;
@@ -220,21 +220,21 @@ namespace corn {
          * @tparam M Dimension of the new vector.
          * @return Converted vector.
          */
-        template <int M>
+        template <size_t M>
         requires(M > 0)
         [[nodiscard]] Vec<T, M> to() const noexcept {
             return this->to<T, M>();
         }
 
-        template <int M, typename... Args>
+        template <size_t M, typename... Args>
         requires(M > 0 && sizeof...(Args) == M && std::conjunction_v<std::is_convertible<Args, T>...>)
         [[nodiscard]] Vec<T, N + M> append(Args... args) const noexcept {
             Vec<T, N + M> result;
             T appended[] = { static_cast<T>(args)... };
-            for (int i = 0; i < N; i++) {
+            for (size_t i = 0; i < N; i++) {
                 result[i] = this->data_[i];
             }
-            for (int i = 0; i < M; i++) {
+            for (size_t i = 0; i < M; i++) {
                 result[N + i] = appended[i];
             }
             return result;
@@ -264,87 +264,87 @@ namespace corn {
      * @param rhs Second vector.
      * @return A vector formed by concatenating the two vectors.
      */
-    template <typename T, int N, int M>
+    template <typename T, size_t N, size_t M>
     requires(Numeric<T> && N > 0 && M > 0)
     Vec<T, N + M> operator|(const Vec<T, N>& lhs, const Vec<T, M>& rhs) noexcept {
         Vec<T, N + M> result;
-        for (int i = 0; i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             result[i] = lhs[i];
         }
-        for (int i = 0; i < M; i++) {
+        for (size_t i = 0; i < M; i++) {
             result[N + i] = rhs[i];
         }
         return result;
     }
 
     /// @return A copy of the vector itself.
-    template <typename T, int N>
+    template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
     Vec<T, N> operator+(const Vec<T, N>& rhs) noexcept {
         return rhs;
     }
 
     /// @return The additive inverse of the vector.
-    template <typename T, int N>
+    template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
     Vec<T, N> operator-(const Vec<T, N>& rhs) noexcept {
         Vec<T, N> result;
-        for (int i = 0; i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             result[i] = -rhs[i];
         }
         return result;
     }
 
     /// @return Result of adding lhs and rhs.
-    template <typename T, int N>
+    template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
     Vec<T, N> operator+(const Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
         Vec<T, N> result;
-        for (int i = 0; i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             result[i] = lhs[i] + rhs[i];
         }
         return result;
     }
 
     /// @return Result of subtracting rhs from lhs.
-    template <typename T, int N>
+    template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
     Vec<T, N> operator-(const Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
         Vec<T, N> result;
-        for (int i = 0; i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             result[i] = lhs[i] - rhs[i];
         }
         return result;
     }
 
     /// @return Element-wise multiplication of lhs and rhs.
-    template <typename T, int N>
+    template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
     Vec<T, N> operator*(const Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
         Vec<T, N> result;
-        for (int i = 0; i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             result[i] = lhs[i] * rhs[i];
         }
         return result;
     }
 
     /// @return Result of multiplying a vector and a scalar.
-    template <typename T, typename U, int N>
+    template <typename T, typename U, size_t N>
     requires(Numeric<T> && N > 0 && std::is_convertible_v<U, T>)
     Vec<T, N> operator*(const Vec<T, N>& vec, U scalar) noexcept {
         Vec<T, N> result;
-        for (int i = 0; i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             result[i] = vec[i] * scalar;
         }
         return result;
     }
 
     /// @return Result of multiplying a scalar and a vector.
-    template <typename T, typename U, int N>
+    template <typename T, typename U, size_t N>
     requires(Numeric<T> && N > 0 && std::is_convertible_v<U, T>)
     Vec<T, N> operator*(U scalar, const Vec<T, N>& vec) noexcept {
         Vec<T, N> result;
-        for (int i = 0; i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             result[i] = scalar * vec[i];
         }
         return result;
@@ -356,10 +356,10 @@ namespace corn {
      * @param rhs Second vector.
      * @return Reference to lhs.
      */
-    template <typename T, int N>
+    template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
     Vec<T, N>& operator+=(Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
-        for (int i = 0; i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             lhs[i] += rhs[i];
         }
         return lhs;
@@ -371,10 +371,10 @@ namespace corn {
      * @param rhs Second vector.
      * @return Reference to lhs.
      */
-    template <typename T, int N>
+    template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
     Vec<T, N>& operator-=(Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
-        for (int i = 0; i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             lhs[i] -= rhs[i];
         }
         return lhs;
@@ -386,10 +386,10 @@ namespace corn {
      * @param scalar Scalar to multiply with.
      * @return Reference to the vector.
      */
-    template <typename T, typename U, int N>
+    template <typename T, typename U, size_t N>
     requires(Numeric<T> && N > 0 && std::is_convertible_v<U, T>)
     Vec<T, N>& operator*=(Vec<T, N>& vec, U scalar) noexcept {
-        for (int i = 0; i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             vec[i] *= scalar;
         }
         return vec;
@@ -401,10 +401,10 @@ namespace corn {
      * @param rhs Second vector.
      * @return Reference to lhs.
      */
-    template <typename T, int N>
+    template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
     Vec<T, N>& operator*=(Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
-        for (int i = 0; i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             lhs[i] *= rhs[i];
         }
         return lhs;
@@ -416,10 +416,10 @@ namespace corn {
      * @param rhs Second vector.
      * @return Whether the vectors are equal.
      */
-    template <typename T, int N>
+    template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
     bool operator==(const Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
-        for (int i = 0; i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             if (lhs[i] != rhs[i]) {
                 return false;
             }
@@ -433,7 +433,7 @@ namespace corn {
      * @param rhs Second vector.
      * @return Whether the vectors are not equal.
      */
-    template <typename T, int N>
+    template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
     bool operator!=(const Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
         return !(lhs == rhs);
@@ -458,4 +458,30 @@ namespace corn {
 
     using Vec3uc = Vec<uint8_t, 3>;
     using Vec4uc = Vec<uint8_t, 4>;
+}
+
+// Decomposer
+namespace std {
+    template <typename T, size_t N>
+    struct tuple_size<corn::Vec<T, N>> : std::integral_constant<size_t, N> {};
+
+    template <size_t I, typename T, size_t N>
+    struct tuple_element<I, corn::Vec<T, N>> {
+        using type = T;
+    };
+}
+
+namespace corn {
+    // get<i> overloads
+    template <size_t I, typename T, size_t N>
+    T& get(Vec<T, N>& v) {
+        static_assert(I < N);
+        return v[I];
+    }
+
+    template <size_t I, typename T, size_t N>
+    const T& get(const Vec<T, N>& v) {
+        static_assert(I < N);
+        return v[I];
+    }
 }

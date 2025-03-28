@@ -180,7 +180,7 @@ namespace corn {
     }
 
     void Interface::clear() {
-        auto [r, g, b] = this->game_.getConfig().background.getRGB();
+        const auto [r, g, b] = this->game_.getConfig().background.getRGB();
         this->impl_->window->clear(sf::Color(r, g, b));
     }
 
@@ -233,7 +233,7 @@ namespace corn {
 
         // Reset the camera viewport
         camera->viewport.impl_->setSize(viewportSize, this->game_.getConfig().antialiasing);
-        auto [r, g, b, a] = camera->background.getRGBA();
+        const auto [r, g, b, a] = camera->background.getRGBA();
         camera->viewport.impl_->texture.clear(sf::Color(r, g, b, a));
 
         // Calculate location of camera
@@ -364,7 +364,7 @@ namespace corn {
             // Render the background
             sf::RectangleShape boundingRect(sf::Vector2f(w, h));
             boundingRect.setPosition(x, y);
-            auto [r, g, b, a] = widget->getBackground().getRGBA();
+            const auto [r, g, b, a] = widget->getBackground().getRGBA();
             boundingRect.setFillColor(sf::Color(r, g, b, (unsigned char)((float)a * opacities[widget])));
             this->impl_->window->draw(boundingRect);
 
@@ -394,7 +394,7 @@ namespace corn {
                         }
 
                         for (const auto& [text, color] : line.contents) {
-                            auto [segR, segG, segB, segA] = color.getRGBA();
+                            const auto [segR, segG, segB, segA] = color.getRGBA();
                             auto& mutText = const_cast<sf::Text&>(text);
                             mutText.setPosition(std::round(segX), std::round(segY + textRender.getLinePadding()));
                             mutText.setFillColor(sf::Color(

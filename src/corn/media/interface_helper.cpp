@@ -42,11 +42,11 @@ namespace corn {
 
         auto [worldLocation, worldRotation] = cTransform.getWorldTransform();
         Vec2f anc = worldLocation - cameraOffset;
-        auto [r, g, b, a] = color.getRGBA();
+        const auto [r, g, b, a] = color.getRGBA();  // NOLINT
 
         for (size_t i = 0; (closed ? i : i + 1) < vertices.size(); i++) {
-            Vec2f start = vertices.at(i);
-            Vec2f end = vertices.at((i + 1) % vertices.size());
+            const Vec2f& start = vertices.at(i);
+            const Vec2f& end = vertices.at((i + 1) % vertices.size());
             Vec2f diff = end - start;
             float length = diff.norm();
             float angle = std::atan2(diff.y, diff.x) * 180.0f / (float)PI;
@@ -94,7 +94,7 @@ namespace corn {
             // Draw polygon and fill inside
             auto [worldLocation, worldRotation] = cTransform.getWorldTransform();
             Vec2f anc = worldLocation - cameraOffset;
-            auto [r, g, b, a] = cPolygon.color.getRGBA();
+            const auto [r, g, b, a] = cPolygon.color.getRGBA(); // NOLINT
 
             sf::Transform rotateTransform;
             rotateTransform.rotate(-worldRotation.get());
@@ -106,7 +106,7 @@ namespace corn {
                     varr[i * 3 + j].position =
                             sf::Vector2f(anc.x, anc.y) +
                             rotateTransform.transformPoint(sf::Vector2f(triangles[i][j].x, triangles[i][j].y));
-                    varr[i * 3 + j].color = sf::Color{r, g, b, a};
+                    varr[i * 3 + j].color = sf::Color{ r, g, b, a };
                 }
             }
 
@@ -149,8 +149,8 @@ namespace corn {
                 mutText.setOrigin(-loc.x, -loc.y);
                 mutText.setPosition(anc.x, anc.y);
                 mutText.setRotation(-worldRotation.get());
-                auto [r, g, b, a] = color.getRGBA();
-                mutText.setFillColor(sf::Color(r, g, b, a));
+                const auto [r, g, b, a] = color.getRGBA();  // NOLINT
+                mutText.setFillColor(sf::Color{ r, g, b, a });
 
                 cCamera.viewport.impl_->texture.draw(text, scaleTransform);
                 seg.x += text.getLocalBounds().width;

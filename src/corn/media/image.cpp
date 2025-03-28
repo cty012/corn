@@ -1,7 +1,6 @@
 #include <array>
 #include <fstream>
 #include <nanosvgrast.h>
-#include <ranges>
 #include <corn/media/image.h>
 #include <corn/util/color.h>
 #include <corn/util/exceptions.h>
@@ -99,12 +98,12 @@ namespace corn {
         }
     }
 
-    ImageImpl::ImageImpl(unsigned int width, unsigned int height, Color color)
+    ImageImpl::ImageImpl(unsigned int width, unsigned int height, const Color& color)
             : type(ImageType::UNKNOWN), svgImage(), scale(1.0f, 1.0f) {
 
         std::string msg = "Failed to create image.";
-        auto [r, g, b, a] = color.getRGBA();
-        this->image.create(width, height, sf::Color(r, g, b, a));
+        const auto [r, g, b, a] = color.getRGBA();  // NOLINT
+        this->image.create(width, height, sf::Color{ r, g, b, a });
         if (!this->texture.loadFromImage(image)) throw ResourceLoadFailed(msg);
         this->sfSprite = sf::Sprite(this->texture);
     }

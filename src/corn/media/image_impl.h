@@ -48,7 +48,7 @@ namespace corn {
          * @param height Height of the image.
          * @param color Color of the image (RGBA).
          */
-        ImageImpl(unsigned int width, unsigned int height, Color color);
+        ImageImpl(unsigned int width, unsigned int height, const Color& color);
 
         /// @brief Destructor.
         ~ImageImpl();

@@ -14,11 +14,11 @@ namespace corn {
      * @param vec The vector.
      * @return The string representation of the vector.
      */
-    template <typename T, int N>
+    template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
     [[nodiscard]] std::string toString(const Vec<T, N>& vec) {
         std::string result = "<";
-        for (int i = 0; i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             if (i) result += ", ";
             result += std::format("{}", vec[i]);
         }
@@ -31,11 +31,11 @@ namespace corn {
      * @param v2 The second vector.
      * @return The vector formed by the minimum values in each direction.
      */
-    template <typename T, int N>
+    template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
     [[nodiscard]] Vec<T, N> min(const Vec<T, N>& v1, const Vec<T, N>& v2) {
         Vec<T, N> result;
-        for (int i = 0; i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             result[i] = std::min(v1[i], v2[i]);
         }
         return result;
@@ -46,18 +46,17 @@ namespace corn {
      * @param v2 The second vector.
      * @return The vector formed by the maximum values in each direction.
      */
-    template <typename T, int N>
+    template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
     [[nodiscard]] Vec<T, N> max(const Vec<T, N>& v1, const Vec<T, N>& v2) {
         Vec<T, N> result;
-        for (int i = 0; i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             result[i] = std::max(v1[i], v2[i]);
         }
         return result;
     }
 
     /**
-     * @tparam T Numeric type. Can be int, size_t, or float.
      * @param minimum Minimum bound of the range.
      * @param value Original unclamped value.
      * @param maximum Maximum bound of the range.
@@ -79,11 +78,11 @@ namespace corn {
      * @param maximum Maximum bound of the range.
      * @return The point inside rectangle formed by [minimum, maximum] closest to the original value.
      */
-    template <typename T, int N>
+    template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
     [[nodiscard]] Vec<T, N> clamp(const Vec<T, N>& minimum, const Vec<T, N>& value, const Vec<T, N>& maximum) {
         Vec<T, N> result;
-        for (int i = 0; i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             result[i] = clamp(minimum[i], value[i], maximum[i]);
         }
         return result;
@@ -94,11 +93,11 @@ namespace corn {
      * @param vec2 Second vector.
      * @return Dot product of the two vectors.
      */
-    template <typename T, int N>
+    template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
     [[nodiscard]] T dot(const Vec<T, N>& vec1, const Vec<T, N>& vec2) noexcept {
         T result = 0;
-        for (int i = 0; i < N; i++) {
+        for (size_t i = 0; i < N; i++) {
             result += vec1[i] * vec2[i];
         }
         return result;
@@ -135,7 +134,7 @@ namespace corn {
      * @param v2 Second vector.
      * @return Euclidean distance between the two vectors.
      */
-    template <typename T, int N>
+    template <typename T, size_t N>
     float dist(const Vec<T, N>& v1, const Vec<T, N>& v2) noexcept {
         return (v1 - v2).norm();
     }
