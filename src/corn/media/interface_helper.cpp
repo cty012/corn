@@ -12,8 +12,10 @@ namespace corn {
             const CTransform2D& cTransform, const CSprite& cSprite,
             const Vec2f& cameraOffset, const Vec2f&, const sf::Transform& scaleTransform) {
 
-        auto [worldLocation, worldRotation] = cTransform.getWorldTransform();
-        Vec2f anc = worldLocation - cameraOffset;
+        Transform2D worldTransform = cTransform.getWorldTransform();
+        Vec2f worldTranslation = worldTransform.getTranslationComponent();
+        Deg worldRotation = worldTransform.getRotationComponent();
+        Vec2f anc = worldTranslation - cameraOffset;
         Vec2f loc = cSprite.location;
         Vec2f scale = cSprite.image->impl_->scale;
         if (cSprite.image->impl_->type == ImageType::SVG) {
@@ -40,8 +42,10 @@ namespace corn {
             const CTransform2D& cTransform, const std::vector<Vec2f>& vertices, float thickness, const Color& color, bool closed,
             const Vec2f& cameraOffset, const Vec2f& cameraScale, const sf::Transform& scaleTransform) {
 
-        auto [worldLocation, worldRotation] = cTransform.getWorldTransform();
-        Vec2f anc = worldLocation - cameraOffset;
+        Transform2D worldTransform = cTransform.getWorldTransform();
+        Vec2f worldTranslation = worldTransform.getTranslationComponent();
+        Deg worldRotation = worldTransform.getRotationComponent();
+        Vec2f anc = worldTranslation - cameraOffset;
         const auto [r, g, b, a] = color.getRGBA();  // NOLINT
 
         for (size_t i = 0; (closed ? i : i + 1) < vertices.size(); i++) {
@@ -92,8 +96,10 @@ namespace corn {
             }
         } else {
             // Draw polygon and fill inside
-            auto [worldLocation, worldRotation] = cTransform.getWorldTransform();
-            Vec2f anc = worldLocation - cameraOffset;
+            Transform2D worldTransform = cTransform.getWorldTransform();
+            Vec2f worldTranslation = worldTransform.getTranslationComponent();
+            Deg worldRotation = worldTransform.getRotationComponent();
+            Vec2f anc = worldTranslation - cameraOffset;
             const auto [r, g, b, a] = cPolygon.color.getRGBA(); // NOLINT
 
             sf::Transform rotateTransform;
@@ -121,8 +127,10 @@ namespace corn {
 
         (void)cameraScale;
 
-        auto [worldLocation, worldRotation] = cTransform.getWorldTransform();
-        Vec2f anc = worldLocation - cameraOffset;
+        Transform2D worldTransform = cTransform.getWorldTransform();
+        Vec2f worldTranslation = worldTransform.getTranslationComponent();
+        Deg worldRotation = worldTransform.getRotationComponent();
+        Vec2f anc = worldTranslation - cameraOffset;
         Vec2f location(cText.getX(), cText.getY());
         Vec2f textSize = cText.textRender.getSize();
 

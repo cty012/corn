@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <format>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -139,10 +140,20 @@ namespace corn {
         return (v1 - v2).norm();
     }
 
-    /// @brief Rotate a 2D point.
+    /**
+     * @param point The point to be rotated.
+     * @param deg The angle of rotation in degrees.
+     * @return The rotated point.
+     */
     [[nodiscard]] Vec2f rotate(const Vec2f& point, const Deg& deg) noexcept;
 
-    /// @brief Rotate a 3D point.
+    /**
+     * @param point The point to be rotated.
+     * @param quaternion The quaternion representing the rotation.
+     * @return The rotated point.
+     *
+     * The quaternion is assumed to be normalized.
+     */
     [[nodiscard]] Vec3f rotate(const Vec3f& point, const Quaternion& quaternion) noexcept;
 
     // Template definitions

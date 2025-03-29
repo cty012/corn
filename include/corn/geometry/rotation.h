@@ -45,16 +45,18 @@ namespace corn {
      * @see EulerAngles
      */
     struct Quaternion {
-        Vec<float, 4> val;
+        Vec4f val;
 
-        /// @brief Construct from Vec4.
-        Quaternion(Vec<float, 4> val) noexcept;  // NOLINT
+        /// @brief Construct from Vec4f.
+        explicit Quaternion(Vec4f val) noexcept;
 
         /// @brief Construct from the four components.
         Quaternion(float a, float b, float c, float d) noexcept;
 
         /// @brief Construct from rotation around an axis.
-        Quaternion(const Deg& theta, const Vec<float, 3>& axis) noexcept;
+        Quaternion(const Deg& theta, const Vec3f& axis) noexcept;
+
+        static const Quaternion& I() noexcept;
 
         /// @return 2-norm of the quaternion.
         [[nodiscard]] float norm() const noexcept;

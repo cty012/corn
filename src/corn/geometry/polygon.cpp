@@ -222,7 +222,7 @@ namespace corn {
 
         // Reset
         this->area_ = 0.0f;
-        this->centroid_ = Vec2f::ZERO();
+        this->centroid_ = Vec2f::O();
 
         // Skip if the polygon is empty
         if (this->getType() == PolygonType::EMPTY) {
@@ -244,7 +244,7 @@ namespace corn {
     void Polygon::calcBBox() const {
         // Skip if the polygon is invalid/empty
         if (this->getType() == PolygonType::INVALID || this->getType() == PolygonType::EMPTY) {
-            this->bbox_ = { Vec2f::ZERO(), Vec2f::ZERO() };
+            this->bbox_ = { Vec2f::O(), Vec2f::O() };
             this->bboxDirty_ = false;
             return;
         }

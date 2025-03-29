@@ -259,8 +259,9 @@ namespace corn {
             }
 
             // Calculate the world position
-            Vec2f cameraCenter = camera->getEntity().getComponent<CTransform2D>()->getWorldTransform().first +
-                                camera->anchor.to<2>();
+            Vec2f cameraCenter =
+                    camera->getEntity().getComponent<CTransform2D>()->getWorldTransform().getTranslationComponent() +
+                    camera->anchor.to<2>();
             Vec2f fovSize(camera->fovW.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale),
                          camera->fovH.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale));
             Vec2f scale(fovSize.x / viewportSize.x, fovSize.y / viewportSize.y);

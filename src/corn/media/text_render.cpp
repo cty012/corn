@@ -35,7 +35,7 @@ namespace corn {
         }
 
         // Find total size
-        this->size = Vec2f::ZERO();
+        this->size = Vec2f::O();
         if (this->limitWidth) {
             this->size.x = width;
             for (Line& line : this->lines) {

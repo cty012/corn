@@ -14,7 +14,8 @@ namespace corn {
 
     // Mixin for x, y access (N == 2)
     template <typename T>
-    struct HasXY {
+    class HasXY {
+    public:
         T& x;
         T& y;
 
@@ -23,7 +24,8 @@ namespace corn {
 
     // Mixin for x, y, z access (N == 3)
     template <typename T>
-    struct HasXYZ {
+    class HasXYZ {
+    public:
         T& x;
         T& y;
         T& z;
@@ -34,7 +36,8 @@ namespace corn {
     // Mixin for x, y, z, w access (N == 4)
     template <typename T>
     requires(Numeric<T>)
-    struct HasXYZW {
+    class HasXYZW {
+    public:
         T& x;
         T& y;
         T& z;
@@ -44,7 +47,8 @@ namespace corn {
     };
 
     // Mixin for other dimensions (N = 1 or N > 4)
-    struct HasNoXYZW {
+    class HasNoXYZW {
+    public:
         template <typename T, size_t N>
         requires(Numeric<T> && (N == 1 || N > 4))
         explicit HasNoXYZW(std::array<T, N>&) noexcept {}
@@ -68,7 +72,8 @@ namespace corn {
      */
     template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
-    struct Vec : VecMixin<T, N> {
+    class Vec : public VecMixin<T, N> {
+    public:
         /// @brief Constructor.
         Vec() : VecMixin<T, N>(this->data_), data_{} {}
 
@@ -99,53 +104,45 @@ namespace corn {
         }
 
         /// @brief Zero vector.
-        static const Vec& ZERO() noexcept {
-            static const Vec zero;
+        [[nodiscard]] static const Vec<T, N>& O() noexcept {
+            static const Vec<T, N> zero;
             return zero;
         }
 
-        /// @brief Unit vector in the X direction.
-        static const Vec& UNIT_X() noexcept
-        requires(N >= 2 && N <= 4) {
-            static const Vec unitX = [] {
-                Vec v;
-                v.x = static_cast<T>(1);
+        /// @brief Unit vector in the given direction.
+        template <size_t M>
+        requires(M < N)
+        [[nodiscard]] static const Vec<T, N>& E() noexcept {
+            static const Vec<T, N> unit = [] {
+                Vec<T, N> v;
+                v[M] = static_cast<T>(1);
                 return v;
             }();
-            return unitX;
+            return unit;
+        }
+
+        /// @brief Unit vector in the X direction.
+        [[nodiscard]] static const Vec<T, N>& E_X() noexcept
+        requires(N >= 2 && N <= 4) {
+            return E<0>();
         }
 
         /// @brief Unit vector in the Y direction.
-        static const Vec& UNIT_Y() noexcept
+        [[nodiscard]] static const Vec<T, N>& E_Y() noexcept
         requires(N >= 2 && N <= 4) {
-            static const Vec unitY = [] {
-                Vec v;
-                v.y = static_cast<T>(1);
-                return v;
-            }();
-            return unitY;
+            return E<1>();
         }
 
         /// @brief Unit vector in the Z direction.
-        static const Vec& UNIT_Z() noexcept
+        [[nodiscard]] static const Vec<T, N>& E_Z() noexcept
         requires(N >= 3 && N <= 4) {
-            static const Vec unitZ = [] {
-                Vec v;
-                v.z = static_cast<T>(1);
-                return v;
-            }();
-            return unitZ;
+            return E<2>();
         }
 
         /// @brief Unit vector in the W direction.
-        static const Vec& UNIT_W() noexcept
+        [[nodiscard]] static const Vec<T, N>& E_W() noexcept
         requires(N == 4) {
-            static const Vec unitW = [] {
-                Vec v;
-                v.w = static_cast<T>(1);
-                return v;
-            }();
-            return unitW;
+            return E<3>();
         }
 
         /**
@@ -226,6 +223,30 @@ namespace corn {
             return this->to<T, M>();
         }
 
+        /**
+         * @tparam M Number of elements to prepend.
+         * @param args Elements to prepend.
+         * @return New vector with prepended elements.
+         */
+        template <size_t M, typename... Args>
+        requires(M > 0 && sizeof...(Args) == M && std::conjunction_v<std::is_convertible<Args, T>...>)
+        [[nodiscard]] Vec<T, N + M> prepend(Args... args) const noexcept {
+            Vec<T, N + M> result;
+            T prepended[] = { static_cast<T>(args)... };
+            for (size_t i = 0; i < M; i++) {
+                result[i] = prepended[i];
+            }
+            for (size_t i = 0; i < N; i++) {
+                result[M + i] = this->data_[i];
+            }
+            return result;
+        }
+
+        /**
+         * @tparam M Number of elements to append.
+         * @param args Elements to append.
+         * @return New vector with appended elements.
+         */
         template <size_t M, typename... Args>
         requires(M > 0 && sizeof...(Args) == M && std::conjunction_v<std::is_convertible<Args, T>...>)
         [[nodiscard]] Vec<T, N + M> append(Args... args) const noexcept {
@@ -240,14 +261,25 @@ namespace corn {
             return result;
         }
 
-        [[nodiscard]] T norm() const noexcept {
+        /// @return Norm of the vector.
+        [[nodiscard]] float norm() const noexcept {
             T sum = 0;
             for (const T& val : this->data_) {
                 sum += val * val;
             }
-            return std::sqrt(sum);
+            return (float)std::sqrt(sum);
         }
 
+        /// @return Squared norm of the vector.
+        [[nodiscard]] T norm2() const noexcept {
+            T sum = 0;
+            for (const T& val : this->data_) {
+                sum += val * val;
+            }
+            return sum;
+        }
+
+        /// @return Normalized vector.
         [[nodiscard]] Vec normalize() const noexcept
         requires std::is_floating_point_v<T> {
             T n = this->norm();

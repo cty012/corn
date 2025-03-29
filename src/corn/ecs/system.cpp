@@ -33,7 +33,7 @@ namespace corn {
             auto transform = entity->getComponent<CTransform2D>();
             auto movement = entity->getComponent<CMovement2D>();
             if (!transform->active || !movement->active) continue;
-            transform->addWorldLocationOffset(movement->velocity * (millis / 1000.0f));
+            transform->addWorldTranslationOffset(movement->velocity * (millis / 1000.0f));
             transform->rotation += movement->angularVelocity * (millis / 1000.0f);
         }
     }

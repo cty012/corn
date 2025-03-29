@@ -8,6 +8,7 @@
     "glfw3",
     "freetype",
     "icu",
+    "eigen3",
     "nanosvg",
     "boost-geometry",
     "earcut-hpp"

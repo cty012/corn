@@ -12,18 +12,16 @@ namespace corn {
     using ring_t = bg::model::ring<point_t>;
 
     Vec2f rotate(const Vec2f& point, const Deg& deg) noexcept {
-        float cdeg = deg.cos();
-        float sdeg = deg.sin();
+        float cosDeg = deg.cos();
+        float sinDeg = deg.sin();
         return Vec2f(
-            point.x * cdeg - point.y * sdeg,
-            point.x * sdeg + point.y * cdeg
+            point.x * cosDeg - point.y * sinDeg,
+            point.x * sinDeg + point.y * cosDeg
         );
     }
 
     Vec3f rotate(const Vec3f& point, const Quaternion& quaternion) noexcept {
-        Quaternion p = { 0, point.x, point.y, point.z };
-        Vec4f result = (quaternion * p * quaternion.inv()).val;
-        return Vec3f(result.y, result.z, result.w);
+        return (quaternion * Quaternion(point.append<1>(0.0f)) * quaternion.inv()).val.to<3>();
     }
 
     float triangleArea(const Vec2f& v1, const Vec2f& v2, const Vec2f& v3) noexcept {

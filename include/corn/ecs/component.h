@@ -4,6 +4,7 @@
 #include <corn/ecs/entity.h>
 #include <corn/geometry/deg.h>
 #include <corn/geometry/polygon.h>
+#include <corn/geometry/transform.h>
 #include <corn/geometry/vec.h>
 #include <corn/media/camera_viewport.h>
 #include <corn/media/text_render.h>
@@ -66,23 +67,35 @@ namespace corn {
      * @see SMovement2D
      */
     struct CTransform2D : public Component {
-        /// @brief Location of the entity in its parent's reference frame.
-        Vec2f location;
+        /// @brief Translation of the entity in its parent's reference frame.
+        Vec2f translation;
 
         /// @brief Rotation of the entity in its parent's reference frame.
         Deg rotation;
 
+        /// @brief Dilation of the entity in its parent's reference frame.
+        Vec2f dilation;
+
         /// @brief Constructor.
-        CTransform2D(Entity& entity, Vec2f location, Deg rotation = Deg()) noexcept;
+        explicit CTransform2D(Entity& entity) noexcept;
+
+        /// @brief Constructor.
+        CTransform2D(Entity& entity, Vec2f translation, Deg rotation, Vec2f dilation) noexcept;
+
+        /// @return The transform in the parent's reference frame.
+        [[nodiscard]] Transform2D getLocalTransform() const noexcept;
+
+        /// @return The transform in the parent's reference frame, including all ancestors.
+        [[nodiscard]] Transform2D getParentTransform() const noexcept;
 
         /// @return The transform in the world's reference frame.
-        [[nodiscard]] std::pair<Vec2f, Deg> getWorldTransform() const noexcept;
+        [[nodiscard]] Transform2D getWorldTransform() const noexcept;
 
-        /// @brief Set the location of the entity in the world's reference frame.
-        void setWorldLocation(Vec2f worldLocation) noexcept;
+        /// @brief Set the translation of the entity in the world's reference frame.
+        void setWorldTranslation(const Vec2f& worldTranslation) noexcept;
 
-        /// @brief Adds an offset to the location of the entity in the world's reference frame.
-        void addWorldLocationOffset(Vec2f offset) noexcept;
+        /// @brief Adds an offset to the translation of the entity in the world's reference frame.
+        void addWorldTranslationOffset(const Vec2f& offset) noexcept;
 
         /// @brief Getter of the z-order of the entity.
         [[nodiscard]] int getZOrder() const noexcept;
@@ -139,7 +152,7 @@ namespace corn {
         bool closed;
 
         /// @brief Constructor.
-        CLines(Entity& entity, std::vector<Vec2f> vertices, float thickness, const Color& color, bool closed = false) noexcept;
+        CLines(Entity& entity, std::vector<Vec2f> vertices, float thickness, Color color, bool closed = false) noexcept;
     };
 
     struct CPolygon : public Component {
@@ -152,7 +165,7 @@ namespace corn {
         Color color;
 
         /// @brief Constructor.
-        CPolygon(Entity& entity, Polygon polygon, float thickness, const Color& color) noexcept;
+        CPolygon(Entity& entity, Polygon polygon, float thickness, Color color) noexcept;
     };
 
     /**
@@ -172,7 +185,7 @@ namespace corn {
         Vec2f location;
 
         /// @brief Constructor.
-        CSprite(Entity& entity, Image* image, Vec2f location = Vec2f::ZERO()) noexcept;
+        CSprite(Entity& entity, Image* image, Vec2f location = Vec2f::O()) noexcept;
 
         /// @brief Destructor.
         ~CSprite() override;
@@ -226,16 +239,20 @@ namespace corn {
         float angularVelocity;
 
         /// @brief Constructor.
-        explicit CMovement2D(Entity& entity, Vec2f velocity = Vec2f::ZERO(), float angularVelocity = 0.0f) noexcept;
+        explicit CMovement2D(Entity& entity, Vec2f velocity = Vec2f::O(), float angularVelocity = 0.0f) noexcept;
 
-        /// @return The velocities in the world's reference frame.
-        [[nodiscard]] std::pair<Vec2f, float> getWorldMovement() const noexcept;
+        /**
+         * @return The velocity in the world's reference frame.
+         *
+         * Angular velocity is only valid for rigid body motions. Affine transformations are not supported.
+         */
+        [[nodiscard]] Vec2f getWorldVelocity() const noexcept;
 
         /// @brief Set the linear velocity of the entity in the world's reference frame.
-        void setWorldVelocity(Vec2f worldVelocity) noexcept;
+        void setWorldVelocity(const Vec2f& worldVelocity) noexcept;
 
         /// @brief Adds an offset to the linear velocity of the entity in the world's reference frame.
-        void addWorldVelocityOffset(Vec2f offset) noexcept;
+        void addWorldVelocityOffset(const Vec2f& offset) noexcept;
     };
 
     /**
@@ -299,7 +316,7 @@ namespace corn {
         float scale;
 
         /// @brief Constructor for 2D camera.
-        CCamera(Entity& entity, Vec2f anchor, Color background = Color::rgb(0, 0, 0, 0)) noexcept;
+        CCamera(Entity& entity, const Vec2f& anchor, Color background = Color::rgb(0, 0, 0, 0)) noexcept;
 
         /// @brief Constructor for 3D camera.
         CCamera(Entity& entity, Vec3f anchor, Color background = Color::rgb(0, 0, 0, 0)) noexcept;

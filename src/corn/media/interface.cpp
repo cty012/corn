@@ -233,11 +233,13 @@ namespace corn {
 
         // Reset the camera viewport
         camera->viewport.impl_->setSize(viewportSize, this->game_.getConfig().antialiasing);
-        const auto [r, g, b, a] = camera->background.getRGBA();
+        const auto [r, g, b, a] = camera->background.getRGBA();  // NOLINT
         camera->viewport.impl_->texture.clear(sf::Color(r, g, b, a));
 
         // Calculate location of camera
-        Vec2f cameraCenter = camera->getEntity().getComponent<CTransform2D>()->getWorldTransform().first + camera->anchor.to<2>();
+        Vec2f cameraCenter =
+                camera->getEntity().getComponent<CTransform2D>()->getWorldTransform().getTranslationComponent() +
+                camera->anchor.to<2>();
 
         // Return the location and scale
         return { cameraCenter - fovSize * 0.5, Vec2f(viewportSize.x / fovSize.x, viewportSize.y / fovSize.y) };
@@ -317,7 +319,7 @@ namespace corn {
         std::unordered_map<const UIWidget*, float> opacities;
         std::unordered_map<const UIWidget*, std::pair<Vec2f, Vec2f>> subviewports;
         opacities[nullptr] = 1.0f;
-        subviewports[nullptr] = { Vec2f::ZERO(), windowSize };
+        subviewports[nullptr] = { Vec2f::O(), windowSize };
 
         // Render
         for (UIWidget* widget : widgets) {
@@ -394,7 +396,7 @@ namespace corn {
                         }
 
                         for (const auto& [text, color] : line.contents) {
-                            const auto [segR, segG, segB, segA] = color.getRGBA();
+                            const auto [segR, segG, segB, segA] = color.getRGBA(); // NOLINT
                             auto& mutText = const_cast<sf::Text&>(text);
                             mutText.setPosition(std::round(segX), std::round(segY + textRender.getLinePadding()));
                             mutText.setFillColor(sf::Color(
