@@ -26,6 +26,30 @@ namespace corn::test::mat {
         EXPECT_FLOAT_EQ(mat3[1][0], 4.0f);
         EXPECT_FLOAT_EQ(mat3[1][1], 5.0f);
         EXPECT_FLOAT_EQ(mat3[1][2], 6.0f);
+
+        Mat<2, 3> mat4(std::vector<float>{ 1.0f, 2.0f });
+        EXPECT_FLOAT_EQ(mat4[0][0], 1.0f);
+        EXPECT_FLOAT_EQ(mat4[0][1], 2.0f);
+        EXPECT_FLOAT_EQ(mat4[0][2], 0.0f);
+        EXPECT_FLOAT_EQ(mat4[1][0], 0.0f);
+        EXPECT_FLOAT_EQ(mat4[1][1], 0.0f);
+        EXPECT_FLOAT_EQ(mat4[1][2], 0.0f);
+
+        Mat<2, 3> mat5(std::vector<float>{ 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f });
+        EXPECT_FLOAT_EQ(mat5[0][0], 1.0f);
+        EXPECT_FLOAT_EQ(mat5[0][1], 2.0f);
+        EXPECT_FLOAT_EQ(mat5[0][2], 3.0f);
+        EXPECT_FLOAT_EQ(mat5[1][0], 4.0f);
+        EXPECT_FLOAT_EQ(mat5[1][1], 5.0f);
+        EXPECT_FLOAT_EQ(mat5[1][2], 6.0f);
+
+        Mat<2, 3> mat6(std::vector<float>{ 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f });
+        EXPECT_FLOAT_EQ(mat6[0][0], 1.0f);
+        EXPECT_FLOAT_EQ(mat6[0][1], 2.0f);
+        EXPECT_FLOAT_EQ(mat6[0][2], 3.0f);
+        EXPECT_FLOAT_EQ(mat6[1][0], 4.0f);
+        EXPECT_FLOAT_EQ(mat6[1][1], 5.0f);
+        EXPECT_FLOAT_EQ(mat6[1][2], 6.0f);
     }
 
     TEST(Mat, constants) {

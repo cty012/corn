@@ -5,8 +5,11 @@
 #include <cmath>
 #include <concepts>
 #include <cstdint>
+#include <format>
+#include <ranges>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 namespace corn {
     template <typename T>
@@ -82,6 +85,16 @@ namespace corn {
         requires(sizeof...(Args) == N && std::conjunction_v<std::is_convertible<Args, T>...>)
         explicit Vec(Args... args) noexcept
                 : VecMixin<T, N>(this->data_), data_{{ static_cast<T>(std::forward<Args>(args))... }} {}
+
+        /// @brief Constructor.
+        explicit Vec(const std::vector<T>& data) noexcept : VecMixin<T, N>(this->data_) {
+            if (data.size() <= N) {
+                std::ranges::copy(data, this->data_.begin());
+                std::fill(this->data_.begin() + data.size(), this->data_.end(), static_cast<T>(0));
+            } else {
+                std::ranges::copy_n(data.begin(), N, this->data_.begin());
+            }
+        }
 
         /// @brief Copy Constructor.
         Vec(const Vec<T, N>& other) noexcept : VecMixin<T, N>(this->data_), data_(other.data_) {}
@@ -280,7 +293,7 @@ namespace corn {
         }
 
         /// @return Normalized vector.
-        [[nodiscard]] Vec normalize() const noexcept
+        [[nodiscard]] Vec<T, N> normalize() const noexcept
         requires std::is_floating_point_v<T> {
             T n = this->norm();
             return n == 0 ? *this : *this * (1 / n);
@@ -469,6 +482,73 @@ namespace corn {
     requires(Numeric<T> && N > 0)
     bool operator!=(const Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
         return !(lhs == rhs);
+    }
+
+    /**
+     * @param vec The vector.
+     * @return The string representation of the vector.
+     */
+    template <typename T, size_t N>
+    requires(Numeric<T> && N > 0)
+    [[nodiscard]] std::string toString(const Vec<T, N>& vec) {
+        std::string result = "<";
+        for (size_t i = 0; i < N; i++) {
+            if (i) result += ", ";
+            result += std::format("{}", vec[i]);
+        }
+        result += ">";
+        return result;
+    }
+
+    /**
+     * @param vec1 First vector.
+     * @param vec2 Second vector.
+     * @return Dot product of the two vectors.
+     */
+    template <typename T, size_t N>
+    requires(Numeric<T> && N > 0)
+    [[nodiscard]] T dot(const Vec<T, N>& vec1, const Vec<T, N>& vec2) noexcept {
+        T result = 0;
+        for (size_t i = 0; i < N; i++) {
+            result += vec1[i] * vec2[i];
+        }
+        return result;
+    }
+
+    /**
+     * @param v1 First 2D vector.
+     * @param v2 Second 2D vector.
+     * @return Cross product of the two vectors.
+     */
+    template <typename T>
+    requires(Numeric<T>)
+    [[nodiscard]] T cross(const Vec<T, 2>& v1, const Vec<T, 2>& v2) noexcept {
+        return v1.x * v2.y - v1.y * v2.x;
+    }
+
+    /**
+     * @param v1 First 3D vector.
+     * @param v2 Second 3D vector.
+     * @return Cross product of the two vectors.
+     */
+    template <typename T>
+    requires(Numeric<T>)
+    [[nodiscard]] Vec<T, 3> cross(const Vec<T, 3>& v1, const Vec<T, 3>& v2) noexcept {
+        return Vec<T, 3>(
+                v1.y * v2.z - v1.z * v2.y,
+                v1.z * v2.x - v1.x * v2.z,
+                v1.x * v2.y - v1.y * v2.x
+        );
+    }
+
+    /**
+     * @param v1 First vector.
+     * @param v2 Second vector.
+     * @return Euclidean distance between the two vectors.
+     */
+    template <typename T, size_t N>
+    float dist(const Vec<T, N>& v1, const Vec<T, N>& v2) noexcept {
+        return (v1 - v2).norm();
     }
 
     // Aliases

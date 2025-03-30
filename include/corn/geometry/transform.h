@@ -26,7 +26,7 @@ namespace corn {
         Transform2D(const Vec2f& translation, const Deg& rotation, const Vec2f& dilation) noexcept;
 
         /// @brief Constructor.
-        explicit Transform2D(Mat3f mat) noexcept;
+        explicit Transform2D(Mat3f mat);
 
         /// @return The identity 2D transform.
         [[nodiscard]] static const Transform2D& I() noexcept;
@@ -80,7 +80,7 @@ namespace corn {
         [[nodiscard]] Deg getRotationComponent() const noexcept;
 
         /// @return The dilational component of the transformation matrix.
-        [[nodiscard]] Vec2f getDilationComponent() const noexcept;
+        [[nodiscard]] Mat2f getDilationComponent() const noexcept;
 
     private:
         Mat3f mat_;
@@ -106,7 +106,7 @@ namespace corn {
         Transform3D(const Vec3f& translation, const Quaternion& rotation, const Vec3f& dilation) noexcept;
 
         /// @brief Constructor.
-        explicit Transform3D(Mat4f mat) noexcept;
+        explicit Transform3D(Mat4f mat);
 
         /// @return The identity 3D transform.
         [[nodiscard]] static const Transform3D& I() noexcept;
@@ -153,7 +153,7 @@ namespace corn {
         [[nodiscard]] Quaternion getRotationComponent() const noexcept;
 
         /// @return The dilational component of the transformation matrix.
-        [[nodiscard]] Vec3f getDilationComponent() const noexcept;
+        [[nodiscard]] Mat3f getDilationComponent() const noexcept;
 
     private:
         Mat4f mat_;

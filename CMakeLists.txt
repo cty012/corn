@@ -102,8 +102,6 @@ target_link_libraries(corn PRIVATE ICU::uc ICU::i18n ICU::data)
 # Link with Eigen3
 find_package(Eigen3 REQUIRED NO_MODULE)
 target_link_libraries(corn PRIVATE Eigen3::Eigen)
-message(Eigen3: "${EIGEN3_INCLUDE_DIRS}")
-target_include_directories(corn PRIVATE "/Users/cty012/Documents/programs/cpp/corn/cmake-build-debug/vcpkg_installed/arm64-osx/include/eigen3")
 
 # Link with NanoSVG
 find_package(NanoSVG CONFIG REQUIRED)

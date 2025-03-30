@@ -2,13 +2,15 @@
 
 #include <array>
 #include <concepts>
+#include <format>
 #include <vector>
 #include <corn/geometry/vec.h>
 
 namespace corn {
     // Helper functions
-    std::vector<float> invHelper(size_t N, const std::vector<float>& input) noexcept;
-    float detHelper(size_t N, const std::vector<float>& input) noexcept;
+    void invHelper(size_t N, const std::vector<float>& mat, std::vector<float>& inv) noexcept;
+    void detHelper(size_t N, const std::vector<float>& mat, float det) noexcept;
+    void svdHelper(size_t M, size_t N, const std::vector<float>& mat, std::vector<float>& U, std::vector<float>& S, std::vector<float>& V) noexcept;
 
     template <size_t M, size_t N>
     class Mat {
@@ -31,6 +33,18 @@ namespace corn {
         requires(sizeof...(Args) == M && std::conjunction_v<std::is_same<Args, Vec<float, N>>...>)
         explicit Mat(Args... args) noexcept : data_{ std::forward<Args>(args)... } {}
 
+        explicit Mat(const std::vector<float>& flattened) noexcept : data_() {
+            size_t index = 0;
+            for (size_t i = 0; i < M; i++) {
+                for (size_t j = 0; j < N; j++) {
+                    if (index >= flattened.size()) {
+                        break;
+                    }
+                    this->data_[i][j] = flattened[index++];
+                }
+            }
+        }
+
         [[nodiscard]] static const Mat& O() noexcept {
             static const Mat zero;
             return zero;
@@ -46,6 +60,15 @@ namespace corn {
                 return mat;
             }();
             return identity;
+        }
+
+        [[nodiscard]] static Mat diag(const Vec<float, M>& diag) noexcept
+        requires(M == N) {
+            Mat mat;
+            for (size_t i = 0; i < M; i++) {
+                mat.data_[i][i] = diag[i];
+            }
+            return mat;
         }
 
         [[nodiscard]] size_t rows() const noexcept {
@@ -104,6 +127,17 @@ namespace corn {
             return this->data_.at(r).at(c);
         }
 
+        [[nodiscard]] std::vector<float> flatten() const noexcept {
+            std::vector<float> flattened;
+            flattened.reserve(M * N);
+            for (size_t i = 0; i < M; ++i) {
+                for (size_t j = 0; j < N; ++j) {
+                    flattened.push_back(this->data_[i][j]);
+                }
+            }
+            return flattened;
+        }
+
         [[nodiscard]] Mat<N, M> T() const noexcept {
             Mat<N, M> transposed;
             for (size_t i = 0; i < M; ++i) {
@@ -146,14 +180,8 @@ namespace corn {
                 result[2][2] =  (data_[0][0] * data_[1][1] - data_[0][1] * data_[1][0]) * invDet;
                 return result;
             } else {
-                std::vector<float> flattened;
-                flattened.reserve(M * N);
-                for (size_t i = 0; i < M; ++i) {
-                    for (size_t j = 0; j < N; ++j) {
-                        flattened.push_back(this->data_[i][j]);
-                    }
-                }
-                std::vector<float> invFlattened = invHelper(M, flattened);
+                std::vector<float> flattened = this->flatten(), invFlattened;
+                invHelper(M, flattened, invFlattened);
                 Mat<M, N> result;
                 for (size_t i = 0; i < M; ++i) {
                     for (size_t j = 0; j < N; ++j) {
@@ -234,14 +262,35 @@ namespace corn {
                                 - data_[1][1] * (data_[2][0] * data_[3][2] - data_[2][2] * data_[3][0])
                                 + data_[1][2] * (data_[2][0] * data_[3][1] - data_[2][1] * data_[3][0]));
             } else {
-                std::vector<float> flattened;
-                flattened.reserve(M * N);
-                for (size_t i = 0; i < M; ++i) {
-                    for (size_t j = 0; j < N; ++j) {
-                        flattened.push_back(this->data_[i][j]);
+                std::vector<float> flattened = this->flatten();
+                float det;
+                detHelper(N, flattened, det);
+                return det;
+            }
+        }
+
+        void svd(Mat<M, M>* U, Vec<float, (M < N ? M : N)>* S, Mat<N, N>* V) const noexcept {
+            std::vector<float> flattened = this->flatten();
+            std::vector<float> u, s, v;
+            svdHelper(M, N, flattened, u, s, v);
+            if (U) {
+                for (size_t i = 0; i < M; i++) {
+                    for (size_t j = 0; j < M; j++) {
+                        (*U)[i][j] = u[i * M + j];
                     }
                 }
-                return detHelper(N, flattened);
+            }
+            if (S) {
+                for (size_t i = 0; i < (M < N ? M : N); i++) {
+                    (*S)[i] = s[i];
+                }
+            }
+            if (V) {
+                for (size_t i = 0; i < N; i++) {
+                    for (size_t j = 0; j < N; j++) {
+                        (*V)[i][j] = v[i * N + j];
+                    }
+                }
             }
         }
 
@@ -372,6 +421,40 @@ namespace corn {
     requires(M > 0 && N > 0)
     bool operator!=(const Mat<M, N>& lhs, const Mat<M, N>& rhs) noexcept {
         return !(lhs == rhs);
+    }
+
+    /**
+     * @param mat The matrix.
+     * @param indent Indentation string before each row.
+     * @return The string representation of the matrix.
+     */
+    template <size_t M, size_t N>
+    requires(M > 0 && N > 0)
+    [[nodiscard]] std::string toString(const Mat<M, N>& mat, const std::string& indent = "") {
+        // Stringify each element
+        std::array<std::string, M * N> elements;
+        std::array<size_t, N> width{};
+        for (size_t i = 0; i < M; i++) {
+            for (size_t j = 0; j < N; j++) {
+                elements[i * N + j] = std::format("{}", mat[i][j]);
+                if (elements[i * N + j].size() > width[j]) {
+                    width[j] = elements[i * N + j].size();
+                }
+            }
+        }
+
+        // Format the string
+        std::string result;
+        for (size_t i = 0; i < M; i++) {
+            if (i) result += "\n";
+            result += indent + "[";
+            for (size_t j = 0; j < N; j++) {
+                if (j) result += ", ";
+                result += std::format("{:>{}}", elements[i * N + j], width[j]);
+            }
+            result += "]";
+        }
+        return result;
     }
 
     using Mat2f = Mat<2, 2>;

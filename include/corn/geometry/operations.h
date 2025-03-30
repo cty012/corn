@@ -1,7 +1,6 @@
 #pragma once
 
 #include <concepts>
-#include <format>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -10,22 +9,6 @@
 
 namespace corn {
     class Polygon;
-
-    /**
-     * @param vec The vector.
-     * @return The string representation of the vector.
-     */
-    template <typename T, size_t N>
-    requires(Numeric<T> && N > 0)
-    [[nodiscard]] std::string toString(const Vec<T, N>& vec) {
-        std::string result = "<";
-        for (size_t i = 0; i < N; i++) {
-            if (i) result += ", ";
-            result += std::format("{}", vec[i]);
-        }
-        result += ">";
-        return result;
-    }
 
     /**
      * @param v1 The first vector.
@@ -87,57 +70,6 @@ namespace corn {
             result[i] = clamp(minimum[i], value[i], maximum[i]);
         }
         return result;
-    }
-
-    /**
-     * @param vec1 First vector.
-     * @param vec2 Second vector.
-     * @return Dot product of the two vectors.
-     */
-    template <typename T, size_t N>
-    requires(Numeric<T> && N > 0)
-    [[nodiscard]] T dot(const Vec<T, N>& vec1, const Vec<T, N>& vec2) noexcept {
-        T result = 0;
-        for (size_t i = 0; i < N; i++) {
-            result += vec1[i] * vec2[i];
-        }
-        return result;
-    }
-
-    /**
-     * @param v1 First 2D vector.
-     * @param v2 Second 2D vector.
-     * @return Cross product of the two vectors.
-     */
-    template <typename T>
-    requires(Numeric<T>)
-    [[nodiscard]] T cross(const Vec<T, 2>& v1, const Vec<T, 2>& v2) noexcept {
-        return v1.x * v2.y - v1.y * v2.x;
-    }
-
-    /**
-     * @param v1 First 3D vector.
-     * @param v2 Second 3D vector.
-     * @return Cross product of the two vectors.
-     */
-    template <typename T>
-    requires(Numeric<T>)
-    [[nodiscard]] Vec<T, 3> cross(const Vec<T, 3>& v1, const Vec<T, 3>& v2) noexcept {
-        return Vec<T, 3>(
-            v1.y * v2.z - v1.z * v2.y,
-            v1.z * v2.x - v1.x * v2.z,
-            v1.x * v2.y - v1.y * v2.x
-        );
-    }
-
-    /**
-     * @param v1 First vector.
-     * @param v2 Second vector.
-     * @return Euclidean distance between the two vectors.
-     */
-    template <typename T, size_t N>
-    float dist(const Vec<T, N>& v1, const Vec<T, N>& v2) noexcept {
-        return (v1 - v2).norm();
     }
 
     /**

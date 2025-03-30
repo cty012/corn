@@ -3,15 +3,33 @@
 
 namespace corn::test::vec {
     TEST(Vec, default_ctor) {
-        Vec2f v;
-        EXPECT_FLOAT_EQ(v.x, 0.0f);
-        EXPECT_FLOAT_EQ(v.y, 0.0f);
-    }
+        Vec2f v1;
+        EXPECT_FLOAT_EQ(v1.x, 0.0f);
+        EXPECT_FLOAT_EQ(v1.y, 0.0f);
 
-    TEST(Vec, parameterized_ctor) {
-        Vec2f v(1.0f, 2.0f);
-        EXPECT_FLOAT_EQ(v.x, 1.0f);
-        EXPECT_FLOAT_EQ(v.y, 2.0f);
+        Vec2f v2(1.0f, 2.0f);
+        EXPECT_FLOAT_EQ(v2.x, 1.0f);
+        EXPECT_FLOAT_EQ(v2.y, 2.0f);
+
+        Vec3f v3(std::vector<float>{ 1.0f, 2.0f });
+        EXPECT_FLOAT_EQ(v3.x, 1.0f);
+        EXPECT_FLOAT_EQ(v3.y, 2.0f);
+        EXPECT_FLOAT_EQ(v3.z, 0.0f);
+
+        Vec3f v4(std::vector<float>{ 1.0f, 2.0f, 3.0f });
+        EXPECT_FLOAT_EQ(v4.x, 1.0f);
+        EXPECT_FLOAT_EQ(v4.y, 2.0f);
+        EXPECT_FLOAT_EQ(v4.z, 3.0f);
+
+        Vec4f v5(std::vector<float>{ 1.0f, 2.0f, 3.0f, 4.0f });
+        EXPECT_FLOAT_EQ(v5.x, 1.0f);
+        EXPECT_FLOAT_EQ(v5.y, 2.0f);
+        EXPECT_FLOAT_EQ(v5.z, 3.0f);
+
+        Vec2f v6(1.0f, 2.0f);
+        Vec2f v7(v6);
+        EXPECT_FLOAT_EQ(v7.x, 1.0f);
+        EXPECT_FLOAT_EQ(v7.y, 2.0f);
     }
 
     TEST(Vec, constants) {

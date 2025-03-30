@@ -1,6 +1,14 @@
 #include <corn/util/exceptions.h>
 
 namespace corn {
+    InvalidTransform::InvalidTransform(const std::string& msg) noexcept {
+        this->msg_ = "Invalid transformation matrix:\n" + msg + "\n";
+    }
+
+    const char* InvalidTransform::what() const noexcept {
+        return this->msg_.c_str();
+    }
+
     ResourceLoadFailed::ResourceLoadFailed(const std::string& msg) noexcept {
         this->msg_ = msg + "\n";
     }

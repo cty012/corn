@@ -1,6 +1,7 @@
 #include <corn/geometry/transform.h>
 #include <corn/geometry/operations.h>
 #include <corn/util/constants.h>
+#include <corn/util/exceptions.h>
 
 namespace corn {
     Transform2D::Transform2D() noexcept
@@ -15,8 +16,11 @@ namespace corn {
                 0.0f, 0.0f, 1.0f);
     }
 
-    Transform2D::Transform2D(Mat3f mat) noexcept
-            : mat_(std::move(mat)) {}
+    Transform2D::Transform2D(Mat3f mat) : mat_(std::move(mat)) {
+        if (this->mat_[2] != Vec3f::E<2>()) {
+            throw InvalidTransform(toString(this->mat_, "    "));
+        }
+    }
 
     const Transform2D& Transform2D::I() noexcept {
         static const Transform2D identity;
@@ -56,12 +60,25 @@ namespace corn {
     }
 
     Deg Transform2D::getRotationComponent() const noexcept {
-        // TODO: Consider non-similarity transformations
-        return atan2(this->mat_[1][0], this->mat_[0][0]) * 180.0f / (float)PI;
+        Mat2f U, V;
+        this->mat_.to<2, 2>().svd(&U, nullptr, &V);
+        Mat2f R = U * V.T();
+
+        return atan2(R[1][0], R[0][0]) * 180.0f / (float)PI;
     }
 
-    Vec2f Transform2D::getDilationComponent() const noexcept {
-        return Vec2f(this->mat_.col(0).norm(), this->mat_.col(1).norm());
+    Mat2f Transform2D::getDilationComponent() const noexcept {
+        Mat2f U, V;
+        Vec2f S;
+        this->mat_.to<2, 2>().svd(&U, &S, &V);
+        Mat2f R = U * V.T();
+
+        // Check for reflection
+        if (R.det() < 0.0f) {
+            S[1] = -S[1];
+        }
+
+        return V * Mat2f::diag(S) * V.T();
     }
 
     Transform3D::Transform3D() noexcept
@@ -75,8 +92,11 @@ namespace corn {
         ).getMat();
     }
 
-    Transform3D::Transform3D(Mat4f mat) noexcept
-            : mat_(std::move(mat)) {}
+    Transform3D::Transform3D(Mat4f mat) : mat_(std::move(mat)) {
+        if (this->mat_[3] != Vec4f::E<3>()) {
+            throw InvalidTransform(toString(this->mat_, "    "));
+        }
+    }
 
     const Transform3D& Transform3D::I() noexcept {
         static const Transform3D identity;
@@ -127,41 +147,45 @@ namespace corn {
     }
 
     Quaternion Transform3D::getRotationComponent() const noexcept {
-        // TODO: Consider non-similarity transformations
         // Find the rotation matrix R
-        std::array<Vec3f, 3> R {
-                this->mat_[0].to<3>().normalize(),
-                this->mat_[1].to<3>().normalize(),
-                this->mat_[2].to<3>().normalize()
-        };
+        Mat3f U, V;
+        this->mat_.to<3, 3>().svd(&U, nullptr, &V);
+        Mat3f R = U * V.T();
+
+        // Check for reflection
+        if (R.det() < 0.0f) {
+            R[0][2] = -R[0][2];
+            R[1][2] = -R[1][2];
+            R[2][2] = -R[2][2];
+        }
 
         float trace = R[0][0] + R[1][1] + R[2][2];
         float x, y, z, w;
 
-        // Since we are using column-major order, we need to swap the indices
+        // Fast method to compute the quaternion
         if (trace > 0.0f) {
             float s = std::sqrt(trace + 1.0f) * 2.0f; // s = 4*w
             w = 0.25f * s;
-            x = (R[1][2] - R[2][1]) / s;
-            y = (R[2][0] - R[0][2]) / s;
-            z = (R[0][1] - R[1][0]) / s;
+            x = (R[2][1] - R[1][2]) / s;
+            y = (R[0][2] - R[2][0]) / s;
+            z = (R[1][0] - R[0][1]) / s;
         } else if (R[0][0] > R[1][1] && R[0][0] > R[2][2]) {
             float s = std::sqrt(1.0f + R[0][0] - R[1][1] - R[2][2]) * 2.0f;
-            w = (R[1][2] - R[2][1]) / s;
+            w = (R[2][1] - R[1][2]) / s;
             x = 0.25f * s;
-            y = (R[0][1] + R[1][0]) / s;
-            z = (R[2][0] + R[0][2]) / s;
+            y = (R[1][0] + R[0][1]) / s;
+            z = (R[0][2] + R[2][0]) / s;
         } else if (R[1][1] > R[2][2]) {
             float s = std::sqrt(1.0f + R[1][1] - R[0][0] - R[2][2]) * 2.0f;
-            w = (R[2][0] - R[0][2]) / s;
-            x = (R[0][1] + R[1][0]) / s;
+            w = (R[0][2] - R[2][0]) / s;
+            x = (R[1][0] + R[0][1]) / s;
             y = 0.25f * s;
-            z = (R[1][2] + R[2][1]) / s;
+            z = (R[2][1] + R[1][2]) / s;
         } else {
             float s = std::sqrt(1.0f + R[2][2] - R[0][0] - R[1][1]) * 2.0f;
-            w = (R[0][1] - R[1][0]) / s;
-            x = (R[2][0] + R[0][2]) / s;
-            y = (R[1][2] + R[2][1]) / s;
+            w = (R[1][0] - R[0][1]) / s;
+            x = (R[0][2] + R[2][0]) / s;
+            y = (R[2][1] + R[1][2]) / s;
             z = 0.25f * s;
         }
 
@@ -169,8 +193,19 @@ namespace corn {
         return Quaternion(x, y, z, w).normalize();
     }
 
-    Vec3f Transform3D::getDilationComponent() const noexcept {
-        return Vec3f(this->mat_[0].norm(), this->mat_[1].norm(), this->mat_[2].norm());
+    Mat3f Transform3D::getDilationComponent() const noexcept {
+        // Find the dilation matrix D
+        Mat3f U, V;
+        Vec3f S;
+        this->mat_.to<3, 3>().svd(nullptr, &S, &V);
+        Mat3f R = U * V.T();
+
+        // Check for reflection
+        if (R.det() < 0.0f) {
+            S[2] = -S[2];
+        }
+
+        return V * Mat3f::diag(S) * V.T();
     }
 
     Vec3f operator*(const Transform2D& transform, const Vec3f& vec) noexcept {
