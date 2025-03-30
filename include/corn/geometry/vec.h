@@ -379,7 +379,7 @@ namespace corn {
     Vec<T, N> operator*(const Vec<T, N>& vec, U scalar) noexcept {
         Vec<T, N> result;
         for (size_t i = 0; i < N; i++) {
-            result[i] = vec[i] * scalar;
+            result[i] = vec[i] * static_cast<T>(scalar);
         }
         return result;
     }
@@ -390,7 +390,7 @@ namespace corn {
     Vec<T, N> operator*(U scalar, const Vec<T, N>& vec) noexcept {
         Vec<T, N> result;
         for (size_t i = 0; i < N; i++) {
-            result[i] = scalar * vec[i];
+            result[i] = static_cast<T>(scalar) * vec[i];
         }
         return result;
     }
@@ -435,7 +435,7 @@ namespace corn {
     requires(Numeric<T> && N > 0 && std::is_convertible_v<U, T>)
     Vec<T, N>& operator*=(Vec<T, N>& vec, U scalar) noexcept {
         for (size_t i = 0; i < N; i++) {
-            vec[i] *= scalar;
+            vec[i] *= static_cast<T>(scalar);
         }
         return vec;
     }

@@ -238,19 +238,11 @@ namespace corn {
     }
 
     Vec2f Image::getSize() const noexcept {
-        switch (this->impl_->type) {
-            case ImageType::SVG:
-                return Vec2f(this->impl_->getWidth(), this->impl_->getHeight()) * this->impl_->scale.x;
-            default:
-                return Vec2f(this->impl_->getWidth(), this->impl_->getHeight()) * this->impl_->scale;
-        }
+        return Vec2f(this->impl_->getWidth(), this->impl_->getHeight()) * this->impl_->scale;
     }
 
     void Image::resize(float width, float height) {
         if (this->impl_ == nullptr) return;
         this->impl_->scale = Vec2f(width / this->impl_->getWidth(), height / this->impl_->getHeight());
-        if (this->impl_->type == ImageType::SVG) {
-            this->impl_->rasterize();
-        }
     }
 }

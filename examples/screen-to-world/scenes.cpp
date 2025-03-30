@@ -6,7 +6,7 @@
 
 MainScene::MainScene() : corn::Scene() {
     // Camera
-    this->cameraID_ = createCamera(this->getEntityManager(), corn::Vec2f::ZERO()).getID();
+    this->cameraID_ = createCamera(this->getEntityManager(), corn::Vec2f::O()).getID();
 
     for (int i = -10; i <= 10; i++) {
         for (int j = -10; j <= 10; j++) {
@@ -79,7 +79,7 @@ MainScene::MainScene() : corn::Scene() {
                 bool found = this->getEntityManager().screenToWorldPosition(_args.mousePos, worldPos);
                 if (found) {
                     corn::Entity* movableBlock = this->getEntityManager().getEntityByID(this->movableBlockID_);
-                    movableBlock->getComponent<corn::CTransform2D>()->setWorldLocation(worldPos - corn::Vec2f(10, 10));
+                    movableBlock->getComponent<corn::CTransform2D>()->setWorldTranslation(worldPos - corn::Vec2f(10.0f, 10.0f));
                     movableBlock->getComponent<corn::CSprite>()->active = true;
                 }
             });
@@ -87,7 +87,7 @@ MainScene::MainScene() : corn::Scene() {
 
 void MainScene::move(const corn::Vec2f& displacement) {
     this->getEntityManager().getEntityByID(this->cameraID_)
-            ->getComponent<corn::CTransform2D>()->location += displacement;
+            ->getComponent<corn::CTransform2D>()->translation += displacement;
 }
 
 void MainScene::rotate(corn::Deg angle) {

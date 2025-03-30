@@ -7,8 +7,8 @@
 
 corn::Entity& createCamera(corn::EntityManager& entityManager, const corn::Vec2f& pos) {
     corn::Entity& cameraEnt = entityManager.createEntity("camera");
-    cameraEnt.addComponent<corn::CTransform2D>(pos);
-    cameraEnt.addComponent<corn::CCamera>(corn::Vec2f::ZERO(), corn::Color::WHITE());
+    cameraEnt.addComponent<corn::CTransform2D>(pos, corn::Deg(0.0f), corn::Vec2f(1.0f, 1.0f));
+    cameraEnt.addComponent<corn::CCamera>(corn::Vec2f::O(), corn::Color::WHITE());
     return cameraEnt;
 }
 
@@ -16,7 +16,7 @@ corn::Entity& createBlock(
         corn::EntityManager& entityManager, const corn::Vec2f& pos, unsigned int size, const corn::Color& color) {
 
     corn::Entity& blockEnt = entityManager.createEntity("block");
-    blockEnt.addComponent<corn::CTransform2D>(pos);
-    blockEnt.addComponent<corn::CSprite>(new corn::Image(size, size, color), corn::Vec2f::ZERO());
+    blockEnt.addComponent<corn::CTransform2D>(pos, corn::Deg(0.0f), corn::Vec2f(1.0f, 1.0f));
+    blockEnt.addComponent<corn::CSprite>(new corn::Image(size, size, color), corn::Vec2f::O());
     return blockEnt;
 }
