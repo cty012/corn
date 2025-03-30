@@ -30,7 +30,10 @@ namespace corn {
         return this->entityManager_.getGame();
     }
 
-    CTransform2D::CTransform2D(Entity& entity) noexcept : Component(entity), zOrder_(0) {}
+    CTransform2D::CTransform2D(Entity& entity) noexcept : Component(entity), dilation(1.0f, 1.0f), zOrder_(0) {}
+
+    CTransform2D::CTransform2D(Entity& entity, Vec2f translation) noexcept
+            : Component(entity), translation(std::move(translation)), dilation(1.0f, 1.0f), zOrder_(0) {}
 
     CTransform2D::CTransform2D(Entity& entity, Vec2f translation, Deg rotation, Vec2f dilation) noexcept
             : Component(entity), translation(std::move(translation)), rotation(rotation), dilation(std::move(dilation)), zOrder_(0) {}
@@ -180,19 +183,11 @@ namespace corn {
 
     CGravity2D::CGravity2D(Entity& entity, float scale) noexcept : Component(entity), scale(scale) {}
 
-    CCamera::CCamera(Entity& entity, const Vec2f& anchor, Color background) noexcept
-            : Component(entity), cameraType(CameraType::_2D), background(std::move(background)), opacity(255),
-            anchor(anchor.to<3>()), scale(1.0f) {
+    CCamera::CCamera(Entity& entity, CameraType type, Color background) noexcept
+            : Component(entity), cameraType(type), background(std::move(background)), opacity(255), scale(1.0f) {
 
         this->setViewport("0px", "0px", "100%ww", "100%wh");
         this->setFov("100%vw", "100%vh");
-        this->getScene().getEventManager().emit(EventArgsCamera(CameraEventType::ADD, this));
-    }
-
-    CCamera::CCamera(Entity& entity, Vec3f anchor, Color background) noexcept
-            : Component(entity), cameraType(CameraType::_3D), background(std::move(background)), opacity(255),
-            anchor(std::move(anchor)), scale(1.0f) {
-
         this->getScene().getEventManager().emit(EventArgsCamera(CameraEventType::ADD, this));
     }
 

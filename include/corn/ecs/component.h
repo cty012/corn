@@ -79,6 +79,9 @@ namespace corn {
         /// @brief Constructor.
         explicit CTransform2D(Entity& entity) noexcept;
 
+        /// brief Constructor.
+        CTransform2D(Entity& entity, Vec2f translation) noexcept;
+
         /// @brief Constructor.
         CTransform2D(Entity& entity, Vec2f translation, Deg rotation, Vec2f dilation) noexcept;
 
@@ -289,14 +292,6 @@ namespace corn {
         /// @brief The opacity of the camera, on a scale of [0, 255].
         unsigned char opacity;
 
-        /**
-         * @brief The location of the camera relative to the Transform.
-         *
-         * The rotation stored in the transform component is applied to the anchor, and then the result is added to the
-         * location stored in the transform component. The result will be the center of the Camera.
-         */
-        Vec3f anchor;
-
         /// @brief Viewport of the camera.
         CameraViewport viewport;
 
@@ -316,10 +311,7 @@ namespace corn {
         float scale;
 
         /// @brief Constructor for 2D camera.
-        CCamera(Entity& entity, const Vec2f& anchor, Color background = Color::rgb(0, 0, 0, 0)) noexcept;
-
-        /// @brief Constructor for 3D camera.
-        CCamera(Entity& entity, Vec3f anchor, Color background = Color::rgb(0, 0, 0, 0)) noexcept;
+        CCamera(Entity& entity, CameraType type, Color background = Color::rgb(0, 0, 0, 0)) noexcept;
 
         /// @brief Destructor.
         ~CCamera() override;

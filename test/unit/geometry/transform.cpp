@@ -11,10 +11,15 @@ namespace corn::test::transform {
                 0.0f, 0.0f, 1.0f);
         EXPECT_TRUE(transform1.getMat() == mat1);
 
-        EXPECT_THROW(Transform2D transform2(Mat3f(
+        Transform2D transform2(Mat3f(
                 1.0f, 2.0f, 3.0f,
                 4.0f, 5.0f, 6.0f,
-                7.0f, 8.0f, 9.0f)), InvalidTransform);
+                7.0f, 8.0f, 9.0f));
+        Mat3f mat2(
+                1.0f, 2.0f, 3.0f,
+                4.0f, 5.0f, 6.0f,
+                0.0f, 0.0f, 1.0f);
+        EXPECT_TRUE(transform2.getMat() == mat2);
 
         Transform2D transform3(Mat3f(
                 1.0f, 2.0f, 3.0f,

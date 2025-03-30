@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <corn/geometry/transform.h>
 
 namespace corn {
     enum class Key;
@@ -62,10 +63,10 @@ namespace corn {
     private:
         /**
          * @param camera The target camera component.
-         * @return The transformation (offset and scale) that defines how to transform coordinates from the world's
-         * reference frame to camera's reference frame.
+         * @return The transformation that defines how to transform coordinates from the camera's reference frame to the
+         *         world's reference frame.
          */
-        [[nodiscard]] std::pair<Vec2f, Vec2f> getCameraTransformation(const CCamera* camera) const;
+        [[nodiscard]] Transform2D getCameraTransformation(const CCamera* camera) const;
 
         /**
          * @brief Render the view of the camera onto a temporary texture.

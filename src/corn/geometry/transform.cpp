@@ -17,9 +17,7 @@ namespace corn {
     }
 
     Transform2D::Transform2D(Mat3f mat) : mat_(std::move(mat)) {
-        if (this->mat_[2] != Vec3f::E<2>()) {
-            throw InvalidTransform(toString(this->mat_, "    "));
-        }
+        this->mat_[2] = Vec3f::E<2>();
     }
 
     const Transform2D& Transform2D::I() noexcept {
@@ -93,9 +91,7 @@ namespace corn {
     }
 
     Transform3D::Transform3D(Mat4f mat) : mat_(std::move(mat)) {
-        if (this->mat_[3] != Vec4f::E<3>()) {
-            throw InvalidTransform(toString(this->mat_, "    "));
-        }
+        this->mat_[3] = Vec4f::E<3>();
     }
 
     const Transform3D& Transform3D::I() noexcept {

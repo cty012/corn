@@ -10,42 +10,45 @@ namespace corn {
     void draw(
             const CCamera& cCamera,
             const CTransform2D& cTransform, const CSprite& cSprite,
-            const Vec2f& cameraOffset, const Vec2f&, const sf::Transform& scaleTransform) {
+            const Transform2D& cameraTransform) {
 
-        Transform2D worldTransform = cTransform.getWorldTransform();
-        Vec2f worldTranslation = worldTransform.getTranslationComponent();
-        Deg worldRotation = worldTransform.getRotationComponent();
-        Vec2f anc = worldTranslation - cameraOffset;
-        Vec2f loc = cSprite.location;
+        // Transform
+        Transform2D worldTransform = cameraTransform.inv() * cTransform.getWorldTransform();
+        const Mat3f& mat = worldTransform.getMat();
+        sf::Transform transform {
+            mat[0][0], mat[0][1], mat[0][2],
+            mat[1][0], mat[1][1], mat[1][2],
+            mat[2][0], mat[2][1], mat[2][2],
+        };
+
         Vec2f scale = cSprite.image->impl_->scale;
         if (cSprite.image->impl_->type == ImageType::SVG) {
             // SVGs are scaled during rasterization
-            sf::Vector2f newScale = scaleTransform.transformPoint(sf::Vector2f(1.0f, 1.0f));
-            sf::Sprite& sfSprite = cSprite.image->impl_->sfSprite;
-            cSprite.image->impl_->rasterize(Vec2f(newScale.x, newScale.y), true);
-            sfSprite.setOrigin(scaleTransform.transformPoint(sf::Vector2f(-loc.x, -loc.y)));
-            sfSprite.setPosition(scaleTransform.transformPoint(sf::Vector2f(anc.x, anc.y)));
-            sfSprite.setScale(sf::Vector2f(1.0f, 1.0f));
-        } else {
-            sf::Vector2f newScale = scaleTransform.transformPoint(sf::Vector2f(scale.x, scale.y));
-            sf::Sprite& sfSprite = cSprite.image->impl_->sfSprite;
-            sfSprite.setOrigin(scaleTransform.transformPoint(sf::Vector2f(-loc.x, -loc.y)));
-            sfSprite.setPosition(scaleTransform.transformPoint(sf::Vector2f(anc.x, anc.y)));
-            sfSprite.setScale(newScale);
+            cSprite.image->impl_->rasterize(scale, true);
+            scale = Vec2f(1.0f, 1.0f);
         }
-        cSprite.image->impl_->sfSprite.setRotation(-worldRotation.get());
-        cCamera.viewport.impl_->texture.draw(cSprite.image->impl_->sfSprite);
+        sf::Sprite& sfSprite = cSprite.image->impl_->sfSprite;
+        sfSprite.setOrigin(sf::Vector2f(0.0f, 0.0f));
+        sfSprite.setPosition(sf::Vector2f(cSprite.location.x, cSprite.location.y));
+        sfSprite.setScale(sf::Vector2f(scale.x, scale.y));
+
+        cCamera.viewport.impl_->texture.draw(cSprite.image->impl_->sfSprite, transform);
     }
 
     void drawLines(
             const CCamera& cCamera,
             const CTransform2D& cTransform, const std::vector<Vec2f>& vertices, float thickness, const Color& color, bool closed,
-            const Vec2f& cameraOffset, const Vec2f& cameraScale, const sf::Transform& scaleTransform) {
+            const Transform2D& cameraTransform) {
 
-        Transform2D worldTransform = cTransform.getWorldTransform();
-        Vec2f worldTranslation = worldTransform.getTranslationComponent();
-        Deg worldRotation = worldTransform.getRotationComponent();
-        Vec2f anc = worldTranslation - cameraOffset;
+        // Transform
+        Transform2D worldTransform = cameraTransform.inv() * cTransform.getWorldTransform();
+        const Mat3f& mat = worldTransform.getMat();
+        sf::Transform transform {
+            mat[0][0], mat[0][1], mat[0][2],
+            mat[1][0], mat[1][1], mat[1][2],
+            mat[2][0], mat[2][1], mat[2][2],
+        };
+
         const auto [r, g, b, a] = color.getRGBA();  // NOLINT
 
         for (size_t i = 0; (closed ? i : i + 1) < vertices.size(); i++) {
@@ -56,30 +59,30 @@ namespace corn {
             float angle = std::atan2(diff.y, diff.x) * 180.0f / (float)PI;
 
             sf::RectangleShape line;
-            line.setSize(sf::Vector2f(length, thickness / cameraScale.norm()));
+            line.setSize(sf::Vector2f(length, thickness / worldTransform.mapVector(diff.normalize()).norm()));
             line.setOrigin(0, 0);
-            line.setPosition(anc.x + start.x, anc.y + start.y);
+            line.setPosition(start.x, start.y);
             line.setFillColor(sf::Color{ r, g, b, a });
-            line.setRotation(-worldRotation.get() + angle);
-            cCamera.viewport.impl_->texture.draw(line, scaleTransform);
+            line.setRotation(angle);
+            cCamera.viewport.impl_->texture.draw(line, transform);
         }
     }
 
     void draw(
             const CCamera& cCamera,
             const CTransform2D& cTransform, const CLines& cLines,
-            const Vec2f& cameraOffset, const Vec2f& cameraScale, const sf::Transform& scaleTransform) {
+            const Transform2D& cameraTransform) {
 
         drawLines(
                 cCamera,
                 cTransform, cLines.vertices, cLines.thickness, cLines.color, cLines.closed,
-                cameraOffset, cameraScale, scaleTransform);
+                cameraTransform);
     }
 
     void draw(
             const CCamera& cCamera,
             const CTransform2D& cTransform, const CPolygon& cPolygon,
-            const Vec2f& cameraOffset, const Vec2f& cameraScale, const sf::Transform& scaleTransform) {
+            const Transform2D& cameraTransform) {
 
         const Polygon& polygon = cPolygon.polygon;
         if (cPolygon.thickness > 0) {
@@ -87,50 +90,52 @@ namespace corn {
             drawLines(
                     cCamera,
                     cTransform, polygon.getVertices(), cPolygon.thickness, cPolygon.color, true,
-                    cameraOffset, cameraScale, scaleTransform);
+                    cameraTransform);
             for (const std::vector<Vec2f>& hole: polygon.getHoles()) {
                 drawLines(
                         cCamera,
                         cTransform, hole, cPolygon.thickness, cPolygon.color, true,
-                        cameraOffset, cameraScale, scaleTransform);
+                        cameraTransform);
             }
         } else {
             // Draw polygon and fill inside
-            Transform2D worldTransform = cTransform.getWorldTransform();
-            Vec2f worldTranslation = worldTransform.getTranslationComponent();
-            Deg worldRotation = worldTransform.getRotationComponent();
-            Vec2f anc = worldTranslation - cameraOffset;
-            const auto [r, g, b, a] = cPolygon.color.getRGBA(); // NOLINT
+            Transform2D worldTransform = cameraTransform.inv() * cTransform.getWorldTransform();
+            const Mat3f& mat = worldTransform.getMat();
+            sf::Transform transform {
+                mat[0][0], mat[0][1], mat[0][2],
+                mat[1][0], mat[1][1], mat[1][2],
+                mat[2][0], mat[2][1], mat[2][2],
+            };
 
-            sf::Transform rotateTransform;
-            rotateTransform.rotate(-worldRotation.get());
+            const auto [r, g, b, a] = cPolygon.color.getRGBA(); // NOLINT
 
             const std::vector<std::array<Vec2f, 3>>& triangles = polygon.getTriangles();
             sf::VertexArray varr(sf::Triangles, triangles.size() * 3);
             for (size_t i = 0; i < triangles.size(); i++) {
                 for (size_t j = 0; j < 3; j++) {
-                    varr[i * 3 + j].position =
-                            sf::Vector2f(anc.x, anc.y) +
-                            rotateTransform.transformPoint(sf::Vector2f(triangles[i][j].x, triangles[i][j].y));
+                    varr[i * 3 + j].position = sf::Vector2f(triangles[i][j].x, triangles[i][j].y);
                     varr[i * 3 + j].color = sf::Color{ r, g, b, a };
                 }
             }
 
-            cCamera.viewport.impl_->texture.draw(varr, scaleTransform);
+            cCamera.viewport.impl_->texture.draw(varr, transform);
         }
     }
 
     void draw(
             const CCamera& cCamera,
             const CTransform2D& cTransform, const CText& cText,
-            const Vec2f& cameraOffset, const Vec2f& cameraScale, const sf::Transform& scaleTransform) {
+            const Transform2D& cameraTransform) {
 
-        (void)cameraScale;
+        // Draw polygon and fill inside
+        Transform2D worldTransform = cameraTransform.inv() * cTransform.getWorldTransform();
+        const Mat3f& mat = worldTransform.getMat();
+        sf::Transform transform {
+            mat[0][0], mat[0][1], mat[0][2],
+            mat[1][0], mat[1][1], mat[1][2],
+            mat[2][0], mat[2][1], mat[2][2],
+        };
 
-        Transform2D worldTransform = cTransform.getWorldTransform();
-        Vec2f worldTranslation = worldTransform.getTranslationComponent();
-        Deg worldRotation = worldTransform.getRotationComponent();
-        Vec2f anc = worldTranslation - cameraOffset;
         Vec2f location(cText.getX(), cText.getY());
         Vec2f textSize = cText.textRender.getSize();
 
@@ -152,15 +157,12 @@ namespace corn {
 
             for (const auto& [text, color] : line.contents) {
                 auto& mutText = const_cast<sf::Text&>(text);
-                Vec2f loc(seg.x, seg.y + cText.textRender.getLinePadding());
-
-                mutText.setOrigin(-loc.x, -loc.y);
-                mutText.setPosition(anc.x, anc.y);
-                mutText.setRotation(-worldRotation.get());
+                mutText.setOrigin(0.0f, 0.0f);
+                mutText.setPosition(seg.x, seg.y + cText.textRender.getLinePadding());
                 const auto [r, g, b, a] = color.getRGBA();  // NOLINT
                 mutText.setFillColor(sf::Color{ r, g, b, a });
 
-                cCamera.viewport.impl_->texture.draw(text, scaleTransform);
+                cCamera.viewport.impl_->texture.draw(text, transform);
                 seg.x += text.getLocalBounds().width;
             }
             seg.x = location.x;

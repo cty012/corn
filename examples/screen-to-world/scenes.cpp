@@ -4,7 +4,7 @@
 #include "entities.h"
 #include "scenes.h"
 
-MainScene::MainScene() : corn::Scene() {
+MainScene::MainScene() {
     // Camera
     this->cameraID_ = createCamera(this->getEntityManager(), corn::Vec2f::O()).getID();
 
@@ -20,7 +20,7 @@ MainScene::MainScene() : corn::Scene() {
     }
 
     // Central block
-    createBlock(this->getEntityManager(), corn::Vec2f(-10, -10), 20, corn::Color::parse("#ff0000"));
+    createBlock(this->getEntityManager(), corn::Vec2f(-10.0f, -10.0f), 20, corn::Color::parse("#ff0000"));
 
     // Movable block
     this->movableBlockID_ = createBlock(this->getEntityManager(), corn::Vec2f(-10, -10), 20, corn::Color::parse("#00ff00")).getID();
@@ -93,7 +93,7 @@ void MainScene::move(const corn::Vec2f& displacement) {
 void MainScene::rotate(corn::Deg angle) {
     // To rotate the world in positive direction, rotate camera in opposite direction
     this->getEntityManager().getEntityByID(this->cameraID_)
-            ->getComponent<corn::CTransform2D>()->rotation -= angle;
+            ->getComponent<corn::CTransform2D>()->rotation += angle;
 }
 
 void MainScene::scale(float factor) {

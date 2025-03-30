@@ -12,22 +12,22 @@ namespace corn {
     void draw(
             const CCamera& cCamera,
             const CTransform2D& cTransform, const CSprite& cSprite,
-            const Vec2f& cameraOffset, const Vec2f& cameraScale, const sf::Transform& scaleTransform);
+            const Transform2D& cameraTransform);
 
     void draw(
             const CCamera& cCamera,
             const CTransform2D& cTransform, const CLines& cLines,
-            const Vec2f& cameraOffset, const Vec2f& cameraScale, const sf::Transform& scaleTransform);
+            const Transform2D& cameraTransform);
 
     void draw(
             const CCamera& cCamera,
             const CTransform2D& cTransform, const CPolygon& cPolygon,
-            const Vec2f& cameraOffset, const Vec2f& cameraScale, const sf::Transform& scaleTransform);
+            const Transform2D& cameraTransform);
 
     void draw(
             const CCamera& cCamera,
             const CTransform2D& cTransform, const CText& cText,
-            const Vec2f& cameraOffset, const Vec2f& cameraScale, const sf::Transform& scaleTransform);
+            const Transform2D& cameraTransform);
 
     // Inline functions
     inline DisplayMode sfStyle2CornMode(int style) {

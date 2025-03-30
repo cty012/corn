@@ -220,29 +220,30 @@ namespace corn {
         this->impl_->window->display();
     }
 
-    std::pair<Vec2f, Vec2f> Interface::getCameraTransformation(const CCamera* camera) const {
+    Transform2D Interface::getCameraTransformation(const CCamera* camera) const {
         // Calculate window size
         Vec2f windowSize = this->windowSize();
         Vec2f percentWindowSize = windowSize * 0.01f;
 
         // Calculate camera viewport and FOV
-        Vec2f viewportSize(camera->viewport.w.calc(1.0f, percentWindowSize.x, percentWindowSize.y),
-                          camera->viewport.h.calc(1.0f, percentWindowSize.x, percentWindowSize.y));
-        Vec2f fovSize(camera->fovW.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale),
-                     camera->fovH.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale));
+        Vec2f viewportSize(
+                camera->viewport.w.calc(1.0f, percentWindowSize.x, percentWindowSize.y),
+                camera->viewport.h.calc(1.0f, percentWindowSize.x, percentWindowSize.y));
+        Vec2f fovSize(
+                camera->fovW.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale),
+                camera->fovH.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale));
 
         // Reset the camera viewport
         camera->viewport.impl_->setSize(viewportSize, this->game_.getConfig().antialiasing);
         const auto [r, g, b, a] = camera->background.getRGBA();  // NOLINT
         camera->viewport.impl_->texture.clear(sf::Color(r, g, b, a));
 
-        // Calculate location of camera
-        Vec2f cameraCenter =
-                camera->getEntity().getComponent<CTransform2D>()->getWorldTransform().getTranslationComponent() +
-                camera->anchor.to<2>();
-
-        // Return the location and scale
-        return { cameraCenter - fovSize * 0.5, Vec2f(viewportSize.x / fovSize.x, viewportSize.y / fovSize.y) };
+        // Calculate the transform of camera
+        Transform2D worldTransform = camera->getEntity().getComponent<CTransform2D>()->getWorldTransform();
+        Vec2f cameraScale = Vec2f(fovSize.x / viewportSize.x, fovSize.y / viewportSize.y);
+        Deg cameraRotation = worldTransform.getRotationComponent();
+        Vec2f cameraCenter = worldTransform.getTranslationComponent();
+        return Transform2D(cameraCenter, cameraRotation, cameraScale) * Transform2D::translate(-viewportSize * 0.5f);
     }
 
     void Interface::renderCamera(Scene* scene, const CCamera* camera) {
@@ -258,9 +259,7 @@ namespace corn {
         if (!camera->getEntity().getComponent<CTransform2D>()) return;
 
         // Get camera transform
-        auto [cameraOffset, cameraScale] = this->getCameraTransformation(camera);
-        sf::Transform scaleTransform;
-        scaleTransform.scale(cameraScale.x, cameraScale.y);
+        Transform2D cameraTransform = this->getCameraTransformation(camera);
 
         // Render entities
         for (Entity* entity: scene->getEntityManager().getActiveEntitiesWith<CTransform2D>()) {
@@ -269,13 +268,13 @@ namespace corn {
             // Sprite
             auto sprite = entity->getComponent<CSprite>();
             if (sprite && sprite->active && sprite->image && sprite->image->impl_) {
-                draw(*camera, *transform, *sprite, cameraOffset, cameraScale, scaleTransform);
+                draw(*camera, *transform, *sprite, cameraTransform);
             }
 
             // Lines
             auto lines = entity->getComponent<CLines>();
             if (lines && lines->active && lines->vertices.size() > 1) {
-                draw(*camera, *transform, *lines, cameraOffset, cameraScale, scaleTransform);
+                draw(*camera, *transform, *lines, cameraTransform);
             }
 
             // Polygon
@@ -283,14 +282,14 @@ namespace corn {
             if (cPolygon && cPolygon->active) {
                 PolygonType polygonType = cPolygon->polygon.getType();
                 if (polygonType != PolygonType::INVALID && polygonType != PolygonType::EMPTY) {
-                    draw(*camera, *transform, *cPolygon, cameraOffset, cameraScale, scaleTransform);
+                    draw(*camera, *transform, *cPolygon, cameraTransform);
                 }
             }
 
             // Text
             auto text = entity->getComponent<CText>();
             if (text && text->active) {
-                draw(*camera, *transform, *text, cameraOffset, cameraScale, scaleTransform);
+                draw(*camera, *transform, *text, cameraTransform);
             }
         }
         camera->viewport.impl_->texture.display();
