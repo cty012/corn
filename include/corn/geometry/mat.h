@@ -9,14 +9,22 @@
 namespace corn {
     // Helper functions
     void invHelper(size_t N, const std::vector<float>& mat, std::vector<float>& inv) noexcept;
-    void detHelper(size_t N, const std::vector<float>& mat, float det) noexcept;
+    void detHelper(size_t N, const std::vector<float>& mat, float& det) noexcept;
     void svdHelper(size_t M, size_t N, const std::vector<float>& mat, std::vector<float>& U, std::vector<float>& S, std::vector<float>& V) noexcept;
 
+    /**
+     * @class Mat
+     * @brief Matrix class.
+     * @tparam M Number of rows. Must be a positive integer.
+     * @tparam N Number of columns. Must be a positive integer.
+     */
     template <size_t M, size_t N>
     class Mat {
     public:
-        Mat() noexcept : data_() {}
+        /// @brief Constructor.
+        Mat() noexcept = default;
 
+        /// @brief Constructor.
         template <typename... Args>
         requires(sizeof...(Args) == M * N && std::conjunction_v<std::is_convertible<Args, float>...>)
         explicit Mat(Args... args) noexcept {
@@ -29,31 +37,22 @@ namespace corn {
             }
         }
 
+        /// @brief Constructor.
         template <typename... Args>
         requires(sizeof...(Args) == M && std::conjunction_v<std::is_same<Args, Vec<float, N>>...>)
         explicit Mat(Args... args) noexcept : data_{ std::forward<Args>(args)... } {}
 
-        explicit Mat(const std::vector<float>& flattened) noexcept : data_() {
-            size_t index = 0;
-            for (size_t i = 0; i < M; i++) {
-                for (size_t j = 0; j < N; j++) {
-                    if (index >= flattened.size()) {
-                        break;
-                    }
-                    this->data_[i][j] = flattened[index++];
-                }
-            }
-        }
-
-        [[nodiscard]] static const Mat& O() noexcept {
+        /// @return Zero matrix.
+        [[nodiscard]] static const Mat<M, N>& O() noexcept {
             static const Mat zero;
             return zero;
         }
 
-        [[nodiscard]] static const Mat& I() noexcept
+        /// @return Identity matrix.
+        [[nodiscard]] static const Mat<M, N>& I() noexcept
         requires(M == N) {
-            static const Mat identity = [] {
-                Mat mat;
+            static const Mat<M, N> identity = [] {
+                Mat<M, N> mat;
                 for (size_t i = 0; i < M; i++) {
                     mat.data_[i][i] = 1.0f;
                 }
@@ -62,71 +61,126 @@ namespace corn {
             return identity;
         }
 
-        [[nodiscard]] static Mat diag(const Vec<float, M>& diag) noexcept
+        /**
+         * @param diag Diagonal elements.
+         * @return Diagonal matrix with the given diagonal elements.
+         */
+        [[nodiscard]] static Mat<M, N> diag(const Vec<float, M>& diag) noexcept
         requires(M == N) {
-            Mat mat;
+            Mat<M, N> mat;
             for (size_t i = 0; i < M; i++) {
                 mat.data_[i][i] = diag[i];
             }
             return mat;
         }
 
-        [[nodiscard]] size_t rows() const noexcept {
+        /// @return The number of rows.
+        [[nodiscard]] static constexpr size_t rows() noexcept {
             return M;
         }
 
-        [[nodiscard]] size_t cols() const noexcept {
+        /// @return The number of columns.
+        [[nodiscard]] static constexpr size_t cols() noexcept {
             return N;
         }
 
+        /**
+         * @param index Index of the row.
+         * @return Reference to the row at the given index.
+         */
         [[nodiscard]] Vec<float, N>& row(size_t index) noexcept {
-            return this->data_[index];
+            return this->data_.at(index);
         }
 
+        /**
+         * @param index Index of the row.
+         * @return Reference to the row at the given index.
+         */
         [[nodiscard]] const Vec<float, N>& row(size_t index) const noexcept {
-            return this->data_[index];
+            return this->data_.at(index);
         }
 
+        /**
+         * @param index Index of the column.
+         * @return Copy of the column at the given index.
+         */
         [[nodiscard]] Vec<float, N> col(size_t index) const noexcept {
             Vec<float, M> column;
             for (size_t i = 0; i < M; ++i) {
-                column[i] = this->data_[i][index];
+                column[i] = this->data_[i].at(index);
             }
             return column;
         }
 
+        /**
+         * @param index Index of the row.
+         * @return Reference to the row at the given index.
+         */
         [[nodiscard]] Vec<float, N>& operator[](size_t index) noexcept {
             return this->data_[index];
         }
 
+        /**
+         * @param index Index of the row.
+         * @return Reference to the row at the given index.
+         */
         [[nodiscard]] const Vec<float, N>& operator[](size_t index) const noexcept {
             return this->data_[index];
         }
 
+        /**
+         * @param r Row index.
+         * @param c Column index.
+         * @return Reference to the element at the given row and column.
+         */
         [[nodiscard]] float& operator()(size_t r, size_t c) noexcept {
             return this->data_[r][c];
         }
 
+        /**
+         * @param r Row index.
+         * @param c Column index.
+         * @return Reference to the element at the given row and column.
+         */
         [[nodiscard]] const float& operator()(size_t r, size_t c) const noexcept {
             return this->data_[r][c];
         }
 
+        /**
+         * @param r Row index.
+         * @return Reference to the row at the given index.
+         */
         [[nodiscard]] Vec<float, N>& at(size_t r) noexcept {
             return this->data_.at(r);
         }
 
+        /**
+         * @param r Row index.
+         * @return Reference to the row at the given index.
+         */
         [[nodiscard]] const Vec<float, N>& at(size_t r) const noexcept {
             return this->data_.at(r);
         }
 
+        /**
+         * @param r Row index.
+         * @param c Column index.
+         * @return Reference to the element at the given row and column.
+         */
         [[nodiscard]] float& at(size_t r, size_t c) noexcept {
             return this->data_.at(r).at(c);
         }
 
+        /**
+         * @param r Row index.
+         * @param c Column index.
+         * @return Reference to the element at the given row and column.
+         */
         [[nodiscard]] const float& at(size_t r, size_t c) const noexcept {
             return this->data_.at(r).at(c);
         }
 
+        /// @return The matrix as a vector of floats.
         [[nodiscard]] std::vector<float> flatten() const noexcept {
             std::vector<float> flattened;
             flattened.reserve(M * N);
@@ -138,6 +192,7 @@ namespace corn {
             return flattened;
         }
 
+        /// @return The transpose of the matrix.
         [[nodiscard]] Mat<N, M> T() const noexcept {
             Mat<N, M> transposed;
             for (size_t i = 0; i < M; ++i) {
@@ -148,6 +203,7 @@ namespace corn {
             return transposed;
         }
 
+        /// @return The inverse of the matrix.
         [[nodiscard]] Mat<M, N> inv() const noexcept
         requires(M == N) {
             // Check if the matrix is invertible
@@ -192,6 +248,12 @@ namespace corn {
             }
         }
 
+        /**
+         * @brief Convert to a matrix of another dimension.
+         * @tparam K Number of rows of the new matrix.
+         * @tparam L Number of columns of the new matrix.
+         * @return Converted matrix.
+         */
         template <size_t K, size_t L>
         requires(K > 0 && L > 0)
         [[nodiscard]] Mat<K, L> to() const noexcept {
@@ -204,9 +266,14 @@ namespace corn {
             return result;
         }
 
+        /**
+         * @tparam K Number of rows to prepend.
+         * @param args Rows to prepend.
+         * @return New matrix with prepended rows.
+         */
         template <size_t K, typename... Args>
         requires(K > 0 && sizeof...(Args) == K && std::conjunction_v<std::is_same<Args, Vec<float, N>>...>)
-        [[nodiscard]] Mat<M + K, N> prepend(Args... args) const noexcept {
+        [[nodiscard]] Mat<M + K, N> prependRows(Args... args) const noexcept {
             Mat<M + K, N> result;
             std::array<Vec<float, N>, K> prefix = { std::forward<Args>(args)... };
             for (size_t i = 0; i < K; i++) {
@@ -218,9 +285,35 @@ namespace corn {
             return result;
         }
 
+        /**
+         * @tparam K Number of columns to prepend.
+         * @param args Columns to prepend.
+         * @return New matrix with prepended columns.
+         */
+        template <size_t K, typename... Args>
+        requires(K > 0 && sizeof...(Args) == K && std::conjunction_v<std::is_same<Args, Vec<float, M>>...>)
+        [[nodiscard]] Mat<M, N + K> prependCols(Args... args) const noexcept {
+            Mat<M, N + K> result;
+            std::array<Vec<float, N>, K> prefix = { std::forward<Args>(args)... };
+            for (size_t i = 0; i < M; i++) {
+                for (size_t j = 0; j < K; j++) {
+                    result[i][j] = prefix[j][i];
+                }
+                for (size_t j = 0; j < N; j++) {
+                    result[i][K + j] = this->data_[i][j];
+                }
+            }
+            return result;
+        }
+
+        /**
+         * @tparam K Number of rows to append.
+         * @param args Rows to append.
+         * @return New matrix with appended rows.
+         */
         template <size_t K, typename... Args>
         requires(K > 0 && sizeof...(Args) == K && std::conjunction_v<std::is_same<Args, Vec<float, N>>...>)
-        [[nodiscard]] Mat<M + K, N> append(Args... args) const noexcept {
+        [[nodiscard]] Mat<M + K, N> appendRows(Args... args) const noexcept {
             Mat<M + K, N> result;
             std::array<Vec<float, N>, K> suffix = { std::forward<Args>(args)... };
             for (size_t i = 0; i < M; i++) {
@@ -232,6 +325,28 @@ namespace corn {
             return result;
         }
 
+        /**
+         * @tparam K Number of columns to append.
+         * @param args Columns to append.
+         * @return New matrix with appended columns.
+         */
+        template <size_t K, typename... Args>
+        requires(K > 0 && sizeof...(Args) == K && std::conjunction_v<std::is_same<Args, Vec<float, M>>...>)
+        [[nodiscard]] Mat<M, N + K> appendCols(Args... args) const noexcept {
+            Mat<M, N + K> result;
+            std::array<Vec<float, N>, K> prefix = { std::forward<Args>(args)... };
+            for (size_t i = 0; i < M; i++) {
+                for (size_t j = 0; j < N; j++) {
+                    result[i][j] = this->data_[i][j];
+                }
+                for (size_t j = 0; j < K; j++) {
+                    result[i][K + j] = prefix[j][i];
+                }
+            }
+            return result;
+        }
+
+        /// @return The determinant of the matrix.
         [[nodiscard]] float det() const noexcept
         requires(M == N) {
             if constexpr (M == 1) {
@@ -263,12 +378,18 @@ namespace corn {
                                 + data_[1][2] * (data_[2][0] * data_[3][1] - data_[2][1] * data_[3][0]));
             } else {
                 std::vector<float> flattened = this->flatten();
-                float det;
+                float det = 0.0f;
                 detHelper(N, flattened, det);
                 return det;
             }
         }
 
+        /**
+         * @brief Singular Value Decomposition (SVD).
+         * @param U Left singular vectors.
+         * @param S Singular values.
+         * @param V Right singular vectors.
+         */
         void svd(Mat<M, M>* U, Vec<float, (M < N ? M : N)>* S, Mat<N, N>* V) const noexcept {
             std::vector<float> flattened = this->flatten();
             std::vector<float> u, s, v;
@@ -298,6 +419,28 @@ namespace corn {
         std::array<Vec<float, N>, M> data_;
     };
 
+    // Operators
+    /// @return A copy of the matrix itself.
+    template <size_t M, size_t N>
+    requires(M > 0 && N > 0)
+    Mat<M, N> operator+(const Mat<M, N>& rhs) noexcept {
+        return rhs;
+    }
+
+    /// @return The additive inverse of the matrix.
+    template <size_t M, size_t N>
+    requires(M > 0 && N > 0)
+    Mat<M, N> operator-(const Mat<M, N>& rhs) noexcept {
+        Mat<M, N> result;
+        for (size_t i = 0; i < M; i++) {
+            for (size_t j = 0; j < N; j++) {
+                result[i][j] = -rhs[i][j];
+            }
+        }
+        return result;
+    }
+
+    /// @return Result of adding lhs and rhs.
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
     Mat<M, N> operator+(const Mat<M, N>& lhs, const Mat<M, N>& rhs) noexcept {
@@ -310,6 +453,7 @@ namespace corn {
         return result;
     }
 
+    /// @return Result of subtracting rhs from lhs.
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
     Mat<M, N> operator-(const Mat<M, N>& lhs, const Mat<M, N>& rhs) noexcept {
@@ -322,6 +466,7 @@ namespace corn {
         return result;
     }
 
+    /// @return Matrix multiplication of lhs and rhs.
     template <size_t M, size_t N, size_t K>
     requires(M > 0 && N > 0 && K > 0)
     Mat<M, K> operator*(const Mat<M, N>& lhs, const Mat<N, K>& rhs) noexcept {
@@ -336,50 +481,60 @@ namespace corn {
         return result;
     }
 
+    /// @return Result of multiplying a matrix and a scalar.
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
-    Mat<M, N> operator*(const Mat<M, N>& lhs, float scalar) noexcept {
+    Mat<M, N> operator*(const Mat<M, N>& mat, float scalar) noexcept {
         Mat<M, N> result;
         for (size_t i = 0; i < M; i++) {
             for (size_t j = 0; j < N; j++) {
-                result[i][j] = lhs[i][j] * scalar;
+                result[i][j] = mat[i][j] * scalar;
             }
         }
         return result;
     }
 
+    /// @return Result of multiplying a scalar and a matrix.
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
-    Mat<M, N> operator*(float scalar, const Mat<M, N>& rhs) noexcept {
+    Mat<M, N> operator*(float scalar, const Mat<M, N>& mat) noexcept {
         Mat<M, N> result;
         for (size_t i = 0; i < M; i++) {
             for (size_t j = 0; j < N; j++) {
-                result[i][j] = scalar * rhs[i][j];
+                result[i][j] = scalar * mat[i][j];
             }
         }
         return result;
     }
 
+    /// @return Result of multiplying a matrix and a vector.
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
-    Vec<float, N> operator*(const Mat<M, N>& lhs, const Vec<float, N>& rhs) noexcept {
+    Vec<float, N> operator*(const Mat<M, N>& mat, const Vec<float, N>& vec) noexcept {
         Vec<float, N> result;
         for (size_t i = 0; i < M; i++) {
-            result[i] = dot(lhs[i], rhs);
+            result[i] = dot(mat[i], vec);
         }
         return result;
     }
 
+    /// @return Result of multiplying a vector and a matrix.
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
-    Vec<float, M> operator*(const Vec<float, M>& lhs, const Mat<M, N>& rhs) noexcept {
+    Vec<float, M> operator*(const Vec<float, M>& vec, const Mat<M, N>& mat) noexcept {
         Vec<float, M> result;
         for (size_t i = 0; i < M; i++) {
-            result += lhs[i] * rhs[i];
+            result += vec[i] * mat[i];
         }
         return result;
     }
 
+    /**
+     * @brief Add rhs to lhs matrix in-place.
+     * @param lhs First matrix.
+     * @param rhs Second matrix.
+     * @return Reference to lhs.
+     */
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
     Mat<M, N>& operator+=(Mat<M, N>& lhs, const Mat<M, N>& rhs) noexcept {
@@ -392,6 +547,12 @@ namespace corn {
         return lhs;
     }
 
+    /**
+     * @brief Subtract rhs from lhs matrix in-place.
+     * @param lhs First matrix.
+     * @param rhs Second matrix.
+     * @return Reference to lhs.
+     */
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
     Mat<M, N>& operator-=(Mat<M, N>& lhs, const Mat<M, N>& rhs) noexcept {
@@ -404,6 +565,12 @@ namespace corn {
         return lhs;
     }
 
+    /**
+     * @brief Compare two matrices for equality.
+     * @param lhs First matrix.
+     * @param rhs Second matrix.
+     * @return Whether the matrices are equal.
+     */
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
     bool operator==(const Mat<M, N>& lhs, const Mat<M, N>& rhs) noexcept {
@@ -417,6 +584,12 @@ namespace corn {
         return true;
     }
 
+    /**
+     * @brief Compare two matrices for inequality.
+     * @param lhs First matrix.
+     * @param rhs Second matrix.
+     * @return Whether the matrices are not equal.
+     */
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
     bool operator!=(const Mat<M, N>& lhs, const Mat<M, N>& rhs) noexcept {

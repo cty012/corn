@@ -86,16 +86,6 @@ namespace corn {
         explicit Vec(Args... args) noexcept
                 : VecMixin<T, N>(this->data_), data_{{ static_cast<T>(std::forward<Args>(args))... }} {}
 
-        /// @brief Constructor.
-        explicit Vec(const std::vector<T>& data) noexcept : VecMixin<T, N>(this->data_) {
-            if (data.size() <= N) {
-                std::ranges::copy(data, this->data_.begin());
-                std::fill(this->data_.begin() + data.size(), this->data_.end(), static_cast<T>(0));
-            } else {
-                std::ranges::copy_n(data.begin(), N, this->data_.begin());
-            }
-        }
-
         /// @brief Copy Constructor.
         Vec(const Vec<T, N>& other) noexcept : VecMixin<T, N>(this->data_), data_(other.data_) {}
 
@@ -116,13 +106,13 @@ namespace corn {
             return *this;
         }
 
-        /// @brief Zero vector.
+        /// @return Zero vector.
         [[nodiscard]] static const Vec<T, N>& O() noexcept {
             static const Vec<T, N> zero;
             return zero;
         }
 
-        /// @brief Unit vector in the given direction.
+        /// @return Unit vector in the given direction.
         template <size_t M>
         requires(M < N)
         [[nodiscard]] static const Vec<T, N>& E() noexcept {
@@ -134,34 +124,31 @@ namespace corn {
             return unit;
         }
 
-        /// @brief Unit vector in the X direction.
+        /// @return Unit vector in the X direction.
         [[nodiscard]] static const Vec<T, N>& E_X() noexcept
         requires(N >= 2 && N <= 4) {
             return E<0>();
         }
 
-        /// @brief Unit vector in the Y direction.
+        /// @return Unit vector in the Y direction.
         [[nodiscard]] static const Vec<T, N>& E_Y() noexcept
         requires(N >= 2 && N <= 4) {
             return E<1>();
         }
 
-        /// @brief Unit vector in the Z direction.
+        /// @return Unit vector in the Z direction.
         [[nodiscard]] static const Vec<T, N>& E_Z() noexcept
         requires(N >= 3 && N <= 4) {
             return E<2>();
         }
 
-        /// @brief Unit vector in the W direction.
+        /// @return Unit vector in the W direction.
         [[nodiscard]] static const Vec<T, N>& E_W() noexcept
         requires(N == 4) {
             return E<3>();
         }
 
-        /**
-         * @brief Get the dimension of the vector.
-         * @return Dimension of the vector.
-         */
+        /// @return Dimension of the vector.
         [[nodiscard]] static constexpr size_t dim() noexcept {
             return N;
         }

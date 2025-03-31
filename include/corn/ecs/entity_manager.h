@@ -158,7 +158,7 @@ namespace corn {
          * @param worldPosition Output world position.
          * @return Whether the conversion is successful.
          */
-        [[nodiscard]] bool screenToWorldPosition(const Vec2f& screenPosition, Vec2f& worldPosition) const noexcept;
+        bool screenToWorldPosition(const Vec2f& screenPosition, Vec2f& worldPosition) const noexcept;
 
         /// @brief Clears all entities.
         void clear() noexcept;
