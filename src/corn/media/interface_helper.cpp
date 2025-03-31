@@ -24,7 +24,7 @@ namespace corn {
         Vec2f scale = cSprite.image->impl_->scale;
         if (cSprite.image->impl_->type == ImageType::SVG) {
             // SVGs are scaled during rasterization
-            cSprite.image->impl_->rasterize(scale, true);
+            cSprite.image->impl_->rasterize(Vec2f(1.0f, 1.0f), true);
             scale = Vec2f(1.0f, 1.0f);
         }
         sf::Sprite& sfSprite = cSprite.image->impl_->sfSprite;
