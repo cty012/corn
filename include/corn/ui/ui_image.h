@@ -16,7 +16,7 @@ namespace corn {
         // UIManager need access to ctor/dtor
         friend class UIManager;
 
-        [[nodiscard]] Vec2 getNaturalSize() const noexcept override;
+        [[nodiscard]] Vec2f getNaturalSize() const noexcept override;
 
         /// @brief Getter for the image.
         [[nodiscard]] const Image* getImage() const noexcept;

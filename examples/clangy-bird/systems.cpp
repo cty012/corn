@@ -10,7 +10,7 @@ void WallManager::update(float) {
     // Iterate over existing walls
     for (corn::Entity* entity : this->getScene().getEntityManager().getEntitiesWith<Wall>()) {
         auto* transform = entity->getComponent<corn::CTransform2D>();
-        float locationX = transform->getWorldTransform().first.x;
+        float locationX = transform->getWorldTransform().getTranslationComponent().x;
         if ((locationX + WALL_THICKNESS) < 0) {
             entity->destroy();
         }

@@ -240,31 +240,38 @@ namespace corn {
 #pragma warning(disable : 4702)  // Unreachable code
 #endif
 
-    bool EntityManager::screenToWorldPosition(const Vec2& screenPosition, Vec2& worldPosition) const noexcept {
+    bool EntityManager::screenToWorldPosition(const Vec2f& screenPosition, Vec2f& worldPosition) const noexcept {
         if (this->cameras_.empty()) return false;
 
-        Vec2 percentWindowSize = this->getGame()->windowSize() * 0.01f;
+        Vec2f percentWindowSize = this->getGame()->windowSize() * 0.01f;
 
-        // Calculate the viewport and fov of each camera, in reverse order
+        // For each camera, in reverse order:
         for (const CCamera* camera : this->cameras_ | std::views::reverse) {  // MSVC falsely detects unreachable code
-            Vec2 viewportPos(camera->viewport.x.calc(1.0f, percentWindowSize.x, percentWindowSize.y),
-                             camera->viewport.y.calc(1.0f, percentWindowSize.x, percentWindowSize.y));
-            Vec2 viewportSize(camera->viewport.w.calc(1.0f, percentWindowSize.x, percentWindowSize.y),
-                              camera->viewport.h.calc(1.0f, percentWindowSize.x, percentWindowSize.y));
+            Vec2f viewportPos(
+                    camera->viewport.x.calc(1.0f, percentWindowSize.x, percentWindowSize.y),
+                    camera->viewport.y.calc(1.0f, percentWindowSize.x, percentWindowSize.y));
+            Vec2f viewportSize(
+                    camera->viewport.w.calc(1.0f, percentWindowSize.x, percentWindowSize.y),
+                    camera->viewport.h.calc(1.0f, percentWindowSize.x, percentWindowSize.y));
+            Vec2f fovSize(
+                    camera->fovW.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale),
+                    camera->fovH.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale));
 
             // Check if the screen position is within the camera's viewport
             if (screenPosition.x < viewportPos.x || screenPosition.x > viewportPos.x + viewportSize.x ||
                 screenPosition.y < viewportPos.y || screenPosition.y > viewportPos.y + viewportSize.y) {
-                return false;
+                continue;
             }
 
+            // Calculate the transform of camera
+            Transform2D worldTransform = camera->getEntity().getComponent<CTransform2D>()->getWorldTransform();
+            Vec2f cameraScale = Vec2f(fovSize.x / viewportSize.x, fovSize.y / viewportSize.y);
+            Deg cameraRotation = worldTransform.getRotationComponent();
+            Vec2f cameraCenter = worldTransform.getTranslationComponent();
+            Transform2D transform = Transform2D(cameraCenter, cameraRotation, cameraScale) * Transform2D::translate(-viewportSize * 0.5f);
+
             // Calculate the world position
-            Vec2 cameraCenter = camera->getEntity().getComponent<CTransform2D>()->getWorldTransform().first +
-                                camera->anchor.vec2();
-            Vec2 fovSize(camera->fovW.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale),
-                         camera->fovH.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale));
-            Vec2 scale(fovSize.x / viewportSize.x, fovSize.y / viewportSize.y);
-            worldPosition = cameraCenter - fovSize * 0.5 + (screenPosition - viewportPos) * scale;
+            worldPosition = transform.mapPoint(screenPosition - viewportPos);
             return true;
         }
 

@@ -7,10 +7,10 @@ corn::Entity* createCamera(
     corn::Entity* camera = &entityManager.createEntity("camera", nullptr);
 
     // Transform
-    camera->addComponent<corn::CTransform2D>(corn::Vec2::ZERO());
+    camera->addComponent<corn::CTransform2D>();
 
     // Camera
-    camera->addComponent<corn::CCamera>(corn::Vec2::ZERO(), corn::Color::WHITE());
+    camera->addComponent<corn::CCamera>(corn::CameraType::_2D, corn::Color::WHITE());
 
     return camera;
 }

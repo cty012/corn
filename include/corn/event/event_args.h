@@ -2,7 +2,7 @@
 
 #include <string>
 #include <corn/event/input.h>
-#include <corn/geometry/vec2.h>
+#include <corn/geometry/vec.h>
 
 namespace corn {
     /**
@@ -81,10 +81,10 @@ namespace corn {
         unsigned char modifiers;
 
         /// @brief Location of the mouse.
-        Vec2 mousePos;
+        Vec2f mousePos;
 
         /// @brief Constructor.
-        EventArgsKeyboard(Key key, ButtonEvent status, unsigned char modifiers, const Vec2& mousePos) noexcept;
+        EventArgsKeyboard(Key key, ButtonEvent status, unsigned char modifiers, const Vec2f& mousePos) noexcept;
     };
 
     /**
@@ -111,10 +111,10 @@ namespace corn {
         unsigned char modifiers;
 
         /// @brief Location of the mouse.
-        Vec2 mousePos;
+        Vec2f mousePos;
 
         /// @brief Constructor.
-        EventArgsWorldKeyboard(Key key, ButtonEvent status, unsigned char modifiers, const Vec2& mousePos) noexcept;
+        EventArgsWorldKeyboard(Key key, ButtonEvent status, unsigned char modifiers, const Vec2f& mousePos) noexcept;
     };
 
     /**
@@ -131,10 +131,10 @@ namespace corn {
         ButtonEvent status;
 
         /// @brief Location of the mouse.
-        Vec2 mousePos;
+        Vec2f mousePos;
 
         /// @brief Constructor.
-        EventArgsMouseButton(Mouse mouse, ButtonEvent status, const Vec2& mousePos) noexcept;
+        EventArgsMouseButton(Mouse mouse, ButtonEvent status, const Vec2f& mousePos) noexcept;
     };
 
     /**
@@ -151,10 +151,10 @@ namespace corn {
         ButtonEvent status;
 
         /// @brief Location of the mouse.
-        Vec2 mousePos;
+        Vec2f mousePos;
 
         /// @brief Constructor.
-        EventArgsWorldMouseButton(Mouse mouse, ButtonEvent status, const Vec2& mousePos) noexcept;
+        EventArgsWorldMouseButton(Mouse mouse, ButtonEvent status, const Vec2f& mousePos) noexcept;
     };
 
     /**
@@ -165,10 +165,10 @@ namespace corn {
         [[nodiscard]] std::string type() const noexcept override { return "corn::input::mousemv"; }
 
         /// @brief Location of the cursor after the movement.
-        Vec2 mousePos;
+        Vec2f mousePos;
 
         /// @brief Constructor.
-        explicit EventArgsMouseMove(const Vec2& mousePos) noexcept;
+        explicit EventArgsMouseMove(const Vec2f& mousePos) noexcept;
     };
 
     /**
@@ -179,10 +179,10 @@ namespace corn {
         [[nodiscard]] std::string type() const noexcept override { return "corn::world::mousemv"; }
 
         /// @brief Location of the cursor after the movement.
-        Vec2 mousePos;
+        Vec2f mousePos;
 
         /// @brief Constructor.
-        explicit EventArgsWorldMouseMove(const Vec2& mousePos) noexcept;
+        explicit EventArgsWorldMouseMove(const Vec2f& mousePos) noexcept;
     };
 
     /**
@@ -196,10 +196,10 @@ namespace corn {
         float value;
 
         /// @brief Location of the mouse.
-        Vec2 mousePos;
+        Vec2f mousePos;
 
         /// @brief Constructor.
-        EventArgsMouseScroll(float value, const Vec2& mousePos) noexcept;
+        EventArgsMouseScroll(float value, const Vec2f& mousePos) noexcept;
     };
 
     /**
@@ -213,10 +213,10 @@ namespace corn {
         float value;
 
         /// @brief Location of the mouse.
-        Vec2 mousePos;
+        Vec2f mousePos;
 
         /// @brief Constructor.
-        EventArgsWorldMouseScroll(float value, const Vec2& mousePos) noexcept;
+        EventArgsWorldMouseScroll(float value, const Vec2f& mousePos) noexcept;
     };
 
     /**

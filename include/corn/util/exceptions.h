@@ -5,6 +5,15 @@
 #include <vector>
 
 namespace corn {
+    class InvalidTransform : public std::exception {
+    public:
+        explicit InvalidTransform(const std::string& msg) noexcept;
+        [[nodiscard]] const char* what() const noexcept override;
+
+    private:
+        std::string msg_;
+    };
+
     /**
      * @class ResourceLoadFailed
      * @brief Throws when failed to load a resource from the disk (e.g. image, font).

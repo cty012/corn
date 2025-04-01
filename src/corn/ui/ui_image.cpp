@@ -9,7 +9,7 @@ namespace corn {
         delete this->image_;
     }
 
-    Vec2 UIImage::getNaturalSize() const noexcept {
+    Vec2f UIImage::getNaturalSize() const noexcept {
         return this->image_->getSize();
     }
 

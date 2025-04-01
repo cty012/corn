@@ -120,11 +120,11 @@ namespace corn::test::ui_manager {
         DummyScene scene;
         auto [widget1, widget2, widget3, widget4] = setupUI(scene.getUIManager());
 
-        scene.getUIManager().calcGeometry(corn::Vec2(1000, 1000));
-        EXPECT_VEC4_EQ(scene.getUIManager().getCachedGeometry(widget1), Vec4(0, 0, 1000, 1000));
-        EXPECT_VEC4_EQ(scene.getUIManager().getCachedGeometry(widget2), Vec4(0, 0, 500, 500));
-        EXPECT_VEC4_EQ(scene.getUIManager().getCachedGeometry(widget3), Vec4(500, 500, 500, 500));
-        EXPECT_VEC4_EQ(scene.getUIManager().getCachedGeometry(widget4), Vec4(50, 50, 400, 400));
+        scene.getUIManager().calcGeometry(corn::Vec2f(1000, 1000));
+        EXPECT_VEC4_EQ(scene.getUIManager().getCachedGeometry(widget1), Vec4f(0, 0, 1000, 1000));
+        EXPECT_VEC4_EQ(scene.getUIManager().getCachedGeometry(widget2), Vec4f(0, 0, 500, 500));
+        EXPECT_VEC4_EQ(scene.getUIManager().getCachedGeometry(widget3), Vec4f(500, 500, 500, 500));
+        EXPECT_VEC4_EQ(scene.getUIManager().getCachedGeometry(widget4), Vec4f(50, 50, 400, 400));
     }
 
     TEST(UIManager, ui_event) {
@@ -149,8 +149,8 @@ namespace corn::test::ui_manager {
         // Click & focus
         clearStatus();
         EXPECT_EQ(uiManager.getFocusedWidget(), nullptr);
-        uiManager.calcGeometry(Vec2(1000, 1000));
-        uiManager.onClick(EventArgsMouseButton(Mouse::LEFT, ButtonEvent::DOWN, Vec2(250, 250)));
+        uiManager.calcGeometry(Vec2f(1000, 1000));
+        uiManager.onClick(EventArgsMouseButton(Mouse::LEFT, ButtonEvent::DOWN, Vec2f(250, 250)));
         EXPECT_EQ(uiManager.getFocusedWidget(), widget4);
         UnorderedMapsEqual(status[widget1], {});
         UnorderedMapsEqual(status[widget2], {{ "onclick", true }});
@@ -158,7 +158,7 @@ namespace corn::test::ui_manager {
         UnorderedMapsEqual(status[widget4], {{ "onclick", true }, { "onfocus", true }});
 
         clearStatus();
-        uiManager.onClick(EventArgsMouseButton(Mouse::LEFT, ButtonEvent::DOWN, Vec2(750, 750)));
+        uiManager.onClick(EventArgsMouseButton(Mouse::LEFT, ButtonEvent::DOWN, Vec2f(750, 750)));
         EXPECT_EQ(uiManager.getFocusedWidget(), widget3);
         UnorderedMapsEqual(status[widget1], {});
         UnorderedMapsEqual(status[widget2], {});

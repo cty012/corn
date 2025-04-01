@@ -4,47 +4,45 @@
 
 namespace corn {
     const Color& Color::WHITE() noexcept {
-        static const Color color = { 255, 255, 255, 255 };
+        static const Color color { 255, 255, 255, 255 };
         return color;
     }
 
     const Color& Color::BLACK() noexcept {
-        static const Color color = { 0, 0, 0, 255 };
+        static const Color color { 0, 0, 0, 255 };
         return color;
     }
 
     const Color& Color::RED() noexcept {
-        static const Color color = { 255, 0, 0, 255 };
+        static const Color color { 255, 0, 0, 255 };
         return color;
     }
 
     const Color& Color::GREEN() noexcept {
-        static const Color color = { 0, 255, 0, 255 };
+        static const Color color { 0, 255, 0, 255 };
         return color;
     }
 
     const Color& Color::BLUE() noexcept {
-        static const Color color = { 0, 0, 255, 255 };
+        static const Color color { 0, 0, 255, 255 };
         return color;
     }
 
-    Color::Color() noexcept : r_(255), g_(255), b_(255), a_(255) {}
+    Color::Color() noexcept : rgba_(255, 255, 255, 255) {}
 
     Color::Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a) noexcept
-            : r_(r), g_(g), b_(b), a_(a) {}
+            : rgba_(r, g, b, a) {}
 
     Color Color::rgb(unsigned char r, unsigned char g, unsigned char b, unsigned char a) noexcept {
         return { r, g, b, a };
     }
 
-    Color Color::rgb(const Color::RGB& rgbValues) noexcept {
-        auto [r, g, b] = rgbValues;
-        return { r, g, b, 255 };
+    Color Color::rgb(const Vec3uc& rgbValues) noexcept {
+        return { rgbValues[0], rgbValues[1], rgbValues[2], 255 };
     }
 
-    Color Color::rgb(const Color::RGBA &rgbaValues) noexcept {
-        auto [r, g, b, a] = rgbaValues;
-        return { r, g, b, a };
+    Color Color::rgb(const Vec4uc& rgbaValues) noexcept {
+        return { rgbaValues[0], rgbaValues[1], rgbaValues[2], rgbaValues[3] };
     }
 
     Color Color::hsl(const HSL& hslValues) noexcept {
@@ -102,18 +100,18 @@ namespace corn {
         return { r, g, b, a };
     }
 
-    Color::RGB Color::getRGB() const noexcept {
-        return { this->r_, this->g_, this->b_ };
+    Vec3uc Color::getRGB() const noexcept {
+        return this->rgba_.to<3>();
     }
 
-    Color::RGBA Color::getRGBA() const noexcept {
-        return { this->r_, this->g_, this->b_, this->a_ };
+    Vec4uc Color::getRGBA() const noexcept {
+        return this->rgba_;
     }
 
     Color::HSL Color::getHSL() const noexcept {
-        float r = (float)this->r_ / 255.0f;
-        float g = (float)this->g_ / 255.0f;
-        float b = (float)this->b_ / 255.0f;
+        float r = (float)this->rgba_[0] / 255.0f;
+        float g = (float)this->rgba_[1] / 255.0f;
+        float b = (float)this->rgba_[2] / 255.0f;
 
         // Chroma, hue prime, and X
         float cmax = std::max(r, std::max(g, b));
@@ -143,7 +141,7 @@ namespace corn {
 
     Color::HSLA Color::getHSLA() const noexcept {
         auto [h, s, l] = this->getHSL();
-        return { h, s, l, this->a_ };
+        return { h, s, l, this->rgba_[3] };
     }
 
     Color Color::parse(const std::string& hexString) {
@@ -165,13 +163,15 @@ namespace corn {
 
     std::string Color::hexString() const noexcept {
         char hexStr[8];
-        std::snprintf(hexStr, sizeof(hexStr), "#%02x%02x%02x", this->r_, this->g_, this->b_);
+        std::snprintf(hexStr, sizeof(hexStr), "#%02x%02x%02x", this->rgba_[0], this->rgba_[1], this->rgba_[2]);
         return { hexStr };
     }
 
     std::string Color::hexStringAlpha() const noexcept {
         char hexStr[10];
-        std::snprintf(hexStr, sizeof(hexStr), "#%02x%02x%02x%02x", this->r_, this->g_, this->b_, this->a_);
-        return {hexStr};
+        std::snprintf(
+                hexStr, sizeof(hexStr), "#%02x%02x%02x%02x",
+                this->rgba_[0], this->rgba_[1], this->rgba_[2], this->rgba_[3]);
+        return { hexStr };
     }
 }

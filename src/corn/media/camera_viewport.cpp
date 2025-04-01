@@ -1,12 +1,12 @@
 #include <cmath>
-#include <corn/geometry/vec2.h>
+#include <corn/geometry/vec.h>
 #include <corn/media/camera_viewport.h>
 #include "camera_viewport_impl.h"
 
 namespace corn {
     CameraViewportImpl::CameraViewportImpl() noexcept : texture() {}
 
-    bool CameraViewportImpl::setSize(const Vec2& size, int antialiasing) {
+    bool CameraViewportImpl::setSize(const Vec2f& size, int antialiasing) {
         unsigned int newWidth = std::lround(size.x);
         unsigned int newHeight = std::lround(size.y);
         auto [width, height] = this->texture.getSize();

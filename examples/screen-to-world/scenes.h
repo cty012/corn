@@ -2,13 +2,13 @@
 
 #include <corn/core/scene.h>
 #include <corn/ecs/entity.h>
-#include <corn/geometry/vec2.h>
+#include <corn/geometry/vec.h>
 
 class MainScene : public corn::Scene {
 public:
     MainScene();
 
-    void move(const corn::Vec2& displacement);
+    void move(const corn::Vec2f& displacement);
     void rotate(corn::Deg angle);
     void scale(float factor);
 

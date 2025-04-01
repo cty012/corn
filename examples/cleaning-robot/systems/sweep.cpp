@@ -29,11 +29,11 @@ void SSweep::update(float millis) {
         }
 
         // Sweep the object
-        corn::Vec2 displacement = movement->velocity * (millis * 0.001f);
+        corn::Vec2f displacement = movement->velocity * (millis * 0.001f);
         corn::Polygon newSweepRegion = polygonSweep(object->polygon, displacement);
 
         // Merge the swept region with the sweep object
-        newSweepRegion.translate(transform->location);
+        newSweepRegion.translate(transform->translation);
         std::vector<corn::Polygon> temp = polygonUnion(sweepRegion->polygon, newSweepRegion);
         if (temp.empty()) {
             continue;
@@ -41,6 +41,6 @@ void SSweep::update(float millis) {
         sweepRegion->polygon = std::move(temp[0]);
 
         // Move the object
-        transform->location += displacement;
+        transform->translation += displacement;
     }
 }

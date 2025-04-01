@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <nanosvg.h>
 #include <SFML/Graphics.hpp>
-#include <corn/geometry/vec2.h>
+#include <corn/geometry/vec.h>
 
 namespace corn {
     enum class ImageType { PNG, JPEG, SVG, UNKNOWN };
@@ -28,7 +28,7 @@ namespace corn {
         NSVGimage* svgImage;
 
         /// @brief Scale of the image.
-        Vec2 scale;
+        Vec2f scale;
 
         /// @brief The texture is stored on GPU for rendering.
         sf::Texture texture;
@@ -48,7 +48,7 @@ namespace corn {
          * @param height Height of the image.
          * @param color Color of the image (RGBA).
          */
-        ImageImpl(unsigned int width, unsigned int height, Color color);
+        ImageImpl(unsigned int width, unsigned int height, const Color& color);
 
         /// @brief Destructor.
         ~ImageImpl();
@@ -62,6 +62,6 @@ namespace corn {
         /// @return Original height of the image.
         float getHeight() const;
 
-        bool rasterize(Vec2 extraScale = Vec2(1.0f, 1.0f), bool useCache = false);
+        bool rasterize(Vec2f extraScale = Vec2f(1.0f, 1.0f), bool useCache = false);
     };
 }

@@ -49,7 +49,7 @@ namespace corn {
         this->debugOverlayEnabled_ = debugOverlayEnabled;
     }
 
-    Vec2 Game::windowSize() const noexcept {
+    Vec2f Game::windowSize() const noexcept {
         return this->interface_->windowSize();
     }
 

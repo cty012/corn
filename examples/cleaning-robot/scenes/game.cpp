@@ -10,9 +10,9 @@ GameScene::GameScene() {
     corn::Entity* robot = createRobot(
             this->getEntityManager(),
             "robot",
-            corn::Polygon::createCircle(corn::Vec2::ZERO(), 25, 32),
+            corn::Polygon::createCircle(corn::Vec2f::O(), 25, 32),
 //            corn::Polygon::createRectangle({ -25, -25 }, 50, 50),
-            corn::Vec2(0, 0),
+            corn::Vec2f::O(),
             corn::Color::parse("#6666cc"));
 
     // Systems

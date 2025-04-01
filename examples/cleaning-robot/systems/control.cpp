@@ -33,7 +33,7 @@ void SControl::update(float) {}
 
 void SControl::updateMovement() {
     // Get velocity
-    corn::Vec2 velocity;
+    corn::Vec2f velocity;
     if (this->getGame()->isPressed(corn::Key::W) || this->getGame()->isPressed(corn::Key::UP)) {
         velocity.y -= 1.0f;
     }

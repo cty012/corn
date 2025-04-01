@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <corn/ecs/component.h>
 #include <corn/event/input.h>
-#include <corn/geometry/vec2.h>
+#include <corn/geometry/vec.h>
 #include <corn/media/interface.h>
 #include <corn/util/config.h>
 
@@ -12,22 +12,22 @@ namespace corn {
     void draw(
             const CCamera& cCamera,
             const CTransform2D& cTransform, const CSprite& cSprite,
-            const Vec2& cameraOffset, const Vec2& cameraScale, const sf::Transform& scaleTransform);
+            const Transform2D& cameraTransform);
 
     void draw(
             const CCamera& cCamera,
             const CTransform2D& cTransform, const CLines& cLines,
-            const Vec2& cameraOffset, const Vec2& cameraScale, const sf::Transform& scaleTransform);
+            const Transform2D& cameraTransform);
 
     void draw(
             const CCamera& cCamera,
             const CTransform2D& cTransform, const CPolygon& cPolygon,
-            const Vec2& cameraOffset, const Vec2& cameraScale, const sf::Transform& scaleTransform);
+            const Transform2D& cameraTransform);
 
     void draw(
             const CCamera& cCamera,
             const CTransform2D& cTransform, const CText& cText,
-            const Vec2& cameraOffset, const Vec2& cameraScale, const sf::Transform& scaleTransform);
+            const Transform2D& cameraTransform);
 
     // Inline functions
     inline DisplayMode sfStyle2CornMode(int style) {

@@ -3,9 +3,9 @@
 #include <filesystem>
 #include <string>
 #include <utility>
+#include <corn/geometry/vec.h>
 
 namespace corn {
-    struct Vec2;
     class Color;
     class ImageImpl;
 
@@ -41,10 +41,10 @@ namespace corn {
         Image& operator=(Image&& other) noexcept;
 
         /// @return Original width and height of the image (without scaling).
-        [[nodiscard]] std::pair<unsigned int, unsigned int> getOriginalSize() const noexcept;
+        [[nodiscard]] Vec2f getOriginalSize() const noexcept;
 
         /// @return Scaled width and height of the image.
-        [[nodiscard]] Vec2 getSize() const noexcept;
+        [[nodiscard]] Vec2f getSize() const noexcept;
 
         /**
          * @brief Resize the image.

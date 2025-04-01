@@ -9,7 +9,7 @@ corn::Entity* createSweepRegion(
     corn::Entity* sweepRegion = &entityManager.createEntity(name);
 
     // Transform
-    sweepRegion->addComponent<corn::CTransform2D>(corn::Vec2::ZERO())->setZOrder(-1);
+    sweepRegion->addComponent<corn::CTransform2D>()->setZOrder(-1);
 
     // Polygon
     sweepRegion->addComponent<corn::CPolygon>(corn::Polygon(), 0.0f, color);

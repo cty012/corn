@@ -3,6 +3,7 @@
 #include <string>
 #include <tuple>
 #include <corn/geometry/deg.h>
+#include <corn/geometry/vec.h>
 
 namespace corn {
     /**
@@ -11,10 +12,8 @@ namespace corn {
      */
     class Color {
     public:
-        using RGB = std::tuple<unsigned char, unsigned char, unsigned char>;
-        using RGBA = std::tuple<unsigned char, unsigned char, unsigned char, unsigned char>;
         using HSL = std::tuple<Deg, float, float>;
-        using HSLA = std::tuple<Deg, float, float, unsigned char>;
+        using HSLA = std::tuple<Deg, float, float, uint8_t>;
 
         /// @brief Useful colors.
         /// @{
@@ -31,11 +30,11 @@ namespace corn {
         /// @brief Construct color from R, G, B (and A) values.
         static Color rgb(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255) noexcept;
 
-        /// @brief Construct from a 3-tuple representing RGB values.
-        static Color rgb(const RGB& rgbValues) noexcept;
+        /// @brief Construct from a Vec3 of uint8_t representing RGB values.
+        static Color rgb(const Vec3uc& rgbValues) noexcept;
 
         /// @brief Construct from a 4-tuple representing RGBA values.
-        static Color rgb(const RGBA& rgbaValues) noexcept;
+        static Color rgb(const Vec4uc& rgbaValues) noexcept;
 
         /// @brief Construct from a 3-tuple representing HSL values.
         static Color hsl(const HSL& hslValues) noexcept;
@@ -44,10 +43,10 @@ namespace corn {
         static Color hsl(const HSLA& hslaValues) noexcept;
 
         /// @brief Get the RGB values as a tuple.
-        [[nodiscard]] RGB getRGB() const noexcept;
+        [[nodiscard]] Vec3uc getRGB() const noexcept;
 
         /// @brief Get the RGBA values as a tuple.
-        [[nodiscard]] RGBA getRGBA() const noexcept;
+        [[nodiscard]] Vec4uc getRGBA() const noexcept;
 
         /// @brief Get the HSL values as a tuple.
         [[nodiscard]] HSL getHSL() const noexcept;
@@ -83,6 +82,6 @@ namespace corn {
         Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a) noexcept;
 
         /// @brief The RGBA values.
-        unsigned char r_, g_, b_, a_;
+        Vec4uc rgba_;
     };
 }

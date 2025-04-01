@@ -2,13 +2,9 @@
 #include <ranges>
 #include <stack>
 #include <corn/core/scene.h>
-#include <corn/geometry/vec4.h>
-#include <corn/media/image.h>
 #include <corn/ui/ui_image.h>
-#include <corn/ui/ui_label.h>
 #include <corn/ui/ui_manager.h>
 #include "../event/event_args_extend.h"
-#include "../media/text_render_impl.h"
 
 namespace corn {
     UIManager::Node::Node(UIWidget* widget, UIManager::Node* parent) noexcept
@@ -105,7 +101,7 @@ namespace corn {
         }
     }
 
-    void UIManager::calcGeometry(Vec2 windowSize) {
+    void UIManager::calcGeometry(Vec2f windowSize) {
         std::vector<UIWidget*> widgets = this->getAllActiveWidgets();
         struct Property {
             UIGeometry geometry;
@@ -139,7 +135,7 @@ namespace corn {
                     break;
                 }
                 default: {
-                    Vec2 naturalSize = widget->getNaturalSize();
+                    Vec2f naturalSize = widget->getNaturalSize();
                     nw = naturalSize.x;
                     nh = naturalSize.y;
                     break;
@@ -194,14 +190,14 @@ namespace corn {
         for (const UIWidget* widget : widgets) {
             Property& props = widgetProps[widget];
             Node& node = this->nodes_.at(widget->getID());
-            node.location = { props.x, props.y };
-            node.size = { props.w, props.h };
+            node.location = Vec2f(props.x, props.y);
+            node.size = Vec2f(props.w, props.h);
         }
     }
 
-    Vec4 UIManager::getCachedGeometry(const UIWidget* widget) const noexcept {
+    Vec4f UIManager::getCachedGeometry(const UIWidget* widget) const noexcept {
         const Node* node = this->getNodeFromWidget(widget);
-        return { node->location.x, node->location.y, node->size.x, node->size.y };
+        return Vec4f(node->location.x, node->location.y, node->size.x, node->size.y);
     }
 
     UIWidget* UIManager::getFocusedWidget() const noexcept {
@@ -312,12 +308,16 @@ namespace corn {
         return true;
     }
 
-    bool UIManager::widgetContains(const UIWidget* widget, Vec2 pos) const noexcept {
-        auto [x, y, w, h] = this->getCachedGeometry(widget);  // NOLINT
+    bool UIManager::widgetContains(const UIWidget* widget, Vec2f pos) const noexcept {
+        Vec4f widgetGeometry = this->getCachedGeometry(widget);
+        float x = widgetGeometry[0];
+        float y = widgetGeometry[1];
+        float w = widgetGeometry[2];
+        float h = widgetGeometry[3];
         return x < pos.x && y < pos.y && x + w > pos.x && y + h > pos.y;
     }
 
-    UIWidget* UIManager::getTargetWidget(Vec2 pos) noexcept {
+    UIWidget* UIManager::getTargetWidget(Vec2f pos) noexcept {
         this->tidy();
         std::vector<UIWidget*> widgets = this->getAllActiveWidgets();
         for (UIWidget* widget : std::ranges::reverse_view(std::views::all(widgets))) {
