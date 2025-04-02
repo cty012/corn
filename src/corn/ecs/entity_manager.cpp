@@ -243,7 +243,7 @@ namespace corn {
     bool EntityManager::screenToWorldPosition(const Vec2f& screenPosition, Vec2f& worldPosition) const noexcept {
         if (this->cameras_.empty()) return false;
 
-        Vec2f percentWindowSize = this->getGame()->windowSize() * 0.01f;
+        Vec2f percentWindowSize = this->getGame()->windowLogicalSize() * 0.01f;
 
         // For each camera, in reverse order:
         for (const CCamera* camera : this->cameras_ | std::views::reverse) {  // MSVC falsely detects unreachable code

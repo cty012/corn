@@ -4,7 +4,8 @@
 
 namespace corn {
     Game::Game(Scene* startScene, Config config)
-            : active_(false), config_(std::move(config)), scenes_(), keyPressed_(), sw_(), debugOverlayEnabled_(false) {
+            : active_(false), config_(std::move(config)), scenes_(), keyPressed_(), interface_(*this, this->keyPressed_),
+              sw_(), debugOverlayEnabled_(false) {
 
         startScene->game_ = this;
         this->scenes_.push(startScene);
@@ -22,13 +23,11 @@ namespace corn {
                     this->active_ = false;
                 });
 
-        this->interface_ = new Interface(*this, this->keyPressed_);
-        this->interface_->init();
+        this->interface_.init();
     }
 
     Game::~Game() {
         // Deallocation
-        delete this->interface_;
         this->removeAllScenes();
         while (!this->sceneEvents_.empty()) {
             delete this->sceneEvents_.front().scene;
@@ -42,15 +41,19 @@ namespace corn {
 
     void Game::setConfig(Config config) {
         this->config_ = std::move(config);
-        this->interface_->init();
+        this->interface_.init();
     }
 
     void Game::setDebugOverlay(bool debugOverlayEnabled) noexcept {
         this->debugOverlayEnabled_ = debugOverlayEnabled;
     }
 
-    Vec2f Game::windowSize() const noexcept {
-        return this->interface_->windowSize();
+    Vec2f Game::windowLogicalSize() const noexcept {
+        return this->interface_.windowLogicalSize();
+    }
+
+    Vec2f Game::windowPhysicalSize() const noexcept {
+        return this->interface_.windowPhysicalSize();
     }
 
     Scene* Game::getTopScene() const noexcept {
@@ -146,12 +149,14 @@ namespace corn {
             this->scenes_.top()->update(millis);
 
             // Update interface
-            this->interface_->handleUserInput();
-            this->interface_->render(this->scenes_.top());
+            this->interface_.handleUserInput();
+            this->interface_.checkWindowResize();
+            this->interface_.clear();
+            this->interface_.render(this->scenes_.top());
             if (this->debugOverlayEnabled_ && debugDataAvailable) {
-                this->interface_->renderDebugOverlay(fps);
+                this->interface_.renderDebugOverlay(fps);
             }
-            this->interface_->update();
+            this->interface_.update();
 
             // Update scene stack
             this->resolveSceneEvents();

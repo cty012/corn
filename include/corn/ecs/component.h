@@ -159,7 +159,12 @@ namespace corn {
     };
 
     struct CPolygon : public Component {
-        Polygon polygon;
+        enum class RenderType {
+            STATIC,
+            DYNAMIC,
+            TRANSIENT,
+        };
+        class Renderer;
 
         /// @brief Thickness of the edges. If thickness is less than or equal to 0 then fill the polygon.
         float thickness;
@@ -168,7 +173,28 @@ namespace corn {
         Color color;
 
         /// @brief Constructor.
-        CPolygon(Entity& entity, Polygon polygon, float thickness, Color color) noexcept;
+        CPolygon(Entity& entity, Polygon polygon, float thickness, Color color, RenderType renderType = RenderType::DYNAMIC) noexcept;
+
+        /// @brief Destructor.
+        ~CPolygon() override;
+
+        // Getters & Setters
+        [[nodiscard]] const Polygon& getPolygon() const noexcept;
+        void setPolygon(Polygon polygon) noexcept;
+        [[nodiscard]] RenderType getRenderType() const noexcept;
+        void setRenderType(RenderType renderType) noexcept;
+        [[nodiscard]] Renderer* getPolygonRenderer() const;
+
+    private:
+        /// @brief The polygon object.
+        Polygon polygon_;
+
+        /// @brief The type of the polygon renderer.
+        RenderType renderType_;
+
+        /// @brief The polygon renderer. Used for rendering.
+        mutable Renderer* renderer_;
+        mutable bool rendererDirty_;
     };
 
     /**

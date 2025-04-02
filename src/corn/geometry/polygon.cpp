@@ -16,7 +16,7 @@ namespace corn {
         this->typeDirty_ = false;
         this->centroidAndAreaDirty_ = false;
         this->bboxDirty_ = false;
-        this->trianglesDirty_ = false;
+        this->triangleIndicesDirty_ = false;
         this->area_ = 0.0f;
     }
 
@@ -24,8 +24,13 @@ namespace corn {
         this->typeDirty_ = true;
         this->centroidAndAreaDirty_ = true;
         this->bboxDirty_ = true;
-        this->trianglesDirty_ = true;
+        this->triangleIndicesDirty_ = true;
         this->area_ = 0.0f;
+
+        // Calculate the flattened vertices
+        this->verticesFlat_.clear();
+        this->verticesFlat_.reserve(this->vertices_.size());
+        this->verticesFlat_.insert(this->verticesFlat_.end(), this->vertices_.begin(), this->vertices_.end());
     }
 
     Polygon::Polygon(const std::vector<Vec2f>& vertices, const std::vector<std::vector<Vec2f>>& holes) noexcept
@@ -34,8 +39,16 @@ namespace corn {
         this->typeDirty_ = true;
         this->centroidAndAreaDirty_ = true;
         this->bboxDirty_ = true;
-        this->trianglesDirty_ = true;
+        this->triangleIndicesDirty_ = true;
         this->area_ = 0.0f;
+
+        // Calculate the flattened vertices
+        this->verticesFlat_.clear();
+        this->verticesFlat_.reserve(vertices.size() + holes.size());
+        for (size_t i = 0; i < holes.size() + 1; i++) {
+            const std::vector<Vec2f>& ring = (i == 0) ? this->vertices_ : this->holes_[i - 1];
+            this->verticesFlat_.insert(this->verticesFlat_.end(), ring.begin(), ring.end());
+        }
     }
 
     Polygon Polygon::createTriangle(const corn::Vec2f& v1, const corn::Vec2f& v2, const corn::Vec2f& v3) noexcept {
@@ -69,14 +82,26 @@ namespace corn {
         return this->holes_;
     }
 
-    void Polygon::setVertices(const std::vector<Vec2f>& vertices, const std::vector<std::vector<Vec2f>>& holes) {
-        this->vertices_ = vertices;
-        this->holes_ = holes;
+    const std::vector<Vec2f>& Polygon::getVerticesFlat() const noexcept {
+        return this->verticesFlat_;
+    }
+
+    void Polygon::setVertices(std::vector<Vec2f> vertices, std::vector<std::vector<Vec2f>> holes) {
+        this->vertices_ = std::move(vertices);
+        this->holes_ = std::move(holes);
         this->typeDirty_ = true;
         this->centroidAndAreaDirty_ = true;
         this->bboxDirty_ = true;
-        this->trianglesDirty_ = true;
+        this->triangleIndicesDirty_ = true;
         this->area_ = 0.0f;
+
+        // Calculate the flattened vertices
+        this->verticesFlat_.clear();
+        this->verticesFlat_.reserve(vertices.size() + holes.size());
+        this->verticesFlat_.insert(this->verticesFlat_.end(), vertices.begin(), vertices.end());
+        for (const std::vector<Vec2f>& hole : holes) {
+            this->verticesFlat_.insert(this->verticesFlat_.end(), hole.begin(), hole.end());
+        }
     }
 
     bool Polygon::contains(const corn::Vec2f& point, bool edgeInclusive) const {
@@ -110,52 +135,27 @@ namespace corn {
                     }
                     return false;
                 };
-        if (pointIsOnRing(point, this->vertices_)) {
-            return edgeInclusive;
-        }
-        for (const std::vector<Vec2f>& ring : this->holes_) {
+        for (size_t i = 0; i < this->holes_.size(); i++) {
+            const std::vector<Vec2f>& ring = (i == 0) ? this->vertices_ : this->holes_[i - 1];
             if (pointIsOnRing(point, ring)) {
                 return edgeInclusive;
             }
         }
 
         // Then check if it is inside/on the polygon
-        const std::vector<std::array<Vec2f, 3>>& triangles = this->getTriangles();
-        return std::any_of(
-                triangles.begin(), triangles.end(),
-                [&point](const std::array<Vec2f, 3>& triangle) {
-                    const auto& [v1, v2, v3] = triangle;
-                    float c1 = cross(v2 - v1, point - v1);
-                    float c2 = cross(v3 - v2, point - v2);
-                    float c3 = cross(v1 - v3, point - v3);
-                    return (c1 >= 0 && c2 >= 0 && c3 >= 0) || (c1 <= 0 && c2 <= 0 && c3 <= 0);
-                });
-    }
-
-    void Polygon::translate(const Vec2f& displacement) noexcept {
-        // Translate the vertices
-        for (Vec2f& vertex : this->vertices_) {
-            vertex += displacement;
-        }
-        for (std::vector<Vec2f>& hole : this->holes_) {
-            for (Vec2f& vertex : hole) {
-                vertex += displacement;
+        (void)this->getTriangleIndices();
+        for (size_t i = 0; i + 2 < this->triangleIndices_.size(); i += 3) {
+            const Vec2f& v1 = this->verticesFlat_[this->triangleIndices_[i]];
+            const Vec2f& v2 = this->verticesFlat_[this->triangleIndices_[i + 1]];
+            const Vec2f& v3 = this->verticesFlat_[this->triangleIndices_[i + 2]];
+            float c1 = cross(v2 - v1, point - v1);
+            float c2 = cross(v3 - v2, point - v2);
+            float c3 = cross(v1 - v3, point - v3);
+            if ((c1 >= 0 && c2 >= 0 && c3 >= 0) || (c1 <= 0 && c2 <= 0 && c3 <= 0)) {
+                return true;
             }
         }
-
-        // Translate the centroid and bounding box
-        this->centroid_ += displacement;
-        this->bbox_.first += displacement;
-        this->bbox_.second += displacement;
-
-        // Translate the triangles
-        if (!this->trianglesDirty_) {
-            for (std::array<Vec2f, 3>& triangle: this->triangles_) {
-                for (Vec2f& vertex: triangle) {
-                    vertex += displacement;
-                }
-            }
-        }
+        return false;
     }
 
     PolygonType Polygon::getType() const {
@@ -186,11 +186,22 @@ namespace corn {
         return this->bbox_;
     }
 
-    const std::vector<std::array<Vec2f, 3>>& Polygon::getTriangles() const {
-        if (this->trianglesDirty_) {
+    const std::vector<size_t>& Polygon::getTriangleIndices() const {
+        if (this->triangleIndicesDirty_) {
             this->triangulate();
         }
-        return this->triangles_;
+        return this->triangleIndices_;
+    }
+
+    std::vector<std::array<Vec2f, 3>> Polygon::getTriangles() const {
+        std::vector<std::array<Vec2f, 3>> triangles;
+        for (size_t i = 0; i < this->getTriangleIndices().size(); i++) {
+            const Vec2f& v1 = this->verticesFlat_[this->triangleIndices_[i]];
+            const Vec2f& v2 = this->verticesFlat_[this->triangleIndices_[(i + 1) % this->triangleIndices_.size()]];
+            const Vec2f& v3 = this->verticesFlat_[this->triangleIndices_[(i + 2) % this->triangleIndices_.size()]];
+            triangles[i] = { v1, v2, v3 };
+        }
+        return triangles;
     }
 
     void Polygon::calcType() const {
@@ -231,7 +242,11 @@ namespace corn {
         }
 
         // Calculate the centroid of each triangle and scale them by the area
-        for (const auto& [v1, v2, v3] : this->getTriangles()) {
+        (void)this->getTriangleIndices();
+        for (size_t i = 0; i + 2 < this->triangleIndices_.size(); i++) {
+            const Vec2f& v1 = this->verticesFlat_[this->triangleIndices_[i]];
+            const Vec2f& v2 = this->verticesFlat_[this->triangleIndices_[i + 1]];
+            const Vec2f& v3 = this->verticesFlat_[this->triangleIndices_[i + 2]];
             float area = triangleArea(v1, v2, v3);
             this->area_ += area;
             this->centroid_ += triangleCentroid(v1, v2, v3) * area;
@@ -256,22 +271,20 @@ namespace corn {
         };
 
         // Calculate the bounding box
-        for (const std::array<Vec2f, 3>& triangle : this->getTriangles()) {
-            for (const Vec2f& v : triangle) {
-                this->bbox_.first = min(this->bbox_.first, v);
-                this->bbox_.second = max(this->bbox_.second, v);
-            }
+        for (size_t i = 0; i < this->getTriangleIndices().size(); i++) {
+            this->bbox_.first = min(this->bbox_.first, this->verticesFlat_[i]);
+            this->bbox_.second = max(this->bbox_.second, this->verticesFlat_[i]);
         }
 
         this->bboxDirty_ = false;
     }
 
     void Polygon::triangulate() const {
-        this->triangles_.clear();
+        this->triangleIndices_.clear();
 
         // Skip if the polygon is invalid
         if (this->getType() == PolygonType::INVALID) {
-            this->trianglesDirty_ = false;
+            this->triangleIndicesDirty_ = false;
             return;
         }
 
@@ -280,21 +293,11 @@ namespace corn {
         toEarcutPolygon(polygonToCut, flattenedPolygon, this->vertices_, this->holes_);
 
         // Triangulate
-        std::vector<size_t> indices = mapbox::earcut<size_t>(polygonToCut);
-        if (indices.size() % 3 != 0) {
+        this->triangleIndices_ = mapbox::earcut<size_t>(polygonToCut);
+        if (this->triangleIndices_.size() % 3 != 0) {
             throw std::logic_error("Invalid triangulation result");
         }
 
-        this->triangles_.reserve(indices.size() / 3);
-        for (size_t i = 0; i + 2 < indices.size(); i += 3) {
-            size_t i1 = indices[i], i2 = indices[i+1], i3 = indices[i+2];
-            this->triangles_.push_back({
-                Vec2f(flattenedPolygon[i1][0], flattenedPolygon[i1][1]),
-                Vec2f(flattenedPolygon[i2][0], flattenedPolygon[i2][1]),
-                Vec2f(flattenedPolygon[i3][0], flattenedPolygon[i3][1])
-            });
-        }
-
-        this->trianglesDirty_ = false;
+        this->triangleIndicesDirty_ = false;
     }
 }

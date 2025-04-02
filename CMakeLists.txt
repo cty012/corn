@@ -95,6 +95,14 @@ target_include_directories(corn PRIVATE "${CMAKE_SOURCE_DIR}/include")
 find_package(SFML 2.6 COMPONENTS graphics window audio network system CONFIG REQUIRED)
 target_link_libraries(corn PRIVATE sfml-graphics sfml-window sfml-audio sfml-network sfml-system)
 
+# Link with bgfx
+find_package(bgfx CONFIG REQUIRED)
+target_link_libraries(corn PRIVATE bgfx::bgfx)
+
+# Link with GLFW
+find_package(glfw3 CONFIG REQUIRED)
+target_link_libraries(corn PRIVATE glfw)
+
 # Link with ICU
 find_package(ICU REQUIRED COMPONENTS uc i18n data)
 target_link_libraries(corn PRIVATE ICU::uc ICU::i18n ICU::data)

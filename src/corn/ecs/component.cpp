@@ -1,4 +1,3 @@
-#include <mapbox/earcut.hpp>
 #include <utility>
 #include <corn/core/scene.h>
 #include <corn/ecs/component.h>
@@ -7,6 +6,7 @@
 #include <corn/geometry/operations.h>
 #include <corn/media/image.h>
 #include "../event/event_args_extend.h"
+#include "../render/polygon_renderer.h"
 
 namespace corn {
     Component::Component(Entity& entity) noexcept
@@ -94,8 +94,102 @@ namespace corn {
     CLines::CLines(Entity& entity, std::vector<Vec2f> vertices, float thickness, Color color, bool closed) noexcept
             : Component(entity), vertices(std::move(vertices)), thickness(thickness), color(std::move(color)), closed(closed) {}
 
-    CPolygon::CPolygon(Entity& entity, Polygon polygon, float thickness, Color color) noexcept
-            : Component(entity), polygon(std::move(polygon)), thickness(thickness), color(std::move(color)) {}
+    CPolygon::CPolygon(Entity& entity, Polygon polygon, float thickness, Color color, RenderType renderType) noexcept
+            : Component(entity), thickness(thickness), color(std::move(color)), polygon_(std::move(polygon)),
+              renderType_(renderType), renderer_(nullptr), rendererDirty_(true) {}
+
+    CPolygon::~CPolygon() {
+        delete this->renderer_;
+    }
+
+    const Polygon& CPolygon::getPolygon() const noexcept {
+        return this->polygon_;
+    }
+
+    void CPolygon::setPolygon(Polygon polygon) noexcept {
+        this->polygon_ = std::move(polygon);
+        this->rendererDirty_ = true;
+    }
+
+    CPolygon::RenderType CPolygon::getRenderType() const noexcept {
+        return this->renderType_;
+    }
+
+    void CPolygon::setRenderType(RenderType renderType) noexcept {
+        if (this->renderType_ == renderType) {
+            return;
+        }
+        this->renderType_ = renderType;
+        this->rendererDirty_ = true;
+    }
+
+    CPolygon::Renderer* CPolygon::getPolygonRenderer() const {
+        if (!this->rendererDirty_) {
+            return this->renderer_;
+        }
+
+        // Create/delete the renderer
+        switch (this->renderType_) {
+            case RenderType::STATIC:
+                if (!this->renderer_) {
+                    this->renderer_ = new StaticPolygonRenderer();
+                }
+                break;
+            case RenderType::DYNAMIC:
+                if (!this->renderer_) {
+                    this->renderer_ = new DynamicPolygonRenderer();
+                }
+                break;
+            case RenderType::TRANSIENT:
+                if (this->renderer_) {
+                    delete this->renderer_;
+                    this->renderer_ = nullptr;
+                }
+                return nullptr;
+        }
+
+        // Variables
+        const std::vector<Vec2f>& vertices_ = this->polygon_.getVertices();
+        const std::vector<std::vector<Vec2f>>& holes_ = this->polygon_.getHoles();
+        const std::vector<Vec2f>& verticesFlat_ = this->polygon_.getVerticesFlat();
+        const std::vector<size_t>& triangleIndices_ = this->polygon_.getTriangleIndices();
+
+        // Vertices
+        std::vector<Vertex2D> vertices;
+        vertices.reserve(vertices.size());
+        for (const Vec2f& vertex : verticesFlat_) {
+            vertices.emplace_back(vertex.x, vertex.y);
+        }
+
+        // Edge indices
+        std::vector<uint16_t> edgeIndices;
+        std::vector<uint32_t> ringSizes;
+        size_t baseIndex = 0;
+        for (size_t i = 0; i < holes_.size() + 1; i++) {
+            size_t ringSize = (i == 0) ? vertices_.size() : holes_[i - 1].size();
+            for (size_t j = 0; j < ringSize; j++) {
+                edgeIndices.push_back(static_cast<uint16_t>(baseIndex + j));
+            }
+            edgeIndices.push_back(static_cast<uint16_t>(baseIndex));
+            baseIndex += ringSize;
+            ringSizes.push_back(static_cast<uint32_t>(ringSize));
+        }
+
+        // Fill indices
+        std::vector<uint16_t> fillIndices;
+        fillIndices.reserve(triangleIndices_.size());
+        for (size_t index : triangleIndices_) {
+            fillIndices.push_back(static_cast<uint16_t>(index));
+        }
+
+        // Update the renderer
+        this->renderer_->update(vertices, edgeIndices, ringSizes, fillIndices);
+
+        // Update the renderer dirty flag
+        this->rendererDirty_ = false;
+
+        return this->renderer_;
+    }
 
     CSprite::CSprite(Entity& entity, Image *image, Vec2f location) noexcept
             : Component(entity), image(image), location(std::move(location)) {}

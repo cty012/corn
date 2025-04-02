@@ -31,8 +31,16 @@ namespace corn {
         /// @brief Creates the window and initializes resources.
         void init();
 
-        /// @return The current size of the window in pixels.
-        [[nodiscard]] Vec2f windowSize() const noexcept;
+        /// @return The current logical size of the window in pixels.
+        [[nodiscard]] Vec2f windowLogicalSize() const noexcept;
+
+        /// @return The current physical (framebuffer) size of the window in pixels.
+        [[nodiscard]] Vec2f windowPhysicalSize() const noexcept;
+
+        [[nodiscard]] float getHiDPIScale() const noexcept;
+
+        /// @brief Checks if the window is resized.
+        void checkWindowResize() const noexcept;
 
         /**
          * @brief Handles user keyboard, mouse, and other inputs and emits a global event.
@@ -73,7 +81,7 @@ namespace corn {
          * @param scene The scene containing the target entities.
          * @param camera The target camera.
          */
-        void renderCamera(Scene* scene, const CCamera* camera);
+        void renderCamera2D(Scene* scene, const CCamera* camera);
 
         /**
          * @brief Render the UI onto the window.

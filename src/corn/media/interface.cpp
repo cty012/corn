@@ -1,5 +1,8 @@
 #include <array>
 #include <cmath>
+#include <bgfx/platform.h>
+#include <bx/bx.h>
+#include <bx/math.h>
 #include <corn/core.h>
 #include <corn/ecs.h>
 #include <corn/event.h>
@@ -11,200 +14,307 @@
 #include "font_impl.h"
 #include "image_impl.h"
 #include "interface_impl.h"
-#include "interface_helper.h"
-#include "text_render_impl.h"
+#include "../render/interface_helper.h"
+#include "../render/text_render_impl.h"
 
 namespace corn {
-    Interface::InterfaceImpl::InterfaceImpl() : window(new sf::RenderWindow()) {}
-
-    Interface::InterfaceImpl::~InterfaceImpl() {
-        this->window->close();
-        delete this->window;
+    static void glfwErrorCallback(int error, const char *description) {
+        fprintf(stderr, "GLFW error %d: %s\n", error, description);
     }
+
+    void onWindowFramebufferResize(bgfx::ViewId viewID, int fwidth, int fheight) {
+        bgfx::reset((uint32_t)fwidth, (uint32_t)fheight, BGFX_RESET_VSYNC | BGFX_RESET_MSAA_X4);
+
+        // Create an orthographic projection matrix mapping [0, fwidth] and [0, fheight] to clip space.
+        float view[16];
+        bx::Vec3 at = { 0.0f, 0.0f,  0.0f };
+        bx::Vec3 eye = { 0.0f, 0.0f, -1.0f };
+        bx::mtxLookAt(view, eye, at);
+        const bgfx::Caps* caps = bgfx::getCaps();
+        float proj[16];
+        (void)viewID; (void)caps; (void)proj;
+        bx::mtxOrtho(
+                proj,
+                0.0f, (float)fwidth, (float)fheight, 0.0f,
+                0.0f, 100.0f,
+                0.0f, caps->homogeneousDepth);
+        bgfx::setViewTransform(viewID, view, proj);
+    }
+
+    Interface::InterfaceImpl::InterfaceImpl()
+            : window(nullptr), viewID(), width(), height(), fwidth(), fheight(), polygonShader() {}
 
     Interface::Interface(const Game& game, std::unordered_map<Key, bool>& keyPressed)
             : game_(game), keyPressed_(keyPressed), impl_(new Interface::InterfaceImpl()) {}
 
     Interface::~Interface() {
+        this->impl_->polygonShader.destroy();
+        bgfx::shutdown();
+        glfwTerminate();
         delete this->impl_;
     }
 
     void Interface::init() {
-        if (this->impl_->window->isOpen()) {
-            this->impl_->window->close();
-        }
         const Config& config = this->game_.getConfig();
-        sf::ContextSettings contextSettings;
-        contextSettings.antialiasingLevel = config.antialiasing;
 
-        this->impl_->window->create(
-                sf::VideoMode((int)config.width, (int)config.height),
-                config.title,
-                cornMode2SfStyle(config.mode),
-                contextSettings);
+        // Create a GLFW window without an OpenGL context.
+        glfwSetErrorCallback(glfwErrorCallback);
+        if (!glfwInit()) return;
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-        if (config.icon) {
-            Vec2f size = config.icon->getSize();
-            this->impl_->window->setIcon(
-                    (unsigned int)size.x, (unsigned int)size.y, config.icon->impl_->image.getPixelsPtr());
+        switch (config.mode) {
+            case DisplayMode::WINDOWED:
+                glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+                this->impl_->window = glfwCreateWindow(
+                        (int)config.width, (int)config.height,
+                        config.title.c_str(),
+                        nullptr, nullptr);
+                break;
+            case DisplayMode::WINDOWED_FIXED:
+                glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+                this->impl_->window = glfwCreateWindow(
+                        (int)config.width, (int)config.height,
+                        config.title.c_str(),
+                        nullptr, nullptr);
+                break;
+            case DisplayMode::FULLSCREEN:
+                this->impl_->window = glfwCreateWindow(
+                        mode->width, mode->height,
+                        config.title.c_str(),
+                        monitor, nullptr);
+                break;
+            case DisplayMode::BORDERLESS:
+                glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+                glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+                this->impl_->window = glfwCreateWindow(
+                        mode->width, mode->height,
+                        config.title.c_str(),
+                        nullptr, nullptr);
+                break;
         }
+        if (!this->impl_->window) {
+            throw std::runtime_error("Failed to create GLFW window.");
+        }
+
+        // Call bgfx::renderFrame before bgfx::init to signal to bgfx not to create a render thread.
+        // Most graphics APIs must be used on the same thread that created the window.
+        bgfx::renderFrame();
+
+        // Initialize bgfx using the native window handle.
+        bgfx::Init init;
+#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
+        init.platformData.ndt = glfwGetX11Display();
+	    init.platformData.nwh = (void*)(uintptr_t)glfwGetX11Window(window);
+#elif BX_PLATFORM_OSX
+        init.platformData.nwh = glfwGetCocoaWindow(this->impl_->window);
+        init.type = bgfx::RendererType::Metal;
+        init.platformData.ndt = nullptr;
+#elif BX_PLATFORM_WINDOWS
+        init.platformData.nwh = glfwGetWin32Window(window);
+#endif
+
+        // Initialize bgfx with the window resolution.
+        glfwGetWindowSize(this->impl_->window, &this->impl_->width, &this->impl_->height);
+        glfwGetFramebufferSize(this->impl_->window, &this->impl_->fwidth, &this->impl_->fheight);
+        init.resolution.width = (uint32_t)this->impl_->fwidth;
+        init.resolution.height = (uint32_t)this->impl_->fheight;
+        init.resolution.reset = BGFX_RESET_VSYNC | BGFX_RESET_MSAA_X4;
+        if (!bgfx::init(init)) {
+            throw std::runtime_error("Failed to initialize bgfx.");
+        }
+        this->impl_->viewID = 0;
+        onWindowFramebufferResize(this->impl_->viewID, this->impl_->fwidth, this->impl_->fheight);
+
+        // Shaders
+        this->impl_->polygonShader.loadEmbedded("vs_triangle", "fs_triangle");
     }
 
-    Vec2f Interface::windowSize() const noexcept {
-        sf::Vector2u size = this->impl_->window->getSize();
-        return Vec2f {(float)size.x, (float)size.y};
+    Vec2f Interface::windowLogicalSize() const noexcept {
+        return Vec2f(static_cast<float>(this->impl_->width), static_cast<float>(this->impl_->height));
+    }
+
+    Vec2f Interface::windowPhysicalSize() const noexcept {
+        return Vec2f(static_cast<float>(this->impl_->fwidth), static_cast<float>(this->impl_->fheight));
+    }
+
+    float Interface::getHiDPIScale() const noexcept {
+        if (this->impl_->window == nullptr) return 1.0f;
+        return static_cast<float>(this->impl_->fwidth) / static_cast<float>(this->impl_->width);
+    }
+
+    void Interface::checkWindowResize() const noexcept {
+        int oldFWidth = this->impl_->fwidth;
+        int oldFHeight = this->impl_->fheight;
+        glfwGetWindowSize(this->impl_->window, &this->impl_->width, &this->impl_->height);
+        glfwGetFramebufferSize(this->impl_->window, &this->impl_->fwidth, &this->impl_->fheight);
+        if (this->impl_->fwidth != oldFWidth || this->impl_->fheight != oldFHeight) {
+            onWindowFramebufferResize(this->impl_->viewID, this->impl_->fwidth, this->impl_->fheight);
+        }
     }
 
     void Interface::handleUserInput() const {
-        sf::Event event{};
-        while (this->impl_->window->pollEvent(event)) {
-            switch (event.type) {
-                case (sf::Event::Closed): {
-                    EventArgsInputExit eventArgs;
-                    EventManager::instance().emit(eventArgs);
-                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
-                    break;
-                }
-                case (sf::Event::MouseButtonPressed): {
-                    EventArgsMouseButton eventArgs(
-                            sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
-                            Vec2f(event.mouseButton.x, event.mouseButton.y));
-                    EventManager::instance().emit(eventArgs);
-                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
-                    // Only emit the event to the top scene if not caught by UI
-                    if (!this->game_.getTopScene()->getUIManager().onClick(eventArgs)) {
-                        EventArgsWorldMouseButton worldEventArgs(
-                                sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
-                                Vec2f(event.mouseButton.x, event.mouseButton.y));
-                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
-                    }
-                    break;
-                }
-                case (sf::Event::MouseButtonReleased): {
-                    EventArgsMouseButton eventArgs(
-                            sfInput2CornInput(event.mouseButton.button), ButtonEvent::UP,
-                            Vec2f(event.mouseButton.x, event.mouseButton.y));
-                    EventManager::instance().emit(eventArgs);
-                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
-                    // Only emit the world event if not caught by UI
-                    if (!this->game_.getTopScene()->getUIManager().onClick(eventArgs)) {
-                        EventArgsWorldMouseButton worldEventArgs(
-                                sfInput2CornInput(event.mouseButton.button), ButtonEvent::UP,
-                                Vec2f(event.mouseButton.x, event.mouseButton.y));
-                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
-                    }
-                    break;
-                }
-                case sf::Event::MouseMoved: {
-                    EventArgsMouseMove eventArgs(
-                            Vec2f(event.mouseMove.x, event.mouseMove.y));
-                    EventManager::instance().emit(eventArgs);
-                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
-                    // Only emit the world event if not caught by UI
-                    if (!this->game_.getTopScene()->getUIManager().onHover(eventArgs)) {
-                        EventArgsWorldMouseMove worldEventArgs(
-                                Vec2f(event.mouseMove.x, event.mouseMove.y));
-                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
-                    }
-                    break;
-                }
-                case (sf::Event::MouseWheelScrolled): {
-                    EventArgsMouseScroll eventArgs(
-                            event.mouseWheelScroll.delta,
-                            Vec2f(event.mouseWheelScroll.x, event.mouseWheelScroll.y));
-                    EventManager::instance().emit(eventArgs);
-                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
-                    // Only emit the world event if not caught by UI
-                    if (!this->game_.getTopScene()->getUIManager().onScroll(eventArgs)) {
-                        EventArgsWorldMouseScroll worldEventArgs(
-                                event.mouseWheelScroll.delta,
-                                Vec2f(event.mouseWheelScroll.x, event.mouseWheelScroll.y));
-                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
-                    }
-                    break;
-                }
-                case (sf::Event::KeyPressed): {
-                    sf::Event::KeyEvent keyEvent = event.key;
-                    Key key = sfInput2CornInput(keyEvent.code, keyEvent.scancode);
-                    if (this->keyPressed_[key]) break;
-                    this->keyPressed_[key] = true;
-                    EventArgsKeyboard eventArgs(
-                            key, ButtonEvent::DOWN,
-                            (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
-                            Vec2f(event.mouseButton.x, event.mouseButton.y));
-                    EventManager::instance().emit(eventArgs);
-                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
-                    // Only emit the world event if not caught by UI
-                    if (!this->game_.getTopScene()->getUIManager().onKeyboard(eventArgs)) {
-                        EventArgsWorldKeyboard worldEventArgs(
-                                key, ButtonEvent::DOWN,
-                                (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
-                                Vec2f(event.mouseButton.x, event.mouseButton.y));
-                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
-                    }
-                    break;
-                }
-                case (sf::Event::KeyReleased): {
-                    sf::Event::KeyEvent keyEvent = event.key;
-                    Key key = sfInput2CornInput(keyEvent.code, keyEvent.scancode);
-                    if (!this->keyPressed_[key]) break;
-                    this->keyPressed_[key] = false;
-                    EventArgsKeyboard eventArgs(
-                            key, ButtonEvent::UP,
-                            (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
-                            Vec2f(event.mouseButton.x, event.mouseButton.y));
-                    EventManager::instance().emit(eventArgs);
-                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
-                    // Only emit the world event if not caught by UI
-                    if (!this->game_.getTopScene()->getUIManager().onKeyboard(eventArgs)) {
-                        EventArgsWorldKeyboard worldEventArgs(
-                                key, ButtonEvent::UP,
-                                (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
-                                Vec2f(event.mouseButton.x, event.mouseButton.y));
-                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
-                    }
-                    break;
-                }
-                case (sf::Event::TextEntered): {
-                    EventArgsTextEntered eventArgs(
-                            event.text.unicode, unicodeToUTF8(event.text.unicode));
-                    EventManager::instance().emit(eventArgs);
-                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
-                    this->game_.getTopScene()->getUIManager().onTextEntered(eventArgs);
-                    break;
-                }
-                default:
-                    break;
-            }
+        (void)this->keyPressed_;
+        glfwPollEvents();
+
+        // Exit event
+        if (glfwWindowShouldClose(this->impl_->window)) {
+            EventArgsInputExit eventArgs;
+            EventManager::instance().emit(eventArgs);
+            this->game_.getTopScene()->getEventManager().emit(eventArgs);
         }
+
+//        sf::Event event{}; todo
+//        while (this->impl_->window->pollEvent(event)) {
+//            switch (event.type) {
+//                case (sf::Event::Closed): {
+//                    EventArgsInputExit eventArgs;
+//                    EventManager::instance().emit(eventArgs);
+//                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
+//                    break;
+//                }
+//                case (sf::Event::MouseButtonPressed): {
+//                    EventArgsMouseButton eventArgs(
+//                            sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
+//                            Vec2f(event.mouseButton.x, event.mouseButton.y));
+//                    EventManager::instance().emit(eventArgs);
+//                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
+//                    // Only emit the event to the top scene if not caught by UI
+//                    if (!this->game_.getTopScene()->getUIManager().onClick(eventArgs)) {
+//                        EventArgsWorldMouseButton worldEventArgs(
+//                                sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
+//                                Vec2f(event.mouseButton.x, event.mouseButton.y));
+//                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
+//                    }
+//                    break;
+//                }
+//                case (sf::Event::MouseButtonReleased): {
+//                    EventArgsMouseButton eventArgs(
+//                            sfInput2CornInput(event.mouseButton.button), ButtonEvent::UP,
+//                            Vec2f(event.mouseButton.x, event.mouseButton.y));
+//                    EventManager::instance().emit(eventArgs);
+//                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
+//                    // Only emit the world event if not caught by UI
+//                    if (!this->game_.getTopScene()->getUIManager().onClick(eventArgs)) {
+//                        EventArgsWorldMouseButton worldEventArgs(
+//                                sfInput2CornInput(event.mouseButton.button), ButtonEvent::UP,
+//                                Vec2f(event.mouseButton.x, event.mouseButton.y));
+//                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
+//                    }
+//                    break;
+//                }
+//                case sf::Event::MouseMoved: {
+//                    EventArgsMouseMove eventArgs(
+//                            Vec2f(event.mouseMove.x, event.mouseMove.y));
+//                    EventManager::instance().emit(eventArgs);
+//                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
+//                    // Only emit the world event if not caught by UI
+//                    if (!this->game_.getTopScene()->getUIManager().onHover(eventArgs)) {
+//                        EventArgsWorldMouseMove worldEventArgs(
+//                                Vec2f(event.mouseMove.x, event.mouseMove.y));
+//                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
+//                    }
+//                    break;
+//                }
+//                case (sf::Event::MouseWheelScrolled): {
+//                    EventArgsMouseScroll eventArgs(
+//                            event.mouseWheelScroll.delta,
+//                            Vec2f(event.mouseWheelScroll.x, event.mouseWheelScroll.y));
+//                    EventManager::instance().emit(eventArgs);
+//                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
+//                    // Only emit the world event if not caught by UI
+//                    if (!this->game_.getTopScene()->getUIManager().onScroll(eventArgs)) {
+//                        EventArgsWorldMouseScroll worldEventArgs(
+//                                event.mouseWheelScroll.delta,
+//                                Vec2f(event.mouseWheelScroll.x, event.mouseWheelScroll.y));
+//                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
+//                    }
+//                    break;
+//                }
+//                case (sf::Event::KeyPressed): {
+//                    sf::Event::KeyEvent keyEvent = event.key;
+//                    Key key = sfInput2CornInput(keyEvent.code, keyEvent.scancode);
+//                    if (this->keyPressed_[key]) break;
+//                    this->keyPressed_[key] = true;
+//                    EventArgsKeyboard eventArgs(
+//                            key, ButtonEvent::DOWN,
+//                            (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
+//                            Vec2f(event.mouseButton.x, event.mouseButton.y));
+//                    EventManager::instance().emit(eventArgs);
+//                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
+//                    // Only emit the world event if not caught by UI
+//                    if (!this->game_.getTopScene()->getUIManager().onKeyboard(eventArgs)) {
+//                        EventArgsWorldKeyboard worldEventArgs(
+//                                key, ButtonEvent::DOWN,
+//                                (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
+//                                Vec2f(event.mouseButton.x, event.mouseButton.y));
+//                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
+//                    }
+//                    break;
+//                }
+//                case (sf::Event::KeyReleased): {
+//                    sf::Event::KeyEvent keyEvent = event.key;
+//                    Key key = sfInput2CornInput(keyEvent.code, keyEvent.scancode);
+//                    if (!this->keyPressed_[key]) break;
+//                    this->keyPressed_[key] = false;
+//                    EventArgsKeyboard eventArgs(
+//                            key, ButtonEvent::UP,
+//                            (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
+//                            Vec2f(event.mouseButton.x, event.mouseButton.y));
+//                    EventManager::instance().emit(eventArgs);
+//                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
+//                    // Only emit the world event if not caught by UI
+//                    if (!this->game_.getTopScene()->getUIManager().onKeyboard(eventArgs)) {
+//                        EventArgsWorldKeyboard worldEventArgs(
+//                                key, ButtonEvent::UP,
+//                                (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
+//                                Vec2f(event.mouseButton.x, event.mouseButton.y));
+//                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
+//                    }
+//                    break;
+//                }
+//                case (sf::Event::TextEntered): {
+//                    EventArgsTextEntered eventArgs(
+//                            event.text.unicode, unicodeToUTF8(event.text.unicode));
+//                    EventManager::instance().emit(eventArgs);
+//                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
+//                    this->game_.getTopScene()->getUIManager().onTextEntered(eventArgs);
+//                    break;
+//                }
+//                default:
+//                    break;
+//            }
+//        }
     }
 
     void Interface::clear() {
-        const auto [r, g, b] = this->game_.getConfig().background.getRGB();
-        this->impl_->window->clear(sf::Color(r, g, b));
+        bgfx::setViewRect(this->impl_->viewID, 0, 0, this->impl_->fwidth, this->impl_->fheight);
+        const auto [r, g, b, a] = this->game_.getConfig().background.getRGBA();
+        bgfx::setViewClear(
+                this->impl_->viewID,
+                BGFX_CLEAR_COLOR,
+                (uint32_t(r) << 24) | (uint32_t(g) << 16) | (uint32_t(b) << 8) | uint32_t(a));
+        bgfx::touch(this->impl_->viewID);
     }
 
     void Interface::render(Scene* scene) {
-        // Clear the screen
-        this->clear();
-
         // Render Entities
         scene->getEntityManager().tidy();
         for (const CCamera* camera : scene->getEntityManager().getCameras()) {
-            renderCamera(scene, camera);
+            renderCamera2D(scene, camera);
         }
 
         // Render UI widgets
-        this->renderUI(scene->getUIManager());
-
-        this->impl_->window->setView(this->impl_->window->getDefaultView());
+//        this->renderUI(scene->getUIManager());
     }
 
     void Interface::renderDebugOverlay(size_t fps) {
         // Render dark background in the top left corner
         sf::RectangleShape overlay(sf::Vector2f(100, 30));
         overlay.setFillColor(sf::Color(0, 0, 0, 200));
-        this->impl_->window->draw(overlay);
+//        this->impl_->window->draw(overlay); todo
 
         // Render FPS text
         sf::Text text;
@@ -213,16 +323,16 @@ namespace corn {
         text.setCharacterSize(15);
         text.setFillColor(sf::Color::White);
         text.setPosition(10, 6);
-        this->impl_->window->draw(text);
+//        this->impl_->window->draw(text); todo
     }
 
     void Interface::update() {
-        this->impl_->window->display();
+        bgfx::frame();
     }
 
     Transform2D Interface::getCameraTransformation(const CCamera* camera) const {
         // Calculate window size
-        Vec2f windowSize = this->windowSize();
+        Vec2f windowSize = this->windowLogicalSize();
         Vec2f percentWindowSize = windowSize * 0.01f;
 
         // Calculate camera viewport and FOV
@@ -246,67 +356,75 @@ namespace corn {
         return Transform2D(cameraCenter, cameraRotation, cameraScale) * Transform2D::translate(-viewportSize * 0.5f);
     }
 
-    void Interface::renderCamera(Scene* scene, const CCamera* camera) {
+    void Interface::renderCamera2D(Scene* scene, const CCamera* camera) {
         // Calculate window size
-        Vec2f windowSize = this->windowSize();
+        Vec2f windowSize = this->windowLogicalSize();
         Vec2f percentWindowSize = windowSize * 0.01f;
+        float hidpiScale = this->getHiDPIScale();
 
         // Check if camera is active
         if (!camera->active) return;
-        // TODO: 3D
         if (camera->cameraType == CameraType::_3D) return;
         // Check if camera has CTransform2D component
         if (!camera->getEntity().getComponent<CTransform2D>()) return;
 
         // Get camera transform
         Transform2D cameraTransform = this->getCameraTransformation(camera);
+        Transform2D cameraTransformInv = cameraTransform.inv();
+        Transform2D worldToCameraTransform = Transform2D::dilate(corn::Vec2f(hidpiScale, hidpiScale)) * cameraTransformInv;
+
+        // Set viewport
+        float x = camera->viewport.x.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
+        float y = camera->viewport.y.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
+        float w = camera->viewport.w.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
+        float h = camera->viewport.h.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
+        bgfx::setViewRect(
+                this->impl_->viewID,
+                (uint16_t)std::round(x * hidpiScale), (uint16_t)std::round(y * hidpiScale),
+                (uint16_t)std::round(w * hidpiScale), (uint16_t)std::round(h * hidpiScale));
+        const auto [r, g, b, a] = camera->background.getRGBA();  // NOLINT
+        bgfx::setViewClear(
+                this->impl_->viewID,
+                BGFX_CLEAR_COLOR,
+                (uint32_t(r) << 24) | (uint32_t(g) << 16) | (uint32_t(b) << 8) | uint32_t(a));
+        bgfx::touch(this->impl_->viewID);
 
         // Render entities
         for (Entity* entity: scene->getEntityManager().getActiveEntitiesWith<CTransform2D>()) {
-            auto transform = entity->getComponent<CTransform2D>();
+            auto cTransform = entity->getComponent<CTransform2D>();
 
             // Sprite
             auto sprite = entity->getComponent<CSprite>();
             if (sprite && sprite->active && sprite->image && sprite->image->impl_) {
-                draw(*camera, *transform, *sprite, cameraTransform);
+                draw(*camera, *cTransform, *sprite, cameraTransform);
             }
 
             // Lines
             auto lines = entity->getComponent<CLines>();
             if (lines && lines->active && lines->vertices.size() > 1) {
-                draw(*camera, *transform, *lines, cameraTransform);
+                draw(*camera, *cTransform, *lines, cameraTransform);
             }
 
             // Polygon
             auto cPolygon = entity->getComponent<CPolygon>();
             if (cPolygon && cPolygon->active) {
-                PolygonType polygonType = cPolygon->polygon.getType();
+                PolygonType polygonType = cPolygon->getPolygon().getType();
                 if (polygonType != PolygonType::INVALID && polygonType != PolygonType::EMPTY) {
-                    draw(*camera, *transform, *cPolygon, cameraTransform);
+                    draw(this->impl_->viewID, *cTransform, *cPolygon, worldToCameraTransform, this->impl_->polygonShader);
                 }
             }
 
             // Text
             auto text = entity->getComponent<CText>();
             if (text && text->active) {
-                draw(*camera, *transform, *text, cameraTransform);
+                draw(*camera, *cTransform, *text, cameraTransform);
             }
         }
-        camera->viewport.impl_->texture.display();
-
-        // Render camera onto the window
-        float x = camera->viewport.x.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
-        float y = camera->viewport.y.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
-        sf::View view(sf::FloatRect(-x, -y, windowSize.x, windowSize.y));
-        sf::Sprite cameraSprite(camera->viewport.impl_->texture.getTexture());
-        cameraSprite.setColor(sf::Color(255, 255, 255, camera->opacity));
-        this->impl_->window->setView(view);
-        this->impl_->window->draw(cameraSprite);
     }
 
     void Interface::renderUI(UIManager& uiManager) {
         // Calculate window size
-        Vec2f windowSize = this->windowSize();
+        Vec2f windowSize = this->windowLogicalSize();
 
         // Resolve UI widget location and size
         uiManager.tidy();
@@ -347,7 +465,7 @@ namespace corn {
                 (vpbr.x - vpul.x) / windowSize.x,
                 (vpbr.y - vpul.y) / windowSize.y
             });
-            this->impl_->window->setView(view);
+//            this->impl_->window->setView(view); todo
 
             // Update children viewport
             switch (widget->getOverflow()) {
@@ -367,7 +485,7 @@ namespace corn {
             boundingRect.setPosition(x, y);
             const auto [r, g, b, a] = widget->getBackground().getRGBA();
             boundingRect.setFillColor(sf::Color(r, g, b, (unsigned char)((float)a * opacities[widget])));
-            this->impl_->window->draw(boundingRect);
+//            this->impl_->window->draw(boundingRect); todo
 
             // Render the widget
             switch (widget->getType()) {
@@ -400,7 +518,7 @@ namespace corn {
                             mutText.setPosition(std::round(segX), std::round(segY + textRender.getLinePadding()));
                             mutText.setFillColor(sf::Color(
                                     segR, segG, segB, (unsigned char) ((float) segA * opacities[widget])));
-                            this->impl_->window->draw(text);
+//                            this->impl_->window->draw(text); todo
                             segX += text.getLocalBounds().width;
                         }
                         segX = x;
@@ -432,7 +550,7 @@ namespace corn {
                             break;
                         }
                     }
-                    this->impl_->window->draw(image->impl_->sfSprite);
+//                    this->impl_->window->draw(image->impl_->sfSprite); todo
                     break;
                 }
             }

@@ -1,9 +1,11 @@
+#include <bgfx/bgfx.h>
 #include <corn/media/text_render.h>
 #include <corn/util/color.h>
 #include <corn/util/constants.h>
-#include "camera_viewport_impl.h"
-#include "image_impl.h"
+#include "../media/camera_viewport_impl.h"
+#include "../media/image_impl.h"
 #include "interface_helper.h"
+#include "polygon_renderer.h"
 #include "text_render_impl.h"
 
 namespace corn {
@@ -80,45 +82,40 @@ namespace corn {
     }
 
     void draw(
-            const CCamera& cCamera,
+            int viewID,
             const CTransform2D& cTransform, const CPolygon& cPolygon,
-            const Transform2D& cameraTransform) {
+            const Transform2D& worldToCameraTransform, const Shader& polygonShader) {
 
-        const Polygon& polygon = cPolygon.polygon;
-        if (cPolygon.thickness > 0) {
-            // Draw boundary of polygon
-            drawLines(
-                    cCamera,
-                    cTransform, polygon.getVertices(), cPolygon.thickness, cPolygon.color, true,
-                    cameraTransform);
-            for (const std::vector<Vec2f>& hole: polygon.getHoles()) {
-                drawLines(
-                        cCamera,
-                        cTransform, hole, cPolygon.thickness, cPolygon.color, true,
-                        cameraTransform);
-            }
-        } else {
-            // Draw polygon and fill inside
-            Transform2D worldTransform = cameraTransform.inv() * cTransform.getWorldTransform();
-            const Mat3f& mat = worldTransform.getMat();
-            sf::Transform transform {
-                mat[0][0], mat[0][1], mat[0][2],
-                mat[1][0], mat[1][1], mat[1][2],
-                mat[2][0], mat[2][1], mat[2][2],
-            };
-
-            const auto [r, g, b, a] = cPolygon.color.getRGBA(); // NOLINT
-
-            const std::vector<std::array<Vec2f, 3>>& triangles = polygon.getTriangles();
-            sf::VertexArray varr(sf::Triangles, triangles.size() * 3);
-            for (size_t i = 0; i < triangles.size(); i++) {
-                for (size_t j = 0; j < 3; j++) {
-                    varr[i * 3 + j].position = sf::Vector2f(triangles[i][j].x, triangles[i][j].y);
-                    varr[i * 3 + j].color = sf::Color{ r, g, b, a };
+        CPolygon::Renderer* polygonRenderer = cPolygon.getPolygonRenderer();
+        Transform2D worldTransform = worldToCameraTransform * cTransform.getWorldTransform();
+        switch (cPolygon.getRenderType()) {
+            case CPolygon::RenderType::STATIC:
+            case CPolygon::RenderType::DYNAMIC:
+                if (cPolygon.thickness > 0) {
+                    polygonRenderer->drawEdges(viewID, polygonShader, cPolygon.color, cPolygon.thickness, worldTransform);
+                } else {
+                    polygonRenderer->drawFill(viewID, polygonShader, cPolygon.color, worldTransform);
                 }
-            }
+                break;
+            case CPolygon::RenderType::TRANSIENT: {
+                // Vertices
+                std::vector<Vertex2D> vertices;
+                vertices.reserve(vertices.size());
+                for (const Vec2f& vertex : cPolygon.getPolygon().getVerticesFlat()) {
+                    vertices.emplace_back(vertex.x, vertex.y);
+                }
 
-            cCamera.viewport.impl_->texture.draw(varr, transform);
+                // Fill indices
+                std::vector<uint16_t> fillIndices;
+                const std::vector<size_t>& triangleIndices_ = cPolygon.getPolygon().getTriangleIndices();
+                fillIndices.reserve(triangleIndices_.size());
+                for (size_t index : triangleIndices_) {
+                    fillIndices.push_back(static_cast<uint16_t>(index));
+                }
+
+                TransientPolygonRenderer::draw(viewID, polygonShader, vertices, fillIndices, cPolygon.color, worldTransform);
+                break;
+            }
         }
     }
 

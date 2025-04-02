@@ -6,6 +6,7 @@
 #include <corn/event/event_args.h>
 #include <corn/event/event_scope.h>
 #include <corn/geometry/vec.h>
+#include <corn/media/interface.h>
 #include <corn/util/config.h>
 #include <corn/util/stopwatch.h>
 
@@ -14,7 +15,6 @@ namespace corn {
     enum class SceneOperation;
 
     class Scene;
-    class Interface;
 
     /**
      * @class Game
@@ -61,8 +61,11 @@ namespace corn {
          */
         void setDebugOverlay(bool debugOverlayEnabled) noexcept;
 
-        /// @return The current size of the window in pixels.
-        [[nodiscard]] Vec2f windowSize() const noexcept;
+        /// @return The current logical size of the window in pixels.
+        [[nodiscard]] Vec2f windowLogicalSize() const noexcept;
+
+        /// @return The current physical (framebuffer) size of the window in pixels.
+        [[nodiscard]] Vec2f windowPhysicalSize() const noexcept;
 
         /**
          * @brief Get the currently active scene (the scene on the top of the scene stack).
@@ -133,11 +136,11 @@ namespace corn {
         /// @brief Scene events to be processed.
         std::queue<EventArgsScene> sceneEvents_;
 
-        /// @brief Module for rendering and capturing user input.
-        Interface* interface_;
-
         /// @brief Stores which keys are currently pressed down.
         std::unordered_map<Key, bool> keyPressed_;
+
+        /// @brief Module for rendering and capturing user input.
+        Interface interface_;
 
         /// @brief Stopwatch for timing between each frame.
         Stopwatch sw_;

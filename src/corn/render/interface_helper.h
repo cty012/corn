@@ -6,6 +6,7 @@
 #include <corn/geometry/vec.h>
 #include <corn/media/interface.h>
 #include <corn/util/config.h>
+#include "shader.h"
 
 namespace corn {
     // Draw components
@@ -20,9 +21,9 @@ namespace corn {
             const Transform2D& cameraTransform);
 
     void draw(
-            const CCamera& cCamera,
+            int viewID,
             const CTransform2D& cTransform, const CPolygon& cPolygon,
-            const Transform2D& cameraTransform);
+            const Transform2D& worldToCameraTransform, const Shader& polygonShader);
 
     void draw(
             const CCamera& cCamera,

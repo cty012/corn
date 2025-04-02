@@ -1,5 +1,5 @@
 #include <corn/ui/ui_label.h>
-#include "../media/text_render_impl.h"
+#include "../render/text_render_impl.h"
 
 namespace corn {
     UILabel::UILabel(WidgetID id, std::string name, UIManager& uiManager, const RichText& text) noexcept

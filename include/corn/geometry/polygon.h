@@ -76,12 +76,15 @@ namespace corn {
         /// @return The holes of the polygon.
         [[nodiscard]] const std::vector<std::vector<Vec2f>>& getHoles() const noexcept;
 
+        /// @return The flattened vertices of the polygon.
+        [[nodiscard]] const std::vector<Vec2f>& getVerticesFlat() const noexcept;
+
         /**
          * @brief Set the vertices and holes of the polygon.
          * @param vertices The outer boundary of the polygon.
          * @param holes The holes of the polygon.
          */
-        void setVertices(const std::vector<Vec2f>& vertices, const std::vector<std::vector<Vec2f>>& holes);
+        void setVertices(std::vector<Vec2f> vertices, std::vector<std::vector<Vec2f>> holes = {});
 
         /**
          * @param point The target point.
@@ -90,18 +93,13 @@ namespace corn {
          */
         [[nodiscard]] bool contains(const Vec2f& point, bool edgeInclusive) const;
 
-        /**
-         * @brief Translated the polygon by the displacement vector.
-         * @param displacement The displacement vector.
-         */
-        void translate(const Vec2f& displacement) noexcept;
-
         // Getters
         [[nodiscard]] PolygonType getType() const;
         [[nodiscard]] const Vec2f& getCentroid() const;
         [[nodiscard]] float getArea() const;
         [[nodiscard]] const std::pair<Vec2f, Vec2f>& getBBox() const;
-        [[nodiscard]] const std::vector<std::array<Vec2f, 3>>& getTriangles() const;
+        [[nodiscard]] const std::vector<size_t>& getTriangleIndices() const;
+        [[nodiscard]] std::vector<std::array<Vec2f, 3>> getTriangles() const;
 
     private:
         /// @brief Calculate the type of the polygon.
@@ -116,8 +114,9 @@ namespace corn {
         /// @brief Triangulate the polygon.
         void triangulate() const;
 
-        mutable std::vector<Vec2f> vertices_;
-        mutable std::vector<std::vector<Vec2f>> holes_;
+        std::vector<Vec2f> vertices_;
+        std::vector<std::vector<Vec2f>> holes_;
+        std::vector<Vec2f> verticesFlat_;
 
         mutable PolygonType type_;
         mutable bool typeDirty_;
@@ -129,7 +128,7 @@ namespace corn {
         mutable std::pair<Vec2f, Vec2f> bbox_;
         mutable bool bboxDirty_;
 
-        mutable std::vector<std::array<Vec2f, 3>> triangles_;
-        mutable bool trianglesDirty_;
+        mutable std::vector<size_t> triangleIndices_;
+        mutable bool triangleIndicesDirty_;
     };
 }
