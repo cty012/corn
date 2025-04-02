@@ -1,8 +1,7 @@
 #pragma once
 
 #include <filesystem>
-#include <nanosvg.h>
-#include <SFML/Graphics.hpp>
+#include <nanosvg/nanosvg.h>
 #include <corn/geometry/vec.h>
 
 namespace corn {
@@ -19,7 +18,7 @@ namespace corn {
         ImageType type;
 
         /// @brief Stores the actual image data.
-        sf::Image image;
+        // sf::Image image;
 
         /// @brief SVG content as a string (if applicable).
         std::string svgContent;
@@ -31,10 +30,10 @@ namespace corn {
         Vec2f scale;
 
         /// @brief The texture is stored on GPU for rendering.
-        sf::Texture texture;
+        // sf::Texture texture;
 
         /// @brief The sprite is for applying transformations.
-        mutable sf::Sprite sfSprite;
+        // mutable sf::Sprite sfSprite;
 
         /**
          * @brief Constructor.

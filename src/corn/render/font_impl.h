@@ -1,7 +1,5 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-
 namespace corn {
     /**
      * @class FontState
@@ -17,7 +15,7 @@ namespace corn {
         FontState state;
 
         /// @brief Stores the actual font data.
-        sf::Font sffont;
+        // sf::Font sffont;
 
         /// @brief Constructor.
         Font() noexcept;

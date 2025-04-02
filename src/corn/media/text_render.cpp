@@ -1,5 +1,5 @@
 #include <corn/media/text_render.h>
-#include "font_impl.h"
+#include "../render/font_impl.h"
 #include "../render/text_render_impl.h"
 
 namespace corn {
@@ -68,44 +68,5 @@ namespace corn {
 
     void TextRender::setTextAlign(TextAlign textAlign) {
         this->textAlign_ = textAlign;
-    }
-
-    Vec2f measureTextSize(const std::u8string& str, const TextStyle& style) {
-        sf::Text text;
-        setTextFont(text, style.font);
-        setTextSize(text, style.size);
-        setTextVariant(text, style.variant);
-        setTextString(text, str);
-        sf::Rect<float> newBounds = text.getLocalBounds();
-        return Vec2f(newBounds.width, newBounds.height);
-    }
-
-    void setTextString(sf::Text& text, const std::u8string& str) {
-        text.setString(sf::String::fromUtf8(str.begin(), str.end()));
-    }
-
-    void setTextFont(sf::Text& text, const Font* font) {
-        text.setFont(font->sffont);
-    }
-
-    void setTextSize(sf::Text& text, float size) {
-        text.setCharacterSize((unsigned int)std::round(size));
-    }
-
-    void setTextVariant(sf::Text& text, FontVariant variant) {
-        switch (variant) {
-            case FontVariant::REGULAR:
-                text.setStyle(sf::Text::Regular);
-                break;
-            case FontVariant::BOLD:
-                text.setStyle(sf::Text::Bold);
-                break;
-            case FontVariant::ITALIC:
-                text.setStyle(sf::Text::Italic);
-                break;
-            case FontVariant::UNDERLINE:
-                text.setStyle(sf::Text::Underlined);
-                break;
-        }
     }
 }

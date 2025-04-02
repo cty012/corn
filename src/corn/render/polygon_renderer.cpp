@@ -38,11 +38,11 @@ namespace corn {
         this->fillIndices_ = std::move(fillIndices);
 
         this->vbf_ = bgfx::createVertexBuffer(bgfx::makeRef(
-                this->vertices_.data(), sizeof(Vertex2D) * this->vertices_.size()), this->layout_);
+                this->vertices_.data(), sizeof(Vertex2D) * static_cast<uint32_t>(this->vertices_.size())), this->layout_);
         this->edgeIbf_ = bgfx::createIndexBuffer(bgfx::makeRef(
-                this->edgeIndices_.data(), sizeof(uint16_t) * this->edgeIndices_.size()));
+                this->edgeIndices_.data(), sizeof(uint16_t) * static_cast<uint32_t>(this->edgeIndices_.size())));
         this->fillIbf_ = bgfx::createIndexBuffer(bgfx::makeRef(
-                this->fillIndices_.data(), sizeof(uint16_t) * this->fillIndices_.size()));
+                this->fillIndices_.data(), sizeof(uint16_t) * static_cast<uint32_t>(this->fillIndices_.size())));
     }
 
     void StaticPolygonRenderer::destroy() noexcept {
@@ -190,21 +190,21 @@ namespace corn {
         this->ringSizes_ = std::move(ringSizes);
         this->fillIndices_ = std::move(fillIndices);
 
-        const bgfx::Memory* vmem = bgfx::makeRef(this->vertices_.data(), sizeof(Vertex2D) * this->vertices_.size());
+        const bgfx::Memory* vmem = bgfx::makeRef(this->vertices_.data(), sizeof(Vertex2D) * static_cast<uint32_t>(this->vertices_.size()));
         if (bgfx::isValid(this->vbf_)) {
             bgfx::update(this->vbf_, 0, vmem);
         } else {
             this->vbf_ = bgfx::createDynamicVertexBuffer(vmem, this->layout_);
         }
 
-        const bgfx::Memory* emem = bgfx::makeRef(this->edgeIndices_.data(), sizeof(uint16_t) * this->edgeIndices_.size());
+        const bgfx::Memory* emem = bgfx::makeRef(this->edgeIndices_.data(), sizeof(uint16_t) * static_cast<uint32_t>(this->edgeIndices_.size()));
         if (bgfx::isValid(this->edgeIbf_)) {
             bgfx::update(this->edgeIbf_, 0, emem);
         } else {
             this->edgeIbf_ = bgfx::createDynamicIndexBuffer(emem);
         }
 
-        const bgfx::Memory* fmem = bgfx::makeRef(this->fillIndices_.data(), sizeof(uint16_t) * this->fillIndices_.size());
+        const bgfx::Memory* fmem = bgfx::makeRef(this->fillIndices_.data(), sizeof(uint16_t) * static_cast<uint32_t>(this->fillIndices_.size()));
         if (bgfx::isValid(this->fillIbf_)) {
             bgfx::update(this->fillIbf_, 0, fmem);
         } else {
@@ -333,18 +333,18 @@ namespace corn {
 
         // Layout
         static const bgfx::VertexLayout layout = []() {
-            bgfx::VertexLayout layout;
-            layout.begin()
+            bgfx::VertexLayout layout_;
+            layout_.begin()
                     .add(bgfx::Attrib::Position, 2, bgfx::AttribType::Float)
                     .end();
-            return layout;
+            return layout_;
         }();
 
         // Initialize transient buffers
         bgfx::TransientVertexBuffer vbf{};
         bgfx::TransientIndexBuffer ibf{};
-        bgfx::allocTransientVertexBuffer(&vbf, vertices.size(), layout);
-        bgfx::allocTransientIndexBuffer(&ibf, indices.size());
+        bgfx::allocTransientVertexBuffer(&vbf, static_cast<uint32_t>(vertices.size()), layout);
+        bgfx::allocTransientIndexBuffer(&ibf, static_cast<uint32_t>(indices.size()));
         memcpy(vbf.data, vertices.data(), sizeof(Vertex2D) * vertices.size());
         memcpy(ibf.data, indices.data(), sizeof(uint16_t) * indices.size());
 

@@ -1,8 +1,8 @@
 #include <corn/media/font.h>
-#include "font_impl.h"
+#include "../render/font_impl.h"
 
 namespace corn {
-    Font::Font() noexcept : state(FontState::LOADING), sffont() {}
+    Font::Font() noexcept : state(FontState::LOADING) {}
 
     FontManager& FontManager::instance() {
         static FontManager instance;
@@ -61,7 +61,8 @@ namespace corn {
                 std::lock_guard<std::mutex> lockFonts(this->mutexFonts_);
                 Font* font = new Font();
                 this->fonts_[name] = font;
-                result = font->sffont.loadFromFile(path);
+                result = true;
+                // result = font->sffont.loadFromFile(path);
                 font->state = result ? FontState::LOADED : FontState::LOAD_FAILED;
             }
             {

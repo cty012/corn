@@ -4,7 +4,6 @@
 #include <bgfx/bgfx.h>
 #include <corn/geometry/transform.h>
 #include <corn/util/color.h>
-#include <corn/geometry/polygon.h>
 #include <corn/ecs/component.h>
 #include "shader.h"
 #include "vertex.h"

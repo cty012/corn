@@ -2,7 +2,7 @@
 
 #include <filesystem>
 #include <string>
-#include <nanosvg.h>
+#include <nanosvg/nanosvg.h>
 
 bool readFromSVGFile(const std::filesystem::path& path, std::string& output);
 

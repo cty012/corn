@@ -1,3 +1,4 @@
+#include "../render/text_render_impl.h"
 #include <array>
 #include <cmath>
 #include <bgfx/platform.h>
@@ -10,12 +11,10 @@
 #include <corn/media.h>
 #include <corn/ui.h>
 #include <corn/util/string_utils.h>
-#include "camera_viewport_impl.h"
-#include "font_impl.h"
-#include "image_impl.h"
+#include "../render/font_impl.h"
+#include "../render/image_impl.h"
 #include "interface_impl.h"
 #include "../render/interface_helper.h"
-#include "../render/text_render_impl.h"
 
 namespace corn {
     static void glfwErrorCallback(int error, const char *description) {
@@ -69,14 +68,14 @@ namespace corn {
             case DisplayMode::WINDOWED:
                 glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
                 this->impl_->window = glfwCreateWindow(
-                        (int)config.width, (int)config.height,
+                        static_cast<int>(config.width), static_cast<int>(config.height),
                         config.title.c_str(),
                         nullptr, nullptr);
                 break;
             case DisplayMode::WINDOWED_FIXED:
                 glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
                 this->impl_->window = glfwCreateWindow(
-                        (int)config.width, (int)config.height,
+                        static_cast<int>(config.width), static_cast<int>(config.height),
                         config.title.c_str(),
                         nullptr, nullptr);
                 break;
@@ -107,24 +106,31 @@ namespace corn {
         bgfx::Init init;
 #if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
         init.platformData.ndt = glfwGetX11Display();
-	    init.platformData.nwh = (void*)(uintptr_t)glfwGetX11Window(window);
+	    init.platformData.nwh = (void*)(uintptr_t)glfwGetX11Window(this->impl_->window);
 #elif BX_PLATFORM_OSX
         init.platformData.nwh = glfwGetCocoaWindow(this->impl_->window);
         init.type = bgfx::RendererType::Metal;
-        init.platformData.ndt = nullptr;
 #elif BX_PLATFORM_WINDOWS
-        init.platformData.nwh = glfwGetWin32Window(window);
+        init.platformData.nwh = glfwGetWin32Window(this->impl_->window);
+        init.type = bgfx::RendererType::Direct3D12;
 #endif
 
         // Initialize bgfx with the window resolution.
-        glfwGetWindowSize(this->impl_->window, &this->impl_->width, &this->impl_->height);
-        glfwGetFramebufferSize(this->impl_->window, &this->impl_->fwidth, &this->impl_->fheight);
-        init.resolution.width = (uint32_t)this->impl_->fwidth;
-        init.resolution.height = (uint32_t)this->impl_->fheight;
+        int width, height, fwidth, fheight;
+        glfwGetWindowSize(this->impl_->window, &width, &height);
+        glfwGetFramebufferSize(this->impl_->window, &fwidth, &fheight);
+        this->impl_->width = static_cast<uint16_t>(width);
+        this->impl_->height = static_cast<uint16_t>(height);
+        this->impl_->fwidth = static_cast<uint16_t>(fwidth);
+        this->impl_->fheight = static_cast<uint16_t>(fheight);
+
+        init.resolution.width = this->impl_->fwidth;
+        init.resolution.height = this->impl_->fheight;
         init.resolution.reset = BGFX_RESET_VSYNC | BGFX_RESET_MSAA_X4;
         if (!bgfx::init(init)) {
             throw std::runtime_error("Failed to initialize bgfx.");
         }
+        printf("Using renderer: %s\n", bgfx::getRendererName(bgfx::getRendererType()));
         this->impl_->viewID = 0;
         onWindowFramebufferResize(this->impl_->viewID, this->impl_->fwidth, this->impl_->fheight);
 
@@ -146,11 +152,14 @@ namespace corn {
     }
 
     void Interface::checkWindowResize() const noexcept {
-        int oldFWidth = this->impl_->fwidth;
-        int oldFHeight = this->impl_->fheight;
-        glfwGetWindowSize(this->impl_->window, &this->impl_->width, &this->impl_->height);
-        glfwGetFramebufferSize(this->impl_->window, &this->impl_->fwidth, &this->impl_->fheight);
-        if (this->impl_->fwidth != oldFWidth || this->impl_->fheight != oldFHeight) {
+        int newWidth, newHeight, newFWidth, newFHeight;
+        glfwGetWindowSize(this->impl_->window, &newWidth, &newHeight);
+        glfwGetFramebufferSize(this->impl_->window, &newFWidth, &newFHeight);
+        this->impl_->width = static_cast<uint16_t>(newWidth);
+        this->impl_->height = static_cast<uint16_t>(newHeight);
+        if (this->impl_->fwidth != newFWidth || this->impl_->fheight != newFHeight) {
+            this->impl_->fwidth = static_cast<uint16_t>(newFWidth);
+            this->impl_->fheight = static_cast<uint16_t>(newFHeight);
             onWindowFramebufferResize(this->impl_->viewID, this->impl_->fwidth, this->impl_->fheight);
         }
     }
@@ -295,7 +304,10 @@ namespace corn {
         bgfx::setViewClear(
                 this->impl_->viewID,
                 BGFX_CLEAR_COLOR,
-                (uint32_t(r) << 24) | (uint32_t(g) << 16) | (uint32_t(b) << 8) | uint32_t(a));
+                static_cast<uint32_t>(r) << 24
+                | static_cast<uint32_t>(g) << 16
+                | static_cast<uint32_t>(b) << 8
+                | static_cast<uint32_t>(a));
         bgfx::touch(this->impl_->viewID);
     }
 
@@ -311,18 +323,19 @@ namespace corn {
     }
 
     void Interface::renderDebugOverlay(size_t fps) {
-        // Render dark background in the top left corner
-        sf::RectangleShape overlay(sf::Vector2f(100, 30));
-        overlay.setFillColor(sf::Color(0, 0, 0, 200));
-//        this->impl_->window->draw(overlay); todo
-
-        // Render FPS text
-        sf::Text text;
-        text.setFont(FontManager::instance().getDefault()->sffont);
-        text.setString("FPS: " + std::to_string(fps));
-        text.setCharacterSize(15);
-        text.setFillColor(sf::Color::White);
-        text.setPosition(10, 6);
+        (void)fps;
+//         // Render dark background in the top left corner
+//         sf::RectangleShape overlay(sf::Vector2f(100, 30));
+//         overlay.setFillColor(sf::Color(0, 0, 0, 200));
+// //        this->impl_->window->draw(overlay); todo
+//
+//         // Render FPS text
+//         sf::Text text;
+//         text.setFont(FontManager::instance().getDefault()->sffont);
+//         text.setString("FPS: " + std::to_string(fps));
+//         text.setCharacterSize(15);
+//         text.setFillColor(sf::Color::White);
+//         text.setPosition(10, 6);
 //        this->impl_->window->draw(text); todo
     }
 
@@ -342,11 +355,6 @@ namespace corn {
         Vec2f fovSize(
                 camera->fovW.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale),
                 camera->fovH.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale));
-
-        // Reset the camera viewport
-        camera->viewport.impl_->setSize(viewportSize, this->game_.getConfig().antialiasing);
-        const auto [r, g, b, a] = camera->background.getRGBA();  // NOLINT
-        camera->viewport.impl_->texture.clear(sf::Color(r, g, b, a));
 
         // Calculate the transform of camera
         Transform2D worldTransform = camera->getEntity().getComponent<CTransform2D>()->getWorldTransform();
@@ -386,7 +394,10 @@ namespace corn {
         bgfx::setViewClear(
                 this->impl_->viewID,
                 BGFX_CLEAR_COLOR,
-                (uint32_t(r) << 24) | (uint32_t(g) << 16) | (uint32_t(b) << 8) | uint32_t(a));
+                static_cast<uint32_t>(r) << 24
+                | static_cast<uint32_t>(g) << 16
+                | static_cast<uint32_t>(b) << 8
+                | static_cast<uint32_t>(a));
         bgfx::touch(this->impl_->viewID);
 
         // Render entities
@@ -423,137 +434,138 @@ namespace corn {
     }
 
     void Interface::renderUI(UIManager& uiManager) {
-        // Calculate window size
-        Vec2f windowSize = this->windowLogicalSize();
-
-        // Resolve UI widget location and size
-        uiManager.tidy();
-        uiManager.calcGeometry(windowSize);
-        // Guaranteed to be from parent to children
-        std::vector<UIWidget*> widgets = uiManager.getAllActiveWidgets();
-
-        // Opacity & viewport
-        std::unordered_map<const UIWidget*, float> opacities;
-        std::unordered_map<const UIWidget*, std::pair<Vec2f, Vec2f>> subviewports;
-        opacities[nullptr] = 1.0f;
-        subviewports[nullptr] = { Vec2f::O(), windowSize };
-
-        // Render
-        for (UIWidget* widget : widgets) {
-            // Find opacity
-            UIWidget* parent = widget->getParent();
-            opacities[widget] = opacities[parent] * (float)widget->getOpacity() / 255.0f;
-
-            // Find geometry
-            Vec4f widgetGeometry = uiManager.getCachedGeometry(widget);
-            float x = widgetGeometry[0];
-            float y = widgetGeometry[1];
-            float w = widgetGeometry[2];
-            float h = widgetGeometry[3];
-
-            // Set view
-            auto [vpul, vpbr] = subviewports[parent];
-            sf::View view({
-                vpul.x,
-                vpul.y,
-                vpbr.x - vpul.x,
-                vpbr.y - vpul.y
-            });
-            view.setViewport({
-                vpul.x / windowSize.x,
-                vpul.y / windowSize.y,
-                (vpbr.x - vpul.x) / windowSize.x,
-                (vpbr.y - vpul.y) / windowSize.y
-            });
-//            this->impl_->window->setView(view); todo
-
-            // Update children viewport
-            switch (widget->getOverflow()) {
-                case UIOverflow::DISPLAY:
-                    break;
-                case UIOverflow::HIDDEN:
-                    vpul.x = std::max(vpul.x, x);
-                    vpul.y = std::max(vpul.y, y);
-                    vpbr.x = std::min(vpbr.x, x + w);
-                    vpbr.y = std::min(vpbr.y, y + h);
-                    break;
-            }
-            subviewports[widget] = { vpul, vpbr };
-
-            // Render the background
-            sf::RectangleShape boundingRect(sf::Vector2f(w, h));
-            boundingRect.setPosition(x, y);
-            const auto [r, g, b, a] = widget->getBackground().getRGBA();
-            boundingRect.setFillColor(sf::Color(r, g, b, (unsigned char)((float)a * opacities[widget])));
-//            this->impl_->window->draw(boundingRect); todo
-
-            // Render the widget
-            switch (widget->getType()) {
-                case UIType::PANEL:
-                    break;
-                case UIType::LABEL: {
-                    auto* uiLabel = dynamic_cast<UILabel*>(widget);
-                    TextRender& textRender = uiLabel->getTextRender();
-                    // Fit to width limit (if any)
-                    textRender.setWidth(std::round(w));
-                    // Render
-                    float segX = x, segY = y;
-                    for (TextRenderImpl::Line& line : textRender.impl_->lines) {
-                        // alignment
-                        switch (textRender.getTextAlign()) {
-                            case TextAlign::LEFT:
-                                segX = x;
-                                break;
-                            case TextAlign::CENTER:
-                                segX = x + (w - line.size.x) / 2;
-                                break;
-                            case TextAlign::RIGHT:
-                                segX = x + w - line.size.x;
-                                break;
-                        }
-
-                        for (const auto& [text, color] : line.contents) {
-                            const auto [segR, segG, segB, segA] = color.getRGBA(); // NOLINT
-                            auto& mutText = const_cast<sf::Text&>(text);
-                            mutText.setPosition(std::round(segX), std::round(segY + textRender.getLinePadding()));
-                            mutText.setFillColor(sf::Color(
-                                    segR, segG, segB, (unsigned char) ((float) segA * opacities[widget])));
-//                            this->impl_->window->draw(text); todo
-                            segX += text.getLocalBounds().width;
-                        }
-                        segX = x;
-                        segY += line.size.y;
-                    }
-                    break;
-                }
-                case UIType::IMAGE: {
-                    const auto* uiImage = dynamic_cast<const UIImage*>(widget);
-                    const Image* image = uiImage->getImage();
-                    if (!image || !image->impl_) break;
-                    // Scale image
-                    Vec2f size = image->getSize();
-                    Vec2f totalScale(size.x != 0.0f ? w / size.x : 1, size.y != 0.0f ? h / size.y : 1);
-                    switch (image->impl_->type) {
-                        case ImageType::SVG: {
-                            image->impl_->rasterize(totalScale, true);
-                            image->impl_->sfSprite.setOrigin(0, 0);
-                            image->impl_->sfSprite.setPosition(x, y);
-                            break;
-                        }
-                        case ImageType::PNG:
-                        case ImageType::JPEG:
-                        case ImageType::UNKNOWN: {
-                            // Scale to fit the widget
-                            image->impl_->sfSprite.setOrigin(0, 0);
-                            image->impl_->sfSprite.setPosition(x, y);
-                            image->impl_->sfSprite.setScale(totalScale.x, totalScale.y);
-                            break;
-                        }
-                    }
-//                    this->impl_->window->draw(image->impl_->sfSprite); todo
-                    break;
-                }
-            }
-        }
+        (void)uiManager;
+//         // Calculate window size
+//         Vec2f windowSize = this->windowLogicalSize();
+//
+//         // Resolve UI widget location and size
+//         uiManager.tidy();
+//         uiManager.calcGeometry(windowSize);
+//         // Guaranteed to be from parent to children
+//         std::vector<UIWidget*> widgets = uiManager.getAllActiveWidgets();
+//
+//         // Opacity & viewport
+//         std::unordered_map<const UIWidget*, float> opacities;
+//         std::unordered_map<const UIWidget*, std::pair<Vec2f, Vec2f>> subviewports;
+//         opacities[nullptr] = 1.0f;
+//         subviewports[nullptr] = { Vec2f::O(), windowSize };
+//
+//         // Render
+//         for (UIWidget* widget : widgets) {
+//             // Find opacity
+//             UIWidget* parent = widget->getParent();
+//             opacities[widget] = opacities[parent] * (float)widget->getOpacity() / 255.0f;
+//
+//             // Find geometry
+//             Vec4f widgetGeometry = uiManager.getCachedGeometry(widget);
+//             float x = widgetGeometry[0];
+//             float y = widgetGeometry[1];
+//             float w = widgetGeometry[2];
+//             float h = widgetGeometry[3];
+//
+//             // Set view
+//             auto [vpul, vpbr] = subviewports[parent];
+//             sf::View view({
+//                 vpul.x,
+//                 vpul.y,
+//                 vpbr.x - vpul.x,
+//                 vpbr.y - vpul.y
+//             });
+//             view.setViewport({
+//                 vpul.x / windowSize.x,
+//                 vpul.y / windowSize.y,
+//                 (vpbr.x - vpul.x) / windowSize.x,
+//                 (vpbr.y - vpul.y) / windowSize.y
+//             });
+// //            this->impl_->window->setView(view); todo
+//
+//             // Update children viewport
+//             switch (widget->getOverflow()) {
+//                 case UIOverflow::DISPLAY:
+//                     break;
+//                 case UIOverflow::HIDDEN:
+//                     vpul.x = std::max(vpul.x, x);
+//                     vpul.y = std::max(vpul.y, y);
+//                     vpbr.x = std::min(vpbr.x, x + w);
+//                     vpbr.y = std::min(vpbr.y, y + h);
+//                     break;
+//             }
+//             subviewports[widget] = { vpul, vpbr };
+//
+//             // Render the background
+//             sf::RectangleShape boundingRect(sf::Vector2f(w, h));
+//             boundingRect.setPosition(x, y);
+//             const auto [r, g, b, a] = widget->getBackground().getRGBA();
+//             boundingRect.setFillColor(sf::Color(r, g, b, (unsigned char)((float)a * opacities[widget])));
+// //            this->impl_->window->draw(boundingRect); todo
+//
+//             // Render the widget
+//             switch (widget->getType()) {
+//                 case UIType::PANEL:
+//                     break;
+//                 case UIType::LABEL: {
+//                     auto* uiLabel = dynamic_cast<UILabel*>(widget);
+//                     TextRender& textRender = uiLabel->getTextRender();
+//                     // Fit to width limit (if any)
+//                     textRender.setWidth(std::round(w));
+//                     // Render
+//                     float segX = x, segY = y;
+//                     for (TextRenderImpl::Line& line : textRender.impl_->lines) {
+//                         // alignment
+//                         switch (textRender.getTextAlign()) {
+//                             case TextAlign::LEFT:
+//                                 segX = x;
+//                                 break;
+//                             case TextAlign::CENTER:
+//                                 segX = x + (w - line.size.x) / 2;
+//                                 break;
+//                             case TextAlign::RIGHT:
+//                                 segX = x + w - line.size.x;
+//                                 break;
+//                         }
+//
+//                         for (const auto& [text, color] : line.contents) {
+//                             const auto [segR, segG, segB, segA] = color.getRGBA(); // NOLINT
+//                             auto& mutText = const_cast<sf::Text&>(text);
+//                             mutText.setPosition(std::round(segX), std::round(segY + textRender.getLinePadding()));
+//                             mutText.setFillColor(sf::Color(
+//                                     segR, segG, segB, (unsigned char) ((float) segA * opacities[widget])));
+// //                            this->impl_->window->draw(text); todo
+//                             segX += text.getLocalBounds().width;
+//                         }
+//                         segX = x;
+//                         segY += line.size.y;
+//                     }
+//                     break;
+//                 }
+//                 case UIType::IMAGE: {
+//                     const auto* uiImage = dynamic_cast<const UIImage*>(widget);
+//                     const Image* image = uiImage->getImage();
+//                     if (!image || !image->impl_) break;
+//                     // Scale image
+//                     Vec2f size = image->getSize();
+//                     Vec2f totalScale(size.x != 0.0f ? w / size.x : 1, size.y != 0.0f ? h / size.y : 1);
+//                     switch (image->impl_->type) {
+//                         case ImageType::SVG: {
+//                             image->impl_->rasterize(totalScale, true);
+//                             image->impl_->sfSprite.setOrigin(0, 0);
+//                             image->impl_->sfSprite.setPosition(x, y);
+//                             break;
+//                         }
+//                         case ImageType::PNG:
+//                         case ImageType::JPEG:
+//                         case ImageType::UNKNOWN: {
+//                             // Scale to fit the widget
+//                             image->impl_->sfSprite.setOrigin(0, 0);
+//                             image->impl_->sfSprite.setPosition(x, y);
+//                             image->impl_->sfSprite.setScale(totalScale.x, totalScale.y);
+//                             break;
+//                         }
+//                     }
+// //                    this->impl_->window->draw(image->impl_->sfSprite); todo
+//                     break;
+//                 }
+//             }
+//         }
     }
 }

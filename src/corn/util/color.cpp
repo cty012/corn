@@ -47,7 +47,7 @@ namespace corn {
 
     Color Color::hsl(const HSL& hslValues) noexcept {
         auto [h, s, l] = hslValues;
-        return Color::hsl({ h, s, l, 255 });
+        return Color::hsl({ h, s, l, static_cast<uint8_t>(255) });
     }
 
     Color Color::hsl(const HSLA& hslaValues) noexcept {

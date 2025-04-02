@@ -57,7 +57,7 @@ endif ()
 #    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 #endif()
 if (MSVC)
-    add_compile_options(/utf-8 /W4 /WX)
+    add_compile_options(/utf-8 /W4 /WX /Zc:__cplusplus /Zc:preprocessor)
     add_compile_options("$<$<CONFIG:Release>:/Ox>")
     add_compile_options("$<$<CONFIG:Debug>:/Zi>")
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
@@ -74,14 +74,15 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Corn target
 file(GLOB_RECURSE HEADERS
         "${CMAKE_SOURCE_DIR}/include/*.h"
-        "${CMAKE_SOURCE_DIR}/include/*.cpp"
+)
+file(GLOB_RECURSE PRIVATE_HEADERS
+        "${CMAKE_SOURCE_DIR}/src/*.h"
 )
 file(GLOB_RECURSE SOURCES
-        "${CMAKE_SOURCE_DIR}/src/*.h"
         "${CMAKE_SOURCE_DIR}/src/*.cpp"
 )
 
-add_library(corn SHARED ${HEADERS} ${SOURCES})
+add_library(corn SHARED ${HEADERS} ${PRIVATE_HEADERS} ${SOURCES})
 set_target_properties(corn PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CORN_OUTPUT_DIR}"
         RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CORN_OUTPUT_DIR}"
@@ -92,8 +93,8 @@ set(CORN_OUTPUT_PATH $<TARGET_FILE:corn>)
 target_include_directories(corn PRIVATE "${CMAKE_SOURCE_DIR}/include")
 
 # Link with SFML
-find_package(SFML 2.6 COMPONENTS graphics window audio network system CONFIG REQUIRED)
-target_link_libraries(corn PRIVATE sfml-graphics sfml-window sfml-audio sfml-network sfml-system)
+#find_package(SFML 2.6 COMPONENTS graphics window audio network system CONFIG REQUIRED)
+#target_link_libraries(corn PRIVATE sfml-graphics sfml-window sfml-audio sfml-network sfml-system)
 
 # Link with bgfx
 find_package(bgfx CONFIG REQUIRED)
