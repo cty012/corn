@@ -57,7 +57,6 @@ namespace corn {
         std::vector<uint32_t> ringSizes_;
         std::vector<uint16_t> fillIndices_;
 
-        bgfx::VertexLayout layout_;
         bgfx::VertexBufferHandle vbf_;
         bgfx::IndexBufferHandle edgeIbf_, fillIbf_;
     };
@@ -89,7 +88,6 @@ namespace corn {
         std::vector<uint32_t> ringSizes_;
         std::vector<uint16_t> fillIndices_;
 
-        bgfx::VertexLayout layout_;
         bgfx::DynamicVertexBufferHandle vbf_;
         bgfx::DynamicIndexBufferHandle edgeIbf_, fillIbf_;
     };

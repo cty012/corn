@@ -12,7 +12,7 @@ namespace corn {
         bgfx::ViewId viewID;
         uint16_t width, height, fwidth, fheight;
 
-        Shader polygonShader;
+        Shader polygonShader, bitmapShader;
 
         InterfaceImpl();
     };

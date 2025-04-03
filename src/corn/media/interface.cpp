@@ -47,10 +47,9 @@ namespace corn {
             : game_(game), keyPressed_(keyPressed), impl_(new Interface::InterfaceImpl()) {}
 
     Interface::~Interface() {
-        this->impl_->polygonShader.destroy();
+        delete this->impl_;
         bgfx::shutdown();
         glfwTerminate();
-        delete this->impl_;
     }
 
     void Interface::init() {
@@ -130,12 +129,13 @@ namespace corn {
         if (!bgfx::init(init)) {
             throw std::runtime_error("Failed to initialize bgfx.");
         }
-        printf("Using renderer: %s\n", bgfx::getRendererName(bgfx::getRendererType()));
         this->impl_->viewID = 0;
+        bgfx::setViewMode(this->impl_->viewID, bgfx::ViewMode::Sequential);
         onWindowFramebufferResize(this->impl_->viewID, this->impl_->fwidth, this->impl_->fheight);
 
         // Shaders
         this->impl_->polygonShader.loadEmbedded("vs_triangle", "fs_triangle");
+        this->impl_->bitmapShader.loadEmbedded("vs_bitmap", "fs_bitmap");
     }
 
     Vec2f Interface::windowLogicalSize() const noexcept {
@@ -319,7 +319,7 @@ namespace corn {
         }
 
         // Render UI widgets
-//        this->renderUI(scene->getUIManager());
+        this->renderUI(scene->getUIManager());
     }
 
     void Interface::renderDebugOverlay(size_t fps) {
