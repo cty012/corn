@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.22)
 # CMake cache variables
 option(BUILD_EXAMPLES "Build the example programs in the `examples/` folder." ON)
 option(BUILD_TESTS "Build the test cases in the `test/` folder." OFF)
+option(USE_NATIVE_TEXT_RENDERING "Enable native text rendering" ON)
 
 if (BUILD_TESTS)
     enable_testing()
@@ -29,25 +30,25 @@ set(TEST_OUTPUT_DIR "${CMAKE_BINARY_DIR}/tests")
 
 # Platform
 if (WIN32)
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         set(PLATFORM "win64")
-    else()
+    else ()
         set(PLATFORM "win32")
-    endif()
+    endif ()
 elseif (APPLE)
-    if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+    if (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
         set(PLATFORM "macos-arm64")
-    elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+    elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
         set(PLATFORM "macos-x64")
-    else()
+    else ()
         set(PLATFORM "macos")
-    endif()
+    endif ()
 elseif (UNIX)
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64")
+    if (CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64")
         set(PLATFORM "linux-x64")
-    else()
+    else ()
         set(PLATFORM "linux")
-    endif()
+    endif ()
 else ()
     set(PLATFORM "unknown")
 endif ()
@@ -92,6 +93,21 @@ set_target_properties(corn PROPERTIES
 set(CORN_OUTPUT_PATH $<TARGET_FILE:corn>)
 target_include_directories(corn PRIVATE "${CMAKE_SOURCE_DIR}/include")
 
+# Link with native libraries
+if (USE_NATIVE_TEXT_RENDERING)
+    target_compile_definitions(corn PRIVATE USE_NATIVE_TEXT_RENDERING)
+    if (MSVC)
+    elseif (APPLE)
+        target_link_libraries(corn PRIVATE
+                "-framework CoreGraphics"
+                "-framework ImageIO"
+                "-framework UniformTypeIdentifiers"
+                "-framework Foundation"
+        )
+    elseif (UNIX)
+    endif ()
+endif ()
+
 # Link with SFML
 #find_package(SFML 2.6 COMPONENTS graphics window audio network system CONFIG REQUIRED)
 #target_link_libraries(corn PRIVATE sfml-graphics sfml-window sfml-audio sfml-network sfml-system)
@@ -103,6 +119,13 @@ target_link_libraries(corn PRIVATE bgfx::bgfx)
 # Link with GLFW
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(corn PRIVATE glfw)
+if (MSVC)
+    target_compile_definitions(corn PRIVATE GLFW_EXPOSE_NATIVE_WIN32)
+elseif (APPLE)
+    target_compile_definitions(corn PRIVATE GLFW_EXPOSE_NATIVE_COCOA)
+elseif (UNIX)
+    target_compile_definitions(corn PRIVATE GLFW_EXPOSE_NATIVE_X11)
+endif ()
 
 # Link with ICU
 find_package(ICU REQUIRED COMPONENTS uc i18n data)
