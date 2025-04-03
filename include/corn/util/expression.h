@@ -113,7 +113,7 @@ namespace corn {
 
     template<std::size_t N>
     Expression<N>::Expression(Expression&& other) noexcept
-            : input_(other.input_), tokens_(other.tokens), unitIdx_(std::move(other.unitIdx)) {
+            : input_(other.input_), tokens_(other.tokens_), unitIdx_(std::move(other.unitIdx_)) {
 
         other.tokens_ = nullptr;
     }

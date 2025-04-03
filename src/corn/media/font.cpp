@@ -61,7 +61,7 @@ namespace corn {
                 std::lock_guard<std::mutex> lockFonts(this->mutexFonts_);
                 Font* font = new Font();
                 this->fonts_[name] = font;
-                result = true;
+                result = true; (void)path;
                 // result = font->sffont.loadFromFile(path);
                 font->state = result ? FontState::LOADED : FontState::LOAD_FAILED;
             }

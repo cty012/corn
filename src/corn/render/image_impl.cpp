@@ -101,7 +101,7 @@ namespace corn {
         (void)width; (void)height; (void)color;
 
         std::string msg = "Failed to create image.";
-        const auto [r, g, b, a] = color.getRGBA();  // NOLINT
+//        const auto [r, g, b, a] = color.getRGBA();  // NOLINT
         // this->image.create(width, height, sf::Color{ r, g, b, a });
         // if (!this->texture.loadFromImage(image)) throw ResourceLoadFailed(msg);
         // this->sfSprite = sf::Sprite(this->texture);
