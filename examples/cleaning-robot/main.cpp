@@ -9,7 +9,7 @@ int main() {
     config.width = 1080;
     config.height = 720;
     config.antialiasing = 4;
-    corn::FontManager::instance().load(
+    corn::FontManager::instance().loadFromPath(
             "noto-sans", "resources/fonts/noto-sans/NotoSans-Regular.ttf");
 
     // Events

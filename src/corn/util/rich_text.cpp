@@ -3,11 +3,14 @@
 #include <utility>
 
 namespace corn {
-    TextStyle::TextStyle(const Font* font, float size) noexcept
-            : font(font), size(size), color(Color::WHITE()), variant(FontVariant::REGULAR) {}
+    TextStyle::TextStyle(const Font* font, float size, Color color) noexcept
+            : font(font), size(size), color(std::move(color)),
+              weight(FontWeight::REGULAR), slant(FontSlant::REGULAR), decoration(FontDecoration::REGULAR) {}
 
-    TextStyle::TextStyle(const Font* font, float size, const Color& color, FontVariant variant) noexcept
-            : font(font), size(size), color(color), variant(variant) {}
+    TextStyle::TextStyle(
+            const Font* font, float size, Color color,
+            FontWeight weight, FontSlant slant, FontDecoration decoration) noexcept
+            : font(font), size(size), color(std::move(color)), weight(weight), slant(slant), decoration(decoration) {}
 
     TextStyle TextStyle::setFont(const Font* newFont) const noexcept {
         TextStyle style = *this;
@@ -21,31 +24,47 @@ namespace corn {
         return style;
     }
 
-    TextStyle TextStyle::setColor(const Color& newColor) const noexcept {
+    TextStyle TextStyle::setColor(Color newColor) const noexcept {
         TextStyle style = *this;
         style.color = newColor;
         return style;
     }
 
-    TextStyle TextStyle::setVariant(FontVariant newVariant) const noexcept {
+    TextStyle TextStyle::setWeight(FontWeight newWeight) const noexcept {
         TextStyle style = *this;
-        style.variant = newVariant;
+        style.weight = newWeight;
         return style;
     }
 
-    RichText::Segment::Segment(std::u8string str, TextStyle style) noexcept : str(std::move(str)), style(style) {}
+    TextStyle TextStyle::setSlant(FontSlant newSlant) const noexcept {
+        TextStyle style = *this;
+        style.slant = newSlant;
+        return style;
+    }
+
+    TextStyle TextStyle::setDecoration(FontDecoration newDecoration) const noexcept {
+        TextStyle style = *this;
+        style.decoration = newDecoration;
+        return style;
+    }
+
+    RichText::Segment::Segment(std::string text, TextStyle style) noexcept
+            : text(std::move(text)), style(std::move(style)) {}
 
     RichText::RichText() noexcept : segments() {}
 
     RichText::~RichText() noexcept = default;
 
-    RichText& RichText::addText(const std::u8string& text, TextStyle style) noexcept {
-        this->segments.emplace_back(text, style);
+    RichText& RichText::addText(std::string text, TextStyle style) noexcept {
+        this->segments.emplace_back(std::move(text), std::move(style));
         return *this;
     }
 
-    RichText& RichText::addText(const std::string& text, TextStyle style) noexcept {
-        this->segments.emplace_back(std::u8string((const char8_t*)text.c_str()), style);
-        return *this;
+    std::string RichText::getString() const noexcept {
+        std::string result;
+        for (const Segment& segment : this->segments) {
+            result += segment.text;
+        }
+        return result;
     }
 }

@@ -1,9 +1,7 @@
 #include <corn/media/font.h>
-#include "../render/font_impl.h"
+#include "macos/font_impl.h"
 
 namespace corn {
-    Font::Font() noexcept : state(FontState::LOADING) {}
-
     FontManager& FontManager::instance() {
         static FontManager instance;
         return instance;
@@ -12,20 +10,14 @@ namespace corn {
     FontManager::FontManager() : fonts_(), futures_() {}
 
     FontManager::~FontManager() {
-        for (auto& [name, result] : this->futures_) {
-            result.wait();
-        }
-        std::lock_guard<std::mutex> lockFonts(this->mutexFonts_);
-        for (auto& [name, font] : this->fonts_) {
-            delete font;
-        }
+        this->unloadAll();
     }
 
-    bool FontManager::load(const std::string& name, const std::string& path) {
+    bool FontManager::loadFromSystem(const std::string& name, const std::string& nameInSystem) {
         if (name.empty()) return false;
 
         // Preload
-        this->preload(name, path);
+        this->preloadFromSystem(name, nameInSystem);
         std::lock_guard<std::mutex> lock(this->mutex_);
 
         // Wait for preload to finish
@@ -34,16 +26,66 @@ namespace corn {
             if (this->futures_.contains(name)) {
                 std::future<bool> result = std::move(this->futures_[name]);
                 lockFutures.unlock();
-                result.wait();
+                return result.get();
             }
         }
 
         // Check if load succeed
         std::lock_guard<std::mutex> lockFonts(this->mutexFonts_);
-        return this->fonts_[name]->state == FontState::LOADED;
+        return this->fonts_.contains(name) && this->fonts_[name]->state == FontState::LOADED;
     }
 
-    void FontManager::preload(const std::string& name, const std::string& path) {
+    bool FontManager::loadFromPath(const std::string& name, const std::filesystem::path& path) {
+        if (name.empty()) return false;
+
+        // Preload
+        this->preloadFromPath(name, path);
+        std::lock_guard<std::mutex> lock(this->mutex_);
+
+        // Wait for preload to finish
+        {
+            std::unique_lock<std::mutex> lockFutures(this->mutexFutures_);
+            if (this->futures_.contains(name)) {
+                std::future<bool> result = std::move(this->futures_[name]);
+                lockFutures.unlock();
+                return result.get();
+            }
+        }
+
+        // Otherwise check the already loaded fonts
+        std::lock_guard<std::mutex> lockFonts(this->mutexFonts_);
+        return this->fonts_.contains(name) && this->fonts_[name]->state == FontState::LOADED;
+    }
+
+    void FontManager::preloadFromSystem(const std::string& name, const std::string& nameInSystem) {
+        if (name.empty()) return;
+
+        std::lock_guard<std::mutex> lock(this->mutex_);
+        std::lock_guard<std::mutex> lockFutures(this->mutexFutures_);
+
+        // Check if currently loading
+        if (this->futures_.contains(name)) {
+            return;
+        }
+
+        // Otherwise load from file
+        this->futures_[name] = std::async(std::launch::async, [this, &name, &nameInSystem]() {
+            {
+                std::lock_guard<std::mutex> lockFonts(this->mutexFonts_);
+                Font* font = Font::createFromSystem(nameInSystem);
+                if (!font) return false;
+                font->state = FontState::LOADED;
+                this->fonts_[name] = font;
+            }
+            {
+                std::lock_guard<std::mutex> lockFutures(this->mutexFutures_);
+                this->futures_.erase(name);
+            }
+            return true;
+        });
+    }
+
+    void FontManager::preloadFromPath(const std::string& name, const std::filesystem::path& path) {
         if (name.empty()) return;
 
         std::lock_guard<std::mutex> lock(this->mutex_);
@@ -56,20 +98,18 @@ namespace corn {
 
         // Otherwise load from file
         this->futures_[name] = std::async(std::launch::async, [this, &name, &path]() {
-            bool result;
             {
                 std::lock_guard<std::mutex> lockFonts(this->mutexFonts_);
-                Font* font = new Font();
+                Font* font = Font::createFromPath(path);
+                if (!font) return false;
+                font->state = FontState::LOADED;
                 this->fonts_[name] = font;
-                result = true; (void)path;
-                // result = font->sffont.loadFromFile(path);
-                font->state = result ? FontState::LOADED : FontState::LOAD_FAILED;
             }
             {
                 std::lock_guard<std::mutex> lockFutures(this->mutexFutures_);
                 this->futures_.erase(name);
             }
-            return result;
+            return true;
         });
     }
 
@@ -80,6 +120,21 @@ namespace corn {
         delete this->fonts_[name];
         this->fonts_.erase(name);
         return true;
+    }
+
+    size_t FontManager::unloadAll() noexcept {
+        for (auto& [name, result] : this->futures_) {
+            result.wait();
+        }
+
+        std::lock_guard<std::mutex> lock(this->mutex_);
+        std::lock_guard<std::mutex> lockFonts(this->mutexFonts_);
+        size_t count = this->fonts_.size();
+        for (auto& [name, font] : this->fonts_) {
+            delete font;
+        }
+        this->fonts_.clear();
+        return count;
     }
 
     const Font* FontManager::get(const std::string& name) const noexcept {

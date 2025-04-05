@@ -77,6 +77,13 @@ namespace corn {
      * @param str The UTF-8 string.
      * @return The number of UTF-8 characters.
      */
+    size_t count(const std::string& str) noexcept;
+
+    /**
+     * @brief Count the number of UTF-8 characters in the string.
+     * @param str The UTF-8 string.
+     * @return The number of UTF-8 characters.
+     */
     size_t count(const std::u8string& str) noexcept;
 
     /**

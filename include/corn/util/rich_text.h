@@ -23,13 +23,17 @@ namespace corn {
         Color color;
 
         /// @brief Variant of the font to use.
-        FontVariant variant;
+        FontWeight weight;
+        FontSlant slant;
+        FontDecoration decoration;
 
         /// @brief Simple constructor.
-        TextStyle(const Font* font, float size) noexcept;
+        TextStyle(const Font* font, float size, Color color) noexcept;
 
         /// @brief Complete constructor.
-        TextStyle(const Font* font, float size, const Color& color, FontVariant variant) noexcept;
+        TextStyle(
+                const Font* font, float size, Color color,
+                FontWeight weight, FontSlant slant, FontDecoration decoration) noexcept;
 
         /// @return A NEW TextStyle object with the updated font.
         [[nodiscard]] TextStyle setFont(const Font* newFont) const noexcept;
@@ -38,10 +42,20 @@ namespace corn {
         [[nodiscard]] TextStyle setSize(float newSize) const noexcept;
 
         /// @return A NEW TextStyle object with the updated color.
-        [[nodiscard]] TextStyle setColor(const Color& newColor) const noexcept;
+        [[nodiscard]] TextStyle setColor(Color newColor) const noexcept;
 
-        /// @return A NEW TextStyle object with the updated variant.
-        [[nodiscard]] TextStyle setVariant(FontVariant newVariant) const noexcept;
+        /// @return A NEW TextStyle object with the updated weight.
+        [[nodiscard]] TextStyle setWeight(FontWeight newWeight) const noexcept;
+
+        /// @return A NEW TextStyle object with the updated slant.
+        [[nodiscard]] TextStyle setSlant(FontSlant newSlant) const noexcept;
+
+        /// @return A NEW TextStyle object with the updated decoration.
+        [[nodiscard]] TextStyle setDecoration(FontDecoration newDecoration) const noexcept;
+    };
+
+    enum class TextAlign {
+        NATURAL, LEFT, RIGHT, CENTER, JUSTIFIED,
     };
 
     /**
@@ -57,17 +71,20 @@ namespace corn {
         /// @brief Stores a pair of text string and text style.
         struct Segment {
             /// @brief The text stored in the segment encoded in utf-8.
-            std::u8string str;
+            std::string text;
 
             /// @brief The style of the segment.
             TextStyle style;
 
             /// @brief Constructor.
-            Segment(std::u8string str, TextStyle style) noexcept;
+            Segment(std::string text, TextStyle style) noexcept;
         };
 
         /// @brief Each segment represent a piece of text with uniform style.
         std::vector<Segment> segments;
+
+        /// @brief Text alignment.
+        TextAlign textAlign = TextAlign::NATURAL;
 
         /// @brief Constructor.
         RichText() noexcept;
@@ -81,14 +98,9 @@ namespace corn {
          * @param style The text style.
          * @return A reference to the rich text itself.
          */
-        RichText& addText(const std::u8string& text, TextStyle style) noexcept;
+        RichText& addText(std::string text, TextStyle style) noexcept;
 
-        /**
-         * @brief Appends a segment with the specified text string and text style.
-         * @param text The text string.
-         * @param style The text style.
-         * @return A reference to the rich text itself.
-         */
-        RichText& addText(const std::string& text, TextStyle style) noexcept;
+        /// @return The text without any styles.
+        [[nodiscard]] std::string getString() const noexcept;
     };
 }

@@ -198,36 +198,66 @@ namespace corn {
         delete this->image;
     }
 
-    CText::CText(Entity& entity, const TextRender& textRender) noexcept : Component(entity), textRender(textRender) {
+    CText::CText(Entity& entity, const RichText& richText) noexcept : Component(entity), richTextFrame_(richText) {
         this->setX("0px");
         this->setY("0px");
     }
 
-    CText::CText(Entity& entity, const TextRender& textRender, const std::string& x, const std::string& y) noexcept
-            : Component(entity), textRender(textRender) {
+    CText::CText(Entity& entity, const RichText& richText, const std::string& x, const std::string& y) noexcept
+            : Component(entity), richTextFrame_(richText) {
 
         this->setX(x);
         this->setY(y);
     }
 
     float CText::getX() const noexcept {
-        Vec2f percSize = this->textRender.getSize() * 0.01f;
-        return this->x_.calc(1.0f, percSize.x, percSize.y);
+        Vec2f percNaturalSize = this->richTextFrame_.getNaturalSize() * 0.01f;
+        Vec2f percSize = this->richTextFrame_.getSize() * 0.01f;
+        return this->x_.calc(1.0f, percSize.x, percSize.y, percNaturalSize.x, percNaturalSize.y);
     }
 
     void CText::setX(const std::string& x) noexcept {
-        static const std::array<std::string, 3> units = { "px", "%w", "%h" };
+        static const std::array<std::string, 5> units = { "px", "%w", "%h", "%nw", "%nh" };
         this->x_ = Expression(x, units);
     }
 
     float CText::getY() const noexcept {
-        Vec2f percSize = this->textRender.getSize() * 0.01f;
-        return this->y_.calc(1.0f, percSize.x, percSize.y);
+        Vec2f percNaturalSize = this->richTextFrame_.getNaturalSize() * 0.01f;
+        Vec2f percSize = this->richTextFrame_.getSize() * 0.01f;
+        return this->y_.calc(1.0f, percSize.x, percSize.y, percNaturalSize.x, percNaturalSize.y);
     }
 
     void CText::setY(const std::string& y) noexcept {
-        static const std::array<std::string, 3> units = { "px", "%w", "%h" };
+        static const std::array<std::string, 5> units = { "px", "%w", "%h", "%nw", "%nh" };
         this->y_ = Expression(y, units);
+    }
+
+    const RichText& CText::getRichText() const noexcept {
+        return this->richTextFrame_.getRichText();
+    }
+
+    void CText::setRichText(const RichText& richText) noexcept {
+        this->richTextFrame_.setRichText(richText);
+    }
+
+    float CText::getMaxWidth() const noexcept {
+        return this->richTextFrame_.getMaxWidth();
+    }
+
+    void CText::setMaxWidth(float maxWidth) noexcept {
+        this->richTextFrame_.setMaxWidth(maxWidth);
+    }
+
+    const Vec2f& CText::getNaturalSize() const noexcept {
+        return this->richTextFrame_.getNaturalSize();
+    }
+
+    const Vec2f& CText::getSize() const noexcept {
+        return this->richTextFrame_.getSize();
+    }
+
+    const RichTextFrame& CText::getRichTextFrame() const noexcept {
+        return this->richTextFrame_;
     }
 
     CMovement2D::CMovement2D(Entity& entity, Vec2f velocity, float angularVelocity) noexcept

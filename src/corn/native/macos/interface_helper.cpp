@@ -1,12 +1,11 @@
 #include <bgfx/bgfx.h>
 #include <corn/geometry/vec.h>
-#include <corn/media/text_render.h>
+#include <corn/media/rich_text_frame.h>
 #include <corn/util/color.h>
-#include <corn/util/constants.h>
-#include "image_impl.h"
-#include "interface_helper.h"
-#include "polygon_renderer.h"
-#include "text_render_impl.h"
+#include "../../render/image_impl.h"
+#include "../../render/interface_helper.h"
+#include "../../render/polygon_renderer.h"
+#include "macos/rich_text_renderer.h"
 
 namespace corn {
     void draw(
@@ -169,5 +168,17 @@ namespace corn {
         //     seg.x = location.x;
         //     seg.y += line.size.y;
         // }
+    }
+
+    void drawUI(
+            bgfx::ViewId viewID,
+            UILabel& uiLabel, float maxWidth,
+            const Transform2D& transform, const Shader& bitmapShader) {
+
+        RichTextFrame& richTextFrame = uiLabel.getRichTextFrame();
+        richTextFrame.setMaxWidth(maxWidth);
+        RichTextRenderer* richTextRenderer = richTextFrame.getRichTextRenderer();
+        richTextRenderer->setTransform(transform);
+        richTextRenderer->draw(viewID, bitmapShader);
     }
 }

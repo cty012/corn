@@ -7,7 +7,7 @@
 #include <corn/geometry/transform.h>
 #include <corn/geometry/vec.h>
 #include <corn/media/camera_viewport.h>
-#include <corn/media/text_render.h>
+#include <corn/media/rich_text_frame.h>
 #include <corn/util/color.h>
 #include <corn/util/expression.h>
 #include <corn/util/rich_text.h>
@@ -220,29 +220,45 @@ namespace corn {
         ~CSprite() override;
     };
 
+    /**
+     * @class CText
+     * @brief Displays rich text on the screen.
+     */
     struct CText : public Component {
-        /// @brief Rich text render buffer.
-        TextRender textRender;
+        /// @brief Constructor.
+        CText(Entity& entity, const RichText& richText) noexcept;
 
         /// @brief Constructor.
-        CText(Entity& entity, const TextRender& textRender) noexcept;
-
-        /// @brief Constructor.
-        CText(Entity& entity, const TextRender& textRender, const std::string& x, const std::string& y) noexcept;
+        CText(Entity& entity, const RichText& richText, const std::string& x, const std::string& y) noexcept;
 
         // Getters & Setters
         [[nodiscard]] float getX() const noexcept;
         void setX(const std::string& x) noexcept;
         [[nodiscard]] float getY() const noexcept;
         void setY(const std::string& y) noexcept;
+        [[nodiscard]] const RichText& getRichText() const noexcept;
+        void setRichText(const RichText& richText) noexcept;
+        [[nodiscard]] float getMaxWidth() const noexcept;
+        void setMaxWidth(float maxWidth) noexcept;
+        [[nodiscard]] const Vec2f& getNaturalSize() const noexcept;
+        [[nodiscard]] const Vec2f& getSize() const noexcept;
+        [[nodiscard]] const RichTextFrame& getRichTextFrame() const noexcept;
 
     private:
         /**
          * @brief Location of the top left corner of the text.
          *
-         * Units: px (pixels), %w (percentage of text width), %h (percentage of the text height).
+         * Units:
+         *     px (pixels),
+         *     %w (percentage of text width),
+         *     %h (percentage of the text height),
+         *     %nw (percentage of the natural width),
+         *     %nh (percentage of the natural height)
          */
-        Expression<3> x_, y_;
+        Expression<5> x_, y_;
+
+        /// @brief Rich text frame.
+        RichTextFrame richTextFrame_;
     };
 
     /**

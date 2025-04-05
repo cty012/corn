@@ -29,8 +29,8 @@ corn::Entity* createBird(corn::EntityManager& entityManager) {
             new corn::Image(BIRD_WIDTH, BIRD_HEIGHT, BIRD_COLOR), topLeft);
 
     corn::RichText text = corn::RichText()
-            .addText("Bird", corn::TextStyle(corn::FontManager::instance().getDefault(), 18));
-    bird->addComponent<corn::CText>(corn::TextRender(text), "0px - 50%w", "0px - 50%h");
+            .addText("Bird", corn::TextStyle(corn::FontManager::instance().getDefault(), 18, corn::Color::WHITE()));
+    bird->addComponent<corn::CText>(text, "0px - 50%w", "0px - 50%h");
     return bird;
 }
 

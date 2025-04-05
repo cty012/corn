@@ -154,6 +154,15 @@ namespace corn {
         return getChar(str.c_str());
     }
 
+    size_t count(const std::string& str) noexcept {
+        size_t num = 0;
+        for (char c : str) {
+            // Count only the starting bytes of characters
+            if ((c & 0xC0) != 0x80) num++;
+        }
+        return num;
+    }
+
     size_t count(const std::u8string& str) noexcept {
         size_t num = 0;
         for (char8_t c : str) {

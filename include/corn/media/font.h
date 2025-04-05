@@ -1,6 +1,8 @@
 #pragma once
 
+#include <filesystem>
 #include <future>
+#include <string>
 #include <unordered_map>
 
 namespace corn {
@@ -21,8 +23,16 @@ namespace corn {
      *
      * @see FontManager
      */
-    enum class FontVariant {
-        REGULAR, BOLD, ITALIC, UNDERLINE,
+    enum class FontWeight {
+        LIGHT, REGULAR, SEMI_BOLD, BOLD, HEAVY,
+    };
+
+    enum class FontSlant {
+        REGULAR, ITALIC,
+    };
+
+    enum class FontDecoration {
+        REGULAR, UNDERLINE,
     };
 
     /**
@@ -38,17 +48,32 @@ namespace corn {
         /**
          * @brief Loads a font file into the font manager.
          * @param name Name of the font in the font manager. Must not be empty.
+         * @param nameInSystem Name of the font in the system.
+         * @return Whether the font is successfully loaded.
+         */
+        bool loadFromSystem(const std::string& name, const std::string& nameInSystem);
+
+        /**
+         * @brief Loads a font file into the font manager.
+         * @param name Name of the font in the font manager. Must not be empty.
          * @param path Path to the font file.
          * @return Whether the font is successfully loaded.
          */
-        bool load(const std::string& name, const std::string& path);
+        bool loadFromPath(const std::string& name, const std::filesystem::path& path);
+
+        /**
+         * @brief Loads a font file asynchronously into the font manager.
+         * @param name Name of the font in the font manager. Must not be empty.
+         * @param nameInSystem Name of the font in the system.
+         */
+        void preloadFromSystem(const std::string& name, const std::string& nameInSystem);
 
         /**
          * @brief Loads a font file asynchronously into the font manager.
          * @param name Name of the font in the font manager. Must not be empty.
          * @param path Path to the font file.
          */
-        void preload(const std::string& name, const std::string& path);
+        void preloadFromPath(const std::string& name, const std::filesystem::path& path);
 
         /**
          * @brief Unload a loaded font.
@@ -58,6 +83,12 @@ namespace corn {
          * Unload will fail if the font doesn't exist.
          */
         bool unload(const std::string& name) noexcept;
+
+        /**
+         * @brief Unload all loaded fonts.
+         * @return Number of fonts successfully unloaded.
+         */
+        size_t unloadAll() noexcept;
 
         /**
          * @param name Name of the font.

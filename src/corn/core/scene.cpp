@@ -18,6 +18,7 @@ namespace corn {
         for (corn::System* system : this->systems_) {
             delete system;
         }
+        delete this->uiManager_;
         delete this->entityManager_;
         EventManager::removeRoom(this->room_);
     }

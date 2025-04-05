@@ -13,7 +13,7 @@ int main() {
     config.antialiasing = 4;
 
     // Fonts
-    corn::FontManager::instance().load(
+    corn::FontManager::instance().loadFromPath(
             "noto-sans-zh", "resources/fonts/noto-sans-zh/static/NotoSansSC-Regular.ttf");
 
     // Events
@@ -27,9 +27,6 @@ int main() {
     // Game
     corn::Game game(new MainMenuScene(), config);
     game.run();
-
-    // Release resources
-    corn::FontManager::instance().unload("noto-sans-zh");
 
     return 0;
 }

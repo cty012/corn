@@ -3,6 +3,7 @@
 #include <corn/ecs/component.h>
 #include <corn/event/input.h>
 #include <corn/media/interface.h>
+#include <corn/ui/ui_label.h>
 #include <corn/util/config.h>
 #include "shader.h"
 
@@ -27,6 +28,11 @@ namespace corn {
             const CCamera& cCamera,
             const CTransform2D& cTransform, const CText& cText,
             const Transform2D& cameraTransform);
+
+    void drawUI(
+            bgfx::ViewId viewID,
+            UILabel& uiLabel, float maxWidth,
+            const Transform2D& transform, const Shader& bitmapShader);
 
     // Inline functions
     inline DisplayMode sfStyle2CornMode(int style) {

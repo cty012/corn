@@ -10,16 +10,16 @@ void underlineOnHover(corn::UILabel& label) {
     label.getEventManager().addListener(
             "corn::ui::onenter",
             [&label](const corn::EventArgs&) {
-                corn::RichText newText = label.getText();
-                newText.segments[0].style.variant = corn::FontVariant::UNDERLINE;
-                label.setText(newText);
+                corn::RichText newText = label.getRichText();
+                newText.segments[0].style.decoration = corn::FontDecoration::UNDERLINE;
+                label.setRichText(newText);
             });
     label.getEventManager().addListener(
             "corn::ui::onexit",
             [&label](const corn::EventArgs&) {
-                corn::RichText newText = label.getText();
-                newText.segments[0].style.variant = corn::FontVariant::REGULAR;
-                label.setText(newText);
+                corn::RichText newText = label.getRichText();
+                newText.segments[0].style.decoration = corn::FontDecoration::REGULAR;
+                label.setRichText(newText);
             });
 }
 
@@ -102,11 +102,11 @@ MainMenuScene::MainMenuScene() {
     this->eventScope_.addListener(
             "clangy-bird::langchange",
             [&title, &start, &settings, &tutorial, &exit](const corn::EventArgs&) {
-                title.setText(TextManager::instance().getRichText("main-menu-title"));
-                start.setText(TextManager::instance().getRichText("main-menu-start"));
-                settings.setText(TextManager::instance().getRichText("main-menu-settings"));
-                tutorial.setText(TextManager::instance().getRichText("main-menu-tutorial"));
-                exit.setText(TextManager::instance().getRichText("main-menu-exit"));
+                title.setRichText(TextManager::instance().getRichText("main-menu-title"));
+                start.setRichText(TextManager::instance().getRichText("main-menu-start"));
+                settings.setRichText(TextManager::instance().getRichText("main-menu-settings"));
+                tutorial.setRichText(TextManager::instance().getRichText("main-menu-tutorial"));
+                exit.setRichText(TextManager::instance().getRichText("main-menu-exit"));
             });
 }
 
@@ -169,11 +169,11 @@ SettingsScene::SettingsScene() {
     this->eventScope_.addListener(
             "clangy-bird::langchange",
             [&title, &langLabel, &lang, &save](const corn::EventArgs&) {
-                title.setText(TextManager::instance().getRichText("settings-title"));
-                langLabel.setText(TextManager::instance().getRichText("settings-lang"));
+                title.setRichText(TextManager::instance().getRichText("settings-title"));
+                langLabel.setRichText(TextManager::instance().getRichText("settings-lang"));
                 std::string language = (std::string)TextManager::instance().getSettings("lang");
-                lang.setText(TextManager::instance().getRichText("settings-lang-" + language));
-                save.setText(TextManager::instance().getRichText("settings-save"));
+                lang.setRichText(TextManager::instance().getRichText("settings-lang-" + language));
+                save.setRichText(TextManager::instance().getRichText("settings-save"));
             });
 }
 
@@ -229,9 +229,9 @@ TutorialScene::TutorialScene() {
     this->eventScope_.addListener(
             "clangy-bird::langchange",
             [&title, &text, &back](const corn::EventArgs&) {
-                title.setText(TextManager::instance().getRichText("tutorial-title"));
-                text.setText(TextManager::instance().getRichText("tutorial-text"));
-                back.setText(TextManager::instance().getRichText("tutorial-back"));
+                title.setRichText(TextManager::instance().getRichText("tutorial-title"));
+                text.setRichText(TextManager::instance().getRichText("tutorial-text"));
+                back.setRichText(TextManager::instance().getRichText("tutorial-back"));
             });
 }
 
@@ -316,9 +316,9 @@ GameScene::GameScene() : paused_(false), addedSystems_() {
     this->eventScope_.addListener(
             "clangy-bird::langchange",
             [&title, &cont, &exitToMainMenu](const corn::EventArgs&) {
-                title.setText(TextManager::instance().getRichText("game-pause-title"));
-                cont.setText(TextManager::instance().getRichText("game-pause-continue"));
-                exitToMainMenu.setText(TextManager::instance().getRichText("game-pause-exit-to-main-menu"));
+                title.setRichText(TextManager::instance().getRichText("game-pause-title"));
+                cont.setRichText(TextManager::instance().getRichText("game-pause-continue"));
+                exitToMainMenu.setRichText(TextManager::instance().getRichText("game-pause-exit-to-main-menu"));
             });
 }
 

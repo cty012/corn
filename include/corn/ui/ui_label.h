@@ -1,10 +1,11 @@
 #pragma once
 
-#include <corn/media/text_render.h>
+#include <corn/media/rich_text_frame.h>
+#include <corn/util/rich_text.h>
 #include <corn/ui/ui_widget.h>
 
 namespace corn {
-    struct RichText;
+    class RichTextRenderer;
 
     /**
      * @class UILabel
@@ -20,20 +21,22 @@ namespace corn {
         [[nodiscard]] Vec2f getNaturalSize() const noexcept override;
 
         /// @brief Getter for the rich text.
-        [[nodiscard]] const RichText& getText() const noexcept;
+        [[nodiscard]] const RichText& getRichText() const noexcept;
 
         /// @brief Setter for the rich text.
-        void setText(const RichText& richText);
+        void setRichText(const RichText& richText);
 
-        /// @brief Getter for the text render.
-        [[nodiscard]] TextRender& getTextRender() noexcept;
-        [[nodiscard]] const TextRender& getTextRender() const noexcept;
+        /// @brief Getter for the rich text frame.
+        [[nodiscard]] RichTextFrame& getRichTextFrame() noexcept;
+
+        /// @brief Getter for the rich text frame.
+        [[nodiscard]] const RichTextFrame& getRichTextFrame() const noexcept;
 
     private:
-        /// @brief Constructor., const RichText& text, const RichText& text
+        /// @brief Constructor.
         UILabel(WidgetID id, std::string name, UIManager& uiManager, const RichText& text) noexcept;
 
-        /// @brief The text to be rendered.
-        TextRender textRender_;
+        /// @brief The rich text renderer.
+        RichTextFrame richTextFrame_;
     };
 }

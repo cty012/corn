@@ -28,14 +28,16 @@ set(CORN_OUTPUT_DIR "${CMAKE_BINARY_DIR}/lib")
 set(EXAMPLES_OUTPUT_DIR "${CMAKE_BINARY_DIR}/examples")
 set(TEST_OUTPUT_DIR "${CMAKE_BINARY_DIR}/tests")
 
-# Platform
+# OS and Platform
 if (WIN32)
+    set(OS "win")
     if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         set(PLATFORM "win64")
     else ()
         set(PLATFORM "win32")
     endif ()
 elseif (APPLE)
+    set(OS "macos")
     if (CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
         set(PLATFORM "macos-arm64")
     elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
@@ -44,12 +46,15 @@ elseif (APPLE)
         set(PLATFORM "macos")
     endif ()
 elseif (UNIX)
+    set(OS "linux")
     if (CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64")
         set(PLATFORM "linux-x64")
     else ()
         set(PLATFORM "linux")
     endif ()
 else ()
+    message(FATAL_ERROR "Unsupported OS: ${CMAKE_SYSTEM_NAME}")
+    set(OS "unknown")
     set(PLATFORM "unknown")
 endif ()
 
@@ -77,13 +82,37 @@ file(GLOB_RECURSE HEADERS
         "${CMAKE_SOURCE_DIR}/include/*.h"
 )
 file(GLOB_RECURSE PRIVATE_HEADERS
-        "${CMAKE_SOURCE_DIR}/src/*.h"
+        "${CMAKE_SOURCE_DIR}/src/corn/core/*.h"
+        "${CMAKE_SOURCE_DIR}/src/corn/ecs/*.h"
+        "${CMAKE_SOURCE_DIR}/src/corn/event/*.h"
+        "${CMAKE_SOURCE_DIR}/src/corn/geometry/*.h"
+        "${CMAKE_SOURCE_DIR}/src/corn/media/*.h"
+        "${CMAKE_SOURCE_DIR}/src/corn/render/*.h"
+        "${CMAKE_SOURCE_DIR}/src/corn/ui/*.h"
+        "${CMAKE_SOURCE_DIR}/src/corn/util/*.h"
 )
 file(GLOB_RECURSE SOURCES
-        "${CMAKE_SOURCE_DIR}/src/*.cpp"
+        "${CMAKE_SOURCE_DIR}/src/corn/core/*.cpp"
+        "${CMAKE_SOURCE_DIR}/src/corn/ecs/*.cpp"
+        "${CMAKE_SOURCE_DIR}/src/corn/event/*.cpp"
+        "${CMAKE_SOURCE_DIR}/src/corn/geometry/*.cpp"
+        "${CMAKE_SOURCE_DIR}/src/corn/media/*.cpp"
+        "${CMAKE_SOURCE_DIR}/src/corn/render/*.cpp"
+        "${CMAKE_SOURCE_DIR}/src/corn/ui/*.cpp"
+        "${CMAKE_SOURCE_DIR}/src/corn/util/*.cpp"
+)
+file(GLOB_RECURSE NATIVE_HEADERS
+        "${CMAKE_SOURCE_DIR}/src/corn/native/include/${OS}/*.h"
+)
+file(GLOB_RECURSE NATIVE_SOURCES
+        "${CMAKE_SOURCE_DIR}/src/corn/native/${OS}/*.cpp"
+        "${CMAKE_SOURCE_DIR}/src/corn/native/${OS}/*.mm"
 )
 
-add_library(corn SHARED ${HEADERS} ${PRIVATE_HEADERS} ${SOURCES})
+add_library(corn SHARED
+        ${HEADERS} ${PRIVATE_HEADERS} ${SOURCES}
+        ${NATIVE_HEADERS} ${NATIVE_SOURCES}
+)
 set_target_properties(corn PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CORN_OUTPUT_DIR}"
         RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CORN_OUTPUT_DIR}"
@@ -91,7 +120,10 @@ set_target_properties(corn PROPERTIES
         DEBUG_POSTFIX -d
 )
 set(CORN_OUTPUT_PATH $<TARGET_FILE:corn>)
-target_include_directories(corn PRIVATE "${CMAKE_SOURCE_DIR}/include")
+target_include_directories(corn PRIVATE
+        "${CMAKE_SOURCE_DIR}/include/"
+        "${CMAKE_SOURCE_DIR}/src/corn/native/include/"
+)
 
 # Link with native libraries
 if (USE_NATIVE_TEXT_RENDERING)

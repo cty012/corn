@@ -9,10 +9,12 @@ namespace corn {
     class Interface::InterfaceImpl {
     public:
         GLFWwindow* window;
-        bgfx::ViewId viewID;
         uint16_t width, height, fwidth, fheight;
 
         Shader polygonShader, bitmapShader;
+
+        // Temp variable
+        bgfx::ViewId viewID;
 
         InterfaceImpl();
     };
