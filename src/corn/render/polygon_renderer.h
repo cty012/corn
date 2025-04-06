@@ -14,8 +14,8 @@ namespace corn {
         virtual ~Renderer() noexcept;
 
         virtual void update(
-                std::vector<Vertex2D> vertices, std::vector<uint16_t> edgeIndices, std::vector<uint32_t> ringSizes,
-                std::vector<uint16_t> fillIndices) = 0;
+                const std::vector<Vertex2D>& vertices, const std::vector<uint16_t>& edgeIndices,
+                std::vector<uint32_t> ringSizes, const std::vector<uint16_t>& fillIndices) = 0;
 
         virtual void destroy() noexcept = 0;
 
@@ -36,8 +36,8 @@ namespace corn {
         ~StaticPolygonRenderer() override;
 
         void update(
-                std::vector<Vertex2D> vertices, std::vector<uint16_t> edgeIndices, std::vector<uint32_t> ringSizes,
-                std::vector<uint16_t> fillIndices) override;
+                const std::vector<Vertex2D>& vertices, const std::vector<uint16_t>& edgeIndices,
+                std::vector<uint32_t> ringSizes, const std::vector<uint16_t>& fillIndices) override;
 
         void destroy() noexcept override;
 
@@ -52,10 +52,7 @@ namespace corn {
                 const Transform2D& transform) const override;
 
     private:
-        std::vector<Vertex2D> vertices_;
-        std::vector<uint16_t> edgeIndices_;
         std::vector<uint32_t> ringSizes_;
-        std::vector<uint16_t> fillIndices_;
 
         bgfx::VertexBufferHandle vbf_;
         bgfx::IndexBufferHandle edgeIbf_, fillIbf_;
@@ -67,8 +64,8 @@ namespace corn {
         ~DynamicPolygonRenderer() noexcept override;
 
         void update(
-                std::vector<Vertex2D> vertices, std::vector<uint16_t> edgeIndices, std::vector<uint32_t> ringSizes,
-                std::vector<uint16_t> fillIndices) override;
+                const std::vector<Vertex2D>& vertices, const std::vector<uint16_t>& edgeIndices,
+                std::vector<uint32_t> ringSizes, const std::vector<uint16_t>& fillIndices) override;
 
         void destroy() noexcept override;
 
@@ -83,10 +80,8 @@ namespace corn {
                 const Transform2D& transform) const override;
 
     private:
-        std::vector<Vertex2D> vertices_;
-        std::vector<uint16_t> edgeIndices_;
         std::vector<uint32_t> ringSizes_;
-        std::vector<uint16_t> fillIndices_;
+        uint32_t numVertices_, numFillIndices_;
 
         bgfx::DynamicVertexBufferHandle vbf_;
         bgfx::DynamicIndexBufferHandle edgeIbf_, fillIbf_;

@@ -195,10 +195,11 @@ namespace corn {
 
     std::vector<std::array<Vec2f, 3>> Polygon::getTriangles() const {
         std::vector<std::array<Vec2f, 3>> triangles;
-        for (size_t i = 0; i < this->getTriangleIndices().size(); i++) {
-            const Vec2f& v1 = this->verticesFlat_[this->triangleIndices_[i]];
-            const Vec2f& v2 = this->verticesFlat_[this->triangleIndices_[(i + 1) % this->triangleIndices_.size()]];
-            const Vec2f& v3 = this->verticesFlat_[this->triangleIndices_[(i + 2) % this->triangleIndices_.size()]];
+        triangles.resize(this->getTriangleIndices().size() / 3);
+        for (size_t i = 0; i * 3 + 2 < this->getTriangleIndices().size(); i++) {
+            const Vec2f& v1 = this->verticesFlat_[this->triangleIndices_[i * 3]];
+            const Vec2f& v2 = this->verticesFlat_[this->triangleIndices_[(i * 3 + 1) % this->triangleIndices_.size()]];
+            const Vec2f& v3 = this->verticesFlat_[this->triangleIndices_[(i * 3 + 2) % this->triangleIndices_.size()]];
             triangles[i] = { v1, v2, v3 };
         }
         return triangles;

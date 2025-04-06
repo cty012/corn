@@ -38,7 +38,7 @@ void SSweep::update(float millis) {
         for (size_t i = 0; i < newHoles.size() + 1; i++) {
             std::vector<corn::Vec2f>& vertices = (i == 0) ? newVertices : newHoles[i - 1];
             for (corn::Vec2f& vertex : vertices) {
-                vertex += displacement;
+                vertex += transform->getWorldTransform().getTranslationComponent();
             }
         }
         newSweepRegion.setVertices(newVertices, newHoles);

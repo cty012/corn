@@ -4,6 +4,9 @@
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 #include "../render/shader.h"
+#include <corn/geometry/vec.h>
+#include <corn/media/interface.h>
+#include <corn/media/rich_text_frame.h>
 
 namespace corn {
     class Interface::InterfaceImpl {
@@ -36,5 +39,8 @@ namespace corn {
 
         /// @brief The current input string.
         std::string input;
+
+        /// @brief Debug text.
+        RichTextFrame debugText;
     };
 }

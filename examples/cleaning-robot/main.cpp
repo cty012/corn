@@ -11,6 +11,7 @@ int main() {
     config.antialiasing = 4;
     corn::FontManager::instance().loadFromPath(
             "noto-sans", "resources/fonts/noto-sans/NotoSans-Regular.ttf");
+    corn::FontManager::instance().setDefault("noto-sans");
 
     // Events
     corn::EventScope eventScope;
@@ -22,6 +23,7 @@ int main() {
 
     // Game
     corn::Game game(new GameScene(), config);
+    game.setDebugOverlay(true);
     game.run();
 
     // Release resources

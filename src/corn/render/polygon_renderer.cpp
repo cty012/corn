@@ -22,22 +22,19 @@ namespace corn {
     }
 
     void StaticPolygonRenderer::update(
-            std::vector<Vertex2D> vertices, std::vector<uint16_t> edgeIndices, std::vector<uint32_t> ringSizes,
-            std::vector<uint16_t> fillIndices) {
+            const std::vector<Vertex2D>& vertices, const std::vector<uint16_t>& edgeIndices,
+            std::vector<uint32_t> ringSizes, const std::vector<uint16_t>& fillIndices) {
 
         this->destroy();
 
-        this->vertices_ = std::move(vertices);
-        this->edgeIndices_ = std::move(edgeIndices);
         this->ringSizes_ = std::move(ringSizes);
-        this->fillIndices_ = std::move(fillIndices);
 
-        this->vbf_ = bgfx::createVertexBuffer(bgfx::makeRef(
-                this->vertices_.data(), sizeof(Vertex2D) * static_cast<uint32_t>(this->vertices_.size())), Vertex2D::layout());
-        this->edgeIbf_ = bgfx::createIndexBuffer(bgfx::makeRef(
-                this->edgeIndices_.data(), sizeof(uint16_t) * static_cast<uint32_t>(this->edgeIndices_.size())));
-        this->fillIbf_ = bgfx::createIndexBuffer(bgfx::makeRef(
-                this->fillIndices_.data(), sizeof(uint16_t) * static_cast<uint32_t>(this->fillIndices_.size())));
+        this->vbf_ = bgfx::createVertexBuffer(bgfx::copy(
+                vertices.data(), sizeof(Vertex2D) * static_cast<uint32_t>(vertices.size())), Vertex2D::layout());
+        this->edgeIbf_ = bgfx::createIndexBuffer(bgfx::copy(
+                edgeIndices.data(), sizeof(uint16_t) * static_cast<uint32_t>(edgeIndices.size())));
+        this->fillIbf_ = bgfx::createIndexBuffer(bgfx::copy(
+                fillIndices.data(), sizeof(uint16_t) * static_cast<uint32_t>(fillIndices.size())));
     }
 
     void StaticPolygonRenderer::destroy() noexcept {
@@ -144,7 +141,8 @@ namespace corn {
     }
 
     DynamicPolygonRenderer::DynamicPolygonRenderer()
-            : vbf_(BGFX_INVALID_HANDLE), edgeIbf_(BGFX_INVALID_HANDLE), fillIbf_(BGFX_INVALID_HANDLE) {}
+            : numVertices_(0), numFillIndices_(0),
+              vbf_(BGFX_INVALID_HANDLE), edgeIbf_(BGFX_INVALID_HANDLE), fillIbf_(BGFX_INVALID_HANDLE) {}
 
     DynamicPolygonRenderer::~DynamicPolygonRenderer() noexcept {
         if (bgfx::isValid(this->vbf_)) {
@@ -162,33 +160,32 @@ namespace corn {
     }
 
     void DynamicPolygonRenderer::update(
-            std::vector<Vertex2D> vertices, std::vector<uint16_t> edgeIndices, std::vector<uint32_t> ringSizes,
-            std::vector<uint16_t> fillIndices) {
+            const std::vector<Vertex2D>& vertices, const std::vector<uint16_t>& edgeIndices,
+            std::vector<uint32_t> ringSizes, const std::vector<uint16_t>& fillIndices) {
 
-        this->vertices_ = std::move(vertices);
-        this->edgeIndices_ = std::move(edgeIndices);
         this->ringSizes_ = std::move(ringSizes);
-        this->fillIndices_ = std::move(fillIndices);
 
-        const bgfx::Memory* vmem = bgfx::makeRef(this->vertices_.data(), sizeof(Vertex2D) * static_cast<uint32_t>(this->vertices_.size()));
+        this->numVertices_ = static_cast<uint32_t>(vertices.size());
+        const bgfx::Memory* vmem = bgfx::copy(vertices.data(), sizeof(Vertex2D) * this->numVertices_);
         if (bgfx::isValid(this->vbf_)) {
             bgfx::update(this->vbf_, 0, vmem);
         } else {
-            this->vbf_ = bgfx::createDynamicVertexBuffer(vmem, Vertex2D::layout());
+            this->vbf_ = bgfx::createDynamicVertexBuffer(vmem, Vertex2D::layout(), BGFX_BUFFER_COMPUTE_READ | BGFX_BUFFER_ALLOW_RESIZE);
         }
 
-        const bgfx::Memory* emem = bgfx::makeRef(this->edgeIndices_.data(), sizeof(uint16_t) * static_cast<uint32_t>(this->edgeIndices_.size()));
+        const bgfx::Memory* emem = bgfx::copy(edgeIndices.data(), sizeof(uint16_t) * static_cast<uint32_t>(edgeIndices.size()));
         if (bgfx::isValid(this->edgeIbf_)) {
             bgfx::update(this->edgeIbf_, 0, emem);
         } else {
-            this->edgeIbf_ = bgfx::createDynamicIndexBuffer(emem);
+            this->edgeIbf_ = bgfx::createDynamicIndexBuffer(emem, BGFX_BUFFER_COMPUTE_READ | BGFX_BUFFER_ALLOW_RESIZE);
         }
 
-        const bgfx::Memory* fmem = bgfx::makeRef(this->fillIndices_.data(), sizeof(uint16_t) * static_cast<uint32_t>(this->fillIndices_.size()));
+        this->numFillIndices_ = static_cast<uint32_t>(fillIndices.size());
+        const bgfx::Memory* fmem = bgfx::copy(fillIndices.data(), sizeof(uint16_t) * this->numFillIndices_);
         if (bgfx::isValid(this->fillIbf_)) {
             bgfx::update(this->fillIbf_, 0, fmem);
         } else {
-            this->fillIbf_ = bgfx::createDynamicIndexBuffer(fmem);
+            this->fillIbf_ = bgfx::createDynamicIndexBuffer(fmem, BGFX_BUFFER_COMPUTE_READ | BGFX_BUFFER_ALLOW_RESIZE);
         }
     }
 
@@ -241,15 +238,15 @@ namespace corn {
         // Draw the polygon
         uint32_t start = 0;
         bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_BLEND_ALPHA | BGFX_STATE_PT_LINESTRIP);
-        bgfx::setVertexBuffer(0, this->vbf_);
+        bgfx::setVertexBuffer(0, this->vbf_, 0, this->numVertices_);
         bgfx::setUniform(u_color, colorVec);
         bgfx::setTransform(&mtx);
         for (uint32_t count : this->ringSizes_) {
             bgfx::setIndexBuffer(this->edgeIbf_, start, count);
             bgfx::submit(viewID, shader.getProgramHandle(), 0, BGFX_DISCARD_INDEX_BUFFER);
-
             start += count;
         }
+        bgfx::discard();
 
         // Cleanup
         bgfx::destroy(u_color);
@@ -285,8 +282,8 @@ namespace corn {
 
         // Draw the polygon
         bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_BLEND_ALPHA);
-        bgfx::setVertexBuffer(0, this->vbf_);
-        bgfx::setIndexBuffer(this->fillIbf_);
+        bgfx::setVertexBuffer(0, this->vbf_, 0, this->numVertices_);
+        bgfx::setIndexBuffer(this->fillIbf_, 0, this->numFillIndices_);
         bgfx::setUniform(u_color, colorVec);
         bgfx::setTransform(&mtx);
         bgfx::submit(viewID, shader.getProgramHandle(), 0, BGFX_DISCARD_ALL);

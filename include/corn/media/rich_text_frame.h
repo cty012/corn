@@ -12,7 +12,7 @@ namespace corn {
     class RichTextFrame {
     public:
         /// @brief Constructor.
-        explicit RichTextFrame(const RichText& richText) noexcept;
+        explicit RichTextFrame(const RichText& richText = RichText()) noexcept;
 
         /// @brief Destructor.
         ~RichTextFrame() noexcept;

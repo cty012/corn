@@ -15,6 +15,6 @@ private:
     void updateMovement();
 
     corn::Entity::EntityID robotID_;
-    float speed_ = 2000;
+    float speed_ = 500;
     corn::EventScope eventScope_;
 };

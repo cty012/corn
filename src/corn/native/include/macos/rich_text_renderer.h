@@ -57,6 +57,6 @@ namespace corn {
         Vec2f offset_;
         std::vector <uint8_t> bitmapBuffer_;
         bool bitmapDirty_ = true;
-        StaticBitmapRenderer bitmapRenderer_;
+        BitmapRenderer bitmapRenderer_;
     };
 }

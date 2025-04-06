@@ -181,4 +181,28 @@ namespace corn {
         richTextRenderer->setTransform(transform);
         richTextRenderer->draw(viewID, bitmapShader);
     }
+
+    void drawDebug(
+            bgfx::ViewId viewID,
+            const RichTextFrame& debugText, float xPad, float yPad, float dpiScale,
+            const Shader& polygonShader, const Shader& bitmapShader) {
+
+        Transform2D transform = Transform2D::dilate(Vec2f(dpiScale, dpiScale)) * Transform2D::translate(Vec2f(xPad, yPad));
+
+        // Render the background
+        const Vec2f& bgSize = (debugText.getSize() + Vec2f(xPad, yPad) * 2.0f) * dpiScale;
+        std::vector<Vertex2D> vertices = {
+                { 0, 0 },
+                { bgSize.x, 0 },
+                { bgSize.x, bgSize.y },
+                { 0, bgSize.y },
+        };
+        std::vector<uint16_t> indices = { 0, 1, 2, 0, 2, 3 };
+        TransientPolygonRenderer::draw(viewID, polygonShader, vertices, indices, Color::rgb(0, 0, 0, 200), Transform2D::I());
+
+        // Render the text
+        RichTextRenderer* richTextRenderer = debugText.getRichTextRenderer();
+        richTextRenderer->setTransform(transform);
+        richTextRenderer->draw(viewID, bitmapShader);
+    }
 }

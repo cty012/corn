@@ -156,7 +156,7 @@ namespace corn {
 
         // Vertices
         std::vector<Vertex2D> vertices;
-        vertices.reserve(vertices.size());
+        vertices.reserve(verticesFlat_.size());
         for (const Vec2f& vertex : verticesFlat_) {
             vertices.emplace_back(vertex.x, vertex.y);
         }

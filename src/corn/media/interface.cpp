@@ -232,20 +232,20 @@ namespace corn {
     }
 
     void Interface::renderDebugOverlay(size_t fps) {
-        (void)fps;
-//         // Render dark background in the top left corner
-//         sf::RectangleShape overlay(sf::Vector2f(100, 30));
-//         overlay.setFillColor(sf::Color(0, 0, 0, 200));
-// //        this->impl_->window->draw(overlay);
-//
-//         // Render FPS text
-//         sf::Text text;
-//         text.setFont(FontManager::instance().getDefault()->sffont);
-//         text.setString("FPS: " + std::to_string(fps));
-//         text.setCharacterSize(15);
-//         text.setFillColor(sf::Color::White);
-//         text.setPosition(10, 6);
-//        this->impl_->window->draw(text); todo
+        const Font* font = FontManager::instance().getDefault();
+        if (font == nullptr) return;
+
+        // Setup the view
+        this->impl_->viewID++;
+        setView(this->impl_->viewID, Vec<uint16_t, 2>(0, 0), Vec<uint16_t, 2>(this->impl_->fwidth, this->impl_->fheight));
+
+        // Render debug text
+        RichText richText = RichText().addText("FPS: " + std::to_string(fps), TextStyle(font, 12, Color::WHITE()));
+        this->impl_->debugText.setRichText(richText);
+        drawDebug(
+                this->impl_->viewID,
+                this->impl_->debugText, 10, 6, this->getHiDPIScale(),
+                this->impl_->polygonShader, this->impl_->bitmapShader);
     }
 
     void Interface::update() {

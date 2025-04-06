@@ -58,6 +58,8 @@ namespace corn {
         /**
          * @brief Set whether to display the debug overlay in a corner of the window.
          * @param debugOverlayEnabled Whether to display the debug overlay.
+         *
+         * WARNING: Need to have a default font loaded in the FontManager.
          */
         void setDebugOverlay(bool debugOverlayEnabled) noexcept;
 

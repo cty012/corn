@@ -6,25 +6,31 @@
 #include "shader.h"
 
 namespace corn {
-    class StaticBitmapRenderer {
+    /**
+     * @class BitmapRenderer
+     * @brief Renders a bitmap texture to the screen.
+     *
+     * Behaves like a dynamic renderer.
+     */
+    class BitmapRenderer {
     public:
-        StaticBitmapRenderer();
+        BitmapRenderer();
 
-        ~StaticBitmapRenderer();
+        ~BitmapRenderer();
 
         void destroy();
 
         void update(unsigned char* bitmap, float x, float y, uint16_t w, uint16_t h);
 
-        void draw(bgfx::ViewId viewId, const Shader& shader) const;
+        void draw(bgfx::ViewId viewID, const Shader& shader) const;
 
     private:
-        void destroyPartial();
+        void destroyVertexBuffer();
+        void destroyIndexBuffer();
+        void destroyTexture();
+        void destroySamplerUniform();
 
-        std::vector<TextureVertex2D> vertices_;
-        std::vector<uint16_t> indices_;
-
-        bgfx::VertexBufferHandle vbf_ = BGFX_INVALID_HANDLE;
+        bgfx::DynamicVertexBufferHandle vbf_ = BGFX_INVALID_HANDLE;
         bgfx::IndexBufferHandle ibf_ = BGFX_INVALID_HANDLE;
         bgfx::TextureHandle texture_ = BGFX_INVALID_HANDLE;
         bgfx::UniformHandle samplerUniform_ = BGFX_INVALID_HANDLE;

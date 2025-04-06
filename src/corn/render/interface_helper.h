@@ -35,6 +35,11 @@ namespace corn {
             UILabel& uiLabel, float maxWidth,
             const Transform2D& transform, const Shader& bitmapShader);
 
+    void drawDebug(
+            bgfx::ViewId viewID,
+            const RichTextFrame& debugText, float xPad, float yPad, float dpiScale,
+            const Shader& polygonShader, const Shader& bitmapShader);
+
     // GLFW helper constants and functions
     constexpr std::array GLFW_CORN_MOUSE_BUTTONS = {
             std::pair{ GLFW_MOUSE_BUTTON_LEFT, MouseButton::LEFT },
