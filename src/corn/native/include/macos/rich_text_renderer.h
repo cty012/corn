@@ -31,7 +31,7 @@ namespace corn {
         void draw(bgfx::ViewId viewID, const Shader& shader);
 
     private:
-        void createBitmap(int16_t& offsetX, int16_t& offsetY, uint16_t& bitmapWidth, uint16_t& bitmapHeight);
+        void createBitmap(uint16_t& bitmapWidth, uint16_t& bitmapHeight);
 
         void destroyFramesetter();
 
@@ -54,9 +54,9 @@ namespace corn {
 
         // Changed by setTransform
         Transform2D transform_;
-
+        Vec2f offset_;
         std::vector <uint8_t> bitmapBuffer_;
-
+        bool bitmapDirty_ = true;
         StaticBitmapRenderer bitmapRenderer_;
     };
 }

@@ -103,6 +103,8 @@ namespace corn {
 
         // Release resources
         CFRelease(cfText);
+
+        this->bitmapDirty_ = true;
     }
 
     void RichTextRenderer::setMaxWidth(float maxWidth) {
@@ -125,6 +127,8 @@ namespace corn {
 
         // Release resources
         CGPathRelease(path);
+
+        this->bitmapDirty_ = true;
     }
 
     const Vec2f& RichTextRenderer::getNaturalSize() const {
@@ -136,21 +140,38 @@ namespace corn {
     }
 
     void RichTextRenderer::setTransform(const Transform2D& transform) {
-        // todo: compare the previous transform with the current one
+        // Check if we can reuse the old transform and bitmap
+        if (!this->bitmapDirty_) {
+            const Mat3f& oldMat = this->transform_.getMat();
+            const Mat3f& newMat = transform.getMat();
+            if (oldMat.to<3, 2>() == newMat.to<3, 2>() && oldMat[2][2] == newMat[2][2]) {
+                float diff02 = newMat[0][2] - oldMat[0][2];
+                float diff12 = newMat[1][2] - oldMat[1][2];
+                if (std::round(diff02) - diff02 <= 0.0001f &&
+                    std::round(diff12) - diff12 <= 0.0001f) {
+                    // Integer translation, change the offset
+                    this->offset_.x += diff02;
+                    this->offset_.y += diff12;
+                }
+                return;
+            }
+        }
+
+        // Update the transform
         this->transform_ = transform;
 
         // Update the bitmap
-        int16_t x, y;
         uint16_t w, h;
-        this->createBitmap(x, y, w, h);
-        this->bitmapRenderer_.update(this->bitmapBuffer_.data(), x, y, w, h);
+        this->createBitmap(w, h);
+        this->bitmapRenderer_.update(this->bitmapBuffer_.data(), this->offset_.x, this->offset_.y, w, h);
+        this->bitmapDirty_ = false;
     }
 
     void RichTextRenderer::draw(bgfx::ViewId viewID, const Shader& shader) {
         this->bitmapRenderer_.draw(viewID, shader);
     }
 
-    void RichTextRenderer::createBitmap(int16_t& offsetX, int16_t& offsetY, uint16_t& bitmapWidth, uint16_t& bitmapHeight) {
+    void RichTextRenderer::createBitmap(uint16_t& bitmapWidth, uint16_t& bitmapHeight) {
         if (!this->colorSpace_) {
             this->colorSpace_ = CGColorSpaceCreateDeviceRGB();
         }
@@ -170,8 +191,8 @@ namespace corn {
         auto maxY = static_cast<int16_t>(std::ceil(std::fmax(std::fmax(ul.y, ur.y), std::fmax(bl.y, br.y))));
         bitmapWidth = maxX - minX;
         bitmapHeight = maxY - minY;
-        offsetX = minX;
-        offsetY = minY;
+        this->offset_.x = minX;
+        this->offset_.y = minY;
 
         /// Create the bitmap.
         // Allocate pixel data (BGRA8).

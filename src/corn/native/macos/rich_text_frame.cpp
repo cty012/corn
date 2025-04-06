@@ -21,6 +21,7 @@ namespace corn {
         if (this->richText_ == richText) {
             return;
         }
+
         this->richText_ = richText;
         this->naturalSizeDirty_ = true;
         this->sizeDirty_ = true;
@@ -62,7 +63,7 @@ namespace corn {
 
     const Vec2f& RichTextFrame::getSize() const {
         if (this->sizeDirty_) {
-            (void)this->getRichTextRenderer();
+            (void)this->getRichTextRenderer();  // Ensure richTextRenderer is not dirty
 
             this->size_ = this->richTextRenderer_->getSize();
             this->sizeDirty_ = false;
