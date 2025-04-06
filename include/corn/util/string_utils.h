@@ -13,17 +13,17 @@ namespace corn {
             u8"\u2002", u8"\u2003", u8"\u2009", u8"\u200B", u8"\u3000"
     };
 
-    /**
-     * @param target Target character.
-     * @return Whether the character is a whitespace character.
-     */
-    bool isWhitespace(char target) noexcept;
-
-    /**
-     * @param target Target UTF-8 character.
-     * @return Whether the character is a whitespace character.
-     */
-    bool isWhitespace(const std::u8string& target) noexcept;
+//    /**
+//     * @param target Target character.
+//     * @return Whether the character is a whitespace character.
+//     */
+//    bool isWhitespace(char target) noexcept;
+//
+//    /**
+//     * @param target Target UTF-8 character.
+//     * @return Whether the character is a whitespace character.
+//     */
+//    bool isWhitespace(const std::u8string& target) noexcept;
 
     /**
      * @brief Remove spaces and new lines from the begin and end of a string.
@@ -39,13 +39,6 @@ namespace corn {
      * @return Split string, including the delimiters.
      */
     std::vector<std::string> split(const std::string& str, const std::string& delimiters);
-
-    /**
-     * @brief Encode a unicode character in UTF-8.
-     * @param codepoint The unicode number.
-     * @return The encoded UTF-8 string.
-     */
-    std::u8string unicodeToUTF8(unsigned int codepoint);
 
     /**
      * @brief Break a UTF-8 string into words.

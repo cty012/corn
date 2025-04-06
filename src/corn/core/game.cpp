@@ -4,7 +4,7 @@
 
 namespace corn {
     Game::Game(Scene* startScene, Config config)
-            : active_(false), config_(std::move(config)), scenes_(), keyPressed_(), interface_(*this, this->keyPressed_),
+            : active_(false), config_(std::move(config)), scenes_(), interface_(*this),
               sw_(), debugOverlayEnabled_(false) {
 
         startScene->game_ = this;
@@ -60,8 +60,12 @@ namespace corn {
         return this->scenes_.empty() ? nullptr : this->scenes_.top();
     }
 
+    bool Game::isPressed(MouseButton mouseButton) const noexcept {
+        return this->interface_.isPressed(mouseButton);
+    }
+
     bool Game::isPressed(Key key) const noexcept {
-        return this->keyPressed_.contains(key) && this->keyPressed_.at(key);
+        return this->interface_.isPressed(key);
     }
 
     void Game::changeScene(corn::SceneOperation op, corn::Scene* scene) noexcept {

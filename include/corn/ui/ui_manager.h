@@ -134,7 +134,7 @@ namespace corn {
          * @brief Calculate and cache the locations and sizes of all widgets.
          * @param windowSize Size of the window
          */
-        void calcGeometry(Vec2f windowSize);
+        void calcGeometry(const Vec2f& windowSize);
 
         /**
          * @param widget The target UI widget.
@@ -208,7 +208,7 @@ namespace corn {
          * @param pos A location on the screen.
          * @return Whether the location is inside the target widget.
          */
-        bool widgetContains(const UIWidget* widget, Vec2f pos) const noexcept;
+        bool widgetContains(const UIWidget* widget, const Vec2f& pos) const noexcept;
 
         /**
          * @param pos A location on the screen.
@@ -217,7 +217,7 @@ namespace corn {
          * Since there can be multiple widgets containing the same location, we only consider the widget on the top
          * along the z-axis.
          */
-        UIWidget* getTargetWidget(Vec2f pos) noexcept;
+        UIWidget* getTargetWidget(const Vec2f& pos) noexcept;
 
         /**
          * @brief Helper to UIManager::destroyWidget.

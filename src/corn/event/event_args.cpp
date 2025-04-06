@@ -5,30 +5,29 @@
 namespace corn {
     EventArgs::~EventArgs() = default;
 
-    EventArgsKeyboard::EventArgsKeyboard(Key key, ButtonEvent status, unsigned char modifiers, const Vec2f& mousePos) noexcept
-            : key(key), status(status), modifiers(modifiers), mousePos(mousePos) {}
+    EventArgsKeyboard::EventArgsKeyboard(Key key, ButtonEvent status, uint8_t modifiers, Vec2f mousePos) noexcept
+            : key(key), status(status), modifiers(modifiers), mousePos(std::move(mousePos)) {}
 
-    EventArgsWorldKeyboard::EventArgsWorldKeyboard(Key key, ButtonEvent status, unsigned char modifiers, const Vec2f& mousePos) noexcept
-            : key(key), status(status), modifiers(modifiers), mousePos(mousePos) {}
+    EventArgsWorldKeyboard::EventArgsWorldKeyboard(Key key, ButtonEvent status, uint8_t modifiers, Vec2f mousePos) noexcept
+            : key(key), status(status), modifiers(modifiers), mousePos(std::move(mousePos)) {}
 
-    EventArgsMouseButton::EventArgsMouseButton(Mouse mouse, ButtonEvent status, const Vec2f& mousePos) noexcept
-            : mouse(mouse), status(status), mousePos(mousePos) {}
+    EventArgsMouseButton::EventArgsMouseButton(MouseButton mouseButton, ButtonEvent status, Vec2f mousePos) noexcept
+            : mouseButton(mouseButton), status(status), mousePos(std::move(mousePos)) {}
 
-    EventArgsWorldMouseButton::EventArgsWorldMouseButton(Mouse mouse, ButtonEvent status, const Vec2f& mousePos) noexcept
-            : mouse(mouse), status(status), mousePos(mousePos) {}
+    EventArgsWorldMouseButton::EventArgsWorldMouseButton(MouseButton mouseButton, ButtonEvent status, Vec2f mousePos) noexcept
+            : mouseButton(mouseButton), status(status), mousePos(std::move(mousePos)) {}
 
-    EventArgsMouseMove::EventArgsMouseMove(const Vec2f& mousePos) noexcept : mousePos(mousePos) {}
+    EventArgsMouseMove::EventArgsMouseMove(Vec2f mousePos) noexcept : mousePos(std::move(mousePos)) {}
 
-    EventArgsWorldMouseMove::EventArgsWorldMouseMove(const Vec2f& mousePos) noexcept : mousePos(mousePos) {}
+    EventArgsWorldMouseMove::EventArgsWorldMouseMove(Vec2f mousePos) noexcept : mousePos(std::move(mousePos)) {}
 
-    EventArgsMouseScroll::EventArgsMouseScroll(float value, const Vec2f& mousePos) noexcept
-            : value(value), mousePos(mousePos) {}
+    EventArgsMouseScroll::EventArgsMouseScroll(Vec2f value, Vec2f mousePos) noexcept
+            : value(std::move(value)), mousePos(std::move(mousePos)) {}
 
-    EventArgsWorldMouseScroll::EventArgsWorldMouseScroll(float value, const Vec2f& mousePos) noexcept
-            : value(value), mousePos(mousePos) {}
+    EventArgsWorldMouseScroll::EventArgsWorldMouseScroll(Vec2f value, Vec2f mousePos) noexcept
+            : value(std::move(value)), mousePos(std::move(mousePos)) {}
 
-    EventArgsTextEntered::EventArgsTextEntered(unsigned int unicode, std::u8string character) noexcept
-            : unicode(unicode), character(std::move(character)) {}
+    EventArgsTextEntered::EventArgsTextEntered(std::string input) noexcept : input(std::move(input)) {}
 
     EventArgsScene::EventArgsScene(SceneOperation op, Scene* scene) noexcept : op(op), scene(scene) {}
 

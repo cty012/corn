@@ -31,6 +31,36 @@ namespace corn::test::string_utils {
         EXPECT_EQ(trim(str), "Hello\tworld!");
     }
 
+    TEST(StringUtils, count) {  // Count the number of unicode characters in a string
+        std::string str;
+
+        // Empty string
+        str = "";
+        EXPECT_EQ(count(str), 0);
+
+        // Standard ASCII
+        str = "Hello world!";
+        EXPECT_EQ(count(str), 12);
+
+        // Unicode characters
+        str = "你好，世界！";
+        EXPECT_EQ(count(str), 6);
+
+        // Mixed characters
+        str = "Hello 你好，世界！";
+        EXPECT_EQ(count(str), 12);
+
+        // Arabic
+        str = "مرحبا بالعالم!";
+        EXPECT_EQ(count(str), 14);
+
+        // Emoji
+        str = "😀👋";
+        EXPECT_EQ(count(str), 2);
+        str = "Hello 🌍!";
+        EXPECT_EQ(count(str), 8);
+    }
+
     TEST(StringUtils, break_into_words) {
         std::u8string str;
         std::vector<std::u8string> ans;

@@ -5,12 +5,13 @@
 namespace corn {
     TextStyle::TextStyle(const Font* font, float size, Color color) noexcept
             : font(font), size(size), color(std::move(color)),
-              weight(FontWeight::REGULAR), slant(FontSlant::REGULAR), decoration(FontDecoration::REGULAR) {}
+              weight(FONT_WEIGHT_REGULAR), italic(false), underline(false), position(FontPosition::REGULAR) {}
 
     TextStyle::TextStyle(
             const Font* font, float size, Color color,
-            FontWeight weight, FontSlant slant, FontDecoration decoration) noexcept
-            : font(font), size(size), color(std::move(color)), weight(weight), slant(slant), decoration(decoration) {}
+            float weight, bool italic, bool underline, FontPosition position) noexcept
+            : font(font), size(size), color(std::move(color)),
+              weight(weight), italic(italic), underline(underline), position(position) {}
 
     TextStyle TextStyle::setFont(const Font* newFont) const noexcept {
         TextStyle style = *this;
@@ -26,25 +27,31 @@ namespace corn {
 
     TextStyle TextStyle::setColor(Color newColor) const noexcept {
         TextStyle style = *this;
-        style.color = newColor;
+        style.color = std::move(newColor);
         return style;
     }
 
-    TextStyle TextStyle::setWeight(FontWeight newWeight) const noexcept {
+    TextStyle TextStyle::setWeight(float newWeight) const noexcept {
         TextStyle style = *this;
         style.weight = newWeight;
         return style;
     }
 
-    TextStyle TextStyle::setSlant(FontSlant newSlant) const noexcept {
+    TextStyle TextStyle::setItalic(bool newItalic) const noexcept {
         TextStyle style = *this;
-        style.slant = newSlant;
+        style.italic = newItalic;
         return style;
     }
 
-    TextStyle TextStyle::setDecoration(FontDecoration newDecoration) const noexcept {
+    TextStyle TextStyle::setUnderline(bool newUnderline) const noexcept {
         TextStyle style = *this;
-        style.decoration = newDecoration;
+        style.underline = newUnderline;
+        return style;
+    }
+
+    TextStyle TextStyle::setPosition(FontPosition newPosition) const noexcept {
+        TextStyle style = *this;
+        style.position = newPosition;
         return style;
     }
 
@@ -66,5 +73,35 @@ namespace corn {
             result += segment.text;
         }
         return result;
+    }
+
+    bool operator==(const TextStyle& lhs, const TextStyle& rhs) noexcept {
+        return lhs.font == rhs.font &&
+               lhs.size == rhs.size &&
+               lhs.color == rhs.color &&
+               lhs.weight == rhs.weight &&
+               lhs.italic == rhs.italic &&
+               lhs.underline == rhs.underline &&
+               lhs.position == rhs.position;
+    }
+
+    bool operator!=(const TextStyle& lhs, const TextStyle& rhs) noexcept {
+        return !(lhs == rhs);
+    }
+
+    bool operator==(const RichText::Segment& lhs, const RichText::Segment& rhs) noexcept {
+        return lhs.text == rhs.text && lhs.style == rhs.style;
+    }
+
+    bool operator!=(const RichText::Segment& lhs, const RichText::Segment& rhs) noexcept {
+        return !(lhs == rhs);
+    }
+
+    bool operator==(const RichText& lhs, const RichText& rhs) noexcept {
+        return lhs.segments == rhs.segments && lhs.textAlign == rhs.textAlign;
+    }
+
+    bool operator!=(const RichText& lhs, const RichText& rhs) noexcept {
+        return !(lhs == rhs);
     }
 }

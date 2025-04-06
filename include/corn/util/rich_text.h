@@ -23,9 +23,10 @@ namespace corn {
         Color color;
 
         /// @brief Variant of the font to use.
-        FontWeight weight;
-        FontSlant slant;
-        FontDecoration decoration;
+        float weight;
+        bool italic;
+        bool underline;
+        FontPosition position;
 
         /// @brief Simple constructor.
         TextStyle(const Font* font, float size, Color color) noexcept;
@@ -33,7 +34,7 @@ namespace corn {
         /// @brief Complete constructor.
         TextStyle(
                 const Font* font, float size, Color color,
-                FontWeight weight, FontSlant slant, FontDecoration decoration) noexcept;
+                float weight, bool italic, bool underline, FontPosition position) noexcept;
 
         /// @return A NEW TextStyle object with the updated font.
         [[nodiscard]] TextStyle setFont(const Font* newFont) const noexcept;
@@ -45,13 +46,16 @@ namespace corn {
         [[nodiscard]] TextStyle setColor(Color newColor) const noexcept;
 
         /// @return A NEW TextStyle object with the updated weight.
-        [[nodiscard]] TextStyle setWeight(FontWeight newWeight) const noexcept;
+        [[nodiscard]] TextStyle setWeight(float newWeight) const noexcept;
 
-        /// @return A NEW TextStyle object with the updated slant.
-        [[nodiscard]] TextStyle setSlant(FontSlant newSlant) const noexcept;
+        /// @return A NEW TextStyle object with the updated italic.
+        [[nodiscard]] TextStyle setItalic(bool newItalic) const noexcept;
 
-        /// @return A NEW TextStyle object with the updated decoration.
-        [[nodiscard]] TextStyle setDecoration(FontDecoration newDecoration) const noexcept;
+        /// @return A NEW TextStyle object with the updated underline.
+        [[nodiscard]] TextStyle setUnderline(bool newUnderline) const noexcept;
+
+        /// @return A NEW TextStyle object with the updated position.
+        [[nodiscard]] TextStyle setPosition(FontPosition newPosition) const noexcept;
     };
 
     enum class TextAlign {
@@ -103,4 +107,11 @@ namespace corn {
         /// @return The text without any styles.
         [[nodiscard]] std::string getString() const noexcept;
     };
+
+    bool operator==(const TextStyle& lhs, const TextStyle& rhs) noexcept;
+    bool operator!=(const TextStyle& lhs, const TextStyle& rhs) noexcept;
+    bool operator==(const RichText::Segment& lhs, const RichText::Segment& rhs) noexcept;
+    bool operator!=(const RichText::Segment& lhs, const RichText::Segment& rhs) noexcept;
+    bool operator==(const RichText& lhs, const RichText& rhs) noexcept;
+    bool operator!=(const RichText& lhs, const RichText& rhs) noexcept;
 }

@@ -31,9 +31,7 @@ namespace corn {
         void draw(bgfx::ViewId viewID, const Shader& shader);
 
     private:
-        void getDim(int16_t& x, int16_t& y, uint16_t& w, uint16_t& h);
-
-        void createBitmap(uint16_t& bitmapWidth, uint16_t& bitmapHeight);
+        void createBitmap(int16_t& offsetX, int16_t& offsetY, uint16_t& bitmapWidth, uint16_t& bitmapHeight);
 
         void destroyFramesetter();
 

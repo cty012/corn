@@ -74,6 +74,12 @@ namespace corn {
         [[nodiscard]] Scene* getTopScene() const noexcept;
 
         /**
+         * @param mouseButton The target mouse button.
+         * @return Whether the mouse button is currently pressed down.
+         */
+        [[nodiscard]] bool isPressed(MouseButton mouseButton) const noexcept;
+
+        /**
          * @param key The target key.
          * @return Whether the key is currently pressed down.
          */
@@ -135,9 +141,6 @@ namespace corn {
 
         /// @brief Scene events to be processed.
         std::queue<EventArgsScene> sceneEvents_;
-
-        /// @brief Stores which keys are currently pressed down.
-        std::unordered_map<Key, bool> keyPressed_;
 
         /// @brief Module for rendering and capturing user input.
         Interface interface_;

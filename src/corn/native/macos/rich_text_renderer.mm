@@ -1,10 +1,9 @@
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
-#include <corn/util/string_utils.h>
 #include "macos/font_impl.h"
 #include "macos/rich_text_renderer.h"
 
 namespace corn {
-    inline CGAffineTransform getCGAffineTransform(const Transform2D& transform) {
+    static CGAffineTransform getCGAffineTransform(const Transform2D& transform) {
         const Mat3f& mat = transform.getMat();
         return {
             .a = mat[0][0],
@@ -14,13 +13,6 @@ namespace corn {
             .tx = mat[0][2],
             .ty = mat[1][2],
         };
-    }
-
-    inline CGAffineTransform getCGAffineTransformRendering(const Transform2D& transform, uint16_t originalHeight) {
-        (void) originalHeight;
-        CGAffineTransform flip1 = CGAffineTransformMake(1, 0, 0, -1, 0, originalHeight);
-        CGAffineTransform cgTransform = getCGAffineTransform(transform);
-        return CGAffineTransformConcat(flip1, cgTransform);
     }
 
     RichTextRenderer::RichTextRenderer() = default;
@@ -55,18 +47,22 @@ namespace corn {
 
         // Create the attributed string
         CFStringRef cfText = CFStringCreateWithCString(kCFAllocatorDefault, text.getString().c_str(), kCFStringEncodingUTF8);
-        CFAttributedStringReplaceString(this->attrString_, CFRangeMake(0, 0), cfText);
+        CFAttributedStringReplaceString(this->attrString_, CFRangeMake(0, CFAttributedStringGetLength(this->attrString_)), cfText);
 
         // Set the font attribute
         CFIndex start = 0;
         for (const RichText::Segment& segment : text.segments) {
-            auto len = static_cast<CFIndex>(count(segment.text));
+            CFStringRef segmentText = CFStringCreateWithCString(kCFAllocatorDefault, segment.text.c_str(), kCFStringEncodingUTF8);
+            CFIndex len = CFStringGetLength(segmentText);
+            CFRange range = CFRangeMake(start, len);
+            CFRelease(segmentText);
 
-            // Set the font family and size
-            CTFontRef ctFont = CTFontCreateWithGraphicsFont(
-                    segment.style.font->cgFont, segment.style.size, nullptr, nullptr);
-            CFAttributedStringSetAttribute(
-                    this->attrString_, CFRangeMake(start, start + len), kCTFontAttributeName, ctFont);
+            float actualFontSize =
+                    segment.style.position == FontPosition::REGULAR ?
+                    segment.style.size :
+                    segment.style.size * 0.66f;
+            CTFontRef ctFont = segment.style.font->createCTFont(actualFontSize, segment.style.weight, segment.style.italic);
+            CFAttributedStringSetAttribute(this->attrString_, range, kCTFontAttributeName, ctFont);
             CFRelease(ctFont);
 
             // Set the font color
@@ -74,18 +70,30 @@ namespace corn {
             CGColorRef color = CGColorCreate(this->colorSpace_, (CGFloat[]) {
                     (CGFloat) r / 255.0f, (CGFloat) g / 255.0f, (CGFloat) b / 255.0f, (CGFloat) a / 255.0f,
             });
-            CFAttributedStringSetAttribute(
-                    this->attrString_, CFRangeMake(start, start + len), kCTForegroundColorAttributeName, color);
+            CFAttributedStringSetAttribute(this->attrString_, range, kCTForegroundColorAttributeName, color);
             CFRelease(color);
 
-            // Set the font weight, slant, and decoration
-            // todo
+            // Set the underline
+            int32_t underlineNumber = segment.style.underline ? kCTUnderlineStyleSingle : kCTUnderlineStyleNone;
+            CFNumberRef underlineNumberRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &underlineNumber);
+            CFAttributedStringSetAttribute(this->attrString_, range, kCTUnderlineStyleAttributeName, underlineNumberRef);
+            CFRelease(underlineNumberRef);
 
+            // Set the position
+            int32_t positionNumber =
+                    segment.style.position == FontPosition::SUPERSCRIPT ? 1 :
+                    segment.style.position == FontPosition::SUBSCRIPT ? -1 :
+                    0;
+            CFNumberRef positionNumberRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &positionNumber);
+            CFAttributedStringSetAttribute(this->attrString_, range, kCTSuperscriptAttributeName, positionNumberRef);
+            CFRelease(positionNumberRef);
+
+            // Proceed to the next segment
             start += len;
         }
 
         // Framesetter
-        this->framesetter_ = CTFramesetterCreateWithAttributedString((CFAttributedStringRef) this->attrString_);
+        this->framesetter_ = CTFramesetterCreateWithAttributedString(this->attrString_);
 
         // Find the natural size of the text.
         CGSize naturalSize = CTFramesetterSuggestFrameSizeWithConstraints(
@@ -133,35 +141,16 @@ namespace corn {
 
         // Update the bitmap
         int16_t x, y;
-        uint16_t w, h, bw, bh;
-        this->getDim(x, y, w, h);
-        this->createBitmap(bw, bh);
-        this->bitmapRenderer_.update(this->bitmapBuffer_.data(), x, y, bw, bh);
+        uint16_t w, h;
+        this->createBitmap(x, y, w, h);
+        this->bitmapRenderer_.update(this->bitmapBuffer_.data(), x, y, w, h);
     }
 
     void RichTextRenderer::draw(bgfx::ViewId viewID, const Shader& shader) {
         this->bitmapRenderer_.draw(viewID, shader);
     }
 
-    void RichTextRenderer::getDim(int16_t& offsetX, int16_t& offsetY, uint16_t& bitmapWidth, uint16_t& bitmapHeight) {
-        // Apply transform to the text to find the actual width and height.
-        CGAffineTransform cgTransform = getCGAffineTransform(this->transform_);
-        CGPoint ul = CGPointApplyAffineTransform(CGPointMake(0, 0), cgTransform);
-        CGPoint ur = CGPointApplyAffineTransform(CGPointMake(this->size_.x, 0), cgTransform);
-        CGPoint bl = CGPointApplyAffineTransform(CGPointMake(0, this->size_.y), cgTransform);
-        CGPoint br = CGPointApplyAffineTransform(CGPointMake(this->size_.x, this->size_.y), cgTransform);
-
-        auto minX = (int16_t) std::floor(std::fmin(std::fmin(ul.x, ur.x), std::fmin(bl.x, br.x)));
-        auto minY = (int16_t) std::floor(std::fmin(std::fmin(ul.y, ur.y), std::fmin(bl.y, br.y)));
-        auto maxX = (int16_t) std::ceil(std::fmax(std::fmax(ul.x, ur.x), std::fmax(bl.x, br.x)));
-        auto maxY = (int16_t) std::ceil(std::fmax(std::fmax(ul.y, ur.y), std::fmax(bl.y, br.y)));
-        bitmapWidth = maxX - minX;
-        bitmapHeight = maxY - minY;
-        offsetX = minX;
-        offsetY = minY;
-    }
-
-    void RichTextRenderer::createBitmap(uint16_t& bitmapWidth, uint16_t& bitmapHeight) {
+    void RichTextRenderer::createBitmap(int16_t& offsetX, int16_t& offsetY, uint16_t& bitmapWidth, uint16_t& bitmapHeight) {
         if (!this->colorSpace_) {
             this->colorSpace_ = CGColorSpaceCreateDeviceRGB();
         }
@@ -175,12 +164,14 @@ namespace corn {
         CGPoint br = CGPointApplyAffineTransform(CGPointMake(this->size_.x, 0), cgTransform);
 
         // Find the bounding box of the transformed points.
-        auto minX = (int16_t) std::floor(std::fmin(std::fmin(ul.x, ur.x), std::fmin(bl.x, br.x)));
-        auto minY = (int16_t) std::floor(std::fmin(std::fmin(ul.y, ur.y), std::fmin(bl.y, br.y)));
-        auto maxX = (int16_t) std::ceil(std::fmax(std::fmax(ul.x, ur.x), std::fmax(bl.x, br.x)));
-        auto maxY = (int16_t) std::ceil(std::fmax(std::fmax(ul.y, ur.y), std::fmax(bl.y, br.y)));
+        auto minX = static_cast<int16_t>(std::floor(std::fmin(std::fmin(ul.x, ur.x), std::fmin(bl.x, br.x))));
+        auto minY = static_cast<int16_t>(std::floor(std::fmin(std::fmin(ul.y, ur.y), std::fmin(bl.y, br.y))));
+        auto maxX = static_cast<int16_t>(std::ceil(std::fmax(std::fmax(ul.x, ur.x), std::fmax(bl.x, br.x))));
+        auto maxY = static_cast<int16_t>(std::ceil(std::fmax(std::fmax(ul.y, ur.y), std::fmax(bl.y, br.y))));
         bitmapWidth = maxX - minX;
         bitmapHeight = maxY - minY;
+        offsetX = minX;
+        offsetY = minY;
 
         /// Create the bitmap.
         // Allocate pixel data (BGRA8).
@@ -197,7 +188,8 @@ namespace corn {
         CGContextTranslateCTM(context, 0, bitmapHeight);
         CGContextScaleCTM(context, 1.0, -1.0);
 
-        CGAffineTransform contextCGTransform = getCGAffineTransformRendering(this->transform_, this->size_.y);
+        CGAffineTransform contextCGTransform = CGAffineTransformConcat(
+                CGAffineTransformMake(1, 0, 0, -1, 0, this->size_.y), cgTransform);
 
         // Fit to bitmap
         contextCGTransform = CGAffineTransformConcat(contextCGTransform, CGAffineTransformMakeTranslation(-minX, -minY));

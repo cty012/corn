@@ -11,14 +11,14 @@ void underlineOnHover(corn::UILabel& label) {
             "corn::ui::onenter",
             [&label](const corn::EventArgs&) {
                 corn::RichText newText = label.getRichText();
-                newText.segments[0].style.decoration = corn::FontDecoration::UNDERLINE;
+                newText.segments[0].style.underline = true;
                 label.setRichText(newText);
             });
     label.getEventManager().addListener(
             "corn::ui::onexit",
             [&label](const corn::EventArgs&) {
                 corn::RichText newText = label.getRichText();
-                newText.segments[0].style.decoration = corn::FontDecoration::REGULAR;
+                newText.segments[0].style.underline = false;
                 label.setRichText(newText);
             });
 }
@@ -354,7 +354,7 @@ void GameScene::onKeyboardEvent(const corn::EventArgsKeyboard& args) {
 }
 
 void GameScene::onMouseEvent(const corn::EventArgsMouseButton& args) {
-    if (!this->paused_ && args.mouse == corn::Mouse::LEFT && args.status == corn::ButtonEvent::DOWN) {
+    if (!this->paused_ && args.mouseButton == corn::MouseButton::LEFT && args.status == corn::ButtonEvent::DOWN) {
         this->birdMovement_->velocity.y = -700;
     }
 }

@@ -1,11 +1,11 @@
 #pragma once
 
 #include <unordered_map>
+#include <corn/event/input.h>
 #include <corn/geometry/transform.h>
+#include <corn/geometry/vec.h>
 
 namespace corn {
-    enum class Key;
-
     struct CCamera;
     class Game;
     class Scene;
@@ -19,8 +19,10 @@ namespace corn {
      */
     class Interface {
     public:
+        class InterfaceImpl;
+
         /// @brief Constructor.
-        Interface(const Game& game, std::unordered_map<Key, bool>& keyPressed_);
+        explicit Interface(const Game& game);
 
         /// @brief Destructor.
         ~Interface();
@@ -48,7 +50,7 @@ namespace corn {
          * Keyboard and mouse input will only be emitted to the top scene's event room. Other events (such as close
          * event) will be emitted to the root without propagation.
          */
-        void handleUserInput() const;
+        void handleUserInput();
 
         /// @brief Clears the contents on the window.
         void clear();
@@ -68,7 +70,22 @@ namespace corn {
         /// @brief Flushes all changes.
         void update();
 
+        /**
+         * @param mouseButton The target mouse button.
+         * @return
+         */
+        [[nodiscard]] bool isPressed(MouseButton mouseButton) const noexcept;
+
+        /**
+         * @param key The target key.
+         * @return Whether the key is currently pressed down.
+         */
+        [[nodiscard]] bool isPressed(Key key) const noexcept;
+
     private:
+        void handleMouseInput();
+        void handleKeyboardInput();
+
         /**
          * @param camera The target camera component.
          * @return The transformation that defines how to transform coordinates from the camera's reference frame to the
@@ -92,11 +109,7 @@ namespace corn {
         /// @brief The game that owns the interface.
         const Game& game_;
 
-        /// @brief Reference to the map that stores the state of all keys.
-        std::unordered_map<Key, bool>& keyPressed_;
-
         /// @brief Pimpl idiom.
-        class InterfaceImpl;
         InterfaceImpl* impl_;
     };
 }

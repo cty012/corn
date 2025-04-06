@@ -18,7 +18,9 @@ namespace corn {
     }
 
     void RichTextFrame::setRichText(const RichText& richText) noexcept {
-        // todo: check if the rich text is the same
+        if (this->richText_ == richText) {
+            return;
+        }
         this->richText_ = richText;
         this->naturalSizeDirty_ = true;
         this->sizeDirty_ = true;
@@ -48,6 +50,7 @@ namespace corn {
             if (this->richTextRendererRichTextDirty_) {
                 this->richTextRenderer_->setRichText(this->richText_);
                 this->richTextRendererRichTextDirty_ = false;
+                this->richTextRendererMaxWidthDirty_ = true;
             }
 
             this->naturalSize_ = this->richTextRenderer_->getNaturalSize();
@@ -72,6 +75,7 @@ namespace corn {
         if (this->richTextRendererRichTextDirty_) {
             this->richTextRenderer_->setRichText(this->richText_);
             this->richTextRendererRichTextDirty_ = false;
+            this->richTextRendererMaxWidthDirty_ = true;
         }
 
         if (this->richTextRendererMaxWidthDirty_) {

@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <string>
 #include <CoreText/CoreText.h>
+#include <corn/media/font.h>
 
 namespace corn {
     /**
@@ -16,7 +17,9 @@ namespace corn {
     class Font {
     public:
         FontState state;
+        bool isSystemFont;
         CGFontRef cgFont;
+        CTFontDescriptorRef ctFontDesc;
 
         Font();
 
@@ -25,6 +28,8 @@ namespace corn {
         static Font* createFromSystem(const std::string& name);
 
         static Font* createFromPath(const std::filesystem::path& path);
+
+        CTFontRef createCTFont(float size, float weight, bool italic) const;
 
         void destroy();
     };

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <GLFW/glfw3.h>
 #include <corn/ecs/component.h>
 #include <corn/event/input.h>
 #include <corn/media/interface.h>
@@ -34,235 +35,170 @@ namespace corn {
             UILabel& uiLabel, float maxWidth,
             const Transform2D& transform, const Shader& bitmapShader);
 
-    // Inline functions
-    inline DisplayMode sfStyle2CornMode(int style) {
-        return style & 0b1000 ? DisplayMode::FULLSCREEN : DisplayMode::WINDOWED;
+    // GLFW helper constants and functions
+    constexpr std::array GLFW_CORN_MOUSE_BUTTONS = {
+            std::pair{ GLFW_MOUSE_BUTTON_LEFT, MouseButton::LEFT },
+            std::pair{ GLFW_MOUSE_BUTTON_RIGHT, MouseButton::RIGHT },
+            std::pair{ GLFW_MOUSE_BUTTON_MIDDLE, MouseButton::MIDDLE },
+    };
+
+    constexpr std::array GLFW_CORN_KEYS = {
+            std::pair{ GLFW_KEY_ESCAPE, Key::ESC },
+            std::pair{ GLFW_KEY_F1, Key::F1 },
+            std::pair{ GLFW_KEY_F2, Key::F2 },
+            std::pair{ GLFW_KEY_F3, Key::F3 },
+            std::pair{ GLFW_KEY_F4, Key::F4 },
+            std::pair{ GLFW_KEY_F5, Key::F5 },
+            std::pair{ GLFW_KEY_F6, Key::F6 },
+            std::pair{ GLFW_KEY_F7, Key::F7 },
+            std::pair{ GLFW_KEY_F8, Key::F8 },
+            std::pair{ GLFW_KEY_F9, Key::F9 },
+            std::pair{ GLFW_KEY_F10, Key::F10 },
+            std::pair{ GLFW_KEY_F11, Key::F11 },
+            std::pair{ GLFW_KEY_F12, Key::F12 },
+            std::pair{ GLFW_KEY_SPACE, Key::SPACE },
+
+            std::pair{ GLFW_KEY_GRAVE_ACCENT, Key::GRAVE },
+            std::pair{ GLFW_KEY_1, Key::K_1 },
+            std::pair{ GLFW_KEY_2, Key::K_2 },
+            std::pair{ GLFW_KEY_3, Key::K_3 },
+            std::pair{ GLFW_KEY_4, Key::K_4 },
+            std::pair{ GLFW_KEY_5, Key::K_5 },
+            std::pair{ GLFW_KEY_6, Key::K_6 },
+            std::pair{ GLFW_KEY_7, Key::K_7 },
+            std::pair{ GLFW_KEY_8, Key::K_8 },
+            std::pair{ GLFW_KEY_9, Key::K_9 },
+            std::pair{ GLFW_KEY_0, Key::K_0 },
+
+            std::pair{ GLFW_KEY_A, Key::A },
+            std::pair{ GLFW_KEY_B, Key::B },
+            std::pair{ GLFW_KEY_C, Key::C },
+            std::pair{ GLFW_KEY_D, Key::D },
+            std::pair{ GLFW_KEY_E, Key::E },
+            std::pair{ GLFW_KEY_F, Key::F },
+            std::pair{ GLFW_KEY_G, Key::G },
+            std::pair{ GLFW_KEY_H, Key::H },
+            std::pair{ GLFW_KEY_I, Key::I },
+            std::pair{ GLFW_KEY_J, Key::J },
+            std::pair{ GLFW_KEY_K, Key::K },
+            std::pair{ GLFW_KEY_L, Key::L },
+            std::pair{ GLFW_KEY_M, Key::M },
+            std::pair{ GLFW_KEY_N, Key::N },
+            std::pair{ GLFW_KEY_O, Key::O },
+            std::pair{ GLFW_KEY_P, Key::P },
+            std::pair{ GLFW_KEY_Q, Key::Q },
+            std::pair{ GLFW_KEY_R, Key::R },
+            std::pair{ GLFW_KEY_S, Key::S },
+            std::pair{ GLFW_KEY_T, Key::T },
+            std::pair{ GLFW_KEY_U, Key::U },
+            std::pair{ GLFW_KEY_V, Key::V },
+            std::pair{ GLFW_KEY_W, Key::W },
+            std::pair{ GLFW_KEY_X, Key::X },
+            std::pair{ GLFW_KEY_Y, Key::Y },
+            std::pair{ GLFW_KEY_Z, Key::Z },
+
+            std::pair{ GLFW_KEY_TAB, Key::TAB },
+            std::pair{ GLFW_KEY_CAPS_LOCK, Key::CAPS },
+            std::pair{ GLFW_KEY_LEFT_SHIFT, Key::LSHIFT },
+            std::pair{ GLFW_KEY_RIGHT_SHIFT, Key::RSHIFT },
+            std::pair{ GLFW_KEY_LEFT_CONTROL, Key::LCTRL },
+            std::pair{ GLFW_KEY_RIGHT_CONTROL, Key::RCTRL },
+            std::pair{ GLFW_KEY_LEFT_ALT, Key::LALT },
+            std::pair{ GLFW_KEY_RIGHT_ALT, Key::RALT },
+            std::pair{ GLFW_KEY_LEFT_SUPER, Key::LSYS },
+            std::pair{ GLFW_KEY_RIGHT_SUPER, Key::RSYS },
+            std::pair{ GLFW_KEY_BACKSPACE, Key::BACKSPACE },
+            std::pair{ GLFW_KEY_ENTER, Key::ENTER },
+
+            std::pair{ GLFW_KEY_MINUS, Key::HYPHEN },
+            std::pair{ GLFW_KEY_EQUAL, Key::EQUAL },
+            std::pair{ GLFW_KEY_LEFT_BRACKET, Key::LBRACKET },
+            std::pair{ GLFW_KEY_RIGHT_BRACKET, Key::RBRACKET },
+            std::pair{ GLFW_KEY_SLASH, Key::SLASH },
+            std::pair{ GLFW_KEY_BACKSLASH, Key::BACKSLASH },
+            std::pair{ GLFW_KEY_COMMA, Key::COMMA },
+            std::pair{ GLFW_KEY_PERIOD, Key::PERIOD },
+            std::pair{ GLFW_KEY_SEMICOLON, Key::SEMICOLON },
+            std::pair{ GLFW_KEY_APOSTROPHE, Key::APOSTROPHE },
+
+            std::pair{ GLFW_KEY_UP, Key::UP },
+            std::pair{ GLFW_KEY_DOWN, Key::DOWN },
+            std::pair{ GLFW_KEY_LEFT, Key::LEFT },
+            std::pair{ GLFW_KEY_RIGHT, Key::RIGHT },
+            std::pair{ GLFW_KEY_HOME, Key::HOME },
+            std::pair{ GLFW_KEY_END, Key::END },
+            std::pair{ GLFW_KEY_INSERT, Key::INS },
+            std::pair{ GLFW_KEY_DELETE, Key::DEL },
+            std::pair{ GLFW_KEY_PAGE_UP, Key::PGUP },
+            std::pair{ GLFW_KEY_PAGE_DOWN, Key::PGDOWN },
+
+            std::pair{ GLFW_KEY_KP_0, Key::NUMPAD_0 },
+            std::pair{ GLFW_KEY_KP_1, Key::NUMPAD_1 },
+            std::pair{ GLFW_KEY_KP_2, Key::NUMPAD_2 },
+            std::pair{ GLFW_KEY_KP_3, Key::NUMPAD_3 },
+            std::pair{ GLFW_KEY_KP_4, Key::NUMPAD_4 },
+            std::pair{ GLFW_KEY_KP_5, Key::NUMPAD_5 },
+            std::pair{ GLFW_KEY_KP_6, Key::NUMPAD_6 },
+            std::pair{ GLFW_KEY_KP_7, Key::NUMPAD_7 },
+            std::pair{ GLFW_KEY_KP_8, Key::NUMPAD_8 },
+            std::pair{ GLFW_KEY_KP_9, Key::NUMPAD_9 },
+
+            std::pair{ GLFW_KEY_KP_ADD, Key::NUMPAD_ADD },
+            std::pair{ GLFW_KEY_KP_SUBTRACT, Key::NUMPAD_SUB },
+            std::pair{ GLFW_KEY_KP_MULTIPLY, Key::NUMPAD_MUL },
+            std::pair{ GLFW_KEY_KP_DIVIDE, Key::NUMPAD_DIV },
+            std::pair{ GLFW_KEY_KP_DECIMAL, Key::NUMPAD_DECIMAL },
+            std::pair{ GLFW_KEY_KP_EQUAL, Key::NUMPAD_EQUAL },
+            std::pair{ GLFW_KEY_KP_ENTER, Key::NUMPAD_ENTER },
+    };
+
+    inline uint8_t getModifiers(GLFWwindow* window) {
+        uint8_t modifiers = 0;
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS ||
+            glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS) {
+            modifiers |= 1 << 0;
+        }
+        if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS ||
+            glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS) {
+            modifiers |= 1 << 1;
+        }
+        if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS ||
+            glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS) {
+            modifiers |= 1 << 2;
+        }
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SUPER) == GLFW_PRESS ||
+            glfwGetKey(window, GLFW_KEY_RIGHT_SUPER) == GLFW_PRESS) {
+            modifiers |= 1 << 3;
+        }
+        return modifiers;
     }
 
-    // inline unsigned int cornMode2SfStyle(DisplayMode mode) {
-    //     switch (mode) {
-    //         case DisplayMode::WINDOWED:
-    //             return sf::Style::Titlebar | sf::Style::Resize | sf::Style::Close;
-    //         case DisplayMode::WINDOWED_FIXED:
-    //             return sf::Style::Titlebar | sf::Style::Close;
-    //         case DisplayMode::FULLSCREEN:
-    //             return sf::Style::Fullscreen;
-    //         default:
-    //             return 0b0101;
-    //     }
-    // }
-    //
-    // inline Key sfInput2CornInput(sf::Keyboard::Key key, sf::Keyboard::Scancode code) {
-    //     switch (key) {
-    //         case sf::Keyboard::A:
-    //             return Key::A;
-    //         case sf::Keyboard::B:
-    //             return Key::B;
-    //         case sf::Keyboard::C:
-    //             return Key::C;
-    //         case sf::Keyboard::D:
-    //             return Key::D;
-    //         case sf::Keyboard::E:
-    //             return Key::E;
-    //         case sf::Keyboard::F:
-    //             return Key::F;
-    //         case sf::Keyboard::G:
-    //             return Key::G;
-    //         case sf::Keyboard::H:
-    //             return Key::H;
-    //         case sf::Keyboard::I:
-    //             return Key::I;
-    //         case sf::Keyboard::J:
-    //             return Key::J;
-    //         case sf::Keyboard::K:
-    //             return Key::K;
-    //         case sf::Keyboard::L:
-    //             return Key::L;
-    //         case sf::Keyboard::M:
-    //             return Key::M;
-    //         case sf::Keyboard::N:
-    //             return Key::N;
-    //         case sf::Keyboard::O:
-    //             return Key::O;
-    //         case sf::Keyboard::P:
-    //             return Key::P;
-    //         case sf::Keyboard::Q:
-    //             return Key::Q;
-    //         case sf::Keyboard::R:
-    //             return Key::R;
-    //         case sf::Keyboard::S:
-    //             return Key::S;
-    //         case sf::Keyboard::T:
-    //             return Key::T;
-    //         case sf::Keyboard::U:
-    //             return Key::U;
-    //         case sf::Keyboard::V:
-    //             return Key::V;
-    //         case sf::Keyboard::W:
-    //             return Key::W;
-    //         case sf::Keyboard::X:
-    //             return Key::X;
-    //         case sf::Keyboard::Y:
-    //             return Key::Y;
-    //         case sf::Keyboard::Z:
-    //             return Key::Z;
-    //         case sf::Keyboard::Num0:
-    //             return Key::K_0;
-    //         case sf::Keyboard::Num1:
-    //             return Key::K_1;
-    //         case sf::Keyboard::Num2:
-    //             return Key::K_2;
-    //         case sf::Keyboard::Num3:
-    //             return Key::K_3;
-    //         case sf::Keyboard::Num4:
-    //             return Key::K_4;
-    //         case sf::Keyboard::Num5:
-    //             return Key::K_5;
-    //         case sf::Keyboard::Num6:
-    //             return Key::K_6;
-    //         case sf::Keyboard::Num7:
-    //             return Key::K_7;
-    //         case sf::Keyboard::Num8:
-    //             return Key::K_8;
-    //         case sf::Keyboard::Num9:
-    //             return Key::K_9;
-    //         case sf::Keyboard::Escape:
-    //             return Key::ESC;
-    //         case sf::Keyboard::LControl:
-    //             return Key::LCTRL;
-    //         case sf::Keyboard::LShift:
-    //             return Key::LSHIFT;
-    //         case sf::Keyboard::LAlt:
-    //             return Key::LALT;
-    //         case sf::Keyboard::LSystem:
-    //             return Key::LSYS;
-    //         case sf::Keyboard::RControl:
-    //             return Key::RCTRL;
-    //         case sf::Keyboard::RShift:
-    //             return Key::RSHIFT;
-    //         case sf::Keyboard::RAlt:
-    //             return Key::RALT;
-    //         case sf::Keyboard::RSystem:
-    //             return Key::RSYS;
-    //         case sf::Keyboard::LBracket:
-    //             return Key::LBRACKET;
-    //         case sf::Keyboard::RBracket:
-    //             return Key::RBRACKET;
-    //         case sf::Keyboard::Semicolon:
-    //             return Key::SEMICOLON;
-    //         case sf::Keyboard::Comma:
-    //             return Key::COMMA;
-    //         case sf::Keyboard::Period:
-    //             return Key::PERIOD;
-    //         case sf::Keyboard::Apostrophe:
-    //             return Key::APOSTROPHE;
-    //         case sf::Keyboard::Slash:
-    //             return Key::SLASH;
-    //         case sf::Keyboard::Backslash:
-    //             return Key::BSLASH;
-    //         case sf::Keyboard::Grave:
-    //             return Key::GRAVE;
-    //         case sf::Keyboard::Equal:
-    //             return Key::EQUAL;
-    //         case sf::Keyboard::Hyphen:
-    //             return Key::HYPHEN;
-    //         case sf::Keyboard::Space:
-    //             return Key::SPACE;
-    //         case sf::Keyboard::Enter:
-    //             return Key::ENTER;
-    //         case sf::Keyboard::Backspace:
-    //             return Key::BACKSPACE;
-    //         case sf::Keyboard::Tab:
-    //             return Key::TAB;
-    //         case sf::Keyboard::PageUp:
-    //             return Key::PGUP;
-    //         case sf::Keyboard::PageDown:
-    //             return Key::PGDOWN;
-    //         case sf::Keyboard::End:
-    //             return Key::END;
-    //         case sf::Keyboard::Home:
-    //             return Key::HOME;
-    //         case sf::Keyboard::Insert:
-    //             return Key::INS;
-    //         case sf::Keyboard::Delete:
-    //             return Key::DEL;
-    //         case sf::Keyboard::Add:
-    //             return Key::NUM_ADD;
-    //         case sf::Keyboard::Subtract:
-    //             return Key::NUM_SUB;
-    //         case sf::Keyboard::Multiply:
-    //             return Key::NUM_MUL;
-    //         case sf::Keyboard::Divide:
-    //             return Key::NUM_DIV;
-    //         case sf::Keyboard::Left:
-    //             return Key::LEFT;
-    //         case sf::Keyboard::Right:
-    //             return Key::RIGHT;
-    //         case sf::Keyboard::Up:
-    //             return Key::UP;
-    //         case sf::Keyboard::Down:
-    //             return Key::DOWN;
-    //         case sf::Keyboard::Numpad0:
-    //             return Key::NUM_0;
-    //         case sf::Keyboard::Numpad1:
-    //             return Key::NUM_1;
-    //         case sf::Keyboard::Numpad2:
-    //             return Key::NUM_2;
-    //         case sf::Keyboard::Numpad3:
-    //             return Key::NUM_3;
-    //         case sf::Keyboard::Numpad4:
-    //             return Key::NUM_4;
-    //         case sf::Keyboard::Numpad5:
-    //             return Key::NUM_5;
-    //         case sf::Keyboard::Numpad6:
-    //             return Key::NUM_6;
-    //         case sf::Keyboard::Numpad7:
-    //             return Key::NUM_7;
-    //         case sf::Keyboard::Numpad8:
-    //             return Key::NUM_8;
-    //         case sf::Keyboard::Numpad9:
-    //             return Key::NUM_9;
-    //         case sf::Keyboard::F1:
-    //             return Key::F1;
-    //         case sf::Keyboard::F2:
-    //             return Key::F2;
-    //         case sf::Keyboard::F3:
-    //             return Key::F3;
-    //         case sf::Keyboard::F4:
-    //             return Key::F4;
-    //         case sf::Keyboard::F5:
-    //             return Key::F5;
-    //         case sf::Keyboard::F6:
-    //             return Key::F6;
-    //         case sf::Keyboard::F7:
-    //             return Key::F7;
-    //         case sf::Keyboard::F8:
-    //             return Key::F8;
-    //         case sf::Keyboard::F9:
-    //             return Key::F9;
-    //         case sf::Keyboard::F10:
-    //             return Key::F10;
-    //         case sf::Keyboard::F11:
-    //             return Key::F11;
-    //         case sf::Keyboard::F12:
-    //             return Key::F12;
-    //         case sf::Keyboard::Unknown:
-    //             return code == sf::Keyboard::Scancode::CapsLock ? Key::CAPS : Key::NONE;
-    //         default:
-    //             return Key::NONE;
-    //     }
-    // }
-    //
-    // inline Mouse sfInput2CornInput(sf::Mouse::Button button) {
-    //     switch (button) {
-    //         case sf::Mouse::Button::Left:
-    //             return Mouse::LEFT;
-    //         case sf::Mouse::Right:
-    //             return Mouse::RIGHT;
-    //         case sf::Mouse::Middle:
-    //             return Mouse::MIDDLE;
-    //         default:
-    //             return Mouse::NONE;
-    //     }
-    // }
+    inline size_t unicodeToUTF8(uint32_t codepoint, char* output) {
+        if (codepoint <= 0x7F) {
+            // 1-byte sequence
+            output[0] = static_cast<char>(codepoint);
+            return 1;
+        } else if (codepoint <= 0x7FF) {
+            // 2-byte sequence
+            output[0] = static_cast<char>(0xC0 | (codepoint >> 6));
+            output[1] = static_cast<char>(0x80 | (codepoint & 0x3F));
+            return 2;
+        } else if (codepoint <= 0xFFFF) {
+            // 3-byte sequence
+            output[0] = static_cast<char>(0xE0 | (codepoint >> 12));
+            output[1] = static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
+            output[2] = static_cast<char>(0x80 | (codepoint & 0x3F));
+            return 3;
+        } else if (codepoint <= 0x10FFFF) {
+            // 4-byte sequence
+            output[0] = static_cast<char>(0xF0 | (codepoint >> 18));
+            output[1] = static_cast<char>(0x80 | ((codepoint >> 12) & 0x3F));
+            output[2] = static_cast<char>(0x80 | ((codepoint >> 6) & 0x3F));
+            output[3] = static_cast<char>(0x80 | (codepoint & 0x3F));
+            return 4;
+        } else {
+            // Invalid Unicode code point
+            return 0;
+        }
+    }
 }

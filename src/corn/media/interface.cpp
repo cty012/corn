@@ -19,7 +19,22 @@ namespace corn {
         fprintf(stderr, "GLFW error %d: %s\n", error, description);
     }
 
-    void setView(bgfx::ViewId viewID, const Vec<uint16_t, 2>& topLeft, const Vec<uint16_t, 2>& size) {
+    static void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+        auto* interface = static_cast<Interface::InterfaceImpl*>(glfwGetWindowUserPointer(window));
+        interface->mouseScroll.x = static_cast<float>(xoffset);
+        interface->mouseScroll.y = static_cast<float>(yoffset);
+    }
+
+    static void glfwInputCallback(GLFWwindow* window, unsigned int codepoint) {
+        auto* interface = static_cast<Interface::InterfaceImpl*>(glfwGetWindowUserPointer(window));
+        char utf8[5];
+        size_t len = unicodeToUTF8(codepoint, utf8);
+        if (len > 0) {
+            interface->input.append(utf8, len);
+        }
+    }
+
+    static void setView(bgfx::ViewId viewID, const Vec<uint16_t, 2>& topLeft, const Vec<uint16_t, 2>& size) {
         bgfx::setViewRect(viewID, topLeft.x, topLeft.y, size.x, size.y);
 
         // Create an orthographic projection matrix mapping [0, fwidth] and [0, fheight] to clip space.
@@ -38,16 +53,13 @@ namespace corn {
         bgfx::setViewTransform(viewID, view, proj);
     }
 
-    void onWindowFramebufferResize(int fwidth, int fheight) {
+    static void onWindowFramebufferResize(int fwidth, int fheight) {
         bgfx::reset((uint32_t)fwidth, (uint32_t)fheight, BGFX_RESET_VSYNC | BGFX_RESET_MSAA_X4);
         setView(0, Vec<uint16_t, 2>(0, 0), Vec<uint16_t, 2>(fwidth, fheight));
     }
 
-    Interface::InterfaceImpl::InterfaceImpl()
-            : window(nullptr), width(), height(), fwidth(), fheight(), polygonShader() {}
-
-    Interface::Interface(const Game& game, std::unordered_map<Key, bool>& keyPressed)
-            : game_(game), keyPressed_(keyPressed), impl_(new Interface::InterfaceImpl()) {}
+    Interface::Interface(const Game& game)
+            : game_(game), impl_(new Interface::InterfaceImpl()) {}
 
     Interface::~Interface() {
         delete this->impl_;
@@ -63,9 +75,10 @@ namespace corn {
         if (!glfwInit()) return;
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
+
+        // Create a GLFW window with the specified configuration.
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
         switch (config.mode) {
             case DisplayMode::WINDOWED:
                 glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -99,6 +112,11 @@ namespace corn {
         if (!this->impl_->window) {
             throw std::runtime_error("Failed to create GLFW window.");
         }
+
+        // GLFW callbacks
+        glfwSetWindowUserPointer(this->impl_->window, this->impl_);
+        glfwSetScrollCallback(this->impl_->window, glfwScrollCallback);
+        glfwSetCharCallback(this->impl_->window, glfwInputCallback);
 
         // Call bgfx::renderFrame before bgfx::init to signal to bgfx not to create a render thread.
         // Most graphics APIs must be used on the same thread that created the window.
@@ -167,8 +185,7 @@ namespace corn {
         }
     }
 
-    void Interface::handleUserInput() const {
-        (void)this->keyPressed_;
+    void Interface::handleUserInput() {
         glfwPollEvents();
 
         // Exit event
@@ -178,127 +195,15 @@ namespace corn {
             this->game_.getTopScene()->getEventManager().emit(eventArgs);
         }
 
-//        sf::Event event{}; todo
-//        while (this->impl_->window->pollEvent(event)) {
-//            switch (event.type) {
-//                case (sf::Event::Closed): {
-//                    EventArgsInputExit eventArgs;
-//                    EventManager::instance().emit(eventArgs);
-//                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
-//                    break;
-//                }
-//                case (sf::Event::MouseButtonPressed): {
-//                    EventArgsMouseButton eventArgs(
-//                            sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
-//                            Vec2f(event.mouseButton.x, event.mouseButton.y));
-//                    EventManager::instance().emit(eventArgs);
-//                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
-//                    // Only emit the event to the top scene if not caught by UI
-//                    if (!this->game_.getTopScene()->getUIManager().onClick(eventArgs)) {
-//                        EventArgsWorldMouseButton worldEventArgs(
-//                                sfInput2CornInput(event.mouseButton.button), ButtonEvent::DOWN,
-//                                Vec2f(event.mouseButton.x, event.mouseButton.y));
-//                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
-//                    }
-//                    break;
-//                }
-//                case (sf::Event::MouseButtonReleased): {
-//                    EventArgsMouseButton eventArgs(
-//                            sfInput2CornInput(event.mouseButton.button), ButtonEvent::UP,
-//                            Vec2f(event.mouseButton.x, event.mouseButton.y));
-//                    EventManager::instance().emit(eventArgs);
-//                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
-//                    // Only emit the world event if not caught by UI
-//                    if (!this->game_.getTopScene()->getUIManager().onClick(eventArgs)) {
-//                        EventArgsWorldMouseButton worldEventArgs(
-//                                sfInput2CornInput(event.mouseButton.button), ButtonEvent::UP,
-//                                Vec2f(event.mouseButton.x, event.mouseButton.y));
-//                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
-//                    }
-//                    break;
-//                }
-//                case sf::Event::MouseMoved: {
-//                    EventArgsMouseMove eventArgs(
-//                            Vec2f(event.mouseMove.x, event.mouseMove.y));
-//                    EventManager::instance().emit(eventArgs);
-//                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
-//                    // Only emit the world event if not caught by UI
-//                    if (!this->game_.getTopScene()->getUIManager().onHover(eventArgs)) {
-//                        EventArgsWorldMouseMove worldEventArgs(
-//                                Vec2f(event.mouseMove.x, event.mouseMove.y));
-//                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
-//                    }
-//                    break;
-//                }
-//                case (sf::Event::MouseWheelScrolled): {
-//                    EventArgsMouseScroll eventArgs(
-//                            event.mouseWheelScroll.delta,
-//                            Vec2f(event.mouseWheelScroll.x, event.mouseWheelScroll.y));
-//                    EventManager::instance().emit(eventArgs);
-//                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
-//                    // Only emit the world event if not caught by UI
-//                    if (!this->game_.getTopScene()->getUIManager().onScroll(eventArgs)) {
-//                        EventArgsWorldMouseScroll worldEventArgs(
-//                                event.mouseWheelScroll.delta,
-//                                Vec2f(event.mouseWheelScroll.x, event.mouseWheelScroll.y));
-//                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
-//                    }
-//                    break;
-//                }
-//                case (sf::Event::KeyPressed): {
-//                    sf::Event::KeyEvent keyEvent = event.key;
-//                    Key key = sfInput2CornInput(keyEvent.code, keyEvent.scancode);
-//                    if (this->keyPressed_[key]) break;
-//                    this->keyPressed_[key] = true;
-//                    EventArgsKeyboard eventArgs(
-//                            key, ButtonEvent::DOWN,
-//                            (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
-//                            Vec2f(event.mouseButton.x, event.mouseButton.y));
-//                    EventManager::instance().emit(eventArgs);
-//                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
-//                    // Only emit the world event if not caught by UI
-//                    if (!this->game_.getTopScene()->getUIManager().onKeyboard(eventArgs)) {
-//                        EventArgsWorldKeyboard worldEventArgs(
-//                                key, ButtonEvent::DOWN,
-//                                (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
-//                                Vec2f(event.mouseButton.x, event.mouseButton.y));
-//                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
-//                    }
-//                    break;
-//                }
-//                case (sf::Event::KeyReleased): {
-//                    sf::Event::KeyEvent keyEvent = event.key;
-//                    Key key = sfInput2CornInput(keyEvent.code, keyEvent.scancode);
-//                    if (!this->keyPressed_[key]) break;
-//                    this->keyPressed_[key] = false;
-//                    EventArgsKeyboard eventArgs(
-//                            key, ButtonEvent::UP,
-//                            (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
-//                            Vec2f(event.mouseButton.x, event.mouseButton.y));
-//                    EventManager::instance().emit(eventArgs);
-//                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
-//                    // Only emit the world event if not caught by UI
-//                    if (!this->game_.getTopScene()->getUIManager().onKeyboard(eventArgs)) {
-//                        EventArgsWorldKeyboard worldEventArgs(
-//                                key, ButtonEvent::UP,
-//                                (keyEvent.system << 3) + (keyEvent.control << 2) + (keyEvent.alt << 1) + keyEvent.shift,
-//                                Vec2f(event.mouseButton.x, event.mouseButton.y));
-//                        this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
-//                    }
-//                    break;
-//                }
-//                case (sf::Event::TextEntered): {
-//                    EventArgsTextEntered eventArgs(
-//                            event.text.unicode, unicodeToUTF8(event.text.unicode));
-//                    EventManager::instance().emit(eventArgs);
-//                    this->game_.getTopScene()->getEventManager().emit(eventArgs);
-//                    this->game_.getTopScene()->getUIManager().onTextEntered(eventArgs);
-//                    break;
-//                }
-//                default:
-//                    break;
-//            }
-//        }
+        // Check if the window is focused
+        if (!glfwGetWindowAttrib(this->impl_->window, GLFW_FOCUSED)) {
+            // If not, ignore all input events
+            return;
+            // todo: emit a global event and a top-scene event
+        }
+
+        this->handleMouseInput();
+        this->handleKeyboardInput();
     }
 
     void Interface::clear() {
@@ -331,7 +236,7 @@ namespace corn {
 //         // Render dark background in the top left corner
 //         sf::RectangleShape overlay(sf::Vector2f(100, 30));
 //         overlay.setFillColor(sf::Color(0, 0, 0, 200));
-// //        this->impl_->window->draw(overlay); todo
+// //        this->impl_->window->draw(overlay);
 //
 //         // Render FPS text
 //         sf::Text text;
@@ -346,6 +251,135 @@ namespace corn {
     void Interface::update() {
         bgfx::frame();
         this->impl_->viewID = 0;
+    }
+
+    bool Interface::isPressed(MouseButton mouseButton) const noexcept {
+        return this->impl_->mousePressed.contains(mouseButton) && this->impl_->mousePressed.at(mouseButton);
+    }
+
+    bool Interface::isPressed(Key key) const noexcept {
+        return this->impl_->keyPressed.contains(key) && this->impl_->keyPressed.at(key);
+    }
+
+    void Interface::handleMouseInput() {
+        double x_, y_;
+        glfwGetCursorPos(this->impl_->window, &x_, &y_);
+        bool insideWindow = x_ >= 0.0 && y_ >= 0.0 && x_ <= this->impl_->width && y_ <= this->impl_->height;
+
+        // Mouse inside window event
+        if (insideWindow ^ this->impl_->mouseInside) {
+            this->impl_->mouseInside = insideWindow;
+            // todo: emit a global event and a top-scene event
+        }
+
+        if (!insideWindow) return;
+        auto x = static_cast<float>(x_);
+        auto y = static_cast<float>(y_);
+
+        // Mouse move event
+        if (this->impl_->mousePosition != Vec2f(x, y)) {
+            this->impl_->mousePosition = Vec2f(x, y);
+
+            // Emit event globally and to the top scene
+            EventArgsMouseMove eventArgs(Vec2f(x, y));
+            EventManager::instance().emit(eventArgs);
+            this->game_.getTopScene()->getEventManager().emit(eventArgs);
+
+            // Only emit the world event if not caught by UI
+            if (!this->game_.getTopScene()->getUIManager().onHover(eventArgs)) {
+                EventArgsWorldMouseMove worldEventArgs(Vec2f(x, y));
+                this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
+            }
+        }
+
+        // Mouse click event
+        for (auto [glfwMouseButton, mouseButton] : GLFW_CORN_MOUSE_BUTTONS) {
+            int glfwStatus = glfwGetMouseButton(this->impl_->window, glfwMouseButton);
+            ButtonEvent buttonEvent;
+            if (glfwStatus == GLFW_PRESS) {
+                buttonEvent = ButtonEvent::DOWN;
+            } else if (glfwStatus == GLFW_RELEASE) {
+                buttonEvent = ButtonEvent::UP;
+            } else {
+                continue;
+            }
+
+            // Emit events if the button state has changed
+            if (this->impl_->mousePressed[mouseButton] ^ (buttonEvent == ButtonEvent::DOWN)) {
+                this->impl_->mousePressed[mouseButton] = (buttonEvent == ButtonEvent::DOWN);
+
+                // Emit event globally and to the top scene
+                EventArgsMouseButton eventArgs(mouseButton, buttonEvent, Vec2f(x, y));
+                EventManager::instance().emit(eventArgs);
+                this->game_.getTopScene()->getEventManager().emit(eventArgs);
+
+                // Only emit the world event if not caught by UI
+                if (!this->game_.getTopScene()->getUIManager().onClick(eventArgs)) {
+                    EventArgsWorldMouseButton worldEventArgs(mouseButton, buttonEvent, Vec2f(x, y));
+                    this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
+                }
+            }
+        }
+
+        // Mouse scroll event
+        if (this->impl_->mouseScroll != Vec2f::O()) {
+            // Emit event globally and to the top scene
+            EventArgsMouseScroll eventArgs(this->impl_->mouseScroll, Vec2f(x, y));
+            EventManager::instance().emit(eventArgs);
+            this->game_.getTopScene()->getEventManager().emit(eventArgs);
+
+            // Only emit the world event if not caught by UI
+            if (!this->game_.getTopScene()->getUIManager().onScroll(eventArgs)) {
+                EventArgsWorldMouseScroll worldEventArgs(this->impl_->mouseScroll, Vec2f(x, y));
+                this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
+            }
+
+            // Reset mouse scroll
+            this->impl_->mouseScroll = Vec2f::O();
+        }
+    }
+
+    void Interface::handleKeyboardInput() {
+        // Modifiers
+        uint8_t modifiers = getModifiers(this->impl_->window);
+
+        // Keyboard input event
+        for (auto [glfwKey, key] : GLFW_CORN_KEYS) {
+            int glfwStatus = glfwGetKey(this->impl_->window, glfwKey);
+            ButtonEvent buttonEvent;
+            if (glfwStatus == GLFW_PRESS) {
+                buttonEvent = ButtonEvent::DOWN;
+            } else if (glfwStatus == GLFW_RELEASE) {
+                buttonEvent = ButtonEvent::UP;
+            } else {
+                continue;
+            }
+
+            // Emit events if the button state has changed
+            if (this->impl_->keyPressed[key] ^ (buttonEvent == ButtonEvent::DOWN)) {
+                this->impl_->keyPressed[key] = (buttonEvent == ButtonEvent::DOWN);
+
+                // Emit event globally and to the top scene
+                EventArgsKeyboard eventArgs(key, buttonEvent, modifiers, this->impl_->mousePosition);
+                EventManager::instance().emit(eventArgs);
+                this->game_.getTopScene()->getEventManager().emit(eventArgs);
+
+                // Only emit the world event if not caught by UI
+                if (!this->game_.getTopScene()->getUIManager().onKeyboard(eventArgs)) {
+                    EventArgsWorldKeyboard worldEventArgs(key, buttonEvent, modifiers, this->impl_->mousePosition);
+                    this->game_.getTopScene()->getEventManager().emit(worldEventArgs);
+                }
+            }
+        }
+
+        // Text input event
+        if (!this->impl_->input.empty()) {
+            EventArgsTextEntered eventArgs(this->impl_->input);
+            EventManager::instance().emit(eventArgs);
+            this->game_.getTopScene()->getEventManager().emit(eventArgs);
+            this->game_.getTopScene()->getUIManager().onTextEntered(eventArgs);
+            this->impl_->input.clear();
+        }
     }
 
     Transform2D Interface::getCameraTransformation(const CCamera* camera) const {

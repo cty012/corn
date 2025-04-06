@@ -101,7 +101,7 @@ namespace corn {
         }
     }
 
-    void UIManager::calcGeometry(Vec2f windowSize) {
+    void UIManager::calcGeometry(const Vec2f& windowSize) {
         std::vector<UIWidget*> widgets = this->getAllActiveWidgets();
         struct Property {
             UIGeometry geometry;
@@ -308,7 +308,7 @@ namespace corn {
         return true;
     }
 
-    bool UIManager::widgetContains(const UIWidget* widget, Vec2f pos) const noexcept {
+    bool UIManager::widgetContains(const UIWidget* widget, const Vec2f& pos) const noexcept {
         Vec4f widgetGeometry = this->getCachedGeometry(widget);
         float x = widgetGeometry[0];
         float y = widgetGeometry[1];
@@ -317,7 +317,7 @@ namespace corn {
         return x < pos.x && y < pos.y && x + w > pos.x && y + h > pos.y;
     }
 
-    UIWidget* UIManager::getTargetWidget(Vec2f pos) noexcept {
+    UIWidget* UIManager::getTargetWidget(const Vec2f& pos) noexcept {
         this->tidy();
         std::vector<UIWidget*> widgets = this->getAllActiveWidgets();
         for (UIWidget* widget : std::ranges::reverse_view(std::views::all(widgets))) {

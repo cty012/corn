@@ -96,9 +96,7 @@ corn::RichText TextManager::getRichText(const std::string& key) const {
         const corn::Font* font = corn::FontManager::instance().get(item["font"][0]);
         float size = item["font"][1];
         corn::Color color = corn::Color::parse(item.value("color", "#ffffff"));
-        result.addText(
-                textLiteral,
-                corn::TextStyle(font, size, color));
+        result.addText(textLiteral, corn::TextStyle(font, size, color));
     }
     return result;
 }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <filesystem>
-#include <future>
 #include <string>
 #include <unordered_map>
 
@@ -16,23 +15,24 @@ namespace corn {
      * @class FontVariant
      * @brief Variants of the font, including weight, slant, and other styles.
      *
-     * @todo More styles (allow loading custom style fonts)
      * 1. Light, Regular, Semi-bold, Bold, Heavy
      * 2. Regular, Italic
      * 3. Regular, Underline
      *
      * @see FontManager
      */
-    enum class FontWeight {
-        LIGHT, REGULAR, SEMI_BOLD, BOLD, HEAVY,
-    };
+    constexpr float FONT_WEIGHT_THIN = 100.0f;
+    constexpr float FONT_WEIGHT_EXTRA_LIGHT = 200.0f;
+    constexpr float FONT_WEIGHT_LIGHT = 300.0f;
+    constexpr float FONT_WEIGHT_REGULAR = 400.0f;
+    constexpr float FONT_WEIGHT_MEDIUM = 500.0f;
+    constexpr float FONT_WEIGHT_SEMI_BOLD = 600.0f;
+    constexpr float FONT_WEIGHT_BOLD = 700.0f;
+    constexpr float FONT_WEIGHT_EXTRA_BOLD = 800.0f;
+    constexpr float FONT_WEIGHT_BLACK = 900.0f;
 
-    enum class FontSlant {
-        REGULAR, ITALIC,
-    };
-
-    enum class FontDecoration {
-        REGULAR, UNDERLINE,
+    enum class FontPosition {
+        REGULAR, SUBSCRIPT, SUPERSCRIPT,
     };
 
     /**
@@ -60,20 +60,6 @@ namespace corn {
          * @return Whether the font is successfully loaded.
          */
         bool loadFromPath(const std::string& name, const std::filesystem::path& path);
-
-        /**
-         * @brief Loads a font file asynchronously into the font manager.
-         * @param name Name of the font in the font manager. Must not be empty.
-         * @param nameInSystem Name of the font in the system.
-         */
-        void preloadFromSystem(const std::string& name, const std::string& nameInSystem);
-
-        /**
-         * @brief Loads a font file asynchronously into the font manager.
-         * @param name Name of the font in the font manager. Must not be empty.
-         * @param path Path to the font file.
-         */
-        void preloadFromPath(const std::string& name, const std::filesystem::path& path);
 
         /**
          * @brief Unload a loaded font.
@@ -121,13 +107,5 @@ namespace corn {
 
         /// @brief The name of the default font.
         mutable std::string defaultFont_;
-
-        /// @brief Stores all futures of fonts that are still loading.
-        mutable std::unordered_map<std::string, std::future<bool>> futures_;
-
-        /// @brief Mutexes for multithreading.
-        mutable std::mutex mutex_;  // General purpose
-        mutable std::mutex mutexFonts_;  // For fonts_
-        mutable std::mutex mutexFutures_;  // For futures_
     };
 }

@@ -150,7 +150,7 @@ namespace corn::test::ui_manager {
         clearStatus();
         EXPECT_EQ(uiManager.getFocusedWidget(), nullptr);
         uiManager.calcGeometry(Vec2f(1000, 1000));
-        uiManager.onClick(EventArgsMouseButton(Mouse::LEFT, ButtonEvent::DOWN, Vec2f(250, 250)));
+        uiManager.onClick(EventArgsMouseButton(MouseButton::LEFT, ButtonEvent::DOWN, Vec2f(250, 250)));
         EXPECT_EQ(uiManager.getFocusedWidget(), widget4);
         UnorderedMapsEqual(status[widget1], {});
         UnorderedMapsEqual(status[widget2], {{ "onclick", true }});
@@ -158,7 +158,7 @@ namespace corn::test::ui_manager {
         UnorderedMapsEqual(status[widget4], {{ "onclick", true }, { "onfocus", true }});
 
         clearStatus();
-        uiManager.onClick(EventArgsMouseButton(Mouse::LEFT, ButtonEvent::DOWN, Vec2f(750, 750)));
+        uiManager.onClick(EventArgsMouseButton(MouseButton::LEFT, ButtonEvent::DOWN, Vec2f(750, 750)));
         EXPECT_EQ(uiManager.getFocusedWidget(), widget3);
         UnorderedMapsEqual(status[widget1], {});
         UnorderedMapsEqual(status[widget2], {});
