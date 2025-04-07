@@ -4,6 +4,7 @@
 #include <corn/ecs/component.h>
 #include <corn/event/input.h>
 #include <corn/media/interface.h>
+#include <corn/ui/ui_image.h>
 #include <corn/ui/ui_label.h>
 #include <corn/util/config.h>
 #include "shader.h"
@@ -33,6 +34,11 @@ namespace corn {
     void drawUI(
             bgfx::ViewId viewID,
             UILabel& uiLabel, float maxWidth,
+            const Transform2D& transform, const Shader& bitmapShader);
+
+    void drawUI(
+            bgfx::ViewId viewID,
+            UIImage& uiImage, float w, float h,
             const Transform2D& transform, const Shader& bitmapShader);
 
     void drawDebug(

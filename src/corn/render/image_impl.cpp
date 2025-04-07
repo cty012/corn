@@ -84,10 +84,6 @@ namespace corn {
                 this->bitmapData[i * 4 + 3] = data[i * 4 + 3];
             }
 
-            // Load the image into the texture
-            this->bitmapRenderer.update(
-                    this->bitmapData.data(), 0.0f, 0.0f, static_cast<uint16_t>(width), static_cast<uint16_t>(height));
-
             // Free the image data
             stbi_image_free(data);
         }
@@ -126,7 +122,6 @@ namespace corn {
             this->bitmapData[i * 4 + 2] = r;
             this->bitmapData[i * 4 + 3] = a;
         }
-        this->bitmapRenderer.update(this->bitmapData.data(), 0.0f, 0.0f, width, height);
     }
 
     ImageImpl::ImageImpl(uint32_t width, uint32_t height, const std::vector<Color>& bitmap)
@@ -142,7 +137,6 @@ namespace corn {
             this->bitmapData[i * 4 + 2] = r;
             this->bitmapData[i * 4 + 3] = a;
         }
-        this->bitmapRenderer.update(this->bitmapData.data(), 0.0f, 0.0f, width, height);
     }
 
     ImageImpl::~ImageImpl() {
@@ -157,9 +151,7 @@ namespace corn {
             case ImageType::JPEG:
             case ImageType::BITMAP:
                 this->bitmapData = other.bitmapData;
-                this->bitmapRenderer.update(
-                        other.bitmapData.data(), 0.0f, 0.0f,
-                        static_cast<uint16_t>(other.size.x), static_cast<uint16_t>(other.size.y));
+                this->bitmapRendererDirty_ = true;
                 this->size = other.size;
                 break;
             case ImageType::SVG:
@@ -182,9 +174,7 @@ namespace corn {
             case ImageType::JPEG:
             case ImageType::BITMAP:
                 this->bitmapData = other.bitmapData;
-                this->bitmapRenderer.update(
-                        other.bitmapData.data(), 0.0f, 0.0f,
-                        static_cast<uint16_t>(other.size.x), static_cast<uint16_t>(other.size.y));
+                this->bitmapRendererDirty_ = true;
                 this->size = other.size;
                 break;
             case ImageType::SVG:
@@ -202,13 +192,15 @@ namespace corn {
         this->path = std::move(other.path);
         this->type = other.type;
         this->bitmapData = std::move(other.bitmapData);
-        this->bitmapRenderer = std::move(other.bitmapRenderer);
+        this->bitmapRendererDirty_ = other.bitmapRendererDirty_;
+        this->bitmapRenderer_ = std::move(other.bitmapRenderer_);
         this->size = other.size;
         this->svgContent = std::move(other.svgContent);
         this->svgImage = other.svgImage;
         this->scale = other.scale;
 
         other.type = ImageType::UNKNOWN;
+        other.bitmapRendererDirty_ = true;
         other.svgImage = nullptr;
     }
 
@@ -219,20 +211,21 @@ namespace corn {
         this->path = std::move(other.path);
         this->type = other.type;
         this->bitmapData = std::move(other.bitmapData);
-        this->bitmapRenderer = std::move(other.bitmapRenderer);
+        this->bitmapRenderer_ = std::move(other.bitmapRenderer_);
         this->size = other.size;
         this->svgContent = std::move(other.svgContent);
         this->svgImage = other.svgImage;
         this->scale = other.scale;
 
         other.type = ImageType::UNKNOWN;
+        other.bitmapRendererDirty_ = true;
         other.svgImage = nullptr;
 
         return *this;
     }
 
     void ImageImpl::destroy() {
-        this->bitmapRenderer.destroy();
+        this->bitmapRenderer_.destroy();
         nsvgDelete(this->svgImage);
         this->svgImage = nullptr;
     }
@@ -296,5 +289,13 @@ namespace corn {
         //
         // nsvgDeleteRasterizer(rast);
         // return true;
+    }
+
+    BitmapRenderer& ImageImpl::getBitmapRenderer() {
+        if (this->bitmapRendererDirty_) {
+            this->bitmapRenderer_.update(this->bitmapData.data(), 0.0f, 0.0f, this->size.x, this->size.y);
+            this->bitmapRendererDirty_ = false;
+        }
+        return this->bitmapRenderer_;
     }
 }

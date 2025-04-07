@@ -71,6 +71,7 @@ namespace corn {
 
         // Create a GLFW window without an OpenGL context.
         glfwSetErrorCallback(glfwErrorCallback);
+        glfwInitHint(GLFW_COCOA_CHDIR_RESOURCES, GLFW_FALSE);
         if (!glfwInit()) return;
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GLFW_TRUE);
@@ -551,31 +552,12 @@ namespace corn {
                             this->impl_->bitmapShader);
                     break;
                 }
-                case UIType::IMAGE: {
-//                    const auto* uiImage = dynamic_cast<const UIImage*>(widget);
-//                    const Image* image = uiImage->getImage();
-//                    if (!image || !image->impl_) break;
-//                    // Scale image
-//                    Vec2f size = image->getSize();
-//                    Vec2f totalScale(size.x != 0.0f ? w / size.x : 1, size.y != 0.0f ? h / size.y : 1);
-//                    switch (image->impl_->type) {
-//                        case ImageType::SVG: {
-//                            image->impl_->rasterize(totalScale, true);
-//                            image->impl_->sfSprite.setOrigin(0, 0);
-//                            image->impl_->sfSprite.setPosition(x, y);
-//                            break;
-//                        }
-//                        case ImageType::PNG:
-//                        case ImageType::JPEG:
-//                        case ImageType::UNKNOWN: {
-//                            // Scale to fit the widget
-//                            image->impl_->sfSprite.setOrigin(0, 0);
-//                            image->impl_->sfSprite.setPosition(x, y);
-//                            image->impl_->sfSprite.setScale(totalScale.x, totalScale.y);
-//                            break;
-//                        }
-//                    }
-//                    this->impl_->window->draw(image->impl_->sfSprite); todo
+                case UIType::IMAGE: {// Scale image
+                    drawUI(
+                            this->impl_->viewID,
+                            *dynamic_cast<UIImage*>(widget), w, h,
+                            Transform2D::dilate(Vec2f(hidpiScale, hidpiScale)) * Transform2D::translate(Vec2f(x, y)),
+                            this->impl_->bitmapShader);
                     break;
                 }
             }

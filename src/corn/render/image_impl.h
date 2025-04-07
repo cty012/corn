@@ -27,9 +27,6 @@ namespace corn {
         /// @brief Image bitmap data in BGRA8 (applicable for PNG, JPEG, BITMAP).
         std::vector<uint8_t> bitmapData;
 
-        /// @brief The texture is stored on GPU for rendering (applicable for PNG, JPEG, BITMAP).
-        BitmapRenderer bitmapRenderer;
-
         /// @brief Raw size of the image (applicable for PNG, JPEG, BITMAP).
         Vec2u size;
 
@@ -84,5 +81,12 @@ namespace corn {
         [[nodiscard]] float getHeight() const;
 
         bool rasterize(Vec2f extraScale = Vec2f(1.0f, 1.0f), bool useCache = false);
+
+        [[nodiscard]] BitmapRenderer& getBitmapRenderer();
+
+    private:
+        /// @brief The texture is stored on GPU for rendering (applicable for PNG, JPEG, BITMAP).
+        BitmapRenderer bitmapRenderer_;
+        bool bitmapRendererDirty_ = true;
     };
 }

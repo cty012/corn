@@ -24,7 +24,7 @@ namespace corn {
             case ImageType::JPEG:
             case ImageType::BITMAP:
                 // Draw bitmap
-                imageImpl->bitmapRenderer.draw(viewID, bitmapShader, transform);
+                imageImpl->getBitmapRenderer().draw(viewID, bitmapShader, transform);
                 break;
             case ImageType::SVG:
                 // todo
@@ -144,6 +144,36 @@ namespace corn {
         RichTextRenderer* richTextRenderer = richTextFrame.getRichTextRenderer();
         richTextRenderer->setTransform(transform);
         richTextRenderer->draw(viewID, bitmapShader);
+    }
+
+    void drawUI(
+            bgfx::ViewId viewID,
+            UIImage& uiImage, float w, float h,
+            const Transform2D& transform, const Shader& bitmapShader) {
+
+        const Image* image = uiImage.getImage();
+        Vec2f originalSize = image->getOriginalSize();
+        Vec2f totalScale(
+                originalSize.x != 0.0f ? w / originalSize.x : 1,
+                originalSize.y != 0.0f ? h / originalSize.y : 1);
+        ImageImpl* imageImpl = uiImage.getImage()->impl_;
+        Transform2D totalTransform = transform * Transform2D::dilate(totalScale);
+
+        switch (imageImpl->type) {
+            case ImageType::PNG:
+            case ImageType::JPEG:
+            case ImageType::BITMAP:
+                // Draw bitmap
+                imageImpl->getBitmapRenderer().draw(viewID, bitmapShader, totalTransform);
+                break;
+            case ImageType::SVG:
+                // todo
+                printf("SVG image type not supported yet\n");
+                break;
+            case ImageType::UNKNOWN:
+                printf("Unknown image type\n");
+                break;
+        }
     }
 
     void drawDebug(
