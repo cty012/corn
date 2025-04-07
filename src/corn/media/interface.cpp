@@ -44,10 +44,9 @@ namespace corn {
         bx::mtxLookAt(view, eye, at);
         const bgfx::Caps* caps = bgfx::getCaps();
         float proj[16];
-        (void)viewID; (void)caps; (void)proj;
         bx::mtxOrtho(
                 proj,
-                topLeft.x, static_cast<float>(topLeft.x + size.x), static_cast<float>(topLeft.y + size.y), topLeft.y,
+                0, static_cast<float>(size.x), static_cast<float>(size.y), 0,
                 0.0f, 100.0f,
                 0.0f, caps->homogeneousDepth);
         bgfx::setViewTransform(viewID, view, proj);
@@ -391,9 +390,9 @@ namespace corn {
         Vec2f viewportSize(
                 camera->viewport.w.calc(1.0f, percentWindowSize.x, percentWindowSize.y),
                 camera->viewport.h.calc(1.0f, percentWindowSize.x, percentWindowSize.y));
-        Vec2f fovSize(
-                camera->fovW.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale),
-                camera->fovH.calc(1.0f, viewportSize.x / 100, viewportSize.y / 100) * (1 / camera->scale));
+        Vec2f fovSize = Vec2f(
+                camera->fovW.calc(1.0f, viewportSize.x * 0.01f, viewportSize.y * 0.01f),
+                camera->fovH.calc(1.0f, viewportSize.x * 0.01f, viewportSize.y * 0.01f)) * (1 / camera->scale);
 
         // Calculate the transform of camera
         Transform2D worldTransform = camera->getEntity().getComponent<CTransform2D>()->getWorldTransform();
@@ -425,8 +424,9 @@ namespace corn {
         float y = camera->viewport.y.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
         float w = camera->viewport.w.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
         float h = camera->viewport.h.calc(1.0f, percentWindowSize.x, percentWindowSize.y);
-        setView(this->impl_->viewID, Vec<uint16_t, 2>(
-                x * hidpiScale, y * hidpiScale), Vec<uint16_t, 2>(w * hidpiScale, h * hidpiScale));
+        setView(this->impl_->viewID,
+                Vec<uint16_t, 2>(x * hidpiScale, y * hidpiScale),
+                Vec<uint16_t, 2>(w * hidpiScale, h * hidpiScale));
         const auto [r, g, b, a] = camera->background.getRGBA();  // NOLINT
         bgfx::setViewClear(
                 this->impl_->viewID,
@@ -445,7 +445,7 @@ namespace corn {
             // Sprite
             auto sprite = entity->getComponent<CSprite>();
             if (sprite && sprite->active && sprite->image && sprite->image->impl_) {
-                draw(*camera, *cTransform, *sprite, cameraTransform);
+                draw(this->impl_->viewID, *cTransform, *sprite, worldToCameraTransform, this->impl_->bitmapShader);
             }
 
             // Lines
@@ -466,7 +466,7 @@ namespace corn {
             // Text
             auto text = entity->getComponent<CText>();
             if (text && text->active) {
-                draw(*camera, *cTransform, *text, cameraTransform);
+                draw(this->impl_->viewID, *cTransform, *text, worldToCameraTransform, this->impl_->bitmapShader);
             }
         }
     }

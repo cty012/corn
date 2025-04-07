@@ -26,6 +26,7 @@ int main() {
 
     // Game
     corn::Game game(new MainMenuScene(), config);
+    game.setDebugOverlay(true);
     game.run();
 
     return 0;

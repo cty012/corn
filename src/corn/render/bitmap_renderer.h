@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <bgfx/bgfx.h>
+#include <corn/geometry/transform.h>
 #include "vertex.h"
 #include "shader.h"
 
@@ -15,14 +16,17 @@ namespace corn {
     class BitmapRenderer {
     public:
         BitmapRenderer();
-
         ~BitmapRenderer();
+        BitmapRenderer(const BitmapRenderer&) = delete;
+        BitmapRenderer& operator=(const BitmapRenderer&) = delete;
+        BitmapRenderer(BitmapRenderer&&) noexcept;
+        BitmapRenderer& operator=(BitmapRenderer&&) noexcept;
 
         void destroy();
 
-        void update(unsigned char* bitmap, float x, float y, uint16_t w, uint16_t h);
+        void update(const uint8_t* bitmap, float x, float y, uint16_t w, uint16_t h);
 
-        void draw(bgfx::ViewId viewID, const Shader& shader) const;
+        void draw(bgfx::ViewId viewID, const Shader& shader, const Transform2D& transform = Transform2D::I()) const;
 
     private:
         void destroyVertexBuffer();

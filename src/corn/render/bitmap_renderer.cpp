@@ -7,6 +7,35 @@ namespace corn {
         this->destroy();
     }
 
+    BitmapRenderer::BitmapRenderer(BitmapRenderer&& other) noexcept {
+        this->vbf_ = other.vbf_;
+        this->ibf_ = other.ibf_;
+        this->texture_ = other.texture_;
+        this->samplerUniform_ = other.samplerUniform_;
+
+        other.vbf_ = BGFX_INVALID_HANDLE;
+        other.ibf_ = BGFX_INVALID_HANDLE;
+        other.texture_ = BGFX_INVALID_HANDLE;
+        other.samplerUniform_ = BGFX_INVALID_HANDLE;
+    }
+
+    BitmapRenderer& BitmapRenderer::operator=(BitmapRenderer&& other) noexcept {
+        if (this == &other) return *this;
+        this->destroy();
+
+        this->vbf_ = other.vbf_;
+        this->ibf_ = other.ibf_;
+        this->texture_ = other.texture_;
+        this->samplerUniform_ = other.samplerUniform_;
+
+        other.vbf_ = BGFX_INVALID_HANDLE;
+        other.ibf_ = BGFX_INVALID_HANDLE;
+        other.texture_ = BGFX_INVALID_HANDLE;
+        other.samplerUniform_ = BGFX_INVALID_HANDLE;
+
+        return *this;
+    }
+
     void BitmapRenderer::destroy() {
         this->destroyVertexBuffer();
         this->destroyIndexBuffer();
@@ -14,11 +43,12 @@ namespace corn {
         this->destroySamplerUniform();
     }
 
-    void BitmapRenderer::update(unsigned char* bitmap, float x, float y, uint16_t w, uint16_t h) {
+    void BitmapRenderer::update(const uint8_t* bitmap, float x, float y, uint16_t w, uint16_t h) {
+        this->destroy();
         this->destroyTexture();
 
         // Create vertex buffer
-        std::array vertices {
+        std::array vertices = {
                 TextureVertex2D{ x,            y,            0.0f, 0.0f },  // Top-left
                 TextureVertex2D{ x + float(w), y,            1.0f, 0.0f },  // Top-right
                 TextureVertex2D{ x + float(w), y + float(h), 1.0f, 1.0f },  // Bottom-right
@@ -51,15 +81,25 @@ namespace corn {
         }
     }
 
-    void BitmapRenderer::draw(bgfx::ViewId viewID, const Shader& shader) const {
+    void BitmapRenderer::draw(bgfx::ViewId viewID, const Shader& shader, const Transform2D& transform) const {
         if (!bgfx::isValid(this->vbf_) || !bgfx::isValid(this->ibf_) || !bgfx::isValid(this->texture_) ||
             !bgfx::isValid(this->samplerUniform_)) {
             return;
         }
 
+        // Transform matrix
+        const Mat3f& mat = transform.getMat();
+        float mtx[16] = {
+                mat[0][0], mat[1][0], 0.0f, mat[2][0],
+                mat[0][1], mat[1][1], 0.0f, mat[2][1],
+                0.0f,      0.0f,      1.0f, 0.0f,
+                mat[0][2], mat[1][2], 0.0f, mat[2][2],
+        };
+
         bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_BLEND_ALPHA | BGFX_STATE_MSAA);
         bgfx::setVertexBuffer(0, this->vbf_, 0, 4);
         bgfx::setIndexBuffer(this->ibf_, 0, 6);
+        bgfx::setTransform(&mtx);
         bgfx::setTexture(0, this->samplerUniform_, this->texture_);
         bgfx::submit(viewID, shader.getProgramHandle());
     }

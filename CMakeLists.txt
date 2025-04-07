@@ -140,9 +140,9 @@ if (USE_NATIVE_TEXT_RENDERING)
     endif ()
 endif ()
 
-# Link with SFML
-#find_package(SFML 2.6 COMPONENTS graphics window audio network system CONFIG REQUIRED)
-#target_link_libraries(corn PRIVATE sfml-graphics sfml-window sfml-audio sfml-network sfml-system)
+# Link with Eigen3
+find_package(Eigen3 REQUIRED NO_MODULE)
+target_link_libraries(corn PRIVATE Eigen3::Eigen)
 
 # Link with bgfx
 find_package(bgfx CONFIG REQUIRED)
@@ -163,9 +163,9 @@ endif ()
 find_package(ICU REQUIRED COMPONENTS uc i18n data)
 target_link_libraries(corn PRIVATE ICU::uc ICU::i18n ICU::data)
 
-# Link with Eigen3
-find_package(Eigen3 REQUIRED NO_MODULE)
-target_link_libraries(corn PRIVATE Eigen3::Eigen)
+# Link with stb
+find_package(Stb REQUIRED)
+target_include_directories(corn PRIVATE ${Stb_INCLUDE_DIR})
 
 # Link with NanoSVG
 find_package(NanoSVG CONFIG REQUIRED)

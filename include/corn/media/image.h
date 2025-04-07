@@ -25,12 +25,20 @@ namespace corn {
         explicit Image(const std::filesystem::path& path);
 
         /**
-         * @brief Creates an empty image with the provided width, height, and color.
+         * @brief Creates an image with the provided width, height, and color.
          * @param width Width of the image.
          * @param height Height of the image.
          * @param color Color to fill the image (can be transparent).
          */
-        Image(unsigned int width, unsigned int height, Color color);
+        Image(uint32_t width, uint32_t height, const Color& color);
+
+        /**
+         * @brief Creates an image with the provided width, height, and bitmap.
+         * @param width Width of the image.
+         * @param height Height of the image.
+         * @param bitmap A bitmap where each pixel is represented by a RGBA value.
+         */
+        Image(uint32_t width, uint32_t height, const std::vector<Color>& bitmap);
 
         /// @brief Destructor.
         ~Image();

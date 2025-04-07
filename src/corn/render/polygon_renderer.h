@@ -22,12 +22,12 @@ namespace corn {
         virtual void drawEdges(
                 bgfx::ViewId viewID, const Shader& shader,
                 const Color& color_, float thickness_,
-                const Transform2D& transform) const = 0;
+                const Transform2D& transform = Transform2D::I()) const = 0;
 
         virtual void drawFill(
                 bgfx::ViewId viewID, const Shader& shader,
                 const Color& color_,
-                const Transform2D& transform) const = 0;
+                const Transform2D& transform = Transform2D::I()) const = 0;
     };
 
     class StaticPolygonRenderer : public CPolygon::Renderer {
@@ -44,12 +44,12 @@ namespace corn {
         void drawEdges(
                 bgfx::ViewId viewID, const Shader& shader,
                 const Color& color_, float thickness_,
-                const Transform2D& transform) const override;
+                const Transform2D& transform = Transform2D::I()) const override;
 
         void drawFill(
                 bgfx::ViewId viewID, const Shader& shader,
                 const Color& color_,
-                const Transform2D& transform) const override;
+                const Transform2D& transform = Transform2D::I()) const override;
 
     private:
         std::vector<uint32_t> ringSizes_;
@@ -72,12 +72,12 @@ namespace corn {
         void drawEdges(
                 bgfx::ViewId viewID, const Shader& shader,
                 const Color& color_, float thickness_,
-                const Transform2D& transform) const override;
+                const Transform2D& transform = Transform2D::I()) const override;
 
         void drawFill(
                 bgfx::ViewId viewID, const Shader& shader,
                 const Color& color_,
-                const Transform2D& transform) const override;
+                const Transform2D& transform = Transform2D::I()) const override;
 
     private:
         std::vector<uint32_t> ringSizes_;
@@ -93,6 +93,6 @@ namespace corn {
                 bgfx::ViewId viewID, const Shader& shader,
                 const std::vector<Vertex2D>& vertices, const std::vector<uint16_t>& indices,
                 const Color& color_,
-                const Transform2D& transform);
+                const Transform2D& transform = Transform2D::I());
     };
 }

@@ -6,13 +6,13 @@
 corn::Entity* createCamera(corn::EntityManager& entityManager) {
     corn::Entity* camera = &entityManager.createEntity("camera");
     camera->addComponent<corn::CTransform2D>(corn::Vec2f((float)WIDTH, (float)HEIGHT) * 0.5f);
-    auto* ccamera = camera->addComponent<corn::CCamera>(corn::CameraType::_2D, corn::Color::rgb(60, 179, 113));
-    ccamera->setViewport(
+    auto* cCamera = camera->addComponent<corn::CCamera>(corn::CameraType::_2D, corn::Color::rgb(60, 179, 113));
+    cCamera->setViewport(
             "(100%ww - min(100%ww * 9, 100%wh * 16) / 9) / 2",
             "(100%wh - min(100%ww * 9, 100%wh * 16) / 16) / 2",
             "min(100%ww * 9, 100%wh * 16) / 9",
             "min(100%ww * 9, 100%wh * 16) / 16");
-    ccamera->setFov(std::to_string(WIDTH) + "px", std::to_string(HEIGHT) + "px");
+    cCamera->setFov(std::to_string(WIDTH) + "px", std::to_string(HEIGHT) + "px");
     return camera;
 }
 
@@ -25,8 +25,7 @@ corn::Entity* createBird(corn::EntityManager& entityManager) {
     corn::Vec2f bottomRight(BIRD_WIDTH * 0.5f, BIRD_HEIGHT * 0.5f);
     corn::Vec2f topLeft = -bottomRight;
     bird->addComponent<corn::CBBox>(topLeft, bottomRight);
-    bird->addComponent<corn::CSprite>(
-            new corn::Image(BIRD_WIDTH, BIRD_HEIGHT, BIRD_COLOR), topLeft);
+    bird->addComponent<corn::CSprite>(new corn::Image(BIRD_WIDTH, BIRD_HEIGHT, BIRD_COLOR), topLeft);
 
     corn::RichText text = corn::RichText()
             .addText("Bird", corn::TextStyle(corn::FontManager::instance().getDefault(), 18, corn::Color::WHITE()));

@@ -147,11 +147,13 @@ namespace corn {
             if (oldMat.to<3, 2>() == newMat.to<3, 2>() && oldMat[2][2] == newMat[2][2]) {
                 float diff02 = newMat[0][2] - oldMat[0][2];
                 float diff12 = newMat[1][2] - oldMat[1][2];
-                if (std::round(diff02) - diff02 <= 0.0001f &&
-                    std::round(diff12) - diff12 <= 0.0001f) {
+                float roundDiff02 = std::round(diff02);
+                float roundDiff12 = std::round(diff12);
+                if (std::abs(roundDiff02 - diff02) <= 0.0001f && std::abs(roundDiff12 - diff12) <= 0.0001f) {
                     // Integer translation, change the offset
-                    this->offset_.x += diff02;
-                    this->offset_.y += diff12;
+                    this->offset_.x += roundDiff02;
+                    this->offset_.y += roundDiff12;
+                    this->transform_ = Transform2D::translate(Vec2f(roundDiff02, roundDiff12)) * this->transform_;
                 }
                 return;
             }

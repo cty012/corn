@@ -210,7 +210,11 @@ namespace corn {
         /// @brief Pointer to the image.
         Image* image;
 
-        /// @brief Location of the top left corner of the image.
+        /**
+         * @brief Location of the top left corner of the image.
+         *
+         * For more detailed transformation of the image, use the CTransform2D component.
+         */
         Vec2f location;
 
         /// @brief Constructor.

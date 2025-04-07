@@ -8,8 +8,12 @@ namespace corn {
         this->impl_ = new ImageImpl(path);
     }
 
-    Image::Image(unsigned int width, unsigned int height, Color color) {
+    Image::Image(uint32_t width, uint32_t height, const Color& color) {
         this->impl_ = new ImageImpl(width, height, color);
+    }
+
+    Image::Image(uint32_t width, uint32_t height, const std::vector<Color>& bitmap) {
+        this->impl_ = new ImageImpl(width, height, bitmap);
     }
 
     Image::~Image() {

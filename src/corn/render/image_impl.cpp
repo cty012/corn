@@ -1,4 +1,6 @@
 #include <fstream>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 #include <corn/util/color.h>
 #include <corn/util/exceptions.h>
 #include "image_impl.h"
@@ -63,16 +65,31 @@ namespace corn {
         case ImageType::PNG:
         case ImageType::JPEG: {
             std::string msg = "Failed to load image: " + path.string() + ".";
-            // if (!this->image.loadFromFile(path.string())) {
-            //     throw ResourceLoadFailed("Failed to load image: " + path.string() + ".");
-            // }
-            //
-            // // Load the image into the texture
-            // if (!this->texture.loadFromImage(image)) {
-            //     throw ResourceLoadFailed("Failed to load texture: " + path.string() + ".");
-            // }
-            // this->sfSprite = sf::Sprite(this->texture);
-            // break;
+
+            // Load the image file into memory
+            int width, height, channels;
+            uint8_t* data = stbi_load(path.c_str(), &width, &height, &channels, 4); // RGBA
+            if (!data) {
+                throw ResourceLoadFailed("Failed to load image: " + path.string() + ".");
+            }
+
+            // Convert to BGRA8 format
+            this->size.x = static_cast<uint32_t>(width);
+            this->size.y = static_cast<uint32_t>(height);
+            this->bitmapData.resize(width * height * 4);
+            for (uint32_t i = 0; i < this->size.x * this->size.y; i++) {
+                this->bitmapData[i * 4] = data[i * 4 + 2];
+                this->bitmapData[i * 4 + 1] = data[i * 4 + 1];
+                this->bitmapData[i * 4 + 2] = data[i * 4];
+                this->bitmapData[i * 4 + 3] = data[i * 4 + 3];
+            }
+
+            // Load the image into the texture
+            this->bitmapRenderer.update(
+                    this->bitmapData.data(), 0.0f, 0.0f, static_cast<uint16_t>(width), static_cast<uint16_t>(height));
+
+            // Free the image data
+            stbi_image_free(data);
         }
         case ImageType::SVG: {
             std::string msg = "Failed to parse SVG image: " + path.string() + ".";
@@ -90,52 +107,134 @@ namespace corn {
 
             break;
         }
+        case ImageType::BITMAP:
         case ImageType::UNKNOWN:
             throw ResourceLoadFailed("Unsupported image format for: " + path.string() + ".");
         }
     }
 
-    ImageImpl::ImageImpl(unsigned int width, unsigned int height, const Color& color)
-            : type(ImageType::UNKNOWN), svgImage(), scale(1.0f, 1.0f) {
+    ImageImpl::ImageImpl(uint32_t width, uint32_t height, const Color& color)
+            : type(ImageType::BITMAP), svgImage(), scale(1.0f, 1.0f) {
 
-        (void)width; (void)height; (void)color;
+        this->size.x = width;
+        this->size.y = height;
+        this->bitmapData.resize(width * height * 4);
+        for (uint32_t i = 0; i < width * height; i++) {
+            const auto [r, g, b, a] = color.getRGBA();
+            this->bitmapData[i * 4] = b;
+            this->bitmapData[i * 4 + 1] = g;
+            this->bitmapData[i * 4 + 2] = r;
+            this->bitmapData[i * 4 + 3] = a;
+        }
+        this->bitmapRenderer.update(this->bitmapData.data(), 0.0f, 0.0f, width, height);
+    }
 
-        std::string msg = "Failed to create image.";
-//        const auto [r, g, b, a] = color.getRGBA();  // NOLINT
-        // this->image.create(width, height, sf::Color{ r, g, b, a });
-        // if (!this->texture.loadFromImage(image)) throw ResourceLoadFailed(msg);
-        // this->sfSprite = sf::Sprite(this->texture);
+    ImageImpl::ImageImpl(uint32_t width, uint32_t height, const std::vector<Color>& bitmap)
+            : type(ImageType::BITMAP), svgImage(), scale(1.0f, 1.0f) {
+
+        this->size.x = width;
+        this->size.y = height;
+        this->bitmapData.resize(width * height * 4, 0);
+        for (uint32_t i = 0; i < std::min(width * height, static_cast<uint32_t>(bitmap.size())); i++) {
+            const auto [r, g, b, a] = bitmap[i].getRGBA();
+            this->bitmapData[i * 4] = b;
+            this->bitmapData[i * 4 + 1] = g;
+            this->bitmapData[i * 4 + 2] = r;
+            this->bitmapData[i * 4 + 3] = a;
+        }
+        this->bitmapRenderer.update(this->bitmapData.data(), 0.0f, 0.0f, width, height);
     }
 
     ImageImpl::~ImageImpl() {
-        nsvgDelete(this->svgImage);
+        this->destroy();
     }
 
     ImageImpl::ImageImpl(const ImageImpl& other) {
         this->path = other.path;
         this->type = other.type;
-        // this->image = other.image;
-        this->svgContent = other.svgContent;
-        this->svgImage = createSVGImage(other.svgContent, "px", 96.0f);
+        switch (this->type) {
+            case ImageType::PNG:
+            case ImageType::JPEG:
+            case ImageType::BITMAP:
+                this->bitmapData = other.bitmapData;
+                this->bitmapRenderer.update(
+                        other.bitmapData.data(), 0.0f, 0.0f,
+                        static_cast<uint16_t>(other.size.x), static_cast<uint16_t>(other.size.y));
+                this->size = other.size;
+                break;
+            case ImageType::SVG:
+                this->svgContent = other.svgContent;
+                this->svgImage = createSVGImage(other.svgContent, "px", 96.0f);
+            case ImageType::UNKNOWN:
+                return;
+        }
         this->scale = other.scale;
-        // this->texture = other.texture;
-        // this->sfSprite = other.sfSprite;
     }
 
     ImageImpl& ImageImpl::operator=(const ImageImpl& other) {
         if (this == &other) return *this;
+        this->destroy();
 
         this->path = other.path;
         this->type = other.type;
-        // this->image = other.image;
-        this->svgContent = other.svgContent;
-        delete this->svgImage;
-        this->svgImage = createSVGImage(other.svgContent, "px", 96.0f);
+        switch (this->type) {
+            case ImageType::PNG:
+            case ImageType::JPEG:
+            case ImageType::BITMAP:
+                this->bitmapData = other.bitmapData;
+                this->bitmapRenderer.update(
+                        other.bitmapData.data(), 0.0f, 0.0f,
+                        static_cast<uint16_t>(other.size.x), static_cast<uint16_t>(other.size.y));
+                this->size = other.size;
+                break;
+            case ImageType::SVG:
+                this->svgContent = other.svgContent;
+                this->svgImage = createSVGImage(other.svgContent, "px", 96.0f);
+            case ImageType::UNKNOWN:
+                return *this;
+        }
         this->scale = other.scale;
-        // this->texture = other.texture;
-        // this->sfSprite = other.sfSprite;
 
         return *this;
+    }
+
+    ImageImpl::ImageImpl(ImageImpl&& other) noexcept {
+        this->path = std::move(other.path);
+        this->type = other.type;
+        this->bitmapData = std::move(other.bitmapData);
+        this->bitmapRenderer = std::move(other.bitmapRenderer);
+        this->size = other.size;
+        this->svgContent = std::move(other.svgContent);
+        this->svgImage = other.svgImage;
+        this->scale = other.scale;
+
+        other.type = ImageType::UNKNOWN;
+        other.svgImage = nullptr;
+    }
+
+    ImageImpl& ImageImpl::operator=(ImageImpl&& other) noexcept {
+        if (this == &other) return *this;
+        this->destroy();
+
+        this->path = std::move(other.path);
+        this->type = other.type;
+        this->bitmapData = std::move(other.bitmapData);
+        this->bitmapRenderer = std::move(other.bitmapRenderer);
+        this->size = other.size;
+        this->svgContent = std::move(other.svgContent);
+        this->svgImage = other.svgImage;
+        this->scale = other.scale;
+
+        other.type = ImageType::UNKNOWN;
+        other.svgImage = nullptr;
+
+        return *this;
+    }
+
+    void ImageImpl::destroy() {
+        this->bitmapRenderer.destroy();
+        nsvgDelete(this->svgImage);
+        this->svgImage = nullptr;
     }
 
     float ImageImpl::getWidth() const {
@@ -143,8 +242,7 @@ namespace corn {
             case ImageType::SVG:
                 return this->svgImage->width;
             default:
-                // return static_cast<float>(this->image.getSize().x);
-                return 0.0f;
+                return static_cast<float>(this->size.x);
         }
     }
 
@@ -153,14 +251,14 @@ namespace corn {
             case ImageType::SVG:
                 return this->svgImage->height;
             default:
-                // return static_cast<float>(this->image.getSize().y);
-                return 0.0f;
+                return static_cast<float>(this->size.y);
         }
     }
 
     bool ImageImpl::rasterize(Vec2f extraScale, bool useCache) {
         (void)extraScale; (void)useCache;
         return true;
+        // todo
         // if (this->type != ImageType::SVG || this->svgImage == nullptr) {
         //     return false;
         // }

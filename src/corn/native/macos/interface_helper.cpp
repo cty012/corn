@@ -9,32 +9,31 @@
 
 namespace corn {
     void draw(
-            const CCamera& cCamera,
+            bgfx::ViewId viewID,
             const CTransform2D& cTransform, const CSprite& cSprite,
-            const Transform2D& cameraTransform) {
+            const Transform2D& worldToCameraTransform, const Shader& bitmapShader) {
 
-        (void)cCamera; (void)cTransform; (void)cSprite; (void)cameraTransform;
-        // // Transform
-        // Transform2D worldTransform = cameraTransform.inv() * cTransform.getWorldTransform();
-        // const Mat3f& mat = worldTransform.getMat();
-        // sf::Transform transform {
-        //     mat[0][0], mat[0][1], mat[0][2],
-        //     mat[1][0], mat[1][1], mat[1][2],
-        //     mat[2][0], mat[2][1], mat[2][2],
-        // };
-        //
-        // Vec2f scale = cSprite.image->impl_->scale;
-        // if (cSprite.image->impl_->type == ImageType::SVG) {
-        //     // SVGs are scaled during rasterization
-        //     cSprite.image->impl_->rasterize(Vec2f(1.0f, 1.0f), true);
-        //     scale = Vec2f(1.0f, 1.0f);
-        // }
-        // sf::Sprite& sfSprite = cSprite.image->impl_->sfSprite;
-        // sfSprite.setOrigin(sf::Vector2f(0.0f, 0.0f));
-        // sfSprite.setPosition(sf::Vector2f(cSprite.location.x, cSprite.location.y));
-        // sfSprite.setScale(sf::Vector2f(scale.x, scale.y));
-        //
-        // cCamera.viewport.impl_->texture.draw(cSprite.image->impl_->sfSprite, transform);
+        ImageImpl* imageImpl = cSprite.image->impl_;
+        Transform2D transform =
+                worldToCameraTransform *
+                cTransform.getWorldTransform() *
+                Transform2D(cSprite.location, 0.0f, imageImpl->scale);
+
+        switch (imageImpl->type) {
+            case ImageType::PNG:
+            case ImageType::JPEG:
+            case ImageType::BITMAP:
+                // Draw bitmap
+                imageImpl->bitmapRenderer.draw(viewID, bitmapShader, transform);
+                break;
+            case ImageType::SVG:
+                // todo
+                printf("SVG image type not supported yet\n");
+                break;
+            case ImageType::UNKNOWN:
+                printf("Unknown image type\n");
+                break;
+        }
     }
 
     void drawLines(
@@ -89,14 +88,14 @@ namespace corn {
             const Transform2D& worldToCameraTransform, const Shader& polygonShader) {
 
         CPolygon::Renderer* polygonRenderer = cPolygon.getPolygonRenderer();
-        Transform2D worldTransform = worldToCameraTransform * cTransform.getWorldTransform();
+        Transform2D transform = worldToCameraTransform * cTransform.getWorldTransform();
         switch (cPolygon.getRenderType()) {
             case CPolygon::RenderType::STATIC:
             case CPolygon::RenderType::DYNAMIC:
                 if (cPolygon.thickness > 0) {
-                    polygonRenderer->drawEdges(viewID, polygonShader, cPolygon.color, cPolygon.thickness, worldTransform);
+                    polygonRenderer->drawEdges(viewID, polygonShader, cPolygon.color, cPolygon.thickness, transform);
                 } else {
-                    polygonRenderer->drawFill(viewID, polygonShader, cPolygon.color, worldTransform);
+                    polygonRenderer->drawFill(viewID, polygonShader, cPolygon.color, transform);
                 }
                 break;
             case CPolygon::RenderType::TRANSIENT: {
@@ -115,59 +114,24 @@ namespace corn {
                     fillIndices.push_back(static_cast<uint16_t>(index));
                 }
 
-                TransientPolygonRenderer::draw(viewID, polygonShader, vertices, fillIndices, cPolygon.color, worldTransform);
+                TransientPolygonRenderer::draw(viewID, polygonShader, vertices, fillIndices, cPolygon.color, transform);
                 break;
             }
         }
     }
 
     void draw(
-            const CCamera& cCamera,
+            bgfx::ViewId viewID,
             const CTransform2D& cTransform, const CText& cText,
-            const Transform2D& cameraTransform) {
+            const Transform2D& worldToCameraTransform, const Shader& bitmapShader) {
 
-        (void)cCamera; (void)cTransform; (void)cText; (void)cameraTransform;
-        // // Draw polygon and fill inside
-        // Transform2D worldTransform = cameraTransform.inv() * cTransform.getWorldTransform();
-        // const Mat3f& mat = worldTransform.getMat();
-        // sf::Transform transform {
-        //     mat[0][0], mat[0][1], mat[0][2],
-        //     mat[1][0], mat[1][1], mat[1][2],
-        //     mat[2][0], mat[2][1], mat[2][2],
-        // };
-        //
-        // Vec2f location(cText.getX(), cText.getY());
-        // Vec2f textSize = cText.textRender.getSize();
-        //
-        // // Render
-        // Vec2f seg = location;
-        // for (TextRenderImpl::Line& line : cText.textRender.impl_->lines) {
-        //     // alignment
-        //     switch (cText.textRender.getTextAlign()) {
-        //         case TextAlign::LEFT:
-        //             seg.x = location.x;
-        //             break;
-        //         case TextAlign::CENTER:
-        //             seg.x = location.x + (textSize.x - line.size.x) / 2;
-        //             break;
-        //         case TextAlign::RIGHT:
-        //             seg.x = location.x + textSize.x - line.size.x;
-        //             break;
-        //     }
-        //
-        //     for (const auto& [text, color] : line.contents) {
-        //         auto& mutText = const_cast<sf::Text&>(text);
-        //         mutText.setOrigin(0.0f, 0.0f);
-        //         mutText.setPosition(seg.x, seg.y + cText.textRender.getLinePadding());
-        //         const auto [r, g, b, a] = color.getRGBA();  // NOLINT
-        //         mutText.setFillColor(sf::Color{ r, g, b, a });
-        //
-        //         cCamera.viewport.impl_->texture.draw(text, transform);
-        //         seg.x += text.getLocalBounds().width;
-        //     }
-        //     seg.x = location.x;
-        //     seg.y += line.size.y;
-        // }
+        Transform2D transform =
+                worldToCameraTransform *
+                cTransform.getWorldTransform() *
+                Transform2D::translate(Vec2f(cText.getX(), cText.getY()));
+        RichTextRenderer* richTextRenderer = cText.getRichTextFrame().getRichTextRenderer();
+        richTextRenderer->setTransform(transform);
+        richTextRenderer->draw(viewID, bitmapShader);
     }
 
     void drawUI(

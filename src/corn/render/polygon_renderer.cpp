@@ -77,15 +77,15 @@ namespace corn {
         // Transform matrix
         const Mat3f& mat = transform.getMat();
         float mtx[16] = {
-                mat[0][0], mat[0][1], 0.0f, mat[0][2],
-                mat[1][0], mat[1][1], 0.0f, mat[1][2],
+                mat[0][0], mat[1][0], 0.0f, mat[2][0],
+                mat[0][1], mat[1][1], 0.0f, mat[2][1],
                 0.0f,      0.0f,      1.0f, 0.0f,
-                mat[2][0], mat[2][1], 0.0f, mat[2][2],
+                mat[0][2], mat[1][2], 0.0f, mat[2][2],
         };
 
         // Draw the polygon
         uint32_t start = 0;
-        bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_BLEND_ALPHA | BGFX_STATE_PT_LINESTRIP);
+        bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_BLEND_ALPHA | BGFX_STATE_MSAA | BGFX_STATE_PT_LINESTRIP);
         bgfx::setVertexBuffer(0, this->vbf_);
         bgfx::setUniform(u_color, colorVec);
         bgfx::setTransform(&mtx);
@@ -129,7 +129,7 @@ namespace corn {
         };
 
         // Draw the polygon
-        bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_BLEND_ALPHA);
+        bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_BLEND_ALPHA | BGFX_STATE_MSAA);
         bgfx::setVertexBuffer(0, this->vbf_);
         bgfx::setIndexBuffer(this->fillIbf_);
         bgfx::setUniform(u_color, colorVec);
@@ -229,15 +229,15 @@ namespace corn {
         // Transform matrix
         const Mat3f& mat = transform.getMat();
         float mtx[16] = {
-                mat[0][0], mat[0][1], 0.0f, mat[0][2],
-                mat[1][0], mat[1][1], 0.0f, mat[1][2],
+                mat[0][0], mat[1][0], 0.0f, mat[2][0],
+                mat[0][1], mat[1][1], 0.0f, mat[2][1],
                 0.0f,      0.0f,      1.0f, 0.0f,
-                mat[2][0], mat[2][1], 0.0f, mat[2][2],
+                mat[0][2], mat[1][2], 0.0f, mat[2][2],
         };
 
         // Draw the polygon
         uint32_t start = 0;
-        bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_BLEND_ALPHA | BGFX_STATE_PT_LINESTRIP);
+        bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_BLEND_ALPHA | BGFX_STATE_MSAA | BGFX_STATE_PT_LINESTRIP);
         bgfx::setVertexBuffer(0, this->vbf_, 0, this->numVertices_);
         bgfx::setUniform(u_color, colorVec);
         bgfx::setTransform(&mtx);
@@ -281,7 +281,7 @@ namespace corn {
         };
 
         // Draw the polygon
-        bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_BLEND_ALPHA);
+        bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_BLEND_ALPHA | BGFX_STATE_MSAA);
         bgfx::setVertexBuffer(0, this->vbf_, 0, this->numVertices_);
         bgfx::setIndexBuffer(this->fillIbf_, 0, this->numFillIndices_);
         bgfx::setUniform(u_color, colorVec);
@@ -326,7 +326,7 @@ namespace corn {
         };
 
         // Set for rendering
-        bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_BLEND_ALPHA);
+        bgfx::setState(BGFX_STATE_WRITE_RGB | BGFX_STATE_WRITE_A | BGFX_STATE_BLEND_ALPHA | BGFX_STATE_MSAA);
         bgfx::setVertexBuffer(0, &vbf);
         bgfx::setIndexBuffer(&ibf);
         bgfx::setUniform(u_color, colorVec);

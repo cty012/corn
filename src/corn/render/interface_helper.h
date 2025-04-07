@@ -11,9 +11,9 @@
 namespace corn {
     // Draw components
     void draw(
-            const CCamera& cCamera,
+            bgfx::ViewId viewID,
             const CTransform2D& cTransform, const CSprite& cSprite,
-            const Transform2D& cameraTransform);
+            const Transform2D& worldToCameraTransform, const Shader& bitmapShader);
 
     void draw(
             const CCamera& cCamera,
@@ -26,9 +26,9 @@ namespace corn {
             const Transform2D& worldToCameraTransform, const Shader& polygonShader);
 
     void draw(
-            const CCamera& cCamera,
+            bgfx::ViewId viewID,
             const CTransform2D& cTransform, const CText& cText,
-            const Transform2D& cameraTransform);
+            const Transform2D& worldToCameraTransform, const Shader& bitmapShader);
 
     void drawUI(
             bgfx::ViewId viewID,
