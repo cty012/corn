@@ -3,7 +3,6 @@
 #include <GLFW/glfw3.h>
 #include <corn/ecs/component.h>
 #include <corn/event/input.h>
-#include <corn/media/interface.h>
 #include <corn/ui/ui_image.h>
 #include <corn/ui/ui_label.h>
 #include <corn/util/config.h>

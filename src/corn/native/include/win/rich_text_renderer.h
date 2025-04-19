@@ -2,13 +2,14 @@
 
 #include <cstdint>
 #include <vector>
-#import <CoreText/CoreText.h>
 #include <bgfx/bgfx.h>
 #include <corn/geometry/transform.h>
+#include <corn/media/rich_text_frame.h>
 #include <corn/util/rich_text.h>
 #include "../../../render/bitmap_renderer.h"
 #include "../../../render/shader.h"
-#include "macos/font_family.h"
+#include "win/drawing_effect.h"
+#include "win/font_family.h"
 
 namespace corn {
     class RichTextRenderer {
@@ -21,7 +22,7 @@ namespace corn {
 
         void setRichText(const RichText& richText);
 
-        void setMaxWidth(float maxWidth);
+        void setFormat(float maxWidth, WrapStyle wrapStyle, TextAlign textAlign);
 
         [[nodiscard]] const Vec2f& getNaturalSize() const;
 
@@ -32,26 +33,32 @@ namespace corn {
         void draw(bgfx::ViewId viewID, const Shader& shader);
 
     private:
+        void createBaseFormat();
         void createBitmap(uint16_t& bitmapWidth, uint16_t& bitmapHeight);
+        void createRenderTarget();
 
-        void destroyFramesetter();
-
-        void destroyFrame();
-
+        // todo: destroyers
+        void destroyBaseFormat();
+        void destroyTextLayout();
+        void destroyDrawingEffects();
+        void destroyBitmap();
+        void destroyRenderTarget();
         void destroyBitmapRenderer();
 
         // Constants
-        CGColorSpaceRef colorSpace_ = nullptr;
+        IDWriteTextFormat* baseFormat_ = nullptr;
 
         // Changed by setRichText
-        CFMutableAttributedStringRef attrString_ = nullptr;
-        CTFramesetterRef framesetter_ = nullptr;
+        IDWriteTextLayout* textLayout_ = nullptr;
+        std::vector<IDWriteFontCollection*> fontCollections_;  // Keep font collections alive
+        std::vector<IDWriteFontFile*> fontFiles_;  // Keep font files alive
+        std::vector<DrawingEffect*> drawingEffects_;
         Vec2f naturalSize_;
 
-        // Changed by setWidth
-        float maxWidth_ = -1.0f;
+        // Changed by setFormat
         Vec2f size_;
-        CTFrameRef frame_ = nullptr;
+        ID2D1RenderTarget* renderTarget_ = nullptr;
+        IWICBitmap* wicBitmap_ = nullptr;
 
         // Changed by setTransform
         Transform2D transform_;

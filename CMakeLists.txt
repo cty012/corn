@@ -127,8 +127,8 @@ target_include_directories(corn PRIVATE
 
 # Link with native libraries
 if (USE_NATIVE_TEXT_RENDERING)
-    target_compile_definitions(corn PRIVATE USE_NATIVE_TEXT_RENDERING)
     if (MSVC)
+        target_link_libraries(corn PRIVATE d2d1 dwrite)
     elseif (APPLE)
         target_link_libraries(corn PRIVATE
                 "-framework CoreGraphics"

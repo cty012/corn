@@ -68,7 +68,7 @@ namespace corn {
 
             // Load the image file into memory
             int width, height, channels;
-            uint8_t* data = stbi_load(path.c_str(), &width, &height, &channels, 4); // RGBA
+            uint8_t* data = stbi_load(path.string().c_str(), &width, &height, &channels, 4); // RGBA
             if (!data) {
                 throw ResourceLoadFailed("Failed to load image: " + path.string() + ".");
             }
@@ -293,7 +293,9 @@ namespace corn {
 
     BitmapRenderer& ImageImpl::getBitmapRenderer() {
         if (this->bitmapRendererDirty_) {
-            this->bitmapRenderer_.update(this->bitmapData.data(), 0.0f, 0.0f, this->size.x, this->size.y);
+            this->bitmapRenderer_.update(
+                    this->bitmapData.data(), 0.0f, 0.0f,
+                    static_cast<uint16_t>(this->size.x), static_cast<uint16_t>(this->size.y));
             this->bitmapRendererDirty_ = false;
         }
         return this->bitmapRenderer_;

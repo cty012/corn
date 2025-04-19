@@ -209,7 +209,7 @@ namespace corn {
             // Check if the matrix is invertible
             float det = this->det();
             if (det == 0.0f) {
-                return Mat<M, N>::O(); // Return zero matrix if not invertible
+                return Mat<M, N>::O(); // Return the zero matrix if not invertible
             }
 
             if constexpr (M == 1) {
@@ -257,9 +257,11 @@ namespace corn {
         template <size_t K, size_t L>
         requires(K > 0 && L > 0)
         [[nodiscard]] Mat<K, L> to() const noexcept {
+            constexpr size_t minRows = M < K ? M : K;
+            constexpr size_t minCols = N < L ? N : L;
             Mat<K, L> result;
-            for (size_t i = 0; i < std::min(M, K); i++) {
-                for (size_t j = 0; j < std::min(N, L); j++) {
+            for (size_t i = 0; i < minRows; i++) {
+                for (size_t j = 0; j < minCols; j++) {
                     result[i][j] = this->data_[i][j];
                 }
             }

@@ -26,7 +26,7 @@ namespace corn {
 //    bool isWhitespace(const std::u8string& target) noexcept;
 
     /**
-     * @brief Remove spaces and new lines from the begin and end of a string.
+     * @brief Remove spaces and new lines from the beginning and end of a string.
      * @param str Target string to trim.
      * @return Trimmed string.
      */

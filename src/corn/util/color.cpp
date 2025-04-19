@@ -174,12 +174,4 @@ namespace corn {
                 this->rgba_[0], this->rgba_[1], this->rgba_[2], this->rgba_[3]);
         return { hexStr };
     }
-
-    bool operator==(const Color& lhs, const Color& rhs) noexcept {
-        return lhs.rgba_ == rhs.rgba_;
-    }
-
-    bool operator!=(const Color& lhs, const Color& rhs) noexcept {
-        return !(lhs == rhs);
-    }
 }

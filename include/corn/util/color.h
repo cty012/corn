@@ -77,8 +77,7 @@ namespace corn {
          */
         [[nodiscard]] std::string hexStringAlpha() const noexcept;
 
-        friend bool operator==(const Color& lhs, const Color& rhs) noexcept;
-        friend bool operator!=(const Color& lhs, const Color& rhs) noexcept;
+        friend bool operator==(const Color& lhs, const Color& rhs) noexcept = default;
 
     private:
         /// @brief Private constructor.

@@ -57,6 +57,7 @@ namespace corn {
             CFRange range = CFRangeMake(start, len);
             CFRelease(segmentText);
 
+            // Set the font face and size
             float actualFontSize =
                     segment.style.position == FontPosition::REGULAR ?
                     segment.style.size :

@@ -1,5 +1,5 @@
 #include <corn/core/game.h>
-#include <corn/media/font.h>
+#include <corn/media/font_manager.h>
 #include "scenes/game.h"
 
 int main() {

@@ -194,15 +194,16 @@ namespace corn {
         template <typename U, size_t M>
         requires(Numeric<U> && M > 0)
         [[nodiscard]] Vec<U, M> to() const noexcept {
+            constexpr size_t minSize = N < M ? N : M;
             Vec<U, M> result;
-            for (size_t i = 0; i < std::min(N, M); i++) {
+            for (size_t i = 0; i < minSize; i++) {
                 result[i] = static_cast<U>(this->data_[i]);
             }
             return result;
         }
 
         /**
-         * @brief Convert to a vector of another type and same dimension.
+         * @brief Convert to a vector of another type and the same dimension.
          * @tparam U Type to convert to.
          * @return Converted vector.
          */

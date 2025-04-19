@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <codecvt>
 #include <cstdio>
 #include <fstream>
 #include <sstream>
@@ -10,23 +11,6 @@
 #include <corn/util/string_utils.h>
 
 namespace corn {
-//    bool isWhitespace(char target) noexcept {
-//        return std::any_of(WHITESPACE.begin(), WHITESPACE.end(), [target](char c) {
-//            return target == c;
-//        });
-//    }
-//
-//    bool isWhitespace(const std::u8string& target) noexcept {
-//        if (target.size() == 1) {
-//            for (char c : WHITESPACE) {
-//                if (c == target[0]) return true;
-//            }
-//        }
-//        return std::any_of(WHITESPACE_UTF8.begin(), WHITESPACE_UTF8.end(), [target](const std::u8string& c) {
-//            return target == c;
-//        });
-//    }
-
     std::string trim(const std::string& str) noexcept {
         std::size_t start = str.find_first_not_of(WHITESPACE);
 

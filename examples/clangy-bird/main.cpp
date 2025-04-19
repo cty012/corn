@@ -13,7 +13,7 @@ int main() {
     config.antialiasing = 4;
 
     // Fonts
-    corn::FontManager::instance().loadFromPath(
+    corn::FontManager::instance().loadFontFamilyFromPath(
             "noto-sans-zh", "resources/fonts/noto-sans-zh/static/NotoSansSC-Regular.ttf");
 
     // Events

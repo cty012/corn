@@ -5,6 +5,14 @@
 namespace corn {
     class RichTextRenderer;
 
+    enum class WrapStyle {
+        WORD, CHARACTER, NONE,
+    };
+
+    enum class TextAlign {
+        LEFT, RIGHT, CENTER, JUSTIFIED,
+    };
+
     /**
      * @class RichTextFrame
      * @brief Frame for rendering rich text.
@@ -25,6 +33,10 @@ namespace corn {
         void setRichText(const RichText& richText) noexcept;
         [[nodiscard]] float getMaxWidth() const noexcept;
         void setMaxWidth(float maxWidth) noexcept;
+        [[nodiscard]] WrapStyle getWrapStyle() const noexcept;
+        void setWrapStyle(WrapStyle wrapStyle) noexcept;
+        [[nodiscard]] TextAlign getTextAlign() const noexcept;
+        void setTextAlign(TextAlign textAlign) noexcept;
         [[nodiscard]] const Vec2f& getNaturalSize() const;
         [[nodiscard]] const Vec2f& getSize() const;
         [[nodiscard]] RichTextRenderer* getRichTextRenderer() const;
@@ -35,6 +47,12 @@ namespace corn {
 
         /// @brief The maximum width of the text.
         float maxWidth_;
+
+        /// @brief The word wrapping style (default: WrapStyle::WORD).
+        WrapStyle wrapStyle_;
+
+        /// @brief The text alignment (default: TextAlign::LEFT).
+        TextAlign textAlign_;
 
         /// @brief The natural size of the text. Depends on the rich text.
         mutable Vec2f naturalSize_;
@@ -47,6 +65,6 @@ namespace corn {
         /// @brief The rich text renderer.
         RichTextRenderer* richTextRenderer_;
         mutable bool richTextRendererRichTextDirty_;
-        mutable bool richTextRendererMaxWidthDirty_;
+        mutable bool richTextRendererFormatDirty_;
     };
 }

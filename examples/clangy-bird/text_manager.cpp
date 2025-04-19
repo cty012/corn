@@ -93,10 +93,10 @@ corn::RichText TextManager::getRichText(const std::string& key) const {
     corn::RichText result;
     for (const auto& item : this->text[key][this->settings["lang"]]) {
         std::string textLiteral = item["text"];
-        const corn::Font* font = corn::FontManager::instance().get(item["font"][0]);
+        const corn::FontFamily* fontFamily = corn::FontManager::instance().get(item["font"][0]);
         float size = item["font"][1];
         corn::Color color = corn::Color::parse(item.value("color", "#ffffff"));
-        result.addText(textLiteral, corn::TextStyle(font, size, color));
+        result.addText(textLiteral, corn::TextStyle(fontFamily, size, color));
     }
     return result;
 }

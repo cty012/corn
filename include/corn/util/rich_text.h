@@ -2,7 +2,7 @@
 
 #include <string>
 #include <vector>
-#include <corn/media/font.h>
+#include <corn/media/font_manager.h>
 #include <corn/util/color.h>
 
 namespace corn {
@@ -13,8 +13,8 @@ namespace corn {
      * @see RichText
      */
     struct TextStyle {
-        /// @brief Pointer to the font to use.
-        const Font* font;
+        /// @brief Pointer to the font family to use.
+        const FontFamily* fontFamily;
 
         /// @brief Size of the text segment.
         float size;
@@ -22,44 +22,24 @@ namespace corn {
         /// @brief Color of the text segment.
         Color color;
 
-        /// @brief Variant of the font to use.
-        float weight;
-        bool italic;
+        /// @brief Variant of the font.
+        FontVariant fontVariant;
+
+        /// @brief Whether the text has underline.
         bool underline;
+
+        /// @brief Position of the text segment.
         FontPosition position;
 
         /// @brief Simple constructor.
-        TextStyle(const Font* font, float size, Color color) noexcept;
+        TextStyle(const FontFamily* fontFamily, float size, Color color) noexcept;
 
         /// @brief Complete constructor.
         TextStyle(
-                const Font* font, float size, Color color,
-                float weight, bool italic, bool underline, FontPosition position) noexcept;
+                const FontFamily* fontFamily, float size, Color color, const FontVariant& fontVariant,
+                bool underline, FontPosition position) noexcept;
 
-        /// @return A NEW TextStyle object with the updated font.
-        [[nodiscard]] TextStyle setFont(const Font* newFont) const noexcept;
-
-        /// @return A NEW TextStyle object with the updated size.
-        [[nodiscard]] TextStyle setSize(float newSize) const noexcept;
-
-        /// @return A NEW TextStyle object with the updated color.
-        [[nodiscard]] TextStyle setColor(Color newColor) const noexcept;
-
-        /// @return A NEW TextStyle object with the updated weight.
-        [[nodiscard]] TextStyle setWeight(float newWeight) const noexcept;
-
-        /// @return A NEW TextStyle object with the updated italic.
-        [[nodiscard]] TextStyle setItalic(bool newItalic) const noexcept;
-
-        /// @return A NEW TextStyle object with the updated underline.
-        [[nodiscard]] TextStyle setUnderline(bool newUnderline) const noexcept;
-
-        /// @return A NEW TextStyle object with the updated position.
-        [[nodiscard]] TextStyle setPosition(FontPosition newPosition) const noexcept;
-    };
-
-    enum class TextAlign {
-        NATURAL, LEFT, RIGHT, CENTER, JUSTIFIED,
+        friend bool operator==(const TextStyle& lhs, const TextStyle& rhs) noexcept = default;
     };
 
     /**
@@ -82,13 +62,12 @@ namespace corn {
 
             /// @brief Constructor.
             Segment(std::string text, TextStyle style) noexcept;
+
+            friend bool operator==(const Segment& lhs, const Segment& rhs) noexcept = default;
         };
 
-        /// @brief Each segment represent a piece of text with uniform style.
+        /// @brief Each segment represents a piece of text with a uniform style.
         std::vector<Segment> segments;
-
-        /// @brief Text alignment.
-        TextAlign textAlign = TextAlign::NATURAL;
 
         /// @brief Constructor.
         RichText() noexcept;
@@ -106,12 +85,7 @@ namespace corn {
 
         /// @return The text without any styles.
         [[nodiscard]] std::string getString() const noexcept;
-    };
 
-    bool operator==(const TextStyle& lhs, const TextStyle& rhs) noexcept;
-    bool operator!=(const TextStyle& lhs, const TextStyle& rhs) noexcept;
-    bool operator==(const RichText::Segment& lhs, const RichText::Segment& rhs) noexcept;
-    bool operator!=(const RichText::Segment& lhs, const RichText::Segment& rhs) noexcept;
-    bool operator==(const RichText& lhs, const RichText& rhs) noexcept;
-    bool operator!=(const RichText& lhs, const RichText& rhs) noexcept;
+        friend bool operator==(const RichText& lhs, const RichText& rhs) noexcept = default;
+    };
 }

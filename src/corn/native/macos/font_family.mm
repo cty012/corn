@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#include "macos/font_impl.h"
+#include "macos/font_family.h"
 
 namespace corn {
     static CGFloat cssWeightToCTFontWeight(float weight) {
@@ -37,13 +37,13 @@ namespace corn {
         return 2.0f;
     }
 
-    Font::Font() : state(FontState::LOADING), isSystemFont(false), cgFont(nullptr), ctFontDesc(nullptr) {}
+    FontFamily::FontFamily() : state(FontState::LOADING), isSystemFont(false), cgFont(nullptr), ctFontDesc(nullptr) {}
 
-    Font::~Font() {
+    FontFamily::~FontFamily() {
         this->destroy();
     }
 
-    void Font::destroy() {
+    void FontFamily::destroy() {
         if (this->cgFont) {
             CFRelease(this->cgFont);
             this->cgFont = nullptr;
@@ -54,7 +54,7 @@ namespace corn {
         }
     }
 
-    Font* Font::createFromSystem(const std::string& name) {
+    FontFamily* FontFamily::createFromSystem(const std::string& name) {
         CFStringRef fontName = CFStringCreateWithCString(kCFAllocatorDefault, name.c_str(), kCFStringEncodingUTF8);
         CTFontDescriptorRef ctFontDesc = CTFontDescriptorCreateWithNameAndSize(fontName, 12.0f);
 
@@ -76,7 +76,7 @@ namespace corn {
         return font;
     }
 
-    Font* Font::createFromPath(const std::filesystem::path& path) {
+    FontFamily* FontFamily::createFromPath(const std::filesystem::path& path) {
         NSString* fontPath = [NSString stringWithUTF8String:path.c_str()];
         auto fontURL = (__bridge CFURLRef) [NSURL fileURLWithPath:fontPath];
         CGDataProviderRef dataProvider = CGDataProviderCreateWithURL(fontURL);
@@ -96,7 +96,7 @@ namespace corn {
         return font;
     }
 
-    CTFontRef Font::createCTFont(float size, float weight, bool italic) const {
+    CTFontRef FontFamily::createCTFont(float size, float weight, bool italic) const {
         if (this->isSystemFont) {
             // Font weight
             CGFloat ctFontWeight = cssWeightToCTFontWeight(weight);

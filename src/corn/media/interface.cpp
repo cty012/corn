@@ -20,17 +20,17 @@ namespace corn {
     }
 
     static void glfwScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-        auto* interface = static_cast<Interface::InterfaceImpl*>(glfwGetWindowUserPointer(window));
-        interface->mouseScroll.x = static_cast<float>(xoffset);
-        interface->mouseScroll.y = static_cast<float>(yoffset);
+        auto* interfaceImpl = static_cast<Interface::InterfaceImpl*>(glfwGetWindowUserPointer(window));
+        interfaceImpl->mouseScroll.x = static_cast<float>(xoffset);
+        interfaceImpl->mouseScroll.y = static_cast<float>(yoffset);
     }
 
     static void glfwInputCallback(GLFWwindow* window, unsigned int codepoint) {
-        auto* interface = static_cast<Interface::InterfaceImpl*>(glfwGetWindowUserPointer(window));
+        auto* interfaceImpl = static_cast<Interface::InterfaceImpl*>(glfwGetWindowUserPointer(window));
         char utf8[5];
         size_t len = unicodeToUTF8(codepoint, utf8);
         if (len > 0) {
-            interface->input.append(utf8, len);
+            interfaceImpl->input.append(utf8, len);
         }
     }
 
@@ -232,15 +232,15 @@ namespace corn {
     }
 
     void Interface::renderDebugOverlay(size_t fps) {
-        const Font* font = FontManager::instance().getDefault();
-        if (font == nullptr) return;
+        const FontFamily* fontFamily = FontManager::instance().getDefault();
+        if (fontFamily == nullptr) return;
 
-        // Setup the view
+        // Set up the view
         this->impl_->viewID++;
         setView(this->impl_->viewID, Vec<uint16_t, 2>(0, 0), Vec<uint16_t, 2>(this->impl_->fwidth, this->impl_->fheight));
 
         // Render debug text
-        RichText richText = RichText().addText("FPS: " + std::to_string(fps), TextStyle(font, 12, Color::WHITE()));
+        RichText richText = RichText().addText("FPS: " + std::to_string(fps), TextStyle(fontFamily, 12, Color::WHITE()));
         this->impl_->debugText.setRichText(richText);
         drawDebug(
                 this->impl_->viewID,

@@ -47,24 +47,24 @@ namespace corn {
         this->destroy();
         this->destroyTexture();
 
-        // Create vertex buffer
+        // Create a vertex buffer
         std::array vertices = {
                 TextureVertex2D{ x,            y,            0.0f, 0.0f },  // Top-left
                 TextureVertex2D{ x + float(w), y,            1.0f, 0.0f },  // Top-right
                 TextureVertex2D{ x + float(w), y + float(h), 1.0f, 1.0f },  // Bottom-right
                 TextureVertex2D{ x,            y + float(h), 0.0f, 1.0f },  // Bottom-left
         };
-        const bgfx::Memory* vmem = bgfx::copy(vertices.data(), sizeof(TextureVertex2D) * vertices.size());
+        const bgfx::Memory* vmem = bgfx::copy(vertices.data(), static_cast<uint32_t>(sizeof(TextureVertex2D) * vertices.size()));
         if (bgfx::isValid(this->vbf_)) {
             bgfx::update(this->vbf_, 0, vmem);
         } else {
             this->vbf_ = bgfx::createDynamicVertexBuffer(vmem, TextureVertex2D::layout());
         }
 
-        // Create index buffer (if not already created)
+        // Create an index buffer (if not already created)
         if (!bgfx::isValid(this->ibf_)) {
             std::array<int16_t, 6> indices = { 0, 1, 2, 0, 2, 3 };
-            const bgfx::Memory* imem = bgfx::copy(indices.data(), sizeof(uint16_t) * indices.size());
+            const bgfx::Memory* imem = bgfx::copy(indices.data(), static_cast<uint32_t>(sizeof(uint16_t) * indices.size()));
             this->ibf_ = bgfx::createIndexBuffer(imem);
         }
 
@@ -75,7 +75,7 @@ namespace corn {
                 0,
                 bgfx::copy(bitmap, w * h * 4));
 
-        // Create sampler uniform (if not already created)
+        // Create a sampler uniform (if not already created)
         if (!bgfx::isValid(this->samplerUniform_)) {
             this->samplerUniform_ = bgfx::createUniform("u_sampler", bgfx::UniformType::Sampler);
         }
