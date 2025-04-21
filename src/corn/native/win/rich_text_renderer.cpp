@@ -168,8 +168,8 @@ namespace corn {
                     this->offset_.x += roundDiff02;
                     this->offset_.y += roundDiff12;
                     this->transform_ = Transform2D::translate(Vec2f(roundDiff02, roundDiff12)) * this->transform_;
+                    return;
                 }
-                return;
             }
         }
 
@@ -177,7 +177,6 @@ namespace corn {
         this->transform_ = transform;
 
         // Update the bitmap
-        // todo
         uint16_t w, h;
         this->createBitmap(w, h);
         this->bitmapRenderer_.update(this->bitmapBuffer_.data(), this->offset_.x, this->offset_.y, w, h);

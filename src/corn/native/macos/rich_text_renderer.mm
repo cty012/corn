@@ -155,8 +155,8 @@ namespace corn {
                     this->offset_.x += roundDiff02;
                     this->offset_.y += roundDiff12;
                     this->transform_ = Transform2D::translate(Vec2f(roundDiff02, roundDiff12)) * this->transform_;
+                    return;
                 }
-                return;
             }
         }
 
