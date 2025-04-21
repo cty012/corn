@@ -15,6 +15,10 @@ int main() {
     // Fonts
     corn::FontManager::instance().loadFontFamilyFromPath(
             "noto-sans-zh", "resources/fonts/noto-sans-zh/static/NotoSansSC-Regular.ttf");
+    // TODO: The following code is for testing only, remove them later
+    // corn::FontManager::instance().loadFontFamilyFromSystem("segoe-ui", "Segoe UI");
+    // corn::FontManager::instance().loadFontFamilyFromSystem("yahei", "Microsoft YaHei");
+    // corn::FontManager::instance().loadFontFamilyFromSystem("segoe-ui-emoji", "Segoe UI Emoji");
 
     // Events
     corn::EventScope eventScope;

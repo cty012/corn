@@ -54,7 +54,7 @@ namespace corn {
 
     HRESULT STDMETHODCALLTYPE DrawingEffect::QueryInterface(REFIID riid, void** ppv) {
         if (riid == __uuidof(IUnknown)) {
-            *ppv = static_cast<IUnknown*>(this);
+            *ppv = this;
             this->AddRef();
             return S_OK;
         }

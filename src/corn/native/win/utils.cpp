@@ -58,12 +58,45 @@ namespace corn {
         return d2d1Factory;
     }
 
-    IWICImagingFactory* getWICFactory() {
+    ID2D1RenderTarget* createRenderTarget(IWICBitmap* wicBitmap) {
+        ID2D1Factory* d2d1Factory = getD2D1Factory();
+        ID2D1RenderTarget* renderTarget = nullptr;
+
+        // Create the bitmap
+        D2D1_RENDER_TARGET_PROPERTIES rtProps = D2D1::RenderTargetProperties(
+                D2D1_RENDER_TARGET_TYPE_DEFAULT,
+                D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED),
+                96.0f, 96.0f);
+        d2d1Factory->CreateWicBitmapRenderTarget(
+                wicBitmap,
+                rtProps,
+                &renderTarget);
+
+        // Release resources
+        d2d1Factory->Release();
+
+        return renderTarget;
+    }
+
+    IWICBitmap* createWICBitmap(UINT width, UINT height) {
+        // Create the WIC factory
         IWICImagingFactory* wicFactory = nullptr;
         CoCreateInstance(
-            CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER,
-            IID_PPV_ARGS(&wicFactory));
-        return wicFactory;
+                CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER,
+                IID_PPV_ARGS(&wicFactory));
+
+        // Create the bitmap
+        IWICBitmap* wicBitmap = nullptr;
+        wicFactory->CreateBitmap(
+                width, height,
+                GUID_WICPixelFormat32bppPBGRA,
+                WICBitmapCacheOnDemand,
+                &wicBitmap);
+
+        // Release resources
+        wicFactory->Release();
+
+        return wicBitmap;
     }
 
     HRESULT getFontFileFamilyName(IDWriteFontFile* fontFile, std::wstring* familyName) {

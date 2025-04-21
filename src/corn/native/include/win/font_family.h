@@ -1,5 +1,9 @@
 #pragma once
 
+// This is because of a bug in CMake.
+// Failing to include this before all Windows headers will result in the symbol "==" being exported into exports.def.
+#include <guiddef.h>
+
 #include <filesystem>
 #include <string>
 #include <unordered_map>

@@ -20,9 +20,9 @@ namespace corn {
     }
 
     ULONG STDMETHODCALLTYPE SingleFontFileEnumerator::Release() {
-        ULONG newCount = InterlockedDecrement(&this->refCount_);
-        if (newCount == 0) delete this;
-        return newCount;
+        ULONG count = InterlockedDecrement(&this->refCount_);
+        if (count == 0) delete this;
+        return count;
     }
 
     HRESULT STDMETHODCALLTYPE SingleFontFileEnumerator::QueryInterface(REFIID iid, void** ppv) {
@@ -62,10 +62,11 @@ namespace corn {
     }
 
     ULONG SingleFontCollectionLoader::Release() {
-        ULONG newCount = InterlockedDecrement(&this->refCount_);
-        if (newCount == 0) delete this;
-        return newCount;
+        ULONG count = InterlockedDecrement(&this->refCount_);
+        if (count == 0) delete this;
+        return count;
     }
+
     HRESULT SingleFontCollectionLoader::QueryInterface(REFIID riid, void** ppv) {
         if (riid == __uuidof(IUnknown) || riid == __uuidof(IDWriteFontCollectionLoader)) {
             *ppv = this;

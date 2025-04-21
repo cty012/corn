@@ -1,7 +1,7 @@
 #pragma once
 
 // This is because of a bug in CMake.
-// Failing to include this before all windows headers will result in the symbol "==" being exported into exports.def.
+// Failing to include this before all Windows headers will result in the symbol "==" being exported into exports.def.
 #include <guiddef.h>
 
 #include <string>
@@ -33,7 +33,9 @@ namespace corn {
 
     ID2D1Factory* getD2D1Factory();
 
-    IWICImagingFactory* getWICFactory();
+    ID2D1RenderTarget* createRenderTarget(IWICBitmap* wicBitmap);
+
+    IWICBitmap* createWICBitmap(UINT width, UINT height);
 
     /**
      * @brief Retrieves the font file's family name from a given IDWriteFontFile.

@@ -35,14 +35,11 @@ namespace corn {
     private:
         void createBaseFormat();
         void createBitmap(uint16_t& bitmapWidth, uint16_t& bitmapHeight);
-        void createRenderTarget();
 
         // todo: destroyers
         void destroyBaseFormat();
         void destroyTextLayout();
         void destroyDrawingEffects();
-        void destroyBitmap();
-        void destroyRenderTarget();
         void destroyBitmapRenderer();
 
         // Constants
@@ -57,8 +54,6 @@ namespace corn {
 
         // Changed by setFormat
         Vec2f size_;
-        ID2D1RenderTarget* renderTarget_ = nullptr;
-        IWICBitmap* wicBitmap_ = nullptr;
 
         // Changed by setTransform
         Transform2D transform_;

@@ -12,6 +12,22 @@ void underlineOnHover(corn::UILabel& label) {
             [&label](const corn::EventArgs&) {
                 corn::RichText newText = label.getRichText();
                 newText.segments[0].style.underline = true;
+                // TODO: The following code is for testing only, remove it later
+                // corn::TextStyle textStyle = label.getRichText().segments[0].style;
+                // corn::RichText newText = corn::RichText()
+                //         .addText("Welcome ", corn::TextStyle(
+                //                 corn::FontManager::instance().get("segoe-ui"),
+                //                 textStyle.size, corn::Color::BLACK()))
+                //         .addText("欢迎使用 ", corn::TextStyle(
+                //                 corn::FontManager::instance().get("yahei"),
+                //                 textStyle.size, corn::Color::RED()))
+                //         .addText("😊🚀 ", corn::TextStyle(
+                //                 corn::FontManager::instance().get("segoe-ui-emoji"),
+                //                 textStyle.size, corn::Color::BLUE()))
+                //         .addText("هذا اختبار لترتيب النص", corn::TextStyle(
+                //                 corn::FontManager::instance().get("segoe-ui"),
+                //                 textStyle.size, corn::Color::GREEN()));
+                // label.setW("50%nw + 100px");
                 label.setRichText(newText);
             });
     label.getEventManager().addListener(

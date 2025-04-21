@@ -1,8 +1,7 @@
+#include "win/custom_text_renderer.h"
 #include "win/font_collection_loader.h"
 #include "win/rich_text_renderer.h"
 #include "win/utils.h"
-
-#include <comdef.h>
 
 namespace corn {
     RichTextRenderer::RichTextRenderer() = default;
@@ -17,8 +16,8 @@ namespace corn {
 
     void RichTextRenderer::setRichText(const RichText& richText) {
         this->createBaseFormat();
-        this->destroyTextLayout();
         this->destroyDrawingEffects();
+        this->destroyTextLayout();
         IDWriteFactory5* factory = getDWriteFactory5();
 
         // Create a text layout
@@ -203,67 +202,35 @@ namespace corn {
         this->bitmapRenderer_.draw(viewID, shader);
     }
 
-    void RichTextRenderer::createRenderTarget() {
-        ID2D1Factory* d2d1Factory = getD2D1Factory();
-
-        // Create the bitmap
-        D2D1_RENDER_TARGET_PROPERTIES rtProps = D2D1::RenderTargetProperties(
-                D2D1_RENDER_TARGET_TYPE_DEFAULT,
-                D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED),
-                0.0f, 0.0f);     // use default DPI
-        d2d1Factory->CreateWicBitmapRenderTarget(
-                this->wicBitmap_,
-                rtProps,
-                &this->renderTarget_);
-
-        // Release resources
-        d2d1Factory->Release();
-    }
-
     void RichTextRenderer::createBitmap(uint16_t& bitmapWidth, uint16_t& bitmapHeight) {
-        this->destroyRenderTarget();
-        this->destroyBitmap();
-        IWICImagingFactory* wicFactory = getWICFactory();
-
         // todo: calculate the bitmap size
         this->offset_.x = this->transform_.getMat()[0][2];
         this->offset_.y = this->transform_.getMat()[1][2];
         bitmapWidth = static_cast<uint16_t>(ceil(this->size_.x));
         bitmapHeight = static_cast<uint16_t>(ceil(this->size_.y));
 
-        // Create the bitmap
-        wicFactory->CreateBitmap(
-                bitmapWidth, bitmapHeight,
-                GUID_WICPixelFormat32bppPBGRA,
-                WICBitmapCacheOnDemand,
-                &this->wicBitmap_);
-        wicFactory->Release();
-        this->createRenderTarget();
+        // Create the bitmap, render target, and the custom renderer
+        IWICBitmap* wicBitmap = createWICBitmap(bitmapWidth, bitmapHeight);
+        ID2D1RenderTarget* renderTarget = createRenderTarget(wicBitmap);
+        auto* renderer = new CustomTextRenderer(renderTarget);
 
         // Begin drawing
-        this->renderTarget_->BeginDraw();
-        this->renderTarget_->Clear(D2D1::ColorF(0.0f, 0.0f, 0.0f, 0.0f));
+        renderTarget->BeginDraw();
+        renderTarget->Clear(D2D1::ColorF(0.0f, 0.0f, 0.0f, 0.0f));
 
         // Draw the text layout
-        // todo: use custom renderer
-        D2D1_POINT_2F origin = D2D1::Point2F(0.0f, 0.0f);
-        ID2D1SolidColorBrush* textBrush;
-        this->renderTarget_->CreateSolidColorBrush(
-                D2D1::ColorF(D2D1::ColorF(1.0f, 0.0f, 0.0f, 1.0f)),
-                &textBrush);
-        this->renderTarget_->DrawTextLayout(
-                origin,
-                this->textLayout_,
-                textBrush,
-                D2D1_DRAW_TEXT_OPTIONS_NONE);
+        for (DrawingEffect* drawingEffect : this->drawingEffects_) {
+            drawingEffect->createBrush(renderTarget);
+        }
+        this->textLayout_->Draw(nullptr, renderer, 0.0f, 0.0f);
 
         // End drawing
-        this->renderTarget_->EndDraw();
+        renderTarget->EndDraw();
 
         // Retrieve the bitmap data
         IWICBitmapLock* lock;
         WICRect rect = { 0, 0, bitmapWidth, bitmapHeight };
-        this->wicBitmap_->Lock(&rect, WICBitmapLockRead, &lock);
+        wicBitmap->Lock(&rect, WICBitmapLockRead, &lock);
         UINT bufferSize = 0;
         BYTE* pixels = nullptr;
         lock->GetDataPointer(&bufferSize, &pixels);
@@ -284,6 +251,11 @@ namespace corn {
                 pixel[2] = static_cast<uint8_t>(std::round(b / a));
             }
         }
+
+        // Release resources
+        renderer->Release();
+        renderTarget->Release();
+        wicBitmap->Release();
     }
 
     void RichTextRenderer::destroyBaseFormat() {
@@ -312,23 +284,9 @@ namespace corn {
 
     void RichTextRenderer::destroyDrawingEffects() {
         for (DrawingEffect* drawingEffect : this->drawingEffects_) {
-            delete drawingEffect;
+            drawingEffect->Release();
         }
         this->drawingEffects_.clear();
-    }
-
-    void RichTextRenderer::destroyBitmap() {
-        if (this->wicBitmap_) {
-            this->wicBitmap_->Release();
-            this->wicBitmap_ = nullptr;
-        }
-    }
-
-    void RichTextRenderer::destroyRenderTarget() {
-        if (this->renderTarget_) {
-            this->renderTarget_->Release();
-            this->renderTarget_ = nullptr;
-        }
     }
 
     void RichTextRenderer::destroyBitmapRenderer() {
