@@ -299,7 +299,7 @@ namespace corn {
      */
     template <typename T, size_t N, size_t M>
     requires(Numeric<T> && N > 0 && M > 0)
-    Vec<T, N + M> operator|(const Vec<T, N>& lhs, const Vec<T, M>& rhs) noexcept {
+    [[nodiscard]] Vec<T, N + M> operator|(const Vec<T, N>& lhs, const Vec<T, M>& rhs) noexcept {
         Vec<T, N + M> result;
         for (size_t i = 0; i < N; i++) {
             result[i] = lhs[i];
@@ -313,14 +313,14 @@ namespace corn {
     /// @return A copy of the vector itself.
     template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
-    Vec<T, N> operator+(const Vec<T, N>& rhs) noexcept {
+    [[nodiscard]] Vec<T, N> operator+(const Vec<T, N>& rhs) noexcept {
         return rhs;
     }
 
     /// @return The additive inverse of the vector.
     template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
-    Vec<T, N> operator-(const Vec<T, N>& rhs) noexcept {
+    [[nodiscard]] Vec<T, N> operator-(const Vec<T, N>& rhs) noexcept {
         Vec<T, N> result;
         for (size_t i = 0; i < N; i++) {
             result[i] = -rhs[i];
@@ -331,7 +331,7 @@ namespace corn {
     /// @return Result of adding lhs and rhs.
     template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
-    Vec<T, N> operator+(const Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
+    [[nodiscard]] Vec<T, N> operator+(const Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
         Vec<T, N> result;
         for (size_t i = 0; i < N; i++) {
             result[i] = lhs[i] + rhs[i];
@@ -342,7 +342,7 @@ namespace corn {
     /// @return Result of subtracting rhs from lhs.
     template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
-    Vec<T, N> operator-(const Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
+    [[nodiscard]] Vec<T, N> operator-(const Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
         Vec<T, N> result;
         for (size_t i = 0; i < N; i++) {
             result[i] = lhs[i] - rhs[i];
@@ -353,7 +353,7 @@ namespace corn {
     /// @return Element-wise multiplication of lhs and rhs.
     template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
-    Vec<T, N> operator*(const Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
+    [[nodiscard]] Vec<T, N> operator*(const Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
         Vec<T, N> result;
         for (size_t i = 0; i < N; i++) {
             result[i] = lhs[i] * rhs[i];
@@ -364,7 +364,7 @@ namespace corn {
     /// @return Result of multiplying a vector and a scalar.
     template <typename T, typename U, size_t N>
     requires(Numeric<T> && N > 0 && std::is_convertible_v<U, T>)
-    Vec<T, N> operator*(const Vec<T, N>& vec, U scalar) noexcept {
+    [[nodiscard]] Vec<T, N> operator*(const Vec<T, N>& vec, U scalar) noexcept {
         Vec<T, N> result;
         for (size_t i = 0; i < N; i++) {
             result[i] = vec[i] * static_cast<T>(scalar);
@@ -375,7 +375,7 @@ namespace corn {
     /// @return Result of multiplying a scalar and a vector.
     template <typename T, typename U, size_t N>
     requires(Numeric<T> && N > 0 && std::is_convertible_v<U, T>)
-    Vec<T, N> operator*(U scalar, const Vec<T, N>& vec) noexcept {
+    [[nodiscard]] Vec<T, N> operator*(U scalar, const Vec<T, N>& vec) noexcept {
         Vec<T, N> result;
         for (size_t i = 0; i < N; i++) {
             result[i] = static_cast<T>(scalar) * vec[i];
@@ -451,25 +451,13 @@ namespace corn {
      */
     template <typename T, size_t N>
     requires(Numeric<T> && N > 0)
-    bool operator==(const Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
+    [[nodiscard]] bool operator==(const Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
         for (size_t i = 0; i < N; i++) {
             if (lhs[i] != rhs[i]) {
                 return false;
             }
         }
         return true;
-    }
-
-    /**
-     * @brief Compare two vectors for inequality.
-     * @param lhs First vector.
-     * @param rhs Second vector.
-     * @return Whether the vectors are not equal.
-     */
-    template <typename T, size_t N>
-    requires(Numeric<T> && N > 0)
-    bool operator!=(const Vec<T, N>& lhs, const Vec<T, N>& rhs) noexcept {
-        return !(lhs == rhs);
     }
 
     /**

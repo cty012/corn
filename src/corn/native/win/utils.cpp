@@ -39,6 +39,30 @@ namespace corn {
         }
     }
 
+    D2D1_MATRIX_3X2_F getD2D1Matrix(const Transform2D& transform) {
+        const Mat3f& mat = transform.getMat();
+        return D2D1_MATRIX_3X2_F {
+            mat[0][0], mat[1][0], mat[0][1], mat[1][1],
+            mat[0][2], mat[1][2],
+        };
+    }
+
+    Vec<int16_t, 4> calcBoundingBox(const Transform2D& transform, const Vec2f& size) {
+        /// Determine the typographic bounds.
+        // Apply transform to the text to find the actual width and height.
+        Vec2f ul = transform.mapPoint(Vec2f(0, size.y));
+        Vec2f ur = transform.mapPoint(size);
+        Vec2f bl = transform.mapPoint(Vec2f::O());
+        Vec2f br = transform.mapPoint(Vec2f(size.x, 0));
+
+        auto minX = static_cast<int16_t>(std::floor(std::fmin(std::fmin(ul.x, ur.x), std::fmin(bl.x, br.x))));
+        auto minY = static_cast<int16_t>(std::floor(std::fmin(std::fmin(ul.y, ur.y), std::fmin(bl.y, br.y))));
+        auto maxX = static_cast<int16_t>(std::ceil(std::fmax(std::fmax(ul.x, ur.x), std::fmax(bl.x, br.x))));
+        auto maxY = static_cast<int16_t>(std::ceil(std::fmax(std::fmax(ul.y, ur.y), std::fmax(bl.y, br.y))));
+
+        return Vec<int16_t, 4>(minX, minY, maxX - minX, maxY - minY);
+    }
+
     IDWriteFactory5* getDWriteFactory5() {
         static IDWriteFactory5* factory = []() {
             IDWriteFactory5* f = nullptr;

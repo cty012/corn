@@ -192,4 +192,22 @@ namespace corn {
      * transformation.
      */
     [[nodiscard]] Transform3D operator*(const Transform3D& lhs, const Transform3D& rhs) noexcept;
+
+    /**
+     * @param lhs The first 2D transformation matrix.
+     * @param rhs The second 2D transformation matrix.
+     * @return Reference to the first transformation matrix after multiplication.
+     *
+     * In-place multiplication of two transformation matrices.
+     */
+    Transform2D& operator*=(Transform2D& lhs, const Transform2D& rhs) noexcept;
+
+    /**
+     * @param lhs The first 3D transformation matrix.
+     * @param rhs The second 3D transformation matrix.
+     * @return Reference to the first transformation matrix after multiplication.
+     *
+     * In-place multiplication of two transformation matrices.
+     */
+    Transform3D& operator*=(Transform3D& lhs, const Transform3D& rhs) noexcept;
 }

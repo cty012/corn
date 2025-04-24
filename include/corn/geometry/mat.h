@@ -425,14 +425,14 @@ namespace corn {
     /// @return A copy of the matrix itself.
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
-    Mat<M, N> operator+(const Mat<M, N>& rhs) noexcept {
+    [[nodiscard]] Mat<M, N> operator+(const Mat<M, N>& rhs) noexcept {
         return rhs;
     }
 
     /// @return The additive inverse of the matrix.
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
-    Mat<M, N> operator-(const Mat<M, N>& rhs) noexcept {
+    [[nodiscard]] Mat<M, N> operator-(const Mat<M, N>& rhs) noexcept {
         Mat<M, N> result;
         for (size_t i = 0; i < M; i++) {
             for (size_t j = 0; j < N; j++) {
@@ -445,7 +445,7 @@ namespace corn {
     /// @return Result of adding lhs and rhs.
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
-    Mat<M, N> operator+(const Mat<M, N>& lhs, const Mat<M, N>& rhs) noexcept {
+    [[nodiscard]] Mat<M, N> operator+(const Mat<M, N>& lhs, const Mat<M, N>& rhs) noexcept {
         Mat<M, N> result;
         for (size_t i = 0; i < M; i++) {
             for (size_t j = 0; j < N; j++) {
@@ -458,7 +458,7 @@ namespace corn {
     /// @return Result of subtracting rhs from lhs.
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
-    Mat<M, N> operator-(const Mat<M, N>& lhs, const Mat<M, N>& rhs) noexcept {
+    [[nodiscard]] Mat<M, N> operator-(const Mat<M, N>& lhs, const Mat<M, N>& rhs) noexcept {
         Mat<M, N> result;
         for (size_t i = 0; i < M; i++) {
             for (size_t j = 0; j < N; j++) {
@@ -471,7 +471,7 @@ namespace corn {
     /// @return Matrix multiplication of lhs and rhs.
     template <size_t M, size_t N, size_t K>
     requires(M > 0 && N > 0 && K > 0)
-    Mat<M, K> operator*(const Mat<M, N>& lhs, const Mat<N, K>& rhs) noexcept {
+    [[nodiscard]] Mat<M, K> operator*(const Mat<M, N>& lhs, const Mat<N, K>& rhs) noexcept {
         Mat<M, K> result;
         for (size_t i = 0; i < M; i++) {
             for (size_t j = 0; j < N; j++) {
@@ -486,7 +486,7 @@ namespace corn {
     /// @return Result of multiplying a matrix and a scalar.
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
-    Mat<M, N> operator*(const Mat<M, N>& mat, float scalar) noexcept {
+    [[nodiscard]] Mat<M, N> operator*(const Mat<M, N>& mat, float scalar) noexcept {
         Mat<M, N> result;
         for (size_t i = 0; i < M; i++) {
             for (size_t j = 0; j < N; j++) {
@@ -499,7 +499,7 @@ namespace corn {
     /// @return Result of multiplying a scalar and a matrix.
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
-    Mat<M, N> operator*(float scalar, const Mat<M, N>& mat) noexcept {
+    [[nodiscard]] Mat<M, N> operator*(float scalar, const Mat<M, N>& mat) noexcept {
         Mat<M, N> result;
         for (size_t i = 0; i < M; i++) {
             for (size_t j = 0; j < N; j++) {
@@ -512,7 +512,7 @@ namespace corn {
     /// @return Result of multiplying a matrix and a vector.
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
-    Vec<float, N> operator*(const Mat<M, N>& mat, const Vec<float, N>& vec) noexcept {
+    [[nodiscard]] Vec<float, N> operator*(const Mat<M, N>& mat, const Vec<float, N>& vec) noexcept {
         Vec<float, N> result;
         for (size_t i = 0; i < M; i++) {
             result[i] = dot(mat[i], vec);
@@ -523,7 +523,7 @@ namespace corn {
     /// @return Result of multiplying a vector and a matrix.
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
-    Vec<float, M> operator*(const Vec<float, M>& vec, const Mat<M, N>& mat) noexcept {
+    [[nodiscard]] Vec<float, M> operator*(const Vec<float, M>& vec, const Mat<M, N>& mat) noexcept {
         Vec<float, M> result;
         for (size_t i = 0; i < M; i++) {
             result += vec[i] * mat[i];
@@ -575,7 +575,7 @@ namespace corn {
      */
     template <size_t M, size_t N>
     requires(M > 0 && N > 0)
-    bool operator==(const Mat<M, N>& lhs, const Mat<M, N>& rhs) noexcept {
+    [[nodiscard]] bool operator==(const Mat<M, N>& lhs, const Mat<M, N>& rhs) noexcept {
         for (size_t i = 0; i < M; i++) {
             for (size_t j = 0; j < N; j++) {
                 if (lhs[i][j] != rhs[i][j]) {
@@ -584,18 +584,6 @@ namespace corn {
             }
         }
         return true;
-    }
-
-    /**
-     * @brief Compare two matrices for inequality.
-     * @param lhs First matrix.
-     * @param rhs Second matrix.
-     * @return Whether the matrices are not equal.
-     */
-    template <size_t M, size_t N>
-    requires(M > 0 && N > 0)
-    bool operator!=(const Mat<M, N>& lhs, const Mat<M, N>& rhs) noexcept {
-        return !(lhs == rhs);
     }
 
     /**

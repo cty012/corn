@@ -219,4 +219,14 @@ namespace corn {
     Transform3D operator*(const Transform3D& lhs, const Transform3D& rhs) noexcept {
         return Transform3D(lhs.getMat() * rhs.getMat());
     }
+
+    Transform2D& operator*=(Transform2D& lhs, const Transform2D& rhs) noexcept {
+        lhs = lhs * rhs;
+        return lhs;
+    }
+
+    Transform2D& operator*=(Transform2D& lhs, const Mat3f& rhs) noexcept {
+        lhs = Transform2D(lhs.getMat() * rhs);
+        return lhs;
+    }
 }

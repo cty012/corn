@@ -11,13 +11,16 @@ namespace corn {
     }
 
     void RichTextRenderer::destroy() {
-        // todo
+        this->destroyBitmapRenderer();
+        this->destroyDrawingEffects();
+        this->destroyTextLayout();
+        this->destroyBaseFormat();
     }
 
     void RichTextRenderer::setRichText(const RichText& richText) {
-        this->createBaseFormat();
         this->destroyDrawingEffects();
         this->destroyTextLayout();
+        this->createBaseFormat();
         IDWriteFactory5* factory = getDWriteFactory5();
 
         // Create a text layout
@@ -202,11 +205,12 @@ namespace corn {
     }
 
     void RichTextRenderer::createBitmap(uint16_t& bitmapWidth, uint16_t& bitmapHeight) {
-        // todo: calculate the bitmap size
-        this->offset_.x = this->transform_.getMat()[0][2];
-        this->offset_.y = this->transform_.getMat()[1][2];
-        bitmapWidth = static_cast<uint16_t>(ceil(this->size_.x));
-        bitmapHeight = static_cast<uint16_t>(ceil(this->size_.y));
+        // Calculate the bitmap size
+        Vec<int16_t, 4> bounds = calcBoundingBox(this->transform_, this->size_);
+        this->offset_.x = bounds[0];
+        this->offset_.y = bounds[1];
+        bitmapWidth = bounds[2];
+        bitmapHeight = bounds[3];
 
         // Create the bitmap, render target, and the custom renderer
         IWICBitmap* wicBitmap = createWICBitmap(bitmapWidth, bitmapHeight);
@@ -217,11 +221,18 @@ namespace corn {
         renderTarget->BeginDraw();
         renderTarget->Clear(D2D1::ColorF(0.0f, 0.0f, 0.0f, 0.0f));
 
+        // Set the transform
+        D2D1_MATRIX_3X2_F transform = getD2D1Matrix(this->transform_);
+        renderTarget->SetTransform(transform * D2D1::Matrix3x2F::Translation(-this->offset_.x, -this->offset_.y));
+
         // Draw the text layout
         for (DrawingEffect* drawingEffect : this->drawingEffects_) {
             drawingEffect->createBrush(renderTarget);
         }
         this->textLayout_->Draw(nullptr, renderer, 0.0f, 0.0f);
+        for (DrawingEffect* drawingEffect : this->drawingEffects_) {
+            drawingEffect->destroyBrush();
+        }
 
         // End drawing
         renderTarget->EndDraw();

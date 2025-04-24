@@ -19,6 +19,7 @@ namespace corn {
         virtual ~DrawingEffect();
 
         void createBrush(ID2D1RenderTarget* renderTarget);
+        void destroyBrush();
 
         // IUnknown methods
         ULONG STDMETHODCALLTYPE AddRef() override;

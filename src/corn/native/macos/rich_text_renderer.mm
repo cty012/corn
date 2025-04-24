@@ -181,11 +181,10 @@ namespace corn {
 
         /// Determine the typographic bounds.
         // Apply transform to the text to find the actual width and height.
-        CGAffineTransform cgTransform = getCGAffineTransform(this->transform_);
-        CGPoint ul = CGPointApplyAffineTransform(CGPointMake(0, this->size_.y), cgTransform);
-        CGPoint ur = CGPointApplyAffineTransform(CGPointMake(this->size_.x, this->size_.y), cgTransform);
-        CGPoint bl = CGPointApplyAffineTransform(CGPointMake(0, 0), cgTransform);
-        CGPoint br = CGPointApplyAffineTransform(CGPointMake(this->size_.x, 0), cgTransform);
+        Vec2f ul = this->transform_.mapPoint(Vec2f(0, this->size_.y));
+        Vec2f ur = this->transform_.mapPoint(this->size_);
+        Vec2f bl = this->transform_.mapPoint(Vec2f::O());
+        Vec2f br = this->transform_.mapPoint(Vec2f(this->size_.x, 0));
 
         // Find the bounding box of the transformed points.
         auto minX = static_cast<int16_t>(std::floor(std::fmin(std::fmin(ul.x, ur.x), std::fmin(bl.x, br.x))));
@@ -212,6 +211,7 @@ namespace corn {
         CGContextTranslateCTM(context, 0, bitmapHeight);
         CGContextScaleCTM(context, 1.0, -1.0);
 
+        CGAffineTransform cgTransform = getCGAffineTransform(this->transform_);
         CGAffineTransform contextCGTransform = CGAffineTransformConcat(
                 CGAffineTransformMake(1, 0, 0, -1, 0, this->size_.y), cgTransform);
 

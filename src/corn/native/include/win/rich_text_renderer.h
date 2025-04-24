@@ -36,7 +36,7 @@ namespace corn {
         void createBaseFormat();
         void createBitmap(uint16_t& bitmapWidth, uint16_t& bitmapHeight);
 
-        // todo: destroyers
+        // Destroyers
         void destroyBaseFormat();
         void destroyTextLayout();
         void destroyDrawingEffects();

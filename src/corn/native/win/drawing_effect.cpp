@@ -42,6 +42,13 @@ namespace corn {
         renderTarget->CreateSolidColorBrush(colorF, &this->brush);
     }
 
+    void DrawingEffect::destroyBrush() {
+        if (this->brush) {
+            this->brush->Release();
+            this->brush = nullptr;
+        }
+    }
+
     ULONG STDMETHODCALLTYPE DrawingEffect::AddRef() {
         return InterlockedIncrement(&this->refCount_);
     }
