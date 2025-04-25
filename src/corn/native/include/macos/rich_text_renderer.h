@@ -5,6 +5,7 @@
 #import <CoreText/CoreText.h>
 #include <bgfx/bgfx.h>
 #include <corn/geometry/transform.h>
+#include <corn/media/rich_text_frame.h>
 #include <corn/util/rich_text.h>
 #include "../../../render/bitmap_renderer.h"
 #include "../../../render/shader.h"
@@ -21,7 +22,7 @@ namespace corn {
 
         void setRichText(const RichText& richText);
 
-        void setMaxWidth(float maxWidth);
+        void setFormat(float maxWidth, WrapStyle wrapStyle, TextAlign textAlign);
 
         [[nodiscard]] const Vec2f& getNaturalSize() const;
 

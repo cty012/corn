@@ -1,3 +1,4 @@
+#include <ranges>
 #include <corn/media/font_manager.h>
 #include "macos/font_family.h"
 
@@ -5,87 +6,106 @@ namespace corn {
     FontManager::FontManager() : fontManagerImpl_(nullptr) {}
 
     FontManager::~FontManager() {
-        this->unloadAll();
+        this->unloadAllFontFamilies();
     }
 
-    bool FontManager::loadFromSystem(const std::string& name, const std::string& nameInSystem) {
+    bool FontManager::loadFontFamilyFromSystem(const std::string& name, const std::string& nameInSystem) {
         if (name.empty()) return false;
-        this->unload(name);
+        this->unloadFontFamily(name);
 
-        // Preload
+        // Create the font family
         FontFamily* fontFamily = FontFamily::createFromSystem(nameInSystem);
         if (!fontFamily) {
             return false;
         }
-        fontFamily->state = FontState::LOADED;
+
+        // Add to the font manager
         this->fontFamilies_[name] = fontFamily;
-        return this->fontFamilies_.contains(name) && this->fontFamilies_[name]->state == FontState::LOADED;
+        return true;
     }
 
-    bool FontManager::loadFromPath(const std::string& name, const std::filesystem::path& path) {
+    bool FontManager::loadFontFamilyFromPath(const std::string& name, const std::filesystem::path& path) {
         if (name.empty()) return false;
-        this->unload(name);
+        this->unloadFontFamily(name);
 
-        // Load the font
+        // Create the font family
         FontFamily* fontFamily = FontFamily::createFromPath(path);
         if (!fontFamily) {
             return false;
         }
-        fontFamily->state = FontState::LOADED;
+
+        // Add to the font manager
         this->fontFamilies_[name] = fontFamily;
         return true;
     }
 
-    bool FontManager::unload(const std::string& name) noexcept {
+    bool FontManager::loadFontFaceFromPath(const std::string& name, const std::filesystem::path& path, const FontVariant& fontVariant) {
         if (!this->fontFamilies_.contains(name)) {
             return false;
         }
+        FontFamily* fontFamily = this->fontFamilies_[name];
+
+        // Add the font face
+        return fontFamily->addFontFace(path, fontVariant);
+    }
+
+    bool FontManager::unloadFontFamily(const std::string& name) {
+        if (!this->fontFamilies_.contains(name)) {
+            return false;
+        }
+
+        // Remove the font family
         delete this->fontFamilies_[name];
         this->fontFamilies_.erase(name);
         if (this->defaultFont_ == name) {
-            this->defaultFont_ = "";
+            this->defaultFont_.clear();
         }
         return true;
     }
 
-    size_t FontManager::unloadAll() noexcept {
+    bool FontManager::unloadFontFace(const std::string& name, const FontVariant& fontVariant) {
+        if (!this->fontFamilies_.contains(name) || fontVariant == FontVariant()) {
+            return false;
+        }
+
+        // Remove the font face
+        return this->fontFamilies_[name]->removeFontFace(fontVariant);
+    }
+
+    size_t FontManager::unloadAllFontFamilies() {
         size_t count = this->fontFamilies_.size();
-        for (auto& [name, font] : this->fontFamilies_) {
-            delete font;
+        for (FontFamily* fontFamily : this->fontFamilies_ | std::views::values) {
+            delete fontFamily;
         }
         this->fontFamilies_.clear();
-        this->defaultFont_ = "";
+        this->defaultFont_.clear();
         return count;
     }
 
     const FontFamily* FontManager::get(const std::string& name) const noexcept {
-        if (!this->fontFamilies_.contains(name) || this->fontFamilies_.at(name)->state != FontState::LOADED) {
-            return nullptr;
+        auto it = this->fontFamilies_.find(name);
+        if (it != this->fontFamilies_.end()) {
+            return it->second;
         }
-        return this->fontFamilies_.at(name);
+        return nullptr;
     }
 
     const FontFamily* FontManager::getDefault() const noexcept {
-        // If default font is set
+        // If the default font is set
         if (!this->defaultFont_.empty()) {
             // Check if it is loaded
-            if (this->fontFamilies_.contains(this->defaultFont_)) {
-                const FontFamily* fontFamily = this->fontFamilies_.at(this->defaultFont_);
-                if (fontFamily->state == FontState::LOADED) {
-                    return fontFamily;
-                }
+            auto it = this->fontFamilies_.find(this->defaultFont_);
+            if (it != this->fontFamilies_.end()) {
+                return it->second;
             }
 
-            // Otherwise remove the default font
-            this->defaultFont_ = "";
+            // Otherwise, remove the default font
+            this->defaultFont_.clear();
         }
 
-        // If default font is not set, find the first loaded font
-        for (auto& [name, fontFamily] : this->fontFamilies_) {
-            if (fontFamily->state == FontState::LOADED) {
-                this->defaultFont_ = name;
-                return fontFamily;
-            }
+        // If the default font is not set, find the first loaded font
+        if (!this->fontFamilies_.empty()) {
+            return this->fontFamilies_.begin()->second;
         }
 
         // If no font is loaded
@@ -93,13 +113,10 @@ namespace corn {
     }
 
     bool FontManager::setDefault(const std::string& name) noexcept {
-        // Check if font is loaded
+        // Check if the font is loaded
         if (this->fontFamilies_.contains(name)) {
-            const FontFamily* fontFamily = this->fontFamilies_.at(name);
-            if (fontFamily->state == FontState::LOADED) {
-                this->defaultFont_ = name;
-                return true;
-            }
+            this->defaultFont_ = name;
+            return true;
         }
 
         return false;

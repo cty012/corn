@@ -1,20 +1,9 @@
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
-#include "macos/font_impl.h"
+#include "macos/font_family.h"
 #include "macos/rich_text_renderer.h"
+#include "macos/utils.h"
 
 namespace corn {
-    static CGAffineTransform getCGAffineTransform(const Transform2D& transform) {
-        const Mat3f& mat = transform.getMat();
-        return {
-            .a = mat[0][0],
-            .b = mat[1][0],
-            .c = mat[0][1],
-            .d = mat[1][1],
-            .tx = mat[0][2],
-            .ty = mat[1][2],
-        };
-    }
-
     RichTextRenderer::RichTextRenderer() = default;
 
     RichTextRenderer::~RichTextRenderer() {
@@ -61,8 +50,8 @@ namespace corn {
             float actualFontSize =
                     segment.style.position == FontPosition::REGULAR ?
                     segment.style.size :
-                    segment.style.size * 0.66f;
-            CTFontRef ctFont = segment.style.font->createCTFont(actualFontSize, segment.style.weight, segment.style.italic);
+                    segment.style.size * 0.6f;
+            CTFontRef ctFont = segment.style.fontFamily->createCTFont(actualFontSize, segment.style.fontVariant);
             CFAttributedStringSetAttribute(this->attrString_, range, kCTFontAttributeName, ctFont);
             CFRelease(ctFont);
 
@@ -81,13 +70,13 @@ namespace corn {
             CFRelease(underlineNumberRef);
 
             // Set the position
-            int32_t positionNumber =
-                    segment.style.position == FontPosition::SUPERSCRIPT ? 1 :
-                    segment.style.position == FontPosition::SUBSCRIPT ? -1 :
-                    0;
-            CFNumberRef positionNumberRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &positionNumber);
-            CFAttributedStringSetAttribute(this->attrString_, range, kCTSuperscriptAttributeName, positionNumberRef);
-            CFRelease(positionNumberRef);
+            float baselineShift =
+                    segment.style.position == FontPosition::SUPERSCRIPT ? 0.4f * segment.style.size :
+                    segment.style.position == FontPosition::SUBSCRIPT ? -0.15f * segment.style.size :
+                    0.0f;
+            CFNumberRef baselineShiftRef = CFNumberCreate(kCFAllocatorDefault, kCFNumberFloat32Type, &baselineShift);
+            CFAttributedStringSetAttribute(this->attrString_, range, kCTBaselineOffsetAttributeName, baselineShiftRef);
+            CFRelease(baselineShiftRef);
 
             // Proceed to the next segment
             start += len;
@@ -108,10 +97,54 @@ namespace corn {
         this->bitmapDirty_ = true;
     }
 
-    void RichTextRenderer::setMaxWidth(float maxWidth) {
+    void RichTextRenderer::setFormat(float maxWidth, WrapStyle wrapStyle, TextAlign textAlign) {
         this->destroyFrame();
+        this->destroyFramesetter();
 
-        // Find the width and height of the text.
+        // Set the wrap style
+        CTLineBreakMode lineBreakMode;
+        switch (wrapStyle) {
+            case WrapStyle::CHARACTER:
+                lineBreakMode = kCTLineBreakByCharWrapping;
+                break;
+            case WrapStyle::WORD:
+            case WrapStyle::NONE:
+                lineBreakMode = kCTLineBreakByWordWrapping;
+                break;
+        }
+
+        // Set the text alignment
+        CTTextAlignment textAlignMode;
+        switch (textAlign) {
+            case TextAlign::LEFT:
+                textAlignMode = kCTTextAlignmentLeft;
+                break;
+            case TextAlign::CENTER:
+                textAlignMode = kCTTextAlignmentCenter;
+                break;
+            case TextAlign::RIGHT:
+                textAlignMode = kCTTextAlignmentRight;
+                break;
+            case TextAlign::JUSTIFIED:
+                textAlignMode = kCTTextAlignmentJustified;
+                break;
+        }
+
+        // Set the paragraph style
+        CTParagraphStyleRef paragraphStyle = CTParagraphStyleCreate(
+                (const CTParagraphStyleSetting[]) {
+                        { kCTParagraphStyleSpecifierLineBreakMode, sizeof(CTLineBreakMode), &lineBreakMode },
+                        { kCTParagraphStyleSpecifierAlignment, sizeof(CTTextAlignment), &textAlignMode },
+                }, 2);
+        CFAttributedStringSetAttribute(
+                this->attrString_, CFRangeMake(0, CFAttributedStringGetLength(this->attrString_)),
+                kCTParagraphStyleAttributeName, paragraphStyle);
+//        CFRelease(paragraphStyle);
+
+        // Framesetter
+        this->framesetter_ = CTFramesetterCreateWithAttributedString(this->attrString_);
+
+        // Find the actual size of the text.
         this->maxWidth_ = maxWidth;
         if (this->maxWidth_ == 0.0f) {
             this->size_ = this->naturalSize_;
@@ -180,21 +213,11 @@ namespace corn {
         }
 
         /// Determine the typographic bounds.
-        // Apply transform to the text to find the actual width and height.
-        Vec2f ul = this->transform_.mapPoint(Vec2f(0, this->size_.y));
-        Vec2f ur = this->transform_.mapPoint(this->size_);
-        Vec2f bl = this->transform_.mapPoint(Vec2f::O());
-        Vec2f br = this->transform_.mapPoint(Vec2f(this->size_.x, 0));
-
-        // Find the bounding box of the transformed points.
-        auto minX = static_cast<int16_t>(std::floor(std::fmin(std::fmin(ul.x, ur.x), std::fmin(bl.x, br.x))));
-        auto minY = static_cast<int16_t>(std::floor(std::fmin(std::fmin(ul.y, ur.y), std::fmin(bl.y, br.y))));
-        auto maxX = static_cast<int16_t>(std::ceil(std::fmax(std::fmax(ul.x, ur.x), std::fmax(bl.x, br.x))));
-        auto maxY = static_cast<int16_t>(std::ceil(std::fmax(std::fmax(ul.y, ur.y), std::fmax(bl.y, br.y))));
-        bitmapWidth = maxX - minX;
-        bitmapHeight = maxY - minY;
-        this->offset_.x = minX;
-        this->offset_.y = minY;
+        Vec<int16_t, 4> bounds = calcBoundingBox(this->transform_, this->size_);
+        this->offset_.x = bounds[0];
+        this->offset_.y = bounds[1];
+        bitmapWidth = bounds[2];
+        bitmapHeight = bounds[3];
 
         /// Create the bitmap.
         // Allocate pixel data (BGRA8).
@@ -216,7 +239,8 @@ namespace corn {
                 CGAffineTransformMake(1, 0, 0, -1, 0, this->size_.y), cgTransform);
 
         // Fit to bitmap
-        contextCGTransform = CGAffineTransformConcat(contextCGTransform, CGAffineTransformMakeTranslation(-minX, -minY));
+        contextCGTransform = CGAffineTransformConcat(
+                contextCGTransform, CGAffineTransformMakeTranslation(-this->offset_.x, -this->offset_.y));
         CGContextConcatCTM(context, contextCGTransform);
 
         // Draw the text.

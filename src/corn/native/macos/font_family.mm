@@ -1,57 +1,62 @@
 #import <Foundation/Foundation.h>
 #include "macos/font_family.h"
+#include "macos/utils.h"
 
 namespace corn {
-    static CGFloat cssWeightToCTFontWeight(float weight) {
-        // CSS font weight vs CTFont weight:
-        // 100: -1.0
-        // 200: -0.8
-        // 300: -0.6
-        // 400: -0.0
-        // 500: 0.23
-        // 600: 0.3
-        // 700: 0.4
-        // 800: 0.56
-        // 900: 0.62
-        if (weight <= 100) {
-            return -1.0f;
-        } else if (weight <= 200) {
-            return -1.0f + 0.2f * (weight - 100) / 100.0f;
-        } else if (weight <= 300) {
-            return -0.8f + 0.2f * (weight - 200) / 100.0f;
-        } else if (weight <= 400) {
-            return -0.6f + 0.6f * (weight - 300) / 100.0f;
-        } else if (weight <= 500) {
-            return 0.0f + 0.23f * (weight - 400) / 100.0f;
-        } else if (weight <= 600) {
-            return 0.23f + 0.07f * (weight - 500) / 100.0f;
-        } else if (weight <= 700) {
-            return 0.3f + 0.10f * (weight - 600) / 100.0f;
-        } else if (weight <= 800) {
-            return 0.4f + 0.16f * (weight - 700) / 100.0f;
-        } else if (weight <= 900) {
-            return 0.56f + 0.06f * (weight - 800) / 100.0f;
-        } else {
-            return 0.62f;  // Cap at 0.62
+    FontFace::FontFace() : cgFont(nullptr) {}
+
+    FontFace::FontFace(const std::filesystem::path& path) {
+        NSString* fontPath = [NSString stringWithUTF8String:path.c_str()];
+        auto fontURL = (__bridge CFURLRef) [NSURL fileURLWithPath:fontPath];
+        CGDataProviderRef dataProvider = CGDataProviderCreateWithURL(fontURL);
+        if (!dataProvider) {
+            return;
         }
-        return 2.0f;
+
+        this->cgFont = CGFontCreateWithDataProvider(dataProvider);
+        CGDataProviderRelease(dataProvider);
     }
 
-    FontFamily::FontFamily() : state(FontState::LOADING), isSystemFont(false), cgFont(nullptr), ctFontDesc(nullptr) {}
+    FontFace::~FontFace() {
+        this->destroy();
+    }
+
+    FontFace::FontFace(FontFace&& other) noexcept {
+        cgFont = other.cgFont;
+        other.cgFont = nullptr;
+    }
+
+    FontFace& FontFace::operator=(FontFace&& other) noexcept {
+        if (this == &other) return *this;
+        this->destroy();
+        cgFont = other.cgFont;
+        other.cgFont = nullptr;
+        return *this;
+    }
+
+    void FontFace::destroy() {
+        if (cgFont) {
+            CGFontRelease(cgFont);
+            cgFont = nullptr;
+        }
+    }
+
+    bool FontFace::isValid() const {
+        return cgFont != nullptr;
+    }
+
+    FontFamily::FontFamily() : systemFontDescriptor(nullptr) {}
 
     FontFamily::~FontFamily() {
         this->destroy();
     }
 
     void FontFamily::destroy() {
-        if (this->cgFont) {
-            CFRelease(this->cgFont);
-            this->cgFont = nullptr;
+        if (this->systemFontDescriptor) {
+            CFRelease(this->systemFontDescriptor);
+            this->systemFontDescriptor = nullptr;
         }
-        if (this->ctFontDesc) {
-            CFRelease(this->ctFontDesc);
-            this->ctFontDesc = nullptr;
-        }
+        this->fontFaces.clear();
     }
 
     FontFamily* FontFamily::createFromSystem(const std::string& name) {
@@ -70,92 +75,120 @@ namespace corn {
         CFRelease(fontName);
 
         // Create the font object
-        auto* font = static_cast<Font*>(malloc(sizeof(Font)));
-        font->isSystemFont = true;
-        font->ctFontDesc = ctFontDesc;
+        auto* font = new FontFamily();
+        font->systemFontDescriptor = ctFontDesc;
         return font;
     }
 
     FontFamily* FontFamily::createFromPath(const std::filesystem::path& path) {
-        NSString* fontPath = [NSString stringWithUTF8String:path.c_str()];
-        auto fontURL = (__bridge CFURLRef) [NSURL fileURLWithPath:fontPath];
-        CGDataProviderRef dataProvider = CGDataProviderCreateWithURL(fontURL);
-        if (!dataProvider) {
+        FontFace fontFace(path);
+        if (!fontFace.isValid()) {
             return nullptr;
         }
-
-        CGFontRef cgFont = CGFontCreateWithDataProvider(dataProvider);
-        CGDataProviderRelease(dataProvider);
-        if (cgFont == nullptr) {
-            return nullptr;
-        }
-
-        auto* font = static_cast<Font*>(malloc(sizeof(Font)));
-        font->isSystemFont = false;
-        font->cgFont = cgFont;
+        auto* font = new FontFamily();
+        font->fontFaces[FontVariant()] = std::move(fontFace);
         return font;
     }
 
-    CTFontRef FontFamily::createCTFont(float size, float weight, bool italic) const {
-        if (this->isSystemFont) {
-            // Font weight
-            CGFloat ctFontWeight = cssWeightToCTFontWeight(weight);
-            CFNumberRef weightNumber = CFNumberCreate(nullptr, kCFNumberCGFloatType, &ctFontWeight);
+    bool FontFamily::addFontFace(const std::filesystem::path& path, const FontVariant& fontVariant) {
+        FontFace fontFace(path);
+        if (!fontFace.isValid()) {
+            return false;
+        }
+        this->fontFaces[fontVariant] = std::move(fontFace);
+        return true;
+    }
 
-            // Font italic
-            CGFloat isItalic = italic ? 1.0f : 0.0f;
-            CFNumberRef isItalicNumber = CFNumberCreate(nullptr, kCFNumberCGFloatType, &isItalic);
+    bool FontFamily::removeFontFace(const corn::FontVariant& fontVariant) {
+        return this->fontFaces.erase(fontVariant);
+    }
 
-            // Set the font family and size
-            CFDictionaryRef traitsDict = CFDictionaryCreate(
-                    nullptr,
-                    (const void*[]) { kCTFontWeightTrait, kCTFontSlantTrait, },
-                    (const void*[]) { weightNumber, isItalicNumber, },
-                    2, nullptr, nullptr);
-            CFDictionaryRef attrDict = CFDictionaryCreate(
-                    nullptr,
-                    (const void*[]) { kCTFontTraitsAttribute },
-                    (const void*[]) { traitsDict },
-                    1, nullptr, nullptr);
-
-            // Create the styled font descriptor
-            CTFontDescriptorRef styledDesc = CTFontDescriptorCreateCopyWithAttributes(this->ctFontDesc, attrDict);
-            CTFontRef styledFont = CTFontCreateWithFontDescriptor(styledDesc, size, nullptr);
-
-            // Release resources
-            CFRelease(styledDesc);
-            CFRelease(attrDict);
-            CFRelease(traitsDict);
-            CFRelease(isItalicNumber);
-            CFRelease(weightNumber);
-
-            return styledFont;
-        } else {
-            CTFontSymbolicTraits traits = 0;
-
-            // Weight
-            if (weight >= 650) {
-                traits |= kCTFontBoldTrait;
-            }
-
-            // Italic
-            if (italic) {
-                traits |= kCTFontItalicTrait;
-            }
-
-            // Create the styled font
-            CTFontRef baseFont = CTFontCreateWithGraphicsFont(this->cgFont, size, nullptr, nullptr);
-            CTFontRef styledFont = CTFontCreateCopyWithSymbolicTraits(
-                    baseFont, size, nullptr, traits, kCTFontBoldTrait | kCTFontItalicTrait);
-
+    CTFontRef FontFamily::createCTFont(float size, const FontVariant& fontVariant) const {
+        // First check if the font variant exists
+        if (this->fontFaces.contains(fontVariant)) {
+            // Create the font with the specified variant
+            CTFontRef styledFont = this->createCTFontWithVariant(size, fontVariant);
             if (styledFont) {
-                // Release resources
-                CFRelease(baseFont);
                 return styledFont;
-            } else {
-                // Fallback to the base font if styled font creation fails
-                return baseFont;
             }
         }
+
+        // Otherwise, Use the system font or synthesize with the base font
+        if (this->systemFontDescriptor) {
+            return this->createCTFontWithSystem(size, fontVariant);
+        } else {
+            return this->createCTFontWithBase(size, FontVariant());
+        }
+    }
+
+    CTFontRef FontFamily::createCTFontWithSystem(float size, const corn::FontVariant& fontVariant) const {
+        // Font weight
+        CGFloat ctFontWeight = cssWeightToCTFontWeight(fontVariant.weight);
+        CFNumberRef weightNumber = CFNumberCreate(nullptr, kCFNumberCGFloatType, &ctFontWeight);
+
+        // Font italic
+        CGFloat isItalic = fontVariant.italic ? 1.0f : 0.0f;
+        CFNumberRef isItalicNumber = CFNumberCreate(nullptr, kCFNumberCGFloatType, &isItalic);
+
+        // Set the font family and size
+        CFDictionaryRef traitsDict = CFDictionaryCreate(
+                nullptr,
+                (const void*[]) { kCTFontWeightTrait, kCTFontSlantTrait, },
+                (const void*[]) { weightNumber, isItalicNumber, },
+                2, nullptr, nullptr);
+        CFDictionaryRef attrDict = CFDictionaryCreate(
+                nullptr,
+                (const void*[]) { kCTFontTraitsAttribute },
+                (const void*[]) { traitsDict },
+                1, nullptr, nullptr);
+
+        // Create the styled font descriptor
+        CTFontDescriptorRef styledDesc = CTFontDescriptorCreateCopyWithAttributes(this->systemFontDescriptor, attrDict);
+        CTFontRef styledFont = CTFontCreateWithFontDescriptor(styledDesc, size, nullptr);
+
+        // Release resources
+        CFRelease(styledDesc);
+        CFRelease(attrDict);
+        CFRelease(traitsDict);
+        CFRelease(isItalicNumber);
+        CFRelease(weightNumber);
+
+        return styledFont;
+    }
+
+    CTFontRef FontFamily::createCTFontWithVariant(float size, const corn::FontVariant& fontVariant) const {
+        const FontFace& fontFace = this->fontFaces.at(fontVariant);
+        return CTFontCreateWithGraphicsFont(fontFace.cgFont, size, nullptr, nullptr);
+    }
+
+    CTFontRef FontFamily::createCTFontWithBase(float size, const FontVariant& fontVariant) const {
+        CTFontSymbolicTraits traits = 0;
+
+        // Weight
+        if (fontVariant.weight >= 650) {
+            traits |= kCTFontBoldTrait;
+        }
+
+        // Italic
+        if (fontVariant.italic) {
+            traits |= kCTFontItalicTrait;
+        }
+
+        // Create the styled font
+        const FontFace& fontFace = this->fontFaces.at(FontVariant());
+        CTFontRef baseFont = CTFontCreateWithGraphicsFont(fontFace.cgFont, size, nullptr, nullptr);
+        CTFontRef styledFont = CTFontCreateCopyWithSymbolicTraits(
+                baseFont, size, nullptr, traits, kCTFontBoldTrait | kCTFontItalicTrait);
+
+        if (styledFont) {
+            // Release resources
+            CFRelease(baseFont);
+            return styledFont;
+        } else {
+            // Fallback to the base font if styled font creation fails
+            return baseFont;
+        }
+
+        return styledFont;
     }
 }

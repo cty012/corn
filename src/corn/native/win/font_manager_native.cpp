@@ -85,10 +85,11 @@ namespace corn {
     }
 
     const FontFamily* FontManager::get(const std::string& name) const noexcept {
-        if (!this->fontFamilies_.contains(name)) {
-            return nullptr;
+        auto it = this->fontFamilies_.find(name);
+        if (it != this->fontFamilies_.end()) {
+            return it->second;
         }
-        return this->fontFamilies_.at(name);
+        return nullptr;
     }
 
     const FontFamily* FontManager::getDefault() const noexcept {
@@ -100,7 +101,7 @@ namespace corn {
                 return it->second;
             }
 
-            // Otherwise remove the default font
+            // Otherwise, remove the default font
             this->defaultFont_.clear();
         }
 
