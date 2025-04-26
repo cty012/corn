@@ -23,8 +23,5 @@ int main() {
     corn::Game game(new MainScene(), config);
     game.run();
 
-    // Release resources
-    corn::FontManager::instance().unload("noto-sans");
-
     return 0;
 }

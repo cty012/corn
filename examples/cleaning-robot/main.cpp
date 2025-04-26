@@ -9,7 +9,7 @@ int main() {
     config.width = 1080;
     config.height = 720;
     config.antialiasing = 4;
-    corn::FontManager::instance().loadFromPath(
+    corn::FontManager::instance().loadFontFamilyFromPath(
             "noto-sans", "resources/fonts/noto-sans/NotoSans-Regular.ttf");
     corn::FontManager::instance().setDefault("noto-sans");
 
@@ -25,9 +25,6 @@ int main() {
     corn::Game game(new GameScene(), config);
     game.setDebugOverlay(true);
     game.run();
-
-    // Release resources
-    corn::FontManager::instance().unload("noto-sans");
 
     return 0;
 }
